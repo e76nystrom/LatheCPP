@@ -42,6 +42,10 @@ x0 - x axis not in sync mod update feed rate
 
 #define jogISR(x) EXTI9_5_IRQHandler(x)
 
+void spIsrStop(void);
+void zIsrStop(void);
+void xIsrStop(void);
+
 extern "C" void encoderISR(void);
 extern "C" void jogISR(void);
 extern "C" void pwmTmrISR(void);
@@ -49,11 +53,8 @@ extern "C" void TIM1_UP_TIM10_IRQHandler(void);
 extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void);
 extern "C" void index1ISR(void);
 extern "C" void index2ISR(void);
-void spIsrStop(void);
 extern "C" void spindleTmrISR(void);
-void zIsrStop(void);
 extern "C" void zTmrISR(void);
-void xIsrStop(void);
 extern "C" void xTmrISR(void);
 extern "C" void spEncISR(void);
 extern "C" void encISR(void);

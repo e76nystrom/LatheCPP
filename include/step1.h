@@ -77,7 +77,7 @@
 #endif
 #ifdef SPINDLE_TIM8
 /* timer 8 trigger 1 */
-#define zTmrSlvEna() Z_TIM->SMCR = (TIM_SMCR_TS_0| \
+#define zTmrSlvEna() Z_TIM->SMCR = (TIM_SMCR_TS_0 | \
 				   TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1)
 #endif
 #define zTmrSlvDis() Z_TIM->SMCR = 0
