@@ -50,7 +50,7 @@ cmpTmr = 9
 intTmr = 11
 intTmrPwm = 0 
 
-encTmr = 7
+encTestTmr = 7
 
 if proc == "STM32F407" or proc == "STM32F446":
     slaveTrig = \
@@ -77,28 +77,29 @@ timers = \
   TmrCfg("zTmr", step1, "uint32_t", step1Pwm, "TIM2", True),
   TmrCfg("xTmr", step2, "uint32_t", step2Pwm, "TIM5", True),
   TmrCfg("spindleTmr", spindleTimer, "uint16_t", spindlePwm, "TIM8_UP_TIM13", None),
-  TmrCfg("step3", step3, "uint16_t", step3Pwm, "TIM4", None),
-  TmrCfg("step4", step4, "uint16_t", step4Pwm, "TIM3", None),
+  TmrCfg("step3Tmr", step3, "uint16_t", step3Pwm, "TIM4", None),
+  TmrCfg("step4Tmr", step4, "uint16_t", step4Pwm, "TIM3", None),
   TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, "TIM8_BRK_TIM12", None),
   TmrCfg("usecTmr", usecTmr, "uint16_t", 0, None, None),
-  TmrCfg("indexTmr", indexTmr, "uint16_t", 0, "TIM1_TRG_COM_TIM11", None),
+  TmrCfg("indexTmr", indexTmr, "uint16_t", 0, "TIM1_TRG_COM_TIM10", None),
   TmrCfg("cmpTmr", cmpTmr, "uint16_t", 0, "TIM1_BRK_TIM9", None),
   TmrCfg("intTmr", intTmr, "uint16_t", 0, "TIM11", None),
-  TmrCfg("encTmr", encTmr, "uint16_t", 0, "TIM7", None),
+  TmrCfg("encTestTmr", encTestTmr, "uint16_t", 0, "TIM7", None),
 )
 
 regList = \
 ( \
   ("ClrIE",  None,  "%s->DIER &= ~TIM_IT_UPDATE"),
   ("SetIE",  None,  "%s->DIER |= TIM_IT_UPDATE"),
-  ("TstIE",  "is",  "((%s->DIER & TIM_IT_UPDATE) != 0)"),
+  ("TstIE",  "is",  "(%s->DIER & TIM_IT_UPDATE) != 0"),
+  ("IF",     "is",  "(%s->SR & TIM_FLAG_UPDATE) != 0"),
   ("ClrIF",  None,  "%s->SR = ~TIM_FLAG_UPDATE"),
   ("Start",  None,  "%s->CR1 |= TIM_CR1_CEN"),
   ("Pulse",  None,  "%s->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN)"),
   ("Stop",   None,  "%s->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN)"),
   ("Scl",    "y",   "%s->PSC = (y)"),
   ("Read",   "i",   "%s->CNT"),
-  ("Clr",    None,  "%s->CNT = 0"),
+  ("CntClr", None,  "%s->CNT = 0"),
   ("Cnt",    "x",   "%s->CNT = (x)"),
   ("Max",    "x",   "%s->ARR = ((x) - 1)"),
   ("Set",    "x",   "%s->ARR = (x)"),
@@ -112,7 +113,7 @@ pwm1List = \
   ("PWMEna",    "b",  "%s->CCER |= TIM_CCER_CC1E"),
   ("PWMDis",    None, "%s->CCER &= ~TIM_CCER_CC1E"),
   ("ReadCCR",   "i",  "%s->CCR1"),
-  ("ReadCCCMR", "is", "%s-CCMR1"),
+  ("ReaddCMR", "is", "%s->CCMR1"),
 )
 
 pwm2List = \
@@ -122,7 +123,7 @@ pwm2List = \
   ("PWMEna",    "b",  "%s->CCER |= TIM_CCER_CC2E"),
   ("PWMDis",    None, "%s->CCER &= ~TIM_CCER_CC2E"),
   ("ReadCCR",   "i",  "%s->CCR2"),
-  ("ReadCCCMR", "is", "%s-CCMR1"),
+  ("ReadCCMR", "is", "%s->CCMR1"),
 )
 
 pwm3List = \
@@ -132,7 +133,7 @@ pwm3List = \
   ("PWMEna",    "b",  "%s->CCER |= TIM_CCER_CC3E"),
   ("PWMDis",    None, "%s->CCER &= ~TIM_CCER_CC3E"),
   ("ReadCCR",   "i",  "%s->CCR3"),
-  ("ReadCCCMR", "is", "%s-CCMR2"),
+  ("ReadCCMR", "is", "%s->CCMR2"),
 )
 
 pwm4List = \
@@ -142,7 +143,7 @@ pwm4List = \
   ("PWMEna",    "b",  "%s->CCER |= TIM_CCER_CC4E"),
   ("PWMDis",    None, "%s->CCER &= ~TIM_CCER_CC4E"),
   ("ReadCCR",   "i",  "%s->CCR4"),
-  ("ReadCCCMR", "is", "%s-CCMR2"),
+  ("ReadCCMR", "is", "%s->CCMR2"),
 )
 
 capList = \
@@ -150,14 +151,14 @@ capList = \
   ("Cap1EnaSet", None, "%s->CCER |= TIM_CCER_CC1E"), \
   ("Cap1SetIE",  None, "%s->DIER |= TIM_DIER_CC1IE"), \
   ("Cap1ClrIE",  None, "%s->DIER &= ~TIM_DIER_CC1IE"), \
-  ("Cap1IF",     "i",  "((%s->SR & TIM_SR_CC1IF) != 0)"), \
+  ("Cap1IF",     "i",  "(%s->SR & TIM_SR_CC1IF) != 0"), \
   ("Cap1ClrIF",  None, "%s->SR &= ~TIM_SR_CC1IF"), \
   ("Cap1",       "i",  "%s->CCR1"), \
 
   ("Cap2EnaSet", None, "%s->CCER |= TIM_CCER_CC2E"), \
   ("Cap2SetIE",  None, "%s->DIER |= TIM_DIER_CC2IE"), \
   ("Cap2ClrIE",  None, "%s->DIER &= ~TIM_DIER_CC2IE"), \
-  ("Cap2IF",     "i",  "((%s->SR & TIM_SR_CC1IF) != 0)"), \
+  ("Cap2IF",     "i",  "(%s->SR & TIM_SR_CC1IF) != 0"), \
   ("Cap2ClrIF",  None, "%s->SR &= ~TIM_SR_CC1IF"), \
   ("Cap2",       "i",  "%s->CCR2"), \
 
@@ -226,6 +227,10 @@ def makeFunc(timer, funcName, arg, body, nameLen=None):
         body = body.replace("%s", timer)
     else:
         body = ""
+    if arg is not None and arg.startswith("i"):
+        body = "(" + body + ")"
+        if CPP:
+            body = "return" + body
     call = "%s%s(%s)" % (name, funcName, argList)
     if nameLen is not None:
         call = call.ljust(nameLen)
@@ -260,16 +265,21 @@ def main():
             f.write(" pwm %d" % (pwm))
         f.write(" */\n\n")
 
+        f.write("#define %s %s\n" % (name.upper().replace("TMR", "_TIMER"), tmr))
+        f.write("#define %s %s\n\n" % (name.upper().replace("TMR", "_TMR"), timer))
+
         if isr != None:
-            f.write("#define %sISR(x) %s_IRQ_Handler\n\n" % (name, isr))
+            f.write("#define %sISR(x) %s_IRQHandler(x)\n\n" % (name, isr))
 
         timerInit(name, tmr, timer)
-        timerStart(name, timer)
+        # timerStart(name, timer)
         timerBDTR(name, tmr, timer)
 
         makeFuncList(timer, regList)
         if pwm != 0:
             f.write("/* pwm %d */\n\n" % (pwm))
+            f.write("#define %s_PWM %d\n\n" % \
+                    (name.upper().replace("TMR", "_TMR"), pwm))
             makeFuncList(timer, pwmList[pwm - 1])
 
         if tmr == cmpTmr:
@@ -278,12 +288,12 @@ def main():
         if slave:
             # print("slave %d spindle %d" % (tmr, spindleTimer))
             for (slv, trig) in slaveTrig:
-                # print("slv %d" % (slv))
+                # print("slvx %d" % (slv))
                 if tmr == slv:
                     for (i, trigTimer) in enumerate(trig):
                         # print("i %d trigTimer %d" % (i, trigTimer))
                         if spindleTimer == trigTimer:
-                            body = "("
+                            body = timer + "->SMCR = ("
                             if (i & 2) != 0:
                                 body += "TIM_SMCR_TS_1 | "
                             if (i & 1) != 0:
@@ -292,6 +302,8 @@ def main():
                             body += "\tTIM_SMCR_SMS_2 | TIM_SMCR_SMS_1)"
                             f.write("/* timer %d trigger %d */\n\n" % (spindleTimer, i))
                             makeFunc(timer, "SlvEna", None, body)
+                            body = timer + "->SMCR = 0"
+                            makeFunc(timer, "SlvDis", None, body)
                             f.write("\n")
                             break
 
