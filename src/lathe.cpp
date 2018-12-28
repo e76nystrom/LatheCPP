@@ -4,26 +4,46 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 #include <math.h>
-#include <stdbool.h>
 #include <limits.h>
+
+#include <stdint.h>
+#include <stdbool.h>
 
 #define ENUM_M_STATES
 #define ENUM_M_COMMANDS
 #include "config.h"
 #include "remvar.h"
+
 #include "serialio.h"
-#include "Xilinx.h"
 #include "spi.h"
 #include "lcd.h"
+
+#include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"
 #define EXT
+
+#else /* defined(INCLUDE) */
+
+#if !defined(EXT)
+#define EXT extern
 #endif
 
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "config.h"
-#include "dbg.h"
+#include "remvar.h"
+
+#define EXT extern
+#define INCLUDE
+
+#endif /* INCLUDE */
 
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
@@ -33,8 +53,6 @@
 typedef uint8_t boolean;
 
 #define XDEV 0
-
-#include "dbgtrk.h"
 
 typedef struct s_spindle
 {
@@ -538,6 +556,15 @@ typedef struct
  };
 } T_PIN_NAME;
 
+#if DBGTRK
+
+#define TRKBUFSIZE (4*64)
+EXT boolean dbgTrk;
+EXT int16_t trkidx;
+EXT int16_t trkbuf[TRKBUFSIZE];
+
+#endif
+
 void delay(unsigned int delay);
 void delayUSec(unsigned short delay);
 extern "C" unsigned int getSP(void);
@@ -700,7 +727,16 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str);
 void testOutputs(int inputTest);
 void pinDisplay(void);
 
+#include "pindef.h"
+#include "timers.h"
+#include "home.h"
+#include "probe.h"
+#include "dbgtrk.h"
+#include "dbg.h"
+
 #if !defined(INCLUDE)
+
+#include "latheX.h"
 
 unsigned int lastRevCount;
 
@@ -738,8 +774,6 @@ void delayUSec(unsigned short delay)
 
 extern SPI_HandleTypeDef hspi2;
 extern I2C_HandleTypeDef hi2c1;
-
-#include "latheX.h"
 
 extern uint32_t uwTick;
 
@@ -1293,9 +1327,9 @@ void spindleInit(P_SPINDLE spa, int dist, int dir)
   spindleTmrCnt(ctr);		/* load counter value */
   spindleTmrSet(ctr);		/* load maximum value */
   spindleTmrCCR(tmrStepWidth);	/* set step pulse width */
-  spindlePWMMode();		/* set pwm mode */
-  SP_TIM->CCER = 0;
-  spindlePWMEna();		/* enable pwm output */
+  spindleTmrPWMMode();		/* set pwm mode */
+  SPINDLE_TMR->CCER = 0;
+  spindleTmrPWMEna();		/* enable pwm output */
   spindleTmrSetIE();		/* enable interrupts */
  }
 }
@@ -1308,13 +1342,13 @@ void spindleStart()
  sp.findSync = 0;		/* set up to sync */
  sp.initSync = 1;		/* to index pulse */
  sp.active = 1;			/* indicate spindle active */
- indexTmrClr();			/* clear index timer */
+ indexTmrCntClr();		/* clear index timer */
  revCounter = 0;		/* and revolution counter */
 
  if (DBG_P)
-  printf("timer %d psc %u arr %u cnt %u\n", SP_TIMER,
-	 (unsigned int) SP_TIM->PSC, (unsigned int) SP_TIM->ARR,
-	 (unsigned int) SP_TIM->CNT);
+  printf("timer %d psc %u arr %u cnt %u\n", SPINDLE_TIMER,
+	 (unsigned int) SPINDLE_TMR->PSC, (unsigned int) SPINDLE_TMR->ARR,
+	 (unsigned int) SPINDLE_TMR->CNT);
 
  spindleTmrStart();		/* start spindle timer */
  putBufStrX("S\n");
@@ -1353,7 +1387,7 @@ void encoderMeasure(void)
  cmpTmr.measure = 1;		/* set measurement flag */
 
  cmpTmrClrIE();			/* disable update interrupts */
- cmpTmrClr();			/* clear counter */
+ cmpTmrCntClr();		/* clear counter */
  cmpTmrSet(0xffff);		/* set count to maximum */
  cmpTmrScl(0);			/* set prescaler */
  cmpTmrCap1EnaSet();		/* enable capture from encoer */
@@ -1399,7 +1433,7 @@ void encoderStart(void)
    printf("encoderStart cycle %d output %d preScale %u\n",
 	  cmpTmr.encCycLen, cmpTmr.intCycLen, cmpTmr.preScale);
   
-  intTmrClr();			/* clear counter */
+  intTmrCntClr();		/* clear counter */
 
   cmpTmr.startDelay = (uint16_t) ((cfgFcy * START_DELAY) / 1000000l - 1);
   intTmrSet(cmpTmr.startDelay);	/* set to initial delay */
@@ -1432,7 +1466,7 @@ void encoderStart(void)
  }
 
  cmpTmrClrIE();			/* disable update interrupts */
- cmpTmrClr();			/* clear counter */
+ cmpTmrCntClr();		/* clear counter */
  cmpTmrSet(0xffff);		/* set count to maximum */
  cmpTmrScl(cmpTmr.preScale - 1); /* set prescaler */
  cmpTmrCap1EnaSet();		/* enable capture from encoer */
@@ -1457,9 +1491,9 @@ void encoderStart(void)
 
 #if 0
  printf("internal timer\n");
- tmrInfo(INT_TIM);
+ tmrInfo(INT_TMR);
  printf("compare timer\n");
- tmrInfo(CMP_TIM);
+ tmrInfo(CMP_TMR);
 #endif
 }
 
@@ -1471,7 +1505,7 @@ void encoderStop(void)
  capTmrEnable = 0;		/* disable capture timer code */
  
  cmpTmrStop();			/* stop timer */
- cmpTmrClr();
+ cmpTmrCntClr();
  cmpTmrClrIE();			/* clear interrupts */
  cmpTmrClrIF();
 
@@ -1487,11 +1521,11 @@ void encoderStop(void)
 
 #if 0
  printf("compare timer\n");
- tmrInfo(CMP_TIM);
+ tmrInfo(CMP_TMR);
 #endif
 
  intTmrStop();			/* stop internal timer */
- intTmrClr();
+ intTmrCntClr();
  intTmrClrIE();
  intTmrClrIF();
 }
@@ -2421,8 +2455,8 @@ void zHwEnable(int ctr)
  zTmrCnt(ctr);
  zTmrSet(ctr);
  zTmrCCR(tmrStepWidth);
- zPWMMode();
- zPWMEna();
+ zTmrPWMMode();
+ zTmrPWMEna();
  zTmrSetIE();
 }
 
@@ -2505,11 +2539,11 @@ void zStart(void)
  {
   printf("zStart trackSpeed %d\n", trackSpeed);
   printf(" CR1 %8x  CNT %8x  ARR %8x  CCR %8x\n",
-	 (unsigned int) (Z_TIM->CR1), (unsigned int) (Z_TIM->CNT),
-	 (unsigned int) (Z_TIM->ARR), (unsigned int) (Z_TIM->Z_CCR));
+	 (unsigned int) (Z_TMR->CR1), (unsigned int) (Z_TMR->CNT),
+	 (unsigned int) (Z_TMR->ARR), (unsigned int) zTmrReadCCR());
   printf("CCMR %8x CCER %8x DIER %8x\n",
-	 (unsigned int) (Z_TIM->Z_CCMR), (unsigned int) (Z_TIM->CCER),
-	 (unsigned int) (Z_TIM->DIER));
+	 (unsigned int) zTmrReadCCMR(), (unsigned int) (Z_TMR->CCER),
+	 (unsigned int) (Z_TMR->DIER));
  }
  dbgZAccelSet();
 }
@@ -2521,8 +2555,8 @@ void zPulse(void)
  zTmrSet(tmrMin);
  zTmrCCR(tmrStepWidth);
  zTmrPulse();
- zPWMMode();
- zPWMEna();
+ zTmrPWMMode();
+ zTmrPWMEna();
  zTmrSetIE();
 }
 
@@ -2536,7 +2570,7 @@ void zStartSlave(void)
  {
   tmrInfo(TIM2);
   newline();
-  tmrInfo(SP_TIM);
+  tmrInfo(SPINDLE_TMR);
  }
 }
 
@@ -3039,8 +3073,8 @@ void xHwEnable(int ctr)
  xTmrCnt(ctr);
  xTmrSet(ctr);
  xTmrCCR(tmrStepWidth);
- xPWMMode();
- xPWMEna();
+ xTmrPWMMode();
+ xTmrPWMEna();
  xTmrSetIE();
 }
 
@@ -3190,11 +3224,11 @@ void xStart(void)
  {
   printf("xStart trackSpeed %d\n", trackSpeed);
   printf(" CR1 %8x  CNT %8x  ARR %8x  CCR %8x\n",
-	 (unsigned int) (X_TIM->CR1), (unsigned int) (X_TIM->CNT),
-	 (unsigned int) (X_TIM->ARR), (unsigned int) (X_TIM->X_CCR));
+	 (unsigned int) (X_TMR->CR1), (unsigned int) (X_TMR->CNT),
+	 (unsigned int) (X_TMR->ARR), (unsigned int) xTmrReadCCR());
   printf("CCMR %8x CCER %8x DIER %8x\n",
-	 (unsigned int) (X_TIM->X_CCMR), (unsigned int) (X_TIM->CCER),
-	 (unsigned int) (X_TIM->DIER));
+	 (unsigned int) xTmrReadCCMR(), (unsigned int) (X_TMR->CCER),
+	 (unsigned int) (X_TMR->DIER));
  }
  dbgXAccelSet();
 }
@@ -3206,8 +3240,8 @@ void xPulse(void)
  xTmrSet(tmrMin);
  xTmrCCR(tmrStepWidth);
  xTmrPulse();
- xPWMMode();
- xPWMEna();
+ xTmrPWMMode();
+ xTmrPWMEna();
  xTmrSetIE();
 }
 
@@ -3460,7 +3494,7 @@ void xInfo(char flag)
  if (flag == 1)
   printf("\n");
  printf("cr1 %2x sr %2x cnt %d cFactor %0.2f curCount %d %d stepsSec %d\n",
-	(unsigned int) X_TIM->CR1, (unsigned int) X_TIM->SR, (int) X_TIM->CNT,
+	(unsigned int) X_TMR->CR1, (unsigned int) X_TMR->SR, (int) X_TMR->CNT,
 	xIsr.cFactor, xIsr.curCount, (int) xTmrMaxRead(),
 	(int) (cfgFcy / xIsr.curCount));
  printf("done %d accel %d decel %d initialStep %d accelStep %d finalStep %d",
@@ -3852,7 +3886,7 @@ void axisCtl(void)
     indexTmrAct = 1;
     indexPeriod = 0;
     indexOverflow = 0;
-    indexTmrClr();
+    indexTmrCntClr();
     indexTmrSetIE();
    }
   }
@@ -5227,28 +5261,32 @@ void TIM3_Init(void)
  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
 
-#ifdef STEP3_PWM1
+//#ifdef STEP3_PWM1
+#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 1)
  printf("pwm 1 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
  {
   Error_Handler();
  }
 #endif
-#ifdef STEP3_PWM2
+//#ifdef STEP3_PWM2
+#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)
  printf("pwm 2 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
  {
   Error_Handler();
  }
 #endif
-#ifdef STEP3_PWM3
+//#ifdef STEP3_PWM3
+#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)
  printf("pwm 3 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
  {
   Error_Handler();
  }
 #endif
-#ifdef STEP3_PWM4
+//#ifdef STEP3_PWM4
+#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)
  printf("pwm 4 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
  {
@@ -5346,28 +5384,32 @@ void TIM8_Init(void)
  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
-#ifdef STEP5_PWM1
+//#ifdef STEP5_PWM1
+#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 1)
  printf("pwm 1 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
  {
   Error_Handler();
  }
 #endif
-#ifdef STEP5_PWM2
+//#ifdef STEP5_PWM2
+#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 2)
  printf("pwm 2 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
  {
   Error_Handler();
  }
 #endif
-#ifdef STEP5_PWM3
+//#ifdef STEP5_PWM3
+#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 3)
  printf("pwm 3 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
  {
   Error_Handler();
  }
 #endif
-#ifdef STEP5_PWM4
+//#ifdef STEP5_PWM4
+#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 4)
  printf("pwm 4 ");
  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
  {
@@ -5878,100 +5920,100 @@ void testOutputs(int flag)
   pre -= 1;
   count -= 1;
   
-#ifdef Z_TIM
+#ifdef Z_TMR
   zTmrInit();
   zTmrCnt(count);
   zTmrSet(count);
   zTmrScl(pre);
   zTmrStart();
   zTmrCCR(count / 2);
-  zPWMMode();
-  zPWMEna();
-  tmrInfo(Z_TIM);
+  zTmrPWMMode();
+  zTmrPWMEna();
+  tmrInfo(Z_TMR);
 #endif
 
-#ifdef X_TIM
+#ifdef X_TMR
   xTmrInit();
   xTmrCnt(count);
   xTmrSet(count);
   xTmrScl(pre);
   xTmrStart();
   xTmrCCR(count / 2);
-  xPWMMode();
-  xPWMEna();
-  tmrInfo(X_TIM);
+  xTmrPWMMode();
+  xTmrPWMEna();
+  tmrInfo(X_TMR);
 #endif
 
-#ifdef STEP2B_TIM
+#ifdef STEP2B_TMR
   step2bTmrInit();
   step2bTmrCnt(count);
   step2bTmrSet(count);
   step2bTmrScl(pre);
   step2bTmrStart();
   step2bTmrCCR(count / 2);
-  step2bPWMMode();
-  step2bPWMEna();
-  tmrInfo(STEP2B_TIM);
+  step2bTmrPWMMode();
+  step2bTmrPWMEna();
+  tmrInfo(STEP2B_TMR);
 #endif
 
-#ifdef STEP3_TIM
+#ifdef STEP3_TMR
   step3TmrInit();
   step3TmrCnt(count);
   step3TmrSet(count);
   step3TmrScl(pre);
   step3TmrStart();
   step3TmrCCR(count / 2);
-  step3PWMMode();
-  step3PWMEna();
-  tmrInfo(STEP3_TIM);
+  step3TmrPWMMode();
+  step3TmrPWMEna();
+  tmrInfo(STEP3_TMR);
 #endif
 
-#ifdef STEP4_TIM
+#ifdef STEP4_TMR
   step4TmrInit();
   step4TmrCnt(count);
   step4TmrSet(count);
   step4TmrScl(pre);
   step4TmrStart();
   step4TmrCCR(count / 2);
-  step4PWMMode();
-  step4PWMEna();
-  tmrInfo(STEP4_TIM);
+  step4TmrPWMMode();
+  step4TmrPWMEna();
+  tmrInfo(STEP4_TMR);
 #endif
 
-#ifdef STEP5_TIM
+#ifdef STEP5_TMR
   step5TmrInit();
   step5TmrCnt(count);
   step5TmrSet(count);
   step5TmrScl(pre);
   step5TmrStart();
   step5TmrCCR(count / 2);
-  step5PWMMode();
-  step5PWMEna();
-  tmrInfo(STEP5_TIM);
+  step5TmrPWMMode();
+  step5TmrPWMEna();
+  tmrInfo(STEP5_TMR);
 #endif
 
-#ifdef SP_TIM
+#ifdef SPINDLE_TMR
   spindleTmrInit();
   spindleTmrCnt(count);
   spindleTmrSet(count);
   spindleTmrScl(pre);
   spindleTmrStart();
   spindleTmrCCR(count / 2);
-  spindlePWMMode();
-  spindlePWMEna();
-  tmrInfo(SP_TIM);
+  spindleTmrPWMMode();
+  spindleTmrPWMEna();
+  tmrInfo(SPINDLE_TMR);
 #endif
 
-#ifdef PWM_TIM
+#ifdef PWM_TMR
   pwmTmrInit();
   pwmTmrCnt(0);
   pwmTmrSet(count);
   pwmTmrScl(pre);
   pwmTmrStart();
   pwmTmrCCR(count / 2);
-  pwmPWMMode();
-  pwmPWMEna();
-  tmrInfo(PWM_TIM);
+  pwmTmrPWMMode();
+  pwmTmrPWMEna();
+  tmrInfo(PWM_TMR);
 #endif
 
 #ifdef PWM_SHARED_INDEX
@@ -5981,9 +6023,9 @@ void testOutputs(int flag)
   indexTmrScl(pre);
   indexTmrStart();
   pwmTmrCCR(count / 2);
-  pwmPWMMode();
-  pwmPWMEna();
-  tmrInfo(IDX_TIM);
+  pwmTmrPWMMode();
+  pwmTmrPWMEna();
+  tmrInfo(INDEX_TMR);
 #endif
  }
  
@@ -6047,25 +6089,25 @@ void testOutputs(int flag)
 
  if (flag & TMR_STOP)
  {
-#ifdef Z_TIM
+#ifdef Z_TMR
   zTmrStop();
 #endif
-#ifdef X_TIM
+#ifdef X_TMR
   xTmrStop();
 #endif
-#ifdef STEP3_TIM
+#ifdef STEP3_TMR
   step3TmrStop();
 #endif
-#ifdef STEP4_TIM
+#ifdef STEP4_TMR
   step4TmrStop();
 #endif
-#ifdef STEP5_TIM
+#ifdef STEP5_TMR
   step5TmrStop();
 #endif
-#ifdef SP_TIM
+#ifdef SPINDLE_TMR
   spindleTmrStop();
 #endif
-#ifdef PWM_TIM
+#ifdef PWM_TMR
   pwmTmrStop();
 #endif
 #ifdef PWM_SHARED_INDEX

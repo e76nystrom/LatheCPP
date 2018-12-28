@@ -66,25 +66,26 @@
 #define STEP4_TIM3		/* step 4 timer 3 */
 #define STEP4_PWM3		/* step 4 pwm 3 */
 
+#define USEC_TMR_TIM6		/* usec timer 6 */
+
+#define ENC_TMR_TIM7		/* encoder timer 7 */
+
 #define SPINDLE_TIM8		/* spindle timer 8 */
 #define SPINDLE_PWM4		/* spindle pwm 4 */
 
-#define PWM_TMR_TIM12		/* pwm timer 12 */
-#define PWM_PWM1		/* pwm pwm 1 */
-
-#define USEC_TMR_TIM6		/* usec timer 6 */
+#define CMP_TMR_TIM9		/* compare timer 9 */
 
 #define INDEX_TMR_TIM10		/* index timer 10 */
-
-#define ENCODER_MULT 1		/* encoder pulse multiplier */
-
-#define CMP_TMR_TIM9		/* compare timer 9 */
 
 #define INT_TMR_TIM11		/* internal timer 11 */
 #define INT_TMR_PWM 0		/* internal timer pwm ena / dis */
 
+#define PWM_TMR_TIM12		/* pwm timer 12 */
+#define PWM_PWM1		/* pwm pwm 1 */
+
+#define ENCODER_MULT 1		/* encoder pulse multiplier */
+
 #define ENC_TEST 0		/* encoder test */
-#define ENC_TMR_TIM7		/* encoder timer 7 */
 
 #define SPI 1
 #define SPIn SPI3

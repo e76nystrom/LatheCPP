@@ -1,7 +1,9 @@
 #if !defined(INCLUDE)
 #include "stm32f4xx_hal.h"
-#include "i2c.h"
+
 #include "lathe.h"
+
+#include "i2c.h"
 #endif
 
 // LCD Address

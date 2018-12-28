@@ -21,70 +21,34 @@ else:
     op = ""
     cl = ""
 
-proc = "STM32F407"
+constants = \
+(\
+ ("auto", "SP_FWD", "1"),
+ ("auto", "SP_REV", "-1"),
+ ("auto", "STEP_WIDTH", "10"),
+)
 
-step1 = 2
-step1Pwm = 3
+condConstants = \
+(\
+ ("spindleTmr == 8",
+  ( \
+    (None, "DIR_SPIN_PORT", "Dir5_GPIO_Port"), \
+    ("uint32_t", "DIR_SPIN_BIT", "Dir5_Pin"))), \
+ ("spindleTmr == 3",
+  ( \
+    (None, "DIR_SPIN_PORT", "Dir3_GPIO_Port"), \
+    ("uint32_t", "DIR_SPIN_BIT", "Dir3_Pin"))), \
+)
 
-step2 = 5
-step2Pwm = 2
-
-step3 = 3
-step3Pwm = 1
-
-step4 = 4
-step4Pwm = 2
-
-spindleTimer = 8
-spindlePwm = 4
-
-pwmTmr = 12
-pwmTmrPwm = 1
-
-usecTmr = 6
-
-indexTmr = 10
-
-cmpTmr = 9
-
-intTmr = 11
-intTmrPwm = 0 
-
-encTestTmr = 7
-
-if proc == "STM32F407" or proc == "STM32F446":
-    slaveTrig = \
-    (\
-     (2, (1, 8, 3, 4)),
-     (3, (1, 2, 5, 4)),
-     (4, (1, 2, 3, 8)),
-     (5, (2, 3, 4, 8)),
-     (1, (5, 2, 3, 4)),
-     (8, (1, 2, 4, 5)),
-    )
-elif proc == "STM32F401":
-    slaveTrig = \
-    (\
-     (2, (1, 0, 3, 4)),
-     (3, (1, 2, 5, 4)),
-     (4, (1, 2, 3, 0)),
-     (5, (2, 3, 4, 0)),
-     (1, (5, 2, 3, 4)),
-    )
-
-timers = \
-( \
-  TmrCfg("zTmr", step1, "uint32_t", step1Pwm, "TIM2", True),
-  TmrCfg("xTmr", step2, "uint32_t", step2Pwm, "TIM5", True),
-  TmrCfg("spindleTmr", spindleTimer, "uint16_t", spindlePwm, "TIM8_UP_TIM13", None),
-  TmrCfg("step3Tmr", step3, "uint16_t", step3Pwm, "TIM4", None),
-  TmrCfg("step4Tmr", step4, "uint16_t", step4Pwm, "TIM3", None),
-  TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, "TIM8_BRK_TIM12", None),
-  TmrCfg("usecTmr", usecTmr, "uint16_t", 0, None, None),
-  TmrCfg("indexTmr", indexTmr, "uint16_t", 0, "TIM1_TRG_COM_TIM10", None),
-  TmrCfg("cmpTmr", cmpTmr, "uint16_t", 0, "TIM1_BRK_TIM9", None),
-  TmrCfg("intTmr", intTmr, "uint16_t", 0, "TIM11", None),
-  TmrCfg("encTestTmr", encTestTmr, "uint16_t", 0, "TIM7", None),
+macros = \
+(\
+ (None, "dirSpinFwd", None, None, "DIR_SPIN_PORT->BSRR = spA.dirFwd"),
+ (None, "dirSpinRev", None, None, "DIR_SPIN_PORT->BSRR = spA.dirRev"),
+ (None, "dirZFwd",    None, None, "DIR_SPIN_PORT->BSRR = zAxis.dirFwd"),
+ (None, "dirZRev",    None, None, "DIR_SPIN_PORT->BSRR = zAxis.dirRev"),
+ (None, "dirXFwd",    None, None, "DIR_SPIN_PORT->BSRR = xAxis.dirFwd"),
+ (None, "dirXRev",    None, None, "DIR_SPIN_PORT->BSRR = xAxis.dirRev"),
+ ("uint32_t", "CALC_STEP_WIDTH", "uint32_t", "x", "(cfgFcy * x) / 1000000l"),
 )
 
 regList = \
@@ -168,6 +132,36 @@ capList = \
 
 pwmList = (pwm1List, pwm2List, pwm3List, pwm4List)
 
+def makeConstant(cons):
+    (type, name, val) = cons
+    if CPP and type is not None:
+        f.write("constexpr %s %s = %s;\n" % (type, name, val))
+    else:
+        f.write("#define %s (%s)\n" % (name, val))
+
+def makeMacro(macro, nameLen=None):
+    (rtnType, funcName, arg, argType, body) = macro
+    if CPP:
+        if rtnType is None:
+            funcType = "inline void"
+        else:
+            funcType = "inline %s" % (rtnType)
+            body = "return(" + body + ")"
+    else:
+        funcType = "#define"
+    argList = ""
+    if arg is not None:
+        if CPP:
+            argList = arg + " " + argType
+        else:
+            argList = arg
+    call = "%s(%s)" % (funcName, argList)
+    if nameLen is not None:
+        pass
+    else:
+        f.write("%s %s %s%s%s\n" % \
+                (funcType, call, op, body, cl))
+
 def timerInit(name, tmr, timer):
     body = (" \\\n\t__HAL_RCC_TIM%d_CLK_ENABLE(); \\\n"
             "\t%s->CR1 |= TIM_CR1_DIR; \\\n"
@@ -175,19 +169,19 @@ def timerInit(name, tmr, timer):
     body = body.replace("%d", str(tmr))
     makeFunc(timer, "Init" , None, body)
     f.write("\n")
-    
+
 def timerStart(name, timer):
     body = (" \\\n\t%s->EGR = TIM_EGR_UG; \\\n"
             "\t%s->CR1 |= TIM_CR1_CEN")
     makeFunc(timer, "Start" , None, body)
     f.write("\n")
-    
+
 def timerBDTR(name, tmr, timer):
     if tmr == 1 or tmr == 8:
         body = "%s->BDTR |= TIM_BDTR_MOE"
         makeFunc(timer, "BDTR" , None, body)
         f.write("\n")
-    
+
 def makeFuncList(timer, lst):
     maxLen = 0
     extra = len(name) + 2
@@ -244,11 +238,52 @@ def makeFunc(timer, funcName, arg, body, nameLen=None):
         f.write("%s %s %s%s%s\n" % \
                 (define, call, op, body, cl))
 
-def main():
+def main(cfg):
     global f
     global name, tmr, argType, pwm, isr, slave
-    
+
     f = open("include/timers.h", "wb")
+    f.write("#ifdef __STM32F4xx_HAL_H\n")
+    f.write("#if !defined(__TIMERS_H)\n")
+    f.write("#define __TIMERS_H\n\n")
+
+    setConfig(cfg)
+
+    maxLen = 0
+    for tmp in cfg:
+        parm = tmp[0]
+        if len(parm) > maxLen:
+            maxLen = len(parm)
+    f.write("/*\n")
+    for tmp in cfg:
+        parm = tmp[0]
+        val = tmp[1]
+        f.write("%s %s\n" % (parm.ljust(maxLen), str(globals()[parm])))
+    f.write("*/\n\n")
+
+    for tmp in cfg:
+        val = tmp[1]
+        if len(tmp) > 2:
+            symbol = tmp[2]
+            f.write("#define %s%s\n" % (symbol, val))
+    f.write("\n")
+
+    triggers()
+
+    for c in constants:
+        makeConstant(c)
+    f.write("\n")
+
+    for (test, constantList) in condConstants:
+        cond = eval(test)
+        if cond:
+            for c in constantList:
+                makeConstant(c)
+            f.write("\n")
+
+    for m in macros:
+        makeMacro(m)
+    f.write("\n")
 
     for t in timers:
         name = t.name
@@ -268,7 +303,7 @@ def main():
         f.write("#define %s %s\n" % (name.upper().replace("TMR", "_TIMER"), tmr))
         f.write("#define %s %s\n\n" % (name.upper().replace("TMR", "_TMR"), timer))
 
-        if isr != None:
+        if isr != None and len(isr) != 0:
             f.write("#define %sISR(x) %s_IRQHandler(x)\n\n" % (name, isr))
 
         timerInit(name, tmr, timer)
@@ -286,13 +321,13 @@ def main():
             makeFuncList(timer, capList)
 
         if slave:
-            # print("slave %d spindle %d" % (tmr, spindleTimer))
+            # print("slave %d spindle %d" % (tmr, spindleTmr))
             for (slv, trig) in slaveTrig:
                 # print("slvx %d" % (slv))
                 if tmr == slv:
                     for (i, trigTimer) in enumerate(trig):
                         # print("i %d trigTimer %d" % (i, trigTimer))
-                        if spindleTimer == trigTimer:
+                        if spindleTmr == trigTimer:
                             body = timer + "->SMCR = ("
                             if (i & 2) != 0:
                                 body += "TIM_SMCR_TS_1 | "
@@ -300,13 +335,181 @@ def main():
                                 body += "TIM_SMCR_TS_0 | "
                             body += "\\\n"
                             body += "\tTIM_SMCR_SMS_2 | TIM_SMCR_SMS_1)"
-                            f.write("/* timer %d trigger %d */\n\n" % (spindleTimer, i))
+                            f.write("/* timer %d trigger %d */\n\n" % (spindleTmr, i))
                             makeFunc(timer, "SlvEna", None, body)
                             body = timer + "->SMCR = 0"
                             makeFunc(timer, "SlvDis", None, body)
                             f.write("\n")
                             break
 
+    f.write("#endif /* __TIMERS_H */\n")
+    f.write("#endif /* __STM32F4xx_HAL_H */\n")
     f.close()
+    
+disc407 = \
+( \
+  ("board",      "disc407"),
+  ("proc",       "STM32F407"),
+  ("step1",      2, "STEP1_TIM"),
+  ("step1Pwm",   3, "STEP1_PWM"),
+  ("step2",      5, "STEP2_TIM"),
+  ("step2Pwm",   2, "STEP2_PWM"),
+  ("step3",      3, "STEP3_TIM"),
+  ("step3Pwm",   1, "STEP3_PWM"),
+  ("step4",      4, "STEP4_TIM"),
+  ("step4Pwm",   2, "STEP4_PWM"),
+  ("usecTmr",    6, "USEC_TMR_TIM"),
+  ("encTestTmr", 7,  "ENC_TMR_TIM"),
+  ("spindleTmr", 8,  "SPINDLE_TMR"),
+  ("spindlePwm", 4,  "SPINDLE_PWM"),
+  ("indexTmr",   10, "INDEX_TMR"),
+  ("intTmr",     11, "INT_TMR"),
+  ("intTmrPwm",  0,  "INT_TMR_PWM"),
+  ("cmpTmr",     9,  "CMP_TMR"),
+  ("pwmTmr",     12, "PWM_TMR"),
+  ("pwmTmrPwm",  1,  "PWM_TMR_PWM"),
+  ("step3Isr",   "TIM4"),
+  ("step4Isr",   "TIM3"),
+  ("spindleIsr", "TIM8_UP_TIM13"),
+  ("indexTmrIsr", "TIM1_TRG_COM_TIM10"),
+  ("usecTmrIsr", None),
+  ("pwmTmrIsr",  "TIM8_BRK_TIM12"),
+)
 
-main()
+core407 = \
+( \
+  ("board",      "core407"),
+  ("proc",       "STM32F407"),
+  ("step1",      2, "STEP1_TIM"),
+  ("step1Pwm",   1, "STEP1_PWM"),
+  ("step2",      5, "STEP2_TIM"),
+  ("step2Pwm",   4, "STEP2_PWM"),
+  ("step2B",     1, "STEP2B_TIM"),
+  ("step2BPwm",  2, "STEP2B_PWM"),
+  ("step3",      4, "STEP3_TIM"),
+  ("step3Pwm",   2, "STEP3_PWM"),
+  ("step4",      3, "STEP4_TIM"),
+  ("step4Pwm",   2, "STEP4_PWM"),
+  ("usecTmr",    6, "USEC_TMR_TIM"),
+  ("encTestTmr", 7,  "ENC_TMR_TIM"),
+  ("spindleTmr", 8,  "SPINDLE_TMR"),
+  ("spindlePwm", 4,  "SPINDLE_PWM"),
+  ("indexTmr",   10, "INDEX_TMR"),
+  ("intTmr",     11, "INT_TMR"),
+  ("intTmrPwm",  0,  "INT_TMR_PWM"),
+  ("cmpTmr",     9,  "CMP_TMR"),
+  ("pwmTmr",     12, "PWM_TMR"),
+  ("pwmTmrPwm",  1,  "PWM_TMR_PWM"),
+  ("step3Isr",   "TIM4"),
+  ("step4Isr",   "TIM3"),
+  ("spindleIsr", "TIM8_UP_TIM13"),
+  ("indexTmrIsr", "TIM1_TRG_COM_TIM10"),
+  ("usecTmrIsr", None),
+  ("pwmTmrIsr",  "TIM8_BRK_TIM12"),
+)
+
+nuc446 = \
+( \
+  ("board",      "nuc446"),
+  ("proc",       "STM32F446"),
+  ("step1",      2, "STEP1_TIM"),
+  ("step1Pwm",   1, "STEP1_PWM"),
+  ("step2",      5, "STEP2_TIM"),
+  ("step2Pwm",   1, "STEP2_PWM"),
+  ("step3",      4, "STEP3_TIM"),
+  ("step3Pwm",   4, "STEP3_PWM"),
+  ("step4",      3, "STEP4_TIM"),
+  ("step4Pwm",   3, "STEP4_PWM"),
+  ("usecTmr",    6, "USEC_TMR_TIM"),
+  ("encTestTmr", 7,  "ENC_TMR_TIM"),
+  ("spindleTmr", 8,  "SPINDLE_TMR"),
+  ("spindlePwm", 3,  "SPINDLE_PWM"),
+  ("indexTmr",   10, "INDEX_TMR"),
+  ("intTmr",     11, "INT_TMR"),
+  ("intTmrPwm",  0,  "INT_TMR_PWM"),
+  ("cmpTmr",     9,  "CMP_TMR"),
+  ("pwmTmr",     12, "PWM_TMR"),
+  ("pwmTmrPwm",  1,  "PWM_TMR_PWM"),
+  ("step3Isr", "TIM4"),
+  ("step4Isr", "TIM3"),
+  ("spindleIsr", "TIM8_UP_TIM13"),
+  ("indexTmrIsr", "TIM1_TRG_COM_TIM10"),
+  ("usecTmrIsr", None),
+  ("pwmTmrIsr", "TIM8_BRK_TIM12"),
+)
+
+nuc401 = \
+( \
+  ("board",      "nuc401"),
+  ("proc",       "STM32F401"),
+  ("step1",      2, "STEP1_TIM"),
+  ("step1Pwm",   1, "STEP1_PWM"),
+  ("step2",      5, "STEP2_TIM"),
+  ("step2Pwm",   1, "STEP2_PWM"),
+  ("step3",      4, "STEP3_TIM"),
+  ("step3Pwm",   4, "STEP3_PWM"),
+  ("step4",      1, "STEP4_TIM"),
+  ("step4Pwm",   1, "STEP4_PWM"),
+  ("usecTmr",    10, "USEC_TMR_TIM"),
+  ("encTestTmr", 0,  "ENC_TMR_TIM"),
+  ("spindleTmr", 3,  "SPINDLE_TMR"),
+  ("spindlePwm", 3,  "SPINDLE_PWM"),
+  ("indexTmr",   10, "INDEX_TMR"),
+  ("intTmr",     11, "INT_TMR"),
+  ("intTmrPwm",  0,  "INT_TMR_PWM"),
+  ("cmpTmr",     9,  "CMP_TMR"),
+  ("pwmTmr",     10, "PWM_TMR"),
+  ("pwmTmrPwm",  1,  "PWM_TMR_PWM"),
+  ("step3Isr",   "TIM4"),
+  ("step4Isr",   "TIM1"),
+  ("spindleIsr", "TIM3"),
+  ("indexTmrIsr", "TIM1_TRG_COM_TIM10"),
+  ("usecTmrIsr", None),
+  ("pwmTmrIsr",  None),
+)
+
+def triggers():
+    global slaveTrig
+    if proc == "STM32F407" or proc == "STM32F446":
+        slaveTrig = \
+        (\
+        (2, (1, 8, 3, 4)),
+        (3, (1, 2, 5, 4)),
+        (4, (1, 2, 3, 8)),
+        (5, (2, 3, 4, 8)),
+        (1, (5, 2, 3, 4)),
+        (8, (1, 2, 4, 5)),
+        )
+    elif proc == "STM32F401":
+        slaveTrig = \
+        (\
+        (2, (1, 0, 3, 4)),
+        (3, (1, 2, 5, 4)),
+        (4, (1, 2, 3, 0)),
+        (5, (2, 3, 4, 0)),
+        (1, (5, 2, 3, 4)),
+        )
+
+def setConfig(cfg):
+    global timers
+    for tmp in cfg:
+        parm = tmp[0]
+        val = tmp[1]
+        globals()[parm] = val
+
+    timers = \
+    ( \
+      TmrCfg("zTmr", step1, "uint32_t", step1Pwm, "TIM2", True),
+      TmrCfg("xTmr", step2, "uint32_t", step2Pwm, "TIM5", True),
+      TmrCfg("step3Tmr", step3, "uint16_t", step3Pwm, step3Isr, None),
+      TmrCfg("step4Tmr", step4, "uint16_t", step4Pwm, step4Isr, None),
+      TmrCfg("spindleTmr", spindleTmr, "uint16_t", spindlePwm, spindleIsr, None),
+      TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, pwmTmrIsr, None),
+      TmrCfg("usecTmr", usecTmr, "uint16_t", 0, usecTmrIsr, None),
+      TmrCfg("indexTmr", indexTmr, "uint16_t", 0, indexTmrIsr, None),
+      TmrCfg("cmpTmr", cmpTmr, "uint16_t", 0, "TIM1_BRK_TIM9", None),
+      TmrCfg("intTmr", intTmr, "uint16_t", 0, None, None),
+      TmrCfg("encTestTmr", encTestTmr, "uint16_t", 0, "TIM7", None),
+    )
+
+main(disc407)

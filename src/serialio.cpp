@@ -143,6 +143,16 @@ inline char chRead()
  return(DBGPORT->DR);
 }
 
+inline uint16_t chRdy1()
+{
+ return((REMPORT->SR & USART_SR_RXNE));
+}
+
+inline char chRead1()
+{
+ return(REMPORT->DR);
+}
+
 #else
 
 #define PUTX(c) while ((DBGPORT->SR & USART_SR_TXE) == 0); DBGPORT->DR = c
@@ -150,14 +160,14 @@ inline char chRead()
 #define chRdy() (DBGPORT->SR & USART_SR_RXNE)
 #define chRead() DBGPORT->DR
 
-#endif
-
-#define SNDHEX(val) sndhex((unsigned char *) &val, sizeof(val))
-
 /* remote port macros */
 
 #define chRdy1() (REMPORT->SR & USART_SR_RXNE)
 #define chRead1() REMPORT->DR
+
+#endif
+
+// #define SNDHEX(val) sndhex((unsigned char *) &val, sizeof(val))
 
 #if DBGMSG
 

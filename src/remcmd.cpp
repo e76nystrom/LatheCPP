@@ -3,17 +3,12 @@
 #include "stm32f4xx_hal.h"
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include "lathe.h"
 
-#include "remvar.h"
 #include "Xilinx.h"
 #if !defined(WIN32)
-#include "config.h"
 #include "serialio.h"
 #include "spi.h"
-#include "lathe.h"
 #include "encoder.h"
 #endif
 #define EXT
@@ -65,10 +60,10 @@ byte_long readval;
 
 #define LOAD(a, b)
 #define putx(a)
-#define SNDHEX(a)
 #define sndhex(a, b)
 #define gethex()
 #define read1(x)
+//#define SNDHEX(a)
 
 char chgmask;
 char zstop;

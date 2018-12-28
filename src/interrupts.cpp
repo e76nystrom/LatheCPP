@@ -1,12 +1,8 @@
 #include "stm32f4xx_hal.h"
 
-#include <math.h>
-
 #include "lathe.h"
+
 #define EXT extern
-#include "remvardef.h"
-#include "ctlbits.h"
-#include "ctlstates.h"
 #include "serialio.h"
 
 /*
@@ -32,7 +28,6 @@ xa - x axis acceleration done
 xd - x axis deceleration done stopping
 x0 - x axis not in sync mod update feed rate
  */
-
 
 /* position encoder isr */
 
@@ -209,7 +204,7 @@ extern "C" void jogISR(void)
   if (jogB2())			/* if encoder b */
    tmp.b3 = 1;			/* save in decode word */
 
-  if (DBGTRK1W1)
+  if constexpr (DBGTRK1W1)
   {
    dbgTrk1W((((decoder[tmp.w] & 0xf) << 4) | (tmp.w & 0xf)));
   }
@@ -312,30 +307,22 @@ extern "C" void index1ISR(void)
 extern "C" void index2ISR(void)
 {
  EXTI->PR = Index2_Pin;		/* clear index 2 interrupt */
-#if 0
- indexTmrStop();
- idxCtr.count = indexTmrRead();	/* read index timer */
- indexTmrClr();			/* reset index timer */
- indexTmrCont();		/* restart counter */
- indexPeriod = idxCtr.period	/* save to period */
- idxCtr.period = 0;		/* clear counter */
-#else
  static T_INDEX_COUNTER idxTmp;
+
  indexTmrStop();
  idxTmp.overflow = idxOverflow; /* copy overflow value */
- idxTmp.count = indexTmrRead();	/* read index timer */
- indexTmrCont();		/* restart counter */
+ idxTmp.count = indexTmrRead(); /* read index timer */
+ indexTmrStart();		/* restart counter */
  if (idxStart != 0)		/* if not the first index interrupt */
  {
   indexPeriod = idxTmp.period - idxStart; /* save to period */
  }
  idxStart = idxTmp.period;	/* set start for next period */
-#endif
 
  if (trackSpeed)		/* if tracking speed */
   updateFeed = 1;		/* set to update the feed */
 
- if (DBGTRK1L0)			/* if debug tracking index period */
+ if constexpr (DBGTRK1L0)	/* if debug tracking index period */
  {
   uint32_t tmp = (uint32_t) indexPeriod;
   tmp /= 10;
@@ -363,7 +350,7 @@ extern "C" void index2ISR(void)
   }
  }
  
- if (DBGTRK1W0)			/* if debug tracking index pulse */
+ if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
  {
   dbgTrk1W(sp.pos);
  }
@@ -371,7 +358,7 @@ extern "C" void index2ISR(void)
 
 void spIsrStop(void)
 {
- spindlePWMDis();		/* stop step pulse */
+ spindleTmrPWMDis();		/* stop step pulse */
  spindleTmrStop();		/* stop timer */
  spindleTmrClrIE();		/* disable interrupt */
  sp.decel = 0;			/* clear flag */
@@ -405,27 +392,26 @@ extern "C" void spindleTmrISR(void)
   }
  }
 
-#if SP_ENC
+ if constexpr (SP_ENC)
  {
   switch (encState)             /* select on state */
   {
   case 0:
-   setABit();
+   aSet();
    break;
   case 1:
-   setBBit();
+   bSet();
    break;
   case 2:
-   clrABit();
+   aClr();
    break;
   case 3:
-   clrBBit();
+   bClr();
    break;
   }
   encState += 1;                /* update state */
   encState &= 0x3;              /* mas in range */
  }
-#endif
  
  char index;
  if (spTestIndex)		/* if testing index pulse */
@@ -472,14 +458,17 @@ extern "C" void spindleTmrISR(void)
  else				/* if not initializing */
  {
 #if 0
-  if ((index != 0)		/* if rising edge */
-  &&  (sp.lastIndex == 0))	/* of index pulse */
+  if constexpr (0)		/* **disabled */
   {
-   indexPeriod = indexTmrRead(); /* read index timer */
-   indexTmrClr();		/* reset index timer */
-   if (DBGTRK1W0)		/* if debug tracking index pulse */
+   if ((index != 0)		/* if rising edge */
+   &&  (sp.lastIndex == 0))	/* of index pulse */
    {
-    dbgTrk1W(sp.pos);
+    indexPeriod = indexTmrRead(); /* read index timer */
+    indexTmrClr();		/* reset index timer */
+    if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
+    {
+     dbgTrk1W(sp.pos);
+    }
    }
   }
 #endif
@@ -591,7 +580,7 @@ extern "C" void spindleTmrISR(void)
   if (sp.cycleCounter >= sp.stepsCycle) /* if cycle counter at limit */
   {
    sp.cycleCounter = 0;		/* reset cycle counter */
-   if (DBGTRK2L0)
+   if constexpr (DBGTRK2L0)
    {
     dbgTrk2L(zIsr.cycleCounter, zTmrRead());
     dbgTrk2L(xIsr.cycleCounter, xTmrRead());
@@ -747,7 +736,7 @@ extern "C" void zTmrISR(void)
    dbgZAccelClr();
    putBufStrIsr("za");
   }
-  if (DBGTRK2L1)
+  if constexpr (DBGTRK2L1)
   {
    if (zMoveCtl.cmd & Z_SYN_START)
    {
@@ -815,7 +804,7 @@ extern "C" void zTmrISR(void)
     {
      zIsr.clocksStep = indexPeriod / zIsr.stepsCycle; /* works with motorSetup */
      zTmrMax(zIsr.clocksStep);	/* set interrupt timer */
-     if (DBGTRK2L3)
+     if constexpr (DBGTRK2L3)
      {
       dbgTrk2L(zIsr.clocksStep, indexPeriod);
      }
@@ -1093,7 +1082,7 @@ extern "C" void cmpTmrISR(void)
 {
  uint16_t captureVal;
  uint16_t delta;
- if (DBG_CMP_TIME)
+ if constexpr (DBG_CMP_TIME)
  {
   dbgCapIsrSet();
  }
@@ -1125,9 +1114,9 @@ extern "C" void cmpTmrISR(void)
 
    cmpTmr.cycleClocks = cycleClocks; /* update clocks in a cycle */
 
-   if (DBG_CMP)
+   if constexpr (DBG_CMP)
    {
-    if (DBGTRK2WL0)
+    if constexpr (DBGTRK2WL0)
     {
      dbgTrk2WL(cmpTmr.encPulse, delta, cycleClocks);
     }
@@ -1141,7 +1130,7 @@ extern "C" void cmpTmrISR(void)
      intTmrStart();		/* start timer */
      cmpTmr.startInt = 0;	/* clear flag */
 
-     if (DBG_INT)
+     if constexpr (DBG_INT)
      {
       dbgCycEndClr();
      }
@@ -1160,24 +1149,24 @@ extern "C" void cmpTmrISR(void)
     }
     else
     {
-     if (DBG_SYNC_COUNT)
+     if constexpr (DBG_SYNC_COUNT)
       cmpTmr.missedStart += 1;	/* count missed start */
     }
 
-    if (DBG_SYNC_COUNT)
+    if constexpr (DBG_SYNC_COUNT)
     {
      cmpTmr.cycleCount += 1;
-     if (DBG_CMP)
+     if constexpr (DBG_CMP)
      {
       toggle(cmpTmr.cycleCount & 1, dbgCycleSet(), dbgCycleClr());
      }
     }
    }
 
-   if (DBG_SYNC_COUNT)
+   if constexpr (DBG_SYNC_COUNT)
    {
     cmpTmr.encCount += 1;	/* count interrupt */
-    if (DBG_CMP)
+    if constexpr (DBG_CMP)
     {
      toggle(cmpTmr.encCount & 1, dbgIntCSet(), dbgIntCClr());
     }
@@ -1185,20 +1174,21 @@ extern "C" void cmpTmrISR(void)
   }
  }
  
-#if 0
- if (cmpTmrIF())		/* if update interrupt */
+ if constexpr (0)		/* **disabled */
  {
-  cmpTmrClrIF();		/* clear interrupt flag */
+  if (cmpTmrIF())		/* if update interrupt */
+  {
+   cmpTmrClrIF();		/* clear interrupt flag */
+  }
+
+  if (cmpTmrCap2IF())		/* if encoder input pulse */
+  {
+   cmpTmrCap2ClrIF();		/* clear interrupt */
+   cmpTmrOCP2Clr();		/* clear over capture flag */
+  }
  }
 
- if (cmpTmrCap2IF())		/* if encoder input pulse */
- {
-  cmpTmrCap2ClrIF();		/* clear interrupt */
-  cmpTmrOCP2Clr();		/* clear over capture flag */
- }
-#endif
-
- if (DBG_CMP_TIME)
+ if constexpr (DBG_CMP_TIME)
  {
   dbgCapIsrClr();
  }
@@ -1221,13 +1211,13 @@ extern "C" void intTmrISR(void)
  {
   intTmrStop();			/* stop timer */
   intTmrSet(cmpTmr.startDelay);	/* set to start value */
-  intTmrClr();			/* clear counter */
+  intTmrCntClr();		/* clear counter */
   cmpTmr.intPulse = cmpTmr.intCycLen; /* initialize counter to cycle len */
   cmpTmr.intClocks = 0;		/* clear clock counter */
   if (cmpTmr.stop == 0)		/* if time to stop */
    cmpTmr.startInt = 1;		/* start on next encoder pulse */
 
-  if (DBG_INT)
+  if constexpr (DBG_INT)
   {
    dbgCycEndSet();
   }
@@ -1247,18 +1237,18 @@ extern "C" void intTmrISR(void)
   dbgXEncClr();
  }
 
- if (DBG_SYNC_COUNT)
+ if constexpr (DBG_SYNC_COUNT)
  {
   cmpTmr.intCount += 1;
-  if (DBG_INT)
+  if constexpr (DBG_INT)
   {
    toggle(cmpTmr.intCount & 1, dbgIntPSet(), dbgIntPClr());
   }
  }
 
- if (DBG_INT)
+ if constexpr (DBG_INT)
  {
-  if (DBGTRK2WL1)
+  if constexpr (DBGTRK2WL1)
   {
    dbgTrk2WL(1000 + cmpTmr.intPulse, ctr, cmpTmr.intClocks);
   }

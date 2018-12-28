@@ -1,15 +1,9 @@
 #if !defined(INCLUDE)
 #include "stm32f4xx_hal.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-
-#include "lathe.h"
 #define ENUM_D_MESSAGE
-#include "remvar.h"
+#include "lathe.h"
+
 #include "serialio.h"
 #include "i2c.h"
 #include "lcd.h"

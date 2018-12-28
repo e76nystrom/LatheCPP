@@ -1,3 +1,7 @@
+#ifdef __STM32F4xx_HAL_H
+#if !defined(__PINDEF_H)
+#define __PINDEF_H
+
 #ifdef Index1_Pin
 inline uint16_t index1() {return((Index1_GPIO_Port->BSRR & Index1_Pin) != 0);}
 inline uint16_t index1Set() {return((Index1_GPIO_Port->BSRR = Index1_Pin) != 0);}
@@ -290,19 +294,19 @@ inline uint16_t zFlagXClr() {return(0);}
 #endif
 
 #ifdef Pin1_Pin
-inline void setASet() {Pin1_GPIO_Port->BSRR = Pin1_Pin;}
-inline void setAClr() {Pin1_GPIO_Port->BSRR = (Pin1_Pin << 16);}
+inline void aSet() {Pin1_GPIO_Port->BSRR = Pin1_Pin;}
+inline void aClr() {Pin1_GPIO_Port->BSRR = (Pin1_Pin << 16);}
 #else
-inline void setASet() {}
-inline void setAClr() {}
+inline void aSet() {}
+inline void aClr() {}
 #endif
 
 #ifdef Pin14_Pin
-inline void setBSet() {Pin14_GPIO_Port->BSRR = Pin14_Pin;}
-inline void setBClr() {Pin14_GPIO_Port->BSRR = (Pin14_Pin << 16);}
+inline void bSet() {Pin14_GPIO_Port->BSRR = Pin14_Pin;}
+inline void bClr() {Pin14_GPIO_Port->BSRR = (Pin14_Pin << 16);}
 #else
-inline void setBSet() {}
-inline void setBClr() {}
+inline void bSet() {}
+inline void bClr() {}
 #endif
 
 #ifdef Pin17_Pin
@@ -313,3 +317,5 @@ inline void syncSet() {}
 inline void syncClr() {}
 #endif
 
+#endif /* __PINDEF_H */
+#endif /* __STM32F4xx_HAL_H */

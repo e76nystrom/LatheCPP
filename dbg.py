@@ -46,8 +46,8 @@ pinList = \
   ("i", "xFlagX", "XFlag", ""), \
   ("i", "zFlagX", "ZFlag", ""), \
 
-  ("o", "setA", "Pin1", ""), \
-  ("o", "setB", "Pin14", ""), \
+  ("o", "a", "Pin1", ""), \
+  ("o", "b", "Pin14", ""), \
   ("o", "sync", "Pin17", ""), \
 
 )
@@ -132,6 +132,9 @@ else:
     clIn = ""
     
 f = open("include/pinDef.h", "wb")
+f.write("#ifdef __STM32F4xx_HAL_H\n")
+f.write("#if !defined(__PINDEF_H)\n")
+f.write("#define __PINDEF_H\n\n")
 
 for (dir, name, pin, comment) in pinList:
     if len(comment) != 0:
@@ -163,10 +166,16 @@ for (dir, name, pin, comment) in pinList:
     else:
         print("invalid dir\n");
 
+f.write("#endif /* __PINDEF_H */\n")
+f.write("#endif /* __STM32F4xx_HAL_H */\n")
 f.close()
 
 f = open("include/dbg.h", "wb")
 f1 = open("include/dbgPin.h", "wb")
+
+f.write("#ifdef __STM32F4xx_HAL_H\n")
+f.write("#if !defined(__DBG_H)\n")
+f.write("#define __DBG_H\n\n")
 
 for pin in dbgPins:
     if CPP:
@@ -174,7 +183,6 @@ for pin in dbgPins:
     else:
         f.write("#define DBG%d 1\n" % (pin))
 f.write("\n")
-f.write("#ifdef __STM32F4xx_HAL_H\n\n")
 
 for pin in dbgPins:
     f.write("#ifdef Dbg%d_Pin\n" % (pin))
@@ -210,7 +218,8 @@ for (name, pin, comment) in dbgList:
     else:
         f.write("%s %sSet()%s\n" % (dout, name, empty))
         f.write("%s %sClr()%s\n\n" % (dout, name, empty))
-f.write("#endif\n")
+f.write("#endif /* __DBG_H */\n")
+f.write("#endif /* __STM32F4xx_HAL_H */\n")
 f.close()
 f1.close()
 
@@ -272,11 +281,6 @@ else:
 f.write("#define DBGTRK 1\n\n")
 
 f.write("#if DBGTRK\n\n")
-
-f.write("%s TRKBUFSIZE%s (4*64)%s\n" % (d0, eq, eol))
-f.write("EXT boolean dbgTrk;\n")
-f.write("EXT int16_t trkidx;\n")
-f.write("EXT int16_t trkbuf[TRKBUFSIZE];\n\n")
 
 for (label, comment) in dbgTrkList:
     define = "%s DBGTRK%s%s %d%s" % (d0, label, eq, label == dbgTrk, eol)

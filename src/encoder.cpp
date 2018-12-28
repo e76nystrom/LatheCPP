@@ -1,11 +1,9 @@
 #if !defined(INCLUDE)
 #include "stm32f4xx_hal.h"
-#include <stdbool.h>
-#include <stdint.h>
+
 #include "lathe.h"
-#include "remvar.h"
+
 #include "lclcmd.h"
-#include "enctmr.h"
 #if !defined(EXT)
 #define EXT
 #endif

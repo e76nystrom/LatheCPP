@@ -1,11 +1,9 @@
 #if !defined(INCLUDE)
 #include "stm32f4xx_hal.h"
-#include <stdio.h>
-#include <stdint.h>          /* For uint16_t definition */
-#include <stdbool.h>         /* For true/false definition */
+
 #include "lathe.h"
+
 #include "Xilinx.h"
-#include "remvar.h"
 #include "serialio.h"
 #define EXT
 #endif

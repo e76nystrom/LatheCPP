@@ -1,13 +1,8 @@
 #if !defined(INCLUDE)
 #include "stm32f4xx_hal.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-
 #include "lathe.h"
-#include "remvar.h"
+
 #include "Xilinx.h"
 #include "serialio.h"
 #include "spi.h"
