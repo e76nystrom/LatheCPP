@@ -173,60 +173,67 @@
  EXT char cfgDro;               /* 0x6d digital readout */
  EXT char cfgLcd;               /* 0x6e lcd display */
  EXT int cfgFcy;                /* 0x6f system clock speed */
+ EXT int cfgSwitch;             /* 0x70 spindle off on switch */
+ EXT int cfgVarSpeed;           /* 0x71 spindle variable speed */
 
 // setup
 
- EXT char setupDone;            /* 0x70 setup done */
+ EXT char setupDone;            /* 0x72 setup done */
 
 // encoder counts per revolution
 
- EXT uint16_t encPerRev;        /* 0x71 spindle encoder counts per revolution */
+ EXT uint16_t encPerRev;        /* 0x73 spindle encoder counts per revolution */
 
 // test encoder setup variables
 
- EXT char encEnable;            /* 0x72 encoder enable flag */
- EXT uint16_t encPreScaler;     /* 0x73 encoder prescaler */
- EXT uint16_t encTimer;         /* 0x74 encoder timer counts */
- EXT int encRunCount;           /* 0x75 encoder run count */
+ EXT char encEnable;            /* 0x74 encoder enable flag */
+ EXT uint16_t encPreScaler;     /* 0x75 encoder prescaler */
+ EXT uint16_t encTimer;         /* 0x76 encoder timer counts */
+ EXT int encRunCount;           /* 0x77 encoder run count */
 
 // test encoder status variables
 
- EXT char encRun;               /* 0x76 encoder running flag */
- EXT int16_t encCounter;        /* 0x77 encoder count in rev */
- EXT int32_t encRevCounter;     /* 0x78 encoder revolution counter */
+ EXT char encRun;               /* 0x78 encoder running flag */
+ EXT int16_t encCounter;        /* 0x79 encoder count in rev */
+ EXT int32_t encRevCounter;     /* 0x7a encoder revolution counter */
 
 // measured spindle speed
 
- EXT int16_t rpm;               /* 0x79 current rpm */
+ EXT int16_t rpm;               /* 0x7b current rpm */
 
 // xilinx frequency variables
 
- EXT int32_t xFrequency;        /* 0x7a xilinx clock frequency */
- EXT int16_t freqMult;          /* 0x7b frequency multiplier */
+ EXT int32_t xFrequency;        /* 0x7c xilinx clock frequency */
+ EXT int16_t freqMult;          /* 0x7d frequency multiplier */
 
 // xilinx configuration register
 
- EXT int16_t xCfgReg;           /* 0x7c xilinx configuration register */
+ EXT int16_t xCfgReg;           /* 0x7e xilinx configuration register */
 
 // sync parameters
 
- EXT uint16_t lSyncCycle;       /* 0x7d sync cycle length */
- EXT uint16_t lSyncOutput;      /* 0x7e sync outputs per cycle */
- EXT uint16_t lSyncPrescaler;   /* 0x7f sync prescaler */
+ EXT uint16_t lSyncCycle;       /* 0x7f sync cycle length */
+ EXT uint16_t lSyncOutput;      /* 0x80 sync outputs per cycle */
+ EXT uint16_t lSyncPrescaler;   /* 0x81 sync prescaler */
 
 // threading variables
 
- EXT int32_t thZStart;          /* 0x80 threading z start */
- EXT int32_t thXStart;          /* 0x81 threading x start */
- EXT float tanThreadAngle;      /* 0x82 tangent of threading angle */
- EXT int16_t xFeed;             /* 0x83 x feed */
- EXT float runoutDistance;      /* 0x84 runout distance */
- EXT float runoutDepth;         /* 0x85 runout depth */
+ EXT int32_t thZStart;          /* 0x82 threading z start */
+ EXT int32_t thXStart;          /* 0x83 threading x start */
+ EXT float tanThreadAngle;      /* 0x84 tangent of threading angle */
+ EXT int16_t xFeed;             /* 0x85 x feed */
+ EXT float runoutDistance;      /* 0x86 runout distance */
+ EXT float runoutDepth;         /* 0x87 runout depth */
 
 // jog debug
 
- EXT char jogDebug;             /* 0x86 jog interrupt debug */
+ EXT char jogDebug;             /* 0x88 jog interrupt debug */
+
+// motor and speed control
+
+ EXT int16_t minSpeed;          /* 0x89 minimum speed for current range */
+ EXT int16_t maxSpeed;          /* 0x8a maximum speed for current range */
 
 // max parameter number
 
- EXT int16_t maxParm;           /* 0x87 maximum parameter */
+ EXT int16_t maxParm;           /* 0x8b maximum parameter */

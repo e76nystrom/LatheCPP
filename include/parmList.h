@@ -175,61 +175,68 @@ enum PARM
  CFG_DRO,                       /* 0x6d digital readout */
  CFG_LCD,                       /* 0x6e lcd display */
  CFG_FCY,                       /* 0x6f system clock speed */
+ CFG_SWITCH,                    /* 0x70 spindle off on switch */
+ CFG_VAR_SPEED,                 /* 0x71 spindle variable speed */
 
 // setup
 
- SETUP_DONE,                    /* 0x70 setup done */
+ SETUP_DONE,                    /* 0x72 setup done */
 
 // encoder counts per revolution
 
- ENC_PER_REV,                   /* 0x71 spindle encoder counts per revolution */
+ ENC_PER_REV,                   /* 0x73 spindle encoder counts per revolution */
 
 // test encoder setup variables
 
- ENC_ENABLE,                    /* 0x72 encoder enable flag */
- ENC_PRE_SCALER,                /* 0x73 encoder prescaler */
- ENC_TIMER,                     /* 0x74 encoder timer counts */
- ENC_RUN_COUNT,                 /* 0x75 encoder run count */
+ ENC_ENABLE,                    /* 0x74 encoder enable flag */
+ ENC_PRE_SCALER,                /* 0x75 encoder prescaler */
+ ENC_TIMER,                     /* 0x76 encoder timer counts */
+ ENC_RUN_COUNT,                 /* 0x77 encoder run count */
 
 // test encoder status variables
 
- ENC_RUN,                       /* 0x76 encoder running flag */
- ENC_COUNTER,                   /* 0x77 encoder count in rev */
- ENC_REV_COUNTER,               /* 0x78 encoder revolution counter */
+ ENC_RUN,                       /* 0x78 encoder running flag */
+ ENC_COUNTER,                   /* 0x79 encoder count in rev */
+ ENC_REV_COUNTER,               /* 0x7a encoder revolution counter */
 
 // measured spindle speed
 
- RPM,                           /* 0x79 current rpm */
+ RPM,                           /* 0x7b current rpm */
 
 // xilinx frequency variables
 
- X_FREQUENCY,                   /* 0x7a xilinx clock frequency */
- FREQ_MULT,                     /* 0x7b frequency multiplier */
+ X_FREQUENCY,                   /* 0x7c xilinx clock frequency */
+ FREQ_MULT,                     /* 0x7d frequency multiplier */
 
 // xilinx configuration register
 
- X_CFG_REG,                     /* 0x7c xilinx configuration register */
+ X_CFG_REG,                     /* 0x7e xilinx configuration register */
 
 // sync parameters
 
- L_SYNC_CYCLE,                  /* 0x7d sync cycle length */
- L_SYNC_OUTPUT,                 /* 0x7e sync outputs per cycle */
- L_SYNC_PRESCALER,              /* 0x7f sync prescaler */
+ L_SYNC_CYCLE,                  /* 0x7f sync cycle length */
+ L_SYNC_OUTPUT,                 /* 0x80 sync outputs per cycle */
+ L_SYNC_PRESCALER,              /* 0x81 sync prescaler */
 
 // threading variables
 
- TH_Z_START,                    /* 0x80 threading z start */
- TH_X_START,                    /* 0x81 threading x start */
- TAN_THREAD_ANGLE,              /* 0x82 tangent of threading angle */
- X_FEED,                        /* 0x83 x feed */
- RUNOUT_DISTANCE,               /* 0x84 runout distance */
- RUNOUT_DEPTH,                  /* 0x85 runout depth */
+ TH_Z_START,                    /* 0x82 threading z start */
+ TH_X_START,                    /* 0x83 threading x start */
+ TAN_THREAD_ANGLE,              /* 0x84 tangent of threading angle */
+ X_FEED,                        /* 0x85 x feed */
+ RUNOUT_DISTANCE,               /* 0x86 runout distance */
+ RUNOUT_DEPTH,                  /* 0x87 runout depth */
 
 // jog debug
 
- JOG_DEBUG,                     /* 0x86 jog interrupt debug */
+ JOG_DEBUG,                     /* 0x88 jog interrupt debug */
+
+// motor and speed control
+
+ MIN_SPEED,                     /* 0x89 minimum speed for current range */
+ MAX_SPEED,                     /* 0x8a maximum speed for current range */
 
 // max parameter number
 
- MAX_PARM,                      /* 0x87 maximum parameter */
+ MAX_PARM,                      /* 0x8b maximum parameter */
 };

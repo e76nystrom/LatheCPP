@@ -417,7 +417,7 @@ void remcmd(void)
   {
    if (indexPeriod != 0)
    {
-    sprintf(buf, "%1.0f ", ((float) idxFreq / (uint32_t) indexPeriod) * 60);
+    sprintf(buf, "%1.0f ", ((float) indexFreq / (uint32_t) indexPeriod) * 60);
     putstrrem(buf);
    }
    else

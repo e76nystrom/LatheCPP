@@ -82,12 +82,12 @@ inline void usecTmrSet(uint16_t x)
 
 inline uint16_t usecTmrRead()
 {
- return(IDX_TIM->CNT);
+ return(INDEX_TIM->CNT);
 }
 
 #else
 
-#define usecTmrRead()  IDX_TIM->CNT
+#define usecTmrRead()  INDEX_TIM->CNT
 
 #endif
 #endif

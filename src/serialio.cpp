@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "main.h"
 #include "config.h"
 #include "dbg.h"
 
@@ -1120,9 +1121,8 @@ void putBufCharX(char ch)
 
 int pollBufChar(void)
 {
-#if WD_ENA
- IWDG->KR = 0xAAAA;		/* update hardware watchdog */
-#endif
+ if (WD_ENA)
+  IWDG->KR = 0xAAAA;		/* update hardware watchdog */
 
  if (setupDone)
   wdUpdate();

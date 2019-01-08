@@ -54,9 +54,9 @@
 #ifdef SPINDLE_PWM1
 /* channel 1 */
 #define spindleTmrCCR(x) SP_TIM->CCR1 = ((x) - 1)
-#define spindlePWMMode() SP_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define spindlePWMEna() spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC1E
-#define spindlePWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC1E
+#define spindleTmrPWMMode() SP_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define spindleTmrPWMEna() spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC1E
+#define spindleTmrPWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC1E
 #ifdef SPINDLE_TIM3
 #define STEP3_PWM1
 #endif
@@ -68,9 +68,9 @@
 #ifdef SPINDLE_PWM2
 /* channel 2 */
 #define spindleTmrCCR(x) SP_TIM->CCR2 = ((x) - 1)
-#define spindlePWMMode() SP_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
-#define spindlePWMEna()  spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC2E
-#define spindlePWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC2E
+#define spindleTmrPWMMode() SP_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
+#define spindleTmrPWMEna()  spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC2E
+#define spindleTmrPWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC2E
 #ifdef SPINDLE_TIM3
 #define STEP3_PWM2
 #endif
@@ -82,9 +82,9 @@
 #ifdef SPINDLE_PWM3
 /* channel 3 */
 #define spindleTmrCCR(x) SP_TIM->CCR3 = ((x) - 1)
-#define spindlePWMMode() SP_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
-#define spindlePWMEna()  spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC3E
-#define spindlePWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC3E
+#define spindleTmrPWMMode() SP_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
+#define spindleTmrPWMEna()  spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC3E
+#define spindleTmrPWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC3E
 #ifdef SPINDLE_TIM3
 #define STEP3_PWM3
 #endif
@@ -96,9 +96,9 @@
 #ifdef SPINDLE_PWM4
 /* channel 4 */
 #define spindleTmrCCR(x) SP_TIM->CCR4 = ((x) - 1)
-#define spindlePWMMode() SP_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define spindlePWMEna()  spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC4E
-#define spindlePWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC4E
+#define spindleTmrPWMMode() SP_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
+#define spindleTmrPWMEna()  spindleTmrBDTR(); SP_TIM->CCER |= TIM_CCER_CC4E
+#define spindleTmrPWMDis()  SP_TIM->CCER &= ~TIM_CCER_CC4E
 #ifdef SPINDLE_TIM3
 #define STEP3_PWM4
 #endif
@@ -109,9 +109,9 @@
 
 #ifdef SPINDLE_NOPWM
 #define spindleTmrCCR(x)
-#define spindlePWMMode()
-#define spindlePWMEna()
-#define spindlePWMDis()
+#define spindleTmrPWMMode()
+#define spindleTmrPWMEna()
+#define spindleTmrPWMDis()
 #endif
 
 #endif /* SP_TIM */

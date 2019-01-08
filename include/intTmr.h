@@ -45,7 +45,7 @@ void intTmrISR(void);
 #define intTmrScl(x)  INT_TIM->PSC = (x)
 #define intTmrRead()  INT_TIM->CNT
 #define intTmrCnt(x)  INT_TIM->CNT = (x)
-#define intTmrClr()   INT_TIM->CNT = 0
+#define intTmrCntClr() INT_TIM->CNT = 0
 #define intTmrMax(x)  INT_TIM->ARR = (x - 1)
 #define intTmrSet(x)  INT_TIM->ARR = (x)
 #define intTmrMaxRead() INT_TIM->ARR
@@ -55,19 +55,19 @@ void intTmrISR(void);
 #ifdef INT_TIM_PWM1
 /* channel 1 */
 #define intTmrCCR(x) INT_TIM->CCR1 = (x)
-#define intTmrPWMMode() INT_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define intTmrPWMEna()  intTmrBDTR(); \
+#define intTmrTmrPWMMode() INT_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define intTmrTmrPWMEna()  intTmrBDTR(); \
  INT_TIM->CCER |= TIM_CCER_CC1E
-#define intTmrPWMDis()  INT_TIM->CCER &= ~TIM_CCER_CC1E
+#define intTmrTmrPWMDis()  INT_TIM->CCER &= ~TIM_CCER_CC1E
 #endif
 
 #ifdef INT_TIM_PWM4
 /* channel 4 */
 #define intTmrCCR(x) INT_TIM->CCR4 = (x)
-#define intTmrPWMMode() INT_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define intTmrPWMEna()  intTmrBDTR(); \
+#define intTmrTmrPWMMode() INT_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
+#define intTmrTmrPWMEna()  intTmrBDTR(); \
  INT_TIM->CCER |= TIM_CCER_CC4E
-#define intTmrPWMDis()  INT_TIM->CCER &= ~TIM_CCER_CC4E
+#define intTmrTmrPWMDis()  INT_TIM->CCER &= ~TIM_CCER_CC4E
 #endif
 
 #endif

@@ -12,6 +12,7 @@
 
 #define ENUM_M_STATES
 #define ENUM_M_COMMANDS
+#include "main.h"
 #include "config.h"
 #include "remvar.h"
 
@@ -337,9 +338,6 @@ EXT int wdState;		/* watchdog state */
 #define WD_INTERVAL 50		/* interval between watchdog pulses */
 #define WD_PULSE 2		/* watchdog pulse width */
 
-EXT int indexTmrAct;		/* index timer active */
-EXT unsigned int indexTimeout;
-
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
 EXT int16_t encState;		/* state of encoder */
@@ -532,10 +530,15 @@ typedef struct
  };
 } T_INDEX_COUNTER;
 
-EXT uint16_t idxOverflow;	/* index counter overflow */
-EXT uint32_t idxStart;		/* index period start count */
-EXT uint32_t idxTrkFreq;	/* freq for dbgTrk rpm calculation */
-EXT uint32_t idxFreq;		/* freq for remcmd rpm calculation */
+EXT int indexTmrPreScale;	/* index timer prescaler */
+EXT int indexTmrCount;		/* index timer count */
+EXT int indexTmrAct;		/* index timer active */
+EXT unsigned int indexTimeout;
+
+EXT uint16_t indexOverflow;	/* index counter overflow */
+EXT uint32_t indexStart;	/* index period start count */
+EXT uint32_t indexTrkFreq;	/* freq for dbgTrk rpm calculation */
+EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
 
 EXT int lcdRow;
 EXT int lcdActive;
@@ -727,6 +730,7 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str);
 void testOutputs(int inputTest);
 void pinDisplay(void);
 
+#include "main.h"
 #include "pindef.h"
 #include "timers.h"
 #include "home.h"
@@ -746,9 +750,8 @@ void delay(unsigned int delay)
  unsigned int start = millis();
  while ((millis() - start) < delay)
  {
-#if WD_ENA
-  IWDG->KR = 0xAAAA;		/* update hardware watchdog */
-#endif
+  if (WD_ENA)
+   IWDG->KR = 0xAAAA;		/* update hardware watchdog */
  }
 }
 
@@ -765,9 +768,8 @@ void delayUSec(unsigned short delay)
   if ((tmp - usec) > 20)	/* if 20 usec passed */
   {
    usec = tmp;			/* reset timer */
-#if WD_ENA
-   IWDG->KR = 0xAAAA;		/* update hardware watchdog */
-#endif
+   if (WD_ENA)
+    IWDG->KR = 0xAAAA;		/* update hardware watchdog */
   }
  }
 }
@@ -1110,66 +1112,104 @@ void spindleSetup(int rpm)
  xSyncInit = 0;
  if (DBG_SETUP)
  {
-  printf("\nspindleSetup\n");
+  printf("\nspindleSetup %d\n", rpm);
 
   if (stepperDrive)
   {
    printf("threading uses stepper timer\n");
   }
-  else if (spindleEncoder)
+  else
   {
-   if (spindleSync)
+   if (cfgVarSpeed)		/* if var speed */
    {
-    if (spindleSyncBoard)
-    {
-     printf("threading uses sync board\n");
-     zSyncInit = SYNC_ACTIVE_EXT;
-     if (useEncoder)
-     {
-      printf("runout uses encoder\n");
-      xSyncInit = SYNC_ACTIVE_ENC;
-     }
-     else
-     {
-      printf("runout uses local sync\n");
-      xSyncInit = SYNC_ACTIVE_TMR;
-      printf("enable capture timer\n");
-     }
+    if constexpr (PWM_TIMER != INDEX_TIMER)
+    { 
+     constexpr int PWM_FREQ = 100;
+     constexpr int MAX_COUNT = 65536;
+
+     int cnt = cfgFcy / PWM_FREQ;
+     int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
+     cnt /= preScale;
+     int pwmTmrVal = cnt;
+     cnt -= 1;
+    
+     int pwm = (rpm * pwmTmrVal) / maxSpeed;
+
+     printf("PWM_FREQ %d preScale %d cnt %d\n", PWM_FREQ, preScale, pwmTmrVal);
+     printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
+
+     pwmTmrInit();
+     pwmTmrScl(preScale - 1);
+     pwmTmrCntClr();
+     pwmTmrSet(cnt);
+     pwmTmrStart();
+     pwmTmrCCR(pwm - 1);
+     pwmTmrPWMMode();
     }
-    else			/* not SYNC_BOARD */
+    else
     {
-     if (useEncoder)
-     {
-      printf("threading uses encoder\n");
-      zSyncInit = SYNC_ACTIVE_ENC;
-      printf("runout uses encoder\n");
-      xSyncInit = SYNC_ACTIVE_ENC;
-     }
-     else
-     {
-      printf("threading uses local sync\n");
-      zSyncInit = SYNC_ACTIVE_TMR;
-      printf("enable capture timer\n");
-      printf("runout uses encoder\n");
-      xSyncInit = SYNC_ACTIVE_ENC;
-     }
+     int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
+    
+     pwmTmrCCR(pwm - 1);
+     pwmTmrPWMMode();
     }
    }
-   else				/* not SYNC */
+   
+   if (spindleEncoder)
    {
-    printf("threading uses encoder\n");
-    zSyncInit = SYNC_ACTIVE_ENC;
-    printf("runout uses encoder\n");
-    xSyncInit = SYNC_ACTIVE_ENC;
+    if (spindleSync)
+    {
+     if (spindleSyncBoard)
+     {
+      printf("threading uses sync board\n");
+      zSyncInit = SYNC_ACTIVE_EXT;
+      if (useEncoder)
+      {
+       printf("runout uses encoder\n");
+       xSyncInit = SYNC_ACTIVE_ENC;
+      }
+      else
+      {
+       printf("runout uses local sync\n");
+       xSyncInit = SYNC_ACTIVE_TMR;
+       printf("enable capture timer\n");
+      }
+     }
+     else			/* not SYNC_BOARD */
+     {
+      if (useEncoder)
+      {
+       printf("threading uses encoder\n");
+       zSyncInit = SYNC_ACTIVE_ENC;
+       printf("runout uses encoder\n");
+       xSyncInit = SYNC_ACTIVE_ENC;
+      }
+      else
+      {
+       printf("threading uses local sync\n");
+       zSyncInit = SYNC_ACTIVE_TMR;
+       printf("enable capture timer\n");
+       printf("runout uses encoder\n");
+       xSyncInit = SYNC_ACTIVE_ENC;
+      }
+     }
+    }
+    else				/* not SYNC */
+    {
+     printf("threading uses encoder\n");
+     zSyncInit = SYNC_ACTIVE_ENC;
+     printf("runout uses encoder\n");
+     xSyncInit = SYNC_ACTIVE_ENC;
+    }
    }
+   else				/* not SPINDLE_ENCODER */
+   {
+    printf("threading disabled\n");
+   }
+   encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
+   printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
+	  zSyncInit, xSyncInit, encoderDirect);
   }
-  else				/* not SPINDLE_ENCODER */
-  {
-   printf("threading disabled\n");
-  }
-  encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
-  printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
-	 zSyncInit, xSyncInit, encoderDirect);
  }
  
  if (sp.active == 0)		/* if spindle not active */
@@ -1345,20 +1385,34 @@ void spindleStart()
  indexTmrCntClr();		/* clear index timer */
  revCounter = 0;		/* and revolution counter */
 
- if (DBG_P)
-  printf("timer %d psc %u arr %u cnt %u\n", SPINDLE_TIMER,
-	 (unsigned int) SPINDLE_TMR->PSC, (unsigned int) SPINDLE_TMR->ARR,
-	 (unsigned int) SPINDLE_TMR->CNT);
-
- spindleTmrStart();		/* start spindle timer */
- putBufStrX("S\n");
- dbgSpStopSet();
-
- if (motorTest)			/* if testing motor */
+ if (stepperDrive)
  {
-  cmpTmr.encCycLen = 5;
-  cmpTmr.intCycLen = 4;
-  encoderStart();		/* start encoder */
+  if (DBG_P)
+   printf("timer %d psc %u arr %u cnt %u\n", SPINDLE_TIMER,
+	  (unsigned int) SPINDLE_TMR->PSC, (unsigned int) SPINDLE_TMR->ARR,
+	  (unsigned int) SPINDLE_TMR->CNT);
+
+  spindleTmrStart();		/* start spindle timer */
+  putBufStrX("S\n");
+  dbgSpStopSet();
+
+  if (motorTest)		/* if testing motor */
+  {
+   cmpTmr.encCycLen = 5;
+   cmpTmr.intCycLen = 4;
+   encoderStart();		/* start encoder */
+  }
+ }
+ else
+ {
+  if (cfgSwitch)		/* if spindle switched */
+  {
+   spRunSet();			/* turn on spindle */
+  }
+  if (cfgVarSpeed)		/* if var speed */
+  {
+   pwmTmrPWMEna();		/* start pwm */
+  }
  }
 }
 
@@ -1732,10 +1786,28 @@ void spindleStop(void)
  if (DBG_SETUP)
   printf("\nspindle stop\n");
 
- sp.accel = 0;			/* clear acceleration flag */
- sp.decel = 1;			/* set deceleration flag to stop */
- dbgSpStopSet();
- encoderStop();
+ if (stepperDrive)
+ {
+  sp.accel = 0;			/* clear acceleration flag */
+  sp.decel = 1;			/* set deceleration flag to stop */
+  dbgSpStopSet();
+  encoderStop();
+ }
+ else
+ {
+  if (cfgSwitch)		/* if switched spindle */
+  {
+   spRunClr();
+  }
+  if (cfgVarSpeed)		/* if variable speed */
+  {
+   if constexpr (PWM_TIMER != USEC_TIMER)
+   { 
+    pwmTmrStop();		/* stop timer */
+   }
+   pwmTmrPWMDis();		/* disable pwm */
+  }
+ }
 }
 
 float stepTime(float cFactor, int step)
@@ -3833,7 +3905,7 @@ void axisCtl(void)
   if (indexPeriod != 0)
   {
    indexPeriod = 0;		/* set index period to zero */
-   idxStart = 0;		/* reset start time */
+   indexStart = 0;		/* reset start time */
    revCounter = 0;
    printf("mainLoop clear indexPeriod\n");
   }
@@ -5262,37 +5334,56 @@ void TIM3_Init(void)
  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
 
 //#ifdef STEP3_PWM1
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 1)
- printf("pwm 1 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 1)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 1)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 1)))
  {
-  Error_Handler();
+  printf("pwm 1 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP3_PWM2
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)
- printf("pwm 2 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+//#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 2)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 2)))
  {
-  Error_Handler();
+  printf("pwm 2 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP3_PWM3
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)
- printf("pwm 3 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+//#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 3)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 3)))
  {
-  Error_Handler();
+  printf("pwm 3 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP3_PWM4
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)
- printf("pwm 4 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+//#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 4)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 4)))
  {
-  Error_Handler();
+  printf("pwm 4 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 
  char buf[8];
  pinName(buf, Step3_GPIO_Port, Step3_Pin);
@@ -5385,37 +5476,45 @@ void TIM8_Init(void)
  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
 //#ifdef STEP5_PWM1
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 1)
- printf("pwm 1 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 1))
  {
-  Error_Handler();
+  printf("pwm 1 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP5_PWM2
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 2)
- printf("pwm 2 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 2))
  {
-  Error_Handler();
+  printf("pwm 2 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP5_PWM3
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 3)
- printf("pwm 3 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 3))
  {
-  Error_Handler();
+  printf("pwm 3 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP5_PWM4
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 4)
- printf("pwm 4 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 4))
  {
-  Error_Handler();
+  printf("pwm 4 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 
  char buf[8];
  pinName(buf, Step5_GPIO_Port, Step5_Pin);

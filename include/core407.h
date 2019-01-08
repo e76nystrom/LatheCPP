@@ -51,39 +51,39 @@
 #define spEncISR(x) EXTI4_IRQHandler(x)
 #define spEncIRQn EXTI4_IRQn
 
-#define STEP1_TIM2		/* step 1 z axis timer 2 */
-#define STEP1_PWM1		/* step 1 pwm 1 */
-
-#define STEP2_TIM5		/* step 2 x axis timer 5 */
-#define STEP2_PWM4		/* step 2 pwm 4 */
-
-#define STEP2B_TIM1		/* step 2b timer 1 */
-#define STEP2B_PWM1		/* step 2b pwm 1 */
-
-#define STEP3_TIM4		/* step 3 timer 4 */
-#define STEP3_PWM2		/* step 3 pwm 2 */
-
-#define STEP4_TIM3		/* step 4 timer 3 */
-#define STEP4_PWM3		/* step 4 pwm 3 */
-
-#define USEC_TMR_TIM6		/* usec timer 6 */
-
-#define ENC_TMR_TIM7		/* encoder timer 7 */
-
-#define SPINDLE_TIM8		/* spindle timer 8 */
-#define SPINDLE_PWM4		/* spindle pwm 4 */
-
-#define CMP_TMR_TIM9		/* compare timer 9 */
-
-#define INDEX_TMR_TIM10		/* index timer 10 */
-
-#define INT_TMR_TIM11		/* internal timer 11 */
-#define INT_TMR_PWM 0		/* internal timer pwm ena / dis */
-
-#define PWM_TMR_TIM12		/* pwm timer 12 */
-#define PWM_PWM1		/* pwm pwm 1 */
-
-#define ENCODER_MULT 1		/* encoder pulse multiplier */
+//#define STEP1_TIM2		/* step 1 z axis timer 2 */
+//#define STEP1_PWM1		/* step 1 pwm 1 */
+//
+//#define STEP2_TIM5		/* step 2 x axis timer 5 */
+//#define STEP2_PWM4		/* step 2 pwm 4 */
+//
+//#define STEP2B_TIM1		/* step 2b timer 1 */
+//#define STEP2B_PWM1		/* step 2b pwm 1 */
+//
+//#define STEP3_TIM4		/* step 3 timer 4 */
+//#define STEP3_PWM2		/* step 3 pwm 2 */
+//
+//#define STEP4_TIM3		/* step 4 timer 3 */
+//#define STEP4_PWM3		/* step 4 pwm 3 */
+//
+//#define USEC_TMR_TIM6		/* usec timer 6 */
+//
+//#define ENC_TMR_TIM7		/* encoder timer 7 */
+//
+//#define SPINDLE_TIM8		/* spindle timer 8 */
+//#define SPINDLE_PWM4		/* spindle pwm 4 */
+//
+//#define CMP_TMR_TIM9		/* compare timer 9 */
+//
+//#define INDEX_TMR_TIM10		/* index timer 10 */
+//
+//#define INT_TMR_TIM11		/* internal timer 11 */
+//#define INT_TMR_PWM 0		/* internal timer pwm ena / dis */
+//
+//#define PWM_TMR_TIM12		/* pwm timer 12 */
+//#define PWM_PWM1		/* pwm pwm 1 */
+//
+//#define ENCODER_MULT 1		/* encoder pulse multiplier */
 
 #define ENC_TEST 0		/* encoder test */
 

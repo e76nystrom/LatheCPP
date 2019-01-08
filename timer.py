@@ -1,10 +1,14 @@
 #!/cygdrive/c/Python27/Python.exe
 
+import sys
 from collections import namedtuple
 TmrCfg = namedtuple('TmrCfg', ('name', 'tmr', 'argType', 'pwm',
                                'isr', 'slave'))
 
 CPP = True
+
+CAP = 0x20
+PWM_MASK = 0x7
 
 if CPP:
     defOut = "inline void"
@@ -77,7 +81,7 @@ pwm1List = \
   ("PWMEna",    "b",  "%s->CCER |= TIM_CCER_CC1E"),
   ("PWMDis",    None, "%s->CCER &= ~TIM_CCER_CC1E"),
   ("ReadCCR",   "i",  "%s->CCR1"),
-  ("ReaddCMR", "is", "%s->CCMR1"),
+  ("ReadCCMR", "is", "%s->CCMR1"),
 )
 
 pwm2List = \
@@ -238,11 +242,11 @@ def makeFunc(timer, funcName, arg, body, nameLen=None):
         f.write("%s %s %s%s%s\n" % \
                 (define, call, op, body, cl))
 
-def main(cfg):
+def main(cfg, path):
     global f
     global name, tmr, argType, pwm, isr, slave
 
-    f = open("include/timers.h", "wb")
+    f = open("../" + path + "/inc/timers.h", "wb")
     f.write("#ifdef __STM32F4xx_HAL_H\n")
     f.write("#if !defined(__TIMERS_H)\n")
     f.write("#define __TIMERS_H\n\n")
@@ -289,9 +293,11 @@ def main(cfg):
         name = t.name
         tmr = t.tmr
         argType = t.argType
-        pwm = t.pwm
+        pwm = t.pwm & PWM_MASK
         isr = t.isr
         slave = t.slave
+        if tmr == 0:
+            continue
 
         timer = "TIM%d" % tmr
 
@@ -317,7 +323,7 @@ def main(cfg):
                     (name.upper().replace("TMR", "_TMR"), pwm))
             makeFuncList(timer, pwmList[pwm - 1])
 
-        if tmr == cmpTmr:
+        if (t.pwm & CAP) != 0:
             makeFuncList(timer, capList)
 
         if slave:
@@ -507,9 +513,30 @@ def setConfig(cfg):
       TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, pwmTmrIsr, None),
       TmrCfg("usecTmr", usecTmr, "uint16_t", 0, usecTmrIsr, None),
       TmrCfg("indexTmr", indexTmr, "uint16_t", 0, indexTmrIsr, None),
-      TmrCfg("cmpTmr", cmpTmr, "uint16_t", 0, "TIM1_BRK_TIM9", None),
+      TmrCfg("cmpTmr", cmpTmr, "uint16_t", CAP, "TIM1_BRK_TIM9", None),
       TmrCfg("intTmr", intTmr, "uint16_t", 0, None, None),
       TmrCfg("encTestTmr", encTestTmr, "uint16_t", 0, "TIM7", None),
     )
 
-main(disc407)
+n = 1
+cfg = disc407
+path = "LatheCPP"
+while True:
+    if n >= len(sys.argv):
+        break
+    val = sys.argv[n]
+    if val == "disc407":
+        cfg = disc407
+        path = "LatheCPP"
+    elif val == "core407":
+        cfg = core407
+        path = "LatheD"
+    elif val == "nuc446":
+        cfg = nuc446
+        path = "LatheN"
+    elif val == "nuc401":
+        cfg = nuc401
+        path = "LatheX0"
+    n += 1
+
+main(cfg, path)

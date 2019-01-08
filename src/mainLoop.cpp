@@ -1,14 +1,7 @@
 #include "stm32f4xx_hal.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-
 #include "Lathe.h"
-#include "remvar.h"
+
 #include "serialio.h"
 #include "lclcmd.h"
 #include "lclcmdX.h"
@@ -124,51 +117,57 @@ void mainLoopSetup(void)
  printf("TIM3_Init done\n");
  flushBuf();
 
-#if defined(SPINDLE_TIM8) || defined(STEP5_TIM8)
- TIM8_Init();
- printf("TIM8_Init done\n");
- flushBuf();
-#endif
+//#if defined(SPINDLE_TIM8) || defined(STEP5_TIM8)
+ if constexpr (SPINDLE_TIMER == 8)
+ {
+  TIM8_Init();
+  printf("TIM8_Init done\n");
+  flushBuf();
+ }
+// #endif
 
  unsigned int tmrClkFreq = HAL_RCC_GetPCLK2Freq() * 2;
 
  /* initialize timer 11 as index timer */
 
- indexTmrMax(65536);
+ indexTmrCount = 65536;
+ indexTmrCnt(65535);
 
- #ifdef USEC_SHARED_INDEX
- indexTmrScl((tmrClkFreq / 1000000U) - 1); /* load scaler */
- idxFreq = 1000000U;
- #else
- indexTmrScl(0);
- idxFreq = tmrClkFreq;
- #endif
+// #ifdef USEC_SHARED_INDEX
+ if constexpr (USEC_TIMER == INDEX_TIMER)
+ {
+  indexTmrPreScale = (tmrClkFreq / 1000000U) - 1;
+  indexTmrScl(indexTmrPreScale); /* load pre scaler */
+  indexFreq = 1000000U;
+ }
+// #else
+ {
+  indexTmrScl(0);
+  indexFreq = tmrClkFreq;
+ }
+// #endif
 
- idxTrkFreq = idxFreq * 6;
+ indexTrkFreq = indexFreq * 6;
  indexTmrClrIF();
  indexTmrSetIE();
+ indexTmrInit();
  indexTmrStart();
 
-#ifdef USEC_TMR_TIM6
+// #ifdef USEC_TMR_TIM6
+
  /* init timer 6 for use as a usec timer */
 
- usecTmrInit();			/* init timer */
- usecTmrScl((tmrClkFreq / 1000000U) - 1); /* load scaler */
- usecTmrSet(65535);		/* set to maximum */
- usecTmrStart();		/* start */
-#endif
+ if constexpr (USEC_TIMER != INDEX_TIMER)
+ {
+  usecTmrInit();		/* init timer */
+  usecTmrScl((tmrClkFreq / 1000000U) - 1); /* load scaler */
+  usecTmrSet(65535);		/* set to maximum */
+  usecTmrStart();		/* start */
+ }
+//#endif
 
-#if 0
- TIM6->PSC = (tmrClkFreq / 1000000U) - 1; /* set prescaler for usec */
- TIM6->ARR = 65535;		  /* set to maximum */
- __HAL_RCC_TIM6_CLK_ENABLE();	  /* enable clock */
- TIM6->CR1 &= ~TIM_CR1_CEN;	  /* clear clock enable */
- TIM6->CR1 |= TIM_CR1_CEN;	  /* set clock enable */
-#endif
-
-#if 0
- testOutputs(0);
-#endif
+ if constexpr (0)
+  testOutputs(0);
 }
 
 void mainLoopSetupX(void)
@@ -180,7 +179,7 @@ void mainLoopSetupX(void)
 int16_t mainLoop(void)
 {
  unsigned char ch;
- uint32_t extInt[] =
+ IRQn_Type extInt[] =
  {
   EXTI0_IRQn,
   EXTI1_IRQn,
@@ -195,10 +194,10 @@ int16_t mainLoop(void)
 
  DBGMCU->APB1FZ = DBGMCU_APB1_FZ_DBG_IWDG_STOP; /* stop wd on debug */
 
- uint32_t *p = extInt;		/* external interrupt list */
- int i = sizeof(extInt) / sizeof(uint32_t); /* sizeof list */
+ IRQn_Type *p = extInt;		/* external interrupt list */
+ int i = sizeof(extInt) / sizeof(IRQn_Type); /* sizeof list */
  while (--i >= 0)		/* while not at end of list */
-  HAL_NVIC_DisableIRQ((IRQn_Type) *p++);	/* disable external interrupt */
+  HAL_NVIC_DisableIRQ(*p++);	/* disable external interrupt */
 
 #if REM_ISR
  initRem();
@@ -206,15 +205,6 @@ int16_t mainLoop(void)
  HAL_NVIC_DisableIRQ(REMOTE_IRQn);
 #endif
 
- dbg0Ini();
- dbg1Ini();
- dbg2Ini();
- dbg3Ini();
- dbg4Ini();
- dbg5Ini();
- dbg6Ini();
- dbg7Ini();
- dbg8Ini();
  tpi = 0.0;
  zTaperDist = 0.0;
  taper = 0.0;
@@ -232,6 +222,7 @@ int16_t mainLoop(void)
 	(unsigned int) &__stack, (unsigned int) &__Main_Stack_Limit,
 	getSP());
  #endif
+
  putstr1("start remcmd\n");
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
  unsigned int FCY = HAL_RCC_GetPCLK2Freq() * 2;
@@ -241,6 +232,9 @@ int16_t mainLoop(void)
 	clockFreq, FCY, (unsigned int) &cfgFcy);
  printf("sysTick load %d\n", (int) SysTick->LOAD);
 
+#if 1
+ printf("spindle timer %d pwm %d", SPINDLE_TIMER, SPINDLE_TMR_PWM);
+#else
  printf("spindle timer ");
  
 #ifdef SPINDLE_TIM3
@@ -261,6 +255,7 @@ int16_t mainLoop(void)
 #endif
 #ifdef SPINDLE_PWM4
  printf("4\n");
+#endif
 #endif
 
  pinDisplay();

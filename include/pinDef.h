@@ -189,6 +189,14 @@ inline void pin1Set() {}
 inline void pin1Clr() {}
 #endif
 
+#ifdef Pin1_Pin
+inline void spRunSet() {Pin1_GPIO_Port->BSRR = Pin1_Pin;}
+inline void spRunClr() {Pin1_GPIO_Port->BSRR = (Pin1_Pin << 16);}
+#else
+inline void spRunSet() {}
+inline void spRunClr() {}
+#endif
+
 #ifdef Pin14_Pin
 inline void pin14Set() {Pin14_GPIO_Port->BSRR = Pin14_Pin;}
 inline void pin14Clr() {Pin14_GPIO_Port->BSRR = (Pin14_Pin << 16);}

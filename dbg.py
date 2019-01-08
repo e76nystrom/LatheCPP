@@ -30,6 +30,7 @@ pinList = \
   ("o", "dir5", "Dir5", ""), \
   
   ("o", "pin1", "Pin1", ""), \
+  ("o", "spRun", "Pin1", ""), \
   ("o", "pin14", "Pin14", ""), \
   ("o", "pin16", "Pin16", ""), \
   ("o", "pin17", "Pin17", ""), \
@@ -49,8 +50,8 @@ pinList = \
   ("o", "a", "Pin1", ""), \
   ("o", "b", "Pin14", ""), \
   ("o", "sync", "Pin17", ""), \
-
 )
+
 #  ("i", "xHome", "Pin11", ""),
 
 dbgList = \

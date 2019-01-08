@@ -33,9 +33,9 @@
 #ifdef STEP1_PWM1
 /* channel 1 */
 #define zTmrCCR(x) Z_TIM->CCR1 = (x)
-#define zPWMMode() Z_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define zPWMEna()  Z_TIM->CCER |= TIM_CCER_CC1E
-#define zPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC1E
+#define zTmrPWMMode() Z_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define zTmrPWMEna()  Z_TIM->CCER |= TIM_CCER_CC1E
+#define zTmrPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC1E
 #define Z_CCR CCR1
 #define Z_CCMR CCMR1
 #endif
@@ -43,9 +43,9 @@
 #ifdef STEP1_PWM2
 /* channel 2 */
 #define zTmrCCR(x) Z_TIM->CCR1 = (x)
-#define zPWMMode() Z_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
-#define zPWMEna()  Z_TIM->CCER |= TIM_CCER_CC2E
-#define zPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC2E
+#define zTmrPWMMode() Z_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
+#define zTmrPWMEna()  Z_TIM->CCER |= TIM_CCER_CC2E
+#define zTmrPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC2E
 #define Z_CCR CCR2
 #define Z_CCMR CCMR1
 #endif
@@ -53,9 +53,9 @@
 #ifdef STEP1_PWM3
 /* channel 3 */
 #define zTmrCCR(x) Z_TIM->CCR3 = (x)
-#define zPWMMode() Z_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
-#define zPWMEna()  Z_TIM->CCER |= TIM_CCER_CC3E
-#define zPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC3E
+#define zTmrPWMMode() Z_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
+#define zTmrPWMEna()  Z_TIM->CCER |= TIM_CCER_CC3E
+#define zTmrPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC3E
 #define Z_CCR CCR3
 #define Z_CCMR CCMR2
 #endif
@@ -63,9 +63,9 @@
 #ifdef STEP1_PWM4
 /* channel 4 */
 #define zTmrCCR(x) Z_TIM->CCR4 = (x)
-#define zPWMMode() Z_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define zPWMEna()  Z_TIM->CCER |= TIM_CCER_CC4E
-#define zPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC4E
+#define zTmrPWMMode() Z_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
+#define zTmrPWMEna()  Z_TIM->CCER |= TIM_CCER_CC4E
+#define zTmrPWMDis()  Z_TIM->CCER &= ~TIM_CCER_CC4E
 #define Z_CCR CCR4
 #define Z_CCMR CCMR2
 #endif

@@ -49,33 +49,33 @@ void step4TmrISR(void);
 #ifdef STEP4_PWM1
 /* channel 1 */
 #define step4TmrCCR(x) STEP4_TIM->CCR1 = (x)
-#define step4PWMMode() STEP4_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define step4PWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC1E
-#define step4PWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC1E
+#define step4TmrPWMMode() STEP4_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define step4TmrPWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC1E
+#define step4TmrPWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC1E
 #endif
 
 #ifdef STEP4_PWM2
 /* channel 1 */
 #define step4TmrCCR(x) STEP4_TIM->CCR2 = (x)
-#define step4PWMMode() STEP4_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
-#define step4PWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC2E
-#define step4PWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC2E
+#define step4TmrPWMMode() STEP4_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
+#define step4TmrPWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC2E
+#define step4TmrPWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC2E
 #endif
 
 #ifdef STEP4_PWM3
 /* channel 3 */
 #define step4TmrCCR(x) STEP4_TIM->CCR3 = (x)
-#define step4PWMMode() STEP4_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
-#define step4PWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC3E
-#define step4PWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC1E
+#define step4TmrPWMMode() STEP4_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
+#define step4TmrPWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC3E
+#define step4TmrPWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC1E
 #endif
 
 #ifdef STEP4_PWM4
 /* channel 4 */
 #define step4TmrCCR(x) STEP4_TIM->CCR4 = (x)
-#define step4PWMMode() STEP4_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define step4PWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC4E
-#define step4PWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC2E
+#define step4TmrPWMMode() STEP4_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
+#define step4TmrPWMEna()  step4BDTR(); STEP4_TIM->CCER |= TIM_CCER_CC4E
+#define step4TmrPWMDis()  STEP4_TIM->CCER &= ~TIM_CCER_CC2E
 #endif
 
 #endif
