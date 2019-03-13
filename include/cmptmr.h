@@ -33,7 +33,7 @@
 #define cmpTmrScl(x)  CMP_TIM->PSC = (x)
 #define cmpTmrRead()  CMP_TIM->CNT
 #define cmpTmrCnt(x)  CMP_TIM->CNT = (x)
-#define cmpTmrClr()   CMP_TIM->CNT = 0
+#define cmpTmrClrCnt() CMP_TIM->CNT = 0
 #define cmpTmrMax(x)  CMP_TIM->ARR = (x - 1)
 #define cmpTmrSet(x)  CMP_TIM->ARR = (x)
 #define cmpTmrMaxRead() CMP_TIM->ARR

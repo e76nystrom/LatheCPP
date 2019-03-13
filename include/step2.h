@@ -56,9 +56,9 @@ void xTmrISR(void);
 #ifdef STEP2_PWM1
 /* channel 1 */
 #define xTmrCCR(x) X_TIM->CCR1 = (x)
-#define xPWMMode() X_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define xPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC1E
-#define xPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC1E
+#define xTmrPWMMode() X_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define xTmrPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC1E
+#define xTmrPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC1E
 #define X_CCR CCR1
 #define X_CCMR CCMR1
 #endif
@@ -66,9 +66,9 @@ void xTmrISR(void);
 #ifdef STEP2_PWM2
 /* channel 2 */
 #define xTmrCCR(x) X_TIM->CCR2 = (x)
-#define xPWMMode() X_TIM->CCMR2 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
-#define xPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC2E
-#define xPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC2E
+#define xTmrPWMMode() X_TIM->CCMR2 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
+#define xTmrPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC2E
+#define xTmrPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC2E
 #define X_CCR CCR2
 #define X_CCMR CCMR1
 #endif
@@ -76,9 +76,9 @@ void xTmrISR(void);
 #ifdef STEP2_PWM3
 /* channel 3 */
 #define xTmrCCR(x) X_TIM->CCR3 = (x)
-#define xPWMMode() X_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
-#define xPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC3E
-#define xPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC3E
+#define xTmrPWMMode() X_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
+#define xTmrPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC3E
+#define xTmrPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC3E
 #define X_CCR CCR3
 #define X_CCMR CCMR2
 #endif
@@ -86,9 +86,9 @@ void xTmrISR(void);
 #ifdef STEP2_PWM4
 /* channel 3 */
 #define xTmrCCR(x) X_TIM->CCR4 = (x)
-#define xPWMMode() X_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define xPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC4E
-#define xPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC4E
+#define xTmrPWMMode() X_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
+#define xTmrPWMEna()  xTmrBDTR(); X_TIM->CCER |= TIM_CCER_CC4E
+#define xTmrPWMDis()  X_TIM->CCER &= ~TIM_CCER_CC4E
 #define X_CCR CCR4
 #define X_CCMR CCMR2
 #endif

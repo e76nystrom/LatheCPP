@@ -2,11 +2,6 @@
 
 #if DBGTRK
 
-constexpr auto TRKBUFSIZE = (4*64);
-EXT boolean dbgTrk;
-EXT int16_t trkidx;
-EXT int16_t trkbuf[TRKBUFSIZE];
-
 constexpr auto DBGTRK1W0 = 0;   /* spindle position when index pulse */
 constexpr auto DBGTRK1W1 = 0;   /* x jog encoder */
 constexpr auto DBGTRK1L0 = 0;   /* rpm */

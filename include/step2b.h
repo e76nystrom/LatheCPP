@@ -36,10 +36,10 @@ void step2bTmrISR(void);
 #ifdef STEP2B_PWM1
 /* channel 1 */
 #define step2bTmrCCR(x) STEP2B_TIM->CCR1 = (x)
-#define step2bPWMMode() STEP2B_TIM->CCMR1 = \
+#define step2bTmrPWMMode() STEP2B_TIM->CCMR1 = \
   (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define step2bPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC1E
-#define step2bPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC1E
+#define step2bTmrPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC1E
+#define step2bTmrPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC1E
 #define STEP2BCCR CCR1
 #define STEP2BCCMR CCMR1
 #endif
@@ -47,10 +47,10 @@ void step2bTmrISR(void);
 #ifdef STEP2B_PWM2
 /* channel 2 */
 #define step2bTmrCCR(x) STEP2B_TIM->CCR1 = (x)
-#define step2bPWMMode() STEP2B_TIM->CCMR1 = \
+#define step2bTmrPWMMode() STEP2B_TIM->CCMR1 = \
   (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
-#define step2bPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC1E
-#define step2bPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC1E
+#define step2bTmrPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC1E
+#define step2bTmrPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC1E
 #define STEP2BCCR CCR2
 #define STEP2BCCMR CCMR1
 #endif
@@ -58,10 +58,10 @@ void step2bTmrISR(void);
 #ifdef STEP2B_PWM3
 /* channel 3 */
 #define step2bTmrCCR(x) STEP2B_TIM->CCR3 = (x)
-#define step2bPWMMode() STEP2B_TIM->CCMR2 = \
+#define step2bTmrPWMMode() STEP2B_TIM->CCMR2 = \
   (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
-#define step2bPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC3E
-#define step2bPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC3E
+#define step2bTmrPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC3E
+#define step2bTmrPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC3E
 #define STEP2BCCR CCR3
 #define STEP2BCCMR CCMR2
 #endif
@@ -69,10 +69,10 @@ void step2bTmrISR(void);
 #ifdef STEP2B_PWM4
 /* channel 3 */
 #define step2bTmrCCR(x) STEP2B_TIM->CCR4 = (x)
-#define step2bPWMMode() STEP2B_TIM->CCMR2 = \
+#define step2bTmrPWMMode() STEP2B_TIM->CCMR2 = \
   (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define step2bPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC3E
-#define step2bPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC3E
+#define step2bTmrPWMEna()  step2bTmrBDTR(); STEP2B_TIM->CCER |= TIM_CCER_CC3E
+#define step2bTmrPWMDis()  STEP2B_TIM->CCER &= ~TIM_CCER_CC3E
 #define STEP2BCCR CCR4
 #define STEP2BCCMR CCMR2
 #endif

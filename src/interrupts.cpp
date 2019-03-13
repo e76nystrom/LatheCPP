@@ -237,7 +237,7 @@ extern "C" void jogISR(void)
  }
 }
 
-#ifdef PWM_TIM
+#ifdef PWM_TIMER
 extern "C" void pwmTmrISR(void)
 {
  if (pwmTmrIF())
@@ -249,54 +249,53 @@ extern "C" void pwmTmrISR(void)
 
 extern "C" void TIM1_UP_TIM10_IRQHandler(void)
 {
-#ifdef STEP3_TIM1
- if (step3TmrIF())
+ if constexpr (STEP3_TIMER == 1)
  {
-  step3TmrISR();
+  if (step3TmrIF())
+  {
+   step3TmrISR();
+  }
  }
-#endif
 
-#ifdef STEP2_TIM1
- if (xTmrIF())
+ if constexpr (X_TIMER == 1)
  {
-  xTmrISR();
+  if (xTmrIF())
+  {
+   xTmrISR();
+  }
  }
-#endif
  
-#ifdef PWM_TMR_TIM1
- if (pwmTmrIF())
+ if constexpr (PWM_TIMER == 1)
  {
-  pwmTmrISR();
+  if (pwmTmrIF())
+  {
+   pwmTmrISR();
+  }
  }
-#endif
 
-#ifdef INT_TMR_TIM1
- if (intTmrIF())		/* if int timer */
+ if constexpr (INT_TIMER == 1)
  {
-  intTmrISR();			/* call interrupt service routine */
+  if (intTmrIF())		/* if int timer */
+  {
+   intTmrISR();			/* call interrupt service routine */
+  }
  }
-#endif
 
-#if defined(INDEX_TMR_TIM10) || defined(INDEX_TMR_TIM1)
- indexTmrISR();
-#if 0
- if (indexTmrIF())		/* if index timer */
+ if constexpr ((INDEX_TIMER == 1) || (INDEX_TIMER == 10))
  {
-  indexTmrClrIF();		/* clear interrupt flag */
-  idxOverflow++;		/* update overflow */
+  indexTmrISR();
  }
-#endif
-#endif
 }
 
 extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void)
 {
-#ifdef INT_TMR_TIM11
- if (intTmrIF())		/* if int timer */
+ if constexpr (INT_TIMER == 11)
  {
-  intTmrISR();			/* call interrupt service routine */
+  if (intTmrIF())		/* if int timer */
+  {
+   intTmrISR();			/* call interrupt service routine */
+  }
  }
-#endif
 }
 
 extern "C" void index1ISR(void)
@@ -1265,7 +1264,7 @@ extern "C" void indexTmrISR(void)
  }
 }
 
-#ifdef STEP3_TIM
+#ifdef STEP3_TIMER
 extern "C" void step3TmrISR(void)
 {
  dbgS3IsrSet();
@@ -1275,7 +1274,7 @@ extern "C" void step3TmrISR(void)
 }
 #endif
 
-#if defined(STEP4_TIM) & !defined(ENC_TMR_TIM4)
+#ifdef STEP4_TIMER
 extern "C" void step4TmrISR(void)
 {
  dbgS4IsrSet();
@@ -1285,19 +1284,12 @@ extern "C" void step4TmrISR(void)
 }
 #endif
 
-#ifdef STEP5_TIM
+#ifdef STEP5_TIMER
 extern "C" void step5TmrISR(void)
 {
  dbgS5IsrSet();
  step5TmrClrIF();		/* clear interrupt flag */
 
  dbgS5IsrClr();
-}
-#endif
-
-#if (ENC_TEST == 0) && defined(ENC_TMR)
-extern "C" void encTestTmrISR(void)
-{
- encTestTmrClrIF();		/* clear interrupt */
 }
 #endif

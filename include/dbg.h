@@ -1,3 +1,7 @@
+#ifdef __STM32F4xx_HAL_H
+#if !defined(__DBG_H)
+#define __DBG_H
+
 constexpr auto DBG0 = 1;
 constexpr auto DBG1 = 1;
 constexpr auto DBG2 = 1;
@@ -11,8 +15,6 @@ constexpr auto DBG9 = 1;
 constexpr auto DBG10 = 1;
 constexpr auto DBG11 = 1;
 constexpr auto DBG12 = 1;
-
-#ifdef __STM32F4xx_HAL_H
 
 #ifdef Dbg0_Pin
 inline void dbg0Ini() {}
@@ -329,4 +331,5 @@ inline void dbgJogMPG3Clr() {}
 inline void dbgAxisCtlSet() {}
 inline void dbgAxisCtlClr() {}
 
-#endif
+#endif /* __DBG_H */
+#endif /* __STM32F4xx_HAL_H */

@@ -1,6 +1,7 @@
 #if !defined(CONFIG)
 #define CONFIG
 
+#define DBGTRK 1
 #define DBG_P     1		/* general debug */
 #define DBG_SETUP 1		/* setup */
 #define DBG_MOVOP 1		/* move operation */
@@ -20,14 +21,11 @@
 #define DIR_PIN 0
 #define OUT_PIN 0
 
-#define MIN_INDEX_RPM 60
+//#define MIN_INDEX_RPM 60
 
-#define JTIMEINITIAL 0.75	/* initial jog time */
-#define JTIMEINC 0.15		/* incremental jog time */
-#define JTIMEMAX 1.0		/* maximum jog time */
-
-#define CALC_STEP_WIDTH(x) (((cfgFcy * x) / 1000000l))
-#define STEP_WIDTH 10
+//#define JTIMEINITIAL 0.75	/* initial jog time */
+//#define JTIMEINC 0.15		/* incremental jog time */
+//#define JTIMEMAX 1.0		/* maximum jog time */
 
 #if 0
 
@@ -70,35 +68,20 @@ enctst	7	7	7	1	7  | 1	sw
 #include "nuc446.h"
 #include "nuc401.h"
 
-#define STEP_INIT(tim)				 \
- __HAL_RCC_ ## tim ## _CLK_ENABLE();		 \
- tim->CR1 |= TIM_CR1_DIR;			 \
- tim->CR1 &= ~TIM_CR1_CEN
-
-#define TIM_INIT(tim)				 \
- __HAL_RCC_ ## tim ## _CLK_ENABLE();		 \
- tim->CR1 &= ~TIM_CR1_CEN
-
-#include "step1.h"
-#include "step2.h"
-#include "step2b.h"
-#include "step3.h"
-#include "step4.h"
-#include "step5.h"
-#include "spindle.h"
-
-#include "pwmtmr.h"
-#include "usectmr.h"
-#include "indextmr.h"
-#include "cmptmr.h"
-#include "inttmr.h"
-#include "enctmr.h"
-#include "home.h"
-#include "probe.h"
-
-#ifdef __STM32F4xx_HAL_H
-#include "pinDef.h"
-#endif
+//#include "step1.h"
+//#include "step2.h"
+//#include "step2b.h"
+//#include "step3.h"
+//#include "step4.h"
+//#include "step5.h"
+//#include "spindle.h"
+//
+//#include "pwmtmr.h"
+//#include "usectmr.h"
+//#include "indextmr.h"
+//#include "cmptmr.h"
+//#include "inttmr.h"
+//#include "enctmr.h"
 
 #define SPINDLE_MICRO_STEPS 64
 #define SPINDLE_MOTOR_STEPS 200

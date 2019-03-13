@@ -18,9 +18,9 @@ void encInit(void);
 void encStart(int tEna);
 void encStop(void);
 
-#if ENC_TEST
-
 #if !defined(INCLUDE)
+
+#if ENC_TEST
 
 void encInit(void)
 {
@@ -41,9 +41,8 @@ void encStart(int tEna)
  if (encPreScaler != 0)		/* if prescaler non zero */
   encTestTmrScl(encPreScaler);	/* load prescaler */
  encTestTmrMax(encTimer);	/* set timer period */
-#if 0
- tmrInfo(TIM9);
-#endif
+ if constexpr (0)
+  tmrInfo(ENCTEST_TMR);
  encState = 0;
  encCounter = 0;
  encRevCounter = 0;
@@ -64,49 +63,55 @@ void encStop(void)
  encTestTmrClrIF();		/* clear interrupt flag */
 }
 
-void encTestTmrISR(void)
+extern "C" void encTestTmrISR(void)
 {
  encTestTmrClrIF();		/* clear interrupt */
- if (encRun)
+
+ if constexpr(ENC_TEST)
  {
-  if (encRunCount != 0)		/* if encoder counting */
+  if (encRun)
   {
-   if (--encRunCount == 0)	/* if count is now zero */
+   if (encRunCount != 0)	/* if encoder counting */
    {
-    encStop();			/* stop encoder */
+    if (--encRunCount == 0)	/* if count is now zero */
+    {
+     encStop();			/* stop encoder */
+    }
    }
-  }
 
-  encCounter += 1;		/* update counter */
-  if (encCounter >= encPerRev)	/* if at maximum */
-  {
-   encCounter = 0;		/* reset */
-   encRevCounter += 1;		/* count a revolution */
-   syncSet();			/* set the sync bit */
-  }
-  else				/* if not at maximum */
-  {
-   syncClr();			/* clear sync bit */
-  }
+   encCounter += 1;		/* update counter */
+   if (encCounter >= encPerRev)	/* if at maximum */
+   {
+    encCounter = 0;		/* reset */
+    encRevCounter += 1;		/* count a revolution */
+    syncSet();			/* set the sync bit */
+   }
+   else				/* if not at maximum */
+   {
+    syncClr();			/* clear sync bit */
+   }
 
-  switch (encState)		/* select on state */
-  {
-  case 0:
-   aSet();
-   break;
-  case 1:
-   bSet();
-   break;
-  case 2:
-   aClr();
-   break;
-  case 3:
-   bClr();
-   break;
+   switch (encState)		/* select on state */
+   {
+   case 0:
+    aSet();
+    break;
+   case 1:
+    bSet();
+    break;
+   case 2:
+    aClr();
+    break;
+   case 3:
+    bClr();
+    break;
+   }
+   encState += 1;		/* update state */
+   encState &= 0x3;		/* mas in range */
   }
-  encState += 1;		/* update state */
-  encState &= 0x3;		/* mas in range */
  }
 }
+
 #endif
+
 #endif

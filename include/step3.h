@@ -29,33 +29,33 @@
 #ifdef STEP3_PWM1
 /* channel 1 */
 #define step3TmrCCR(x) STEP3_TIM->CCR1 = (x)
-#define step3PWMMode() STEP3_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define step3PWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC1E
-#define step3PWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC1E
+#define step3TmrPWMMode() STEP3_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define step3TmrPWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC1E
+#define step3TmrPWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC1E
 #endif
 
 #ifdef STEP3_PWM2
 /* channel 2 */
 #define step3TmrCCR(x) STEP3_TIM->CCR2 = (x)
-#define step3PWMMode() STEP3_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
-#define step3PWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC2E
-#define step3PWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC2E
+#define step3TmrPWMMode() STEP3_TIM->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)
+#define step3TmrPWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC2E
+#define step3TmrPWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC2E
 #endif
 
 #ifdef STEP3_PWM3
 /* channel 3 */
 #define step3TmrCCR(x) STEP3_TIM->CCR1 = (x)
-#define step3PWMMode() STEP3_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
-#define step3PWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC3E
-#define step3PWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC3E
+#define step3TmrPWMMode() STEP3_TIM->CCMR2 = (TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1)
+#define step3TmrPWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC3E
+#define step3TmrPWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC3E
 #endif
 
 #ifdef STEP3_PWM4
 /* channel 4 */
 #define step3TmrCCR(x) STEP3_TIM->CCR4 = (x)
-#define step3PWMMode() STEP3_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
-#define step3PWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC4E
-#define step3PWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC4E
+#define step3TmrPWMMode() STEP3_TIM->CCMR2 = (TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1)
+#define step3TmrPWMEna()  STEP3_TIM->CCER |= TIM_CCER_CC4E
+#define step3TmrPWMDis()  STEP3_TIM->CCER &= ~TIM_CCER_CC4E
 #endif
 
 #ifdef SPINDLE_TIM3

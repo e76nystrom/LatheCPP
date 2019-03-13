@@ -12,6 +12,7 @@
 
 #define ENUM_M_STATES
 #define ENUM_M_COMMANDS
+#include "main.h"
 #include "config.h"
 #include "remvar.h"
 
@@ -24,7 +25,9 @@
 #include "xcontrol.h"
 #define EXT
 
-#else /* defined(INCLUDE) */
+#endif
+#define LATHE_INC
+#if defined(INCLUDE)		// <-
 
 #if !defined(EXT)
 #define EXT extern
@@ -44,6 +47,7 @@
 #define INCLUDE
 
 #endif /* INCLUDE */
+#if defined(LATHE_INC)
 
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
@@ -727,6 +731,50 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str);
 void testOutputs(int inputTest);
 void pinDisplay(void);
 
+typedef union
+{
+ struct
+ {
+  unsigned b0:1;
+  unsigned b1:1;
+  unsigned b2:1;
+  unsigned b3:1;
+  unsigned b4:1;
+  unsigned b5:1;
+  unsigned b6:1;
+  unsigned b7:1;
+  unsigned b8:1;
+  unsigned b9:1;
+  unsigned b10:1;
+  unsigned b11:1;
+  unsigned b12:1;
+  unsigned b13:1;
+  unsigned b14:1;
+  unsigned b15:1;
+  unsigned b16:1;
+  unsigned b17:1;
+  unsigned b18:1;
+  unsigned b19:1;
+  unsigned b20:1;
+  unsigned b21:1;
+  unsigned b22:1;
+  unsigned b23:1;
+  unsigned b24:1;
+  unsigned b25:1;
+  unsigned b26:1;
+  unsigned b27:1;
+  unsigned b28:1;
+  unsigned b29:1;
+  unsigned b30:1;
+  unsigned b31:1;
+ };
+ struct
+ {
+  int w;
+ };
+} BITWORD;
+
+#include "main.h"
 #include "pindef.h"
 #include "timers.h"
 #include "home.h"
@@ -734,6 +782,7 @@ void pinDisplay(void);
 #include "dbgtrk.h"
 #include "dbg.h"
 
+#endif	// ->
 #if !defined(INCLUDE)
 
 #include "latheX.h"
@@ -746,9 +795,8 @@ void delay(unsigned int delay)
  unsigned int start = millis();
  while ((millis() - start) < delay)
  {
-#if WD_ENA
-  IWDG->KR = 0xAAAA;		/* update hardware watchdog */
-#endif
+  if (WD_ENA)
+   IWDG->KR = 0xAAAA;		/* update hardware watchdog */
  }
 }
 
@@ -765,9 +813,8 @@ void delayUSec(unsigned short delay)
   if ((tmp - usec) > 20)	/* if 20 usec passed */
   {
    usec = tmp;			/* reset timer */
-#if WD_ENA
-   IWDG->KR = 0xAAAA;		/* update hardware watchdog */
-#endif
+   if (WD_ENA)
+    IWDG->KR = 0xAAAA;		/* update hardware watchdog */
   }
  }
 }
@@ -5262,37 +5309,56 @@ void TIM3_Init(void)
  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
 
 //#ifdef STEP3_PWM1
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 1)
- printf("pwm 1 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 1)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 1)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 1)))
  {
-  Error_Handler();
+  printf("pwm 1 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP3_PWM2
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)
- printf("pwm 2 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+//#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 2)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 2)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 2)))
  {
-  Error_Handler();
+  printf("pwm 2 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP3_PWM3
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)
- printf("pwm 3 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+//#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 3)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 3)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 3)))
  {
-  Error_Handler();
+  printf("pwm 3 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP3_PWM4
-#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)
- printf("pwm 4 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+//#if (STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)
+ if constexpr (((SPINDLE_TIMER == 3) && (SPINDLE_TMR_PWM == 4)) ||
+	       ((STEP3_TIMER == 3) && (STEP3_TMR_PWM == 4)) ||
+	       ((STEP4_TIMER == 3) && (STEP4_TMR_PWM == 4)))
  {
-  Error_Handler();
+  printf("pwm 4 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 
  char buf[8];
  pinName(buf, Step3_GPIO_Port, Step3_Pin);
@@ -5385,37 +5451,45 @@ void TIM8_Init(void)
  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
 //#ifdef STEP5_PWM1
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 1)
- printf("pwm 1 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 1))
  {
-  Error_Handler();
+  printf("pwm 1 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP5_PWM2
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 2)
- printf("pwm 2 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 2))
  {
-  Error_Handler();
+  printf("pwm 2 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP5_PWM3
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 3)
- printf("pwm 3 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 3))
  {
-  Error_Handler();
+  printf("pwm 3 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 //#ifdef STEP5_PWM4
-#if (SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 4)
- printf("pwm 4 ");
- if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+ if constexpr ((SPINDLE_TIMER == 8) && (SPINDLE_TMR_PWM == 4))
  {
-  Error_Handler();
+  printf("pwm 4 ");
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+   Error_Handler();
+  }
  }
-#endif
+//#endif
 
  char buf[8];
  pinName(buf, Step5_GPIO_Port, Step5_Pin);

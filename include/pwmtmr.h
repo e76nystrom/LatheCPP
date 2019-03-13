@@ -29,9 +29,9 @@
 #ifdef PWM_PWM1
 /* channel 1 */
 #define pwmTmrCCR(x) PWM_TIM->CCR1 =  ((x) - 1)
-#define pwmPWMMode() PWM_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
-#define pwmPWMEna()  PWM_TIM->CCER |= TIM_CCER_CC1E
-#define pwmPWMDis()  PWM_TIM->CCER &= ~TIM_CCER_CC1E
+#define pwmTmrPWMMode() PWM_TIM->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)
+#define pwmTmrPWMEna()  PWM_TIM->CCER |= TIM_CCER_CC1E
+#define pwmTmrPWMDis()  PWM_TIM->CCER &= ~TIM_CCER_CC1E
 #endif
 
 #endif
