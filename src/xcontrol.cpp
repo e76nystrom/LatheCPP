@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __XCONTROL__
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
@@ -8,7 +9,16 @@
 #include "spi.h"
 #include "serialio.h"
 #include "latheX.h"
+
+#ifdef EXT
+#undef EXT
 #endif
+
+#define EXT
+#include "xcontrol.h"
+#endif
+
+#if defined(__XCONTROL_INC__)	// <-
 
 void xSynLoad(void);
 void xJMoveX(int dir);
@@ -16,7 +26,8 @@ void xMoveX(int32_t pos, char cmd);
 void xMoveRelX(int32_t dist, char cmd);
 void xControlX(void);
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __XCONTROL__
 
 void xLoad(P_ACCEL ac);
 

@@ -9,20 +9,23 @@ if argLen >= 2:
 else:
     sys.exit()
 
+if argLen >= 3:
+    outFile = sys.argv[2]
+else:
+    sys.exit()
+    
 inp = open(inpFile, 'r')
+fOut = open(outFile, 'wb')
 out = False
 for l in inp:
     if not out:
         if re.search(r".*?// <-", l):
             out = True
-            print("#define LATHE_INC")
-            print("#if defined(LATHE_INC)	// <-")
+            fOut.write(b"#if 1	// <-\n")
     else:
         if re.search(r"#define *INCLUDE", l):
             continue
-        print(l, end='')
+        fOut.write(l.encode('utf-8'))
         if re.search(r".*?// ->", l):
             out = False
-print("#undef INCLUDE")
-print("#undef LATHE_INC")
 inp.close()

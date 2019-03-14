@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __ZCONTROL__
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
@@ -8,7 +9,16 @@
 #include "spi.h"
 #include "serialio.h"
 #include "latheX.h"
+
+#ifdef EXT
+#undef EXT
 #endif
+
+#define EXT
+#include "zcontrol.h"
+#endif
+
+#if defined(__ZCONTROL_INC__)	// <-
 
 void zSynLoad(void);
 void zJMoveX(int dir);
@@ -16,7 +26,8 @@ void zMoveX(int32_t pos, char cmd);
 void zMoveRelX(int32_t dist, char cmd);
 void zControlX(void);
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __ZCONTROL__
 
 void zLoad(P_ACCEL ac);
 

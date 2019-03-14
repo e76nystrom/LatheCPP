@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __LCLCMDX__
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
@@ -12,10 +13,16 @@
 #if DBGMSG == 2
 extern char *dMessageList[];
 #endif
-#if !defined(EXT)
+
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
+#include "lclcmdX.h"
 #endif
-#endif
+
+#if defined(__LCLCMDX_INC__)	// <-
 
 void lclcmdX(int ch);
 void readreg(char addr,char *str);
@@ -23,6 +30,7 @@ void loadregb(char addr, char val);
 
 extern int16_t addr;
 
+#endif	// ->
 #if !defined(INCLUDE)
 
 #define dx (2540l * 8l)

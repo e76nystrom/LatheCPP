@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __SERIALIO__
 #include "stm32f4xx_hal.h"
 
 #include <stdio.h>
@@ -16,7 +17,18 @@
 #include "remvar.h"
 #endif
 
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
+#include "serialio.h"
+#endif	/* !defined(INCLUDE) */
+
+#if defined(__SERIALIO_INC__)	// <-
+
+#if !defined(EXT)
+#define EXT extern
 #endif
 
 #define DBGMSG 2
@@ -222,7 +234,8 @@ typedef struct
 
 EXT T_REMCTL remCtl;
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __SERIALIO__
 
 /* polled debug port routines */
 

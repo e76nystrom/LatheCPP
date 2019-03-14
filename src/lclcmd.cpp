@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __LCLCMD__
 #include "stm32f4xx_hal.h"
 
 #define ENUM_D_MESSAGE
@@ -7,9 +8,19 @@
 #include "serialio.h"
 #include "i2c.h"
 #include "lcd.h"
-#if !defined(EXT)
-#define EXT
+
+#ifdef EXT
+#undef EXT
 #endif
+
+#define EXT
+#include "lclcmd.h"
+#endif
+
+#if defined(__LCLCMD_INC__)	// <-
+
+#if !defined(EXT)
+#define EXT extern
 #endif
 
 void lclcmd(int ch);
@@ -22,7 +33,8 @@ EXT int zDist;
 extern int zFlag;
 EXT int xDist;
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __LCLCMD__
 
 void zCommand(void);
 void xCommand(void);

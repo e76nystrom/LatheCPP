@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __LATHEX__
 #include "stm32f4xx_hal.h"
 
 #include <stdlib.h>
@@ -12,7 +13,16 @@
 #include "xcontrol.h"
 #include "encoder.h"
 #include "serialio.h"
+
+#ifdef EXT
+#undef EXT
 #endif
+
+#define EXT
+#include "latheX.h"
+#endif
+
+#if defined(__LATHEX_INC__)	// <-
 
 #ifdef WIN32
 #define DBG_DETAIL 1
@@ -59,7 +69,8 @@ char *i64toa(long long val, char *buf, int buflen);
 
 int tmp(int x);
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __LATHEX__
 
 #ifdef WIN32
 

@@ -1,5 +1,6 @@
 /******************************************************************************/
 #if !defined(INCLUDE)
+#define __LATHE__
 #include "stm32f4xx_hal.h"
 
 #include <stdio.h>
@@ -23,15 +24,16 @@
 #include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"
+
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
-
+#include "lathe.h"
 #endif
-#define LATHE_INC
-#if defined(INCLUDE)		// <-
 
-#if !defined(EXT)
-#define EXT extern
-#endif
+#if defined(__LATHE_INC__)		// <-
 
 #include <stdio.h>
 #include <string.h>
@@ -43,11 +45,9 @@
 #include "config.h"
 #include "remvar.h"
 
+#if !defined(EXT)
 #define EXT extern
-#define INCLUDE
-
-#endif /* INCLUDE */
-#if defined(LATHE_INC)
+#endif
 
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
@@ -783,7 +783,7 @@ typedef union
 #include "dbg.h"
 
 #endif	// ->
-#if !defined(INCLUDE)
+#ifdef __LATHE__
 
 #include "latheX.h"
 

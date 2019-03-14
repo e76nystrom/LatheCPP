@@ -1,23 +1,36 @@
 #if !defined(INCLUDE)
+#define __SPI__
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
 
 #include "Xilinx.h"
 #include "serialio.h"
+
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
+#include "spi.h"
+#endif
+
+#if defined(__SPI_INC__)	// <-
+
+#if !defined(EXT)
+#define EXT extern
 #endif
 
 typedef union
 {
  char  ub[2];			/* char array */
- int16_t i;			/* interger */
+ int16_t i;			/* integer */
 } byte_int;
 
 typedef union
 {
  unsigned char b[4];		/* char array */
- int32_t i;			/* long interger */
+ int32_t i;			/* long integer */
 } byte_long;
 
 #if 1
@@ -72,7 +85,8 @@ inline void spirel()
 
 #endif
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __SPI__
 
 #if 0
 

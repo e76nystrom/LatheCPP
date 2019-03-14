@@ -1,10 +1,20 @@
 #if !defined(INCLUDE)
+#define __LCD__
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
 
 #include "i2c.h"
+
+#ifdef EXT
+#undef EXT
 #endif
+
+#define EXT
+#include "lcd.h"
+#endif
+
+#if defined(__LCD_INC__)	// <-
 
 // LCD Address
 #define ADDRESS 0x27
@@ -65,7 +75,8 @@ void lcdString(char *str);
 void data(uint8_t val);
 void pulseEnable(uint8_t val);
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __LCD__
 
 uint8_t backLight;
 

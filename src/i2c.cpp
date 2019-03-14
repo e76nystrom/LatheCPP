@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __I2C__
 #include <stdio.h>
 #include <limits.h>
 
@@ -27,8 +28,20 @@
 #include "main.h"
 #include "lathe.h"
 #include "serialio.h"
+
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
+#include "i2c.h"
 #endif	/* !defined(INCLUDE) */
+
+#if  defined(__I2C_INC__)	// <-
+
+#if !defined(EXT)
+#define EXT extern
+#endif
 
 int i2c(void);
 void initI2c(void);
@@ -75,7 +88,8 @@ typedef struct
 
 EXT T_I2C_CTL i2cCtl;
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __I2C__
 
 void i2c_start(I2C_TypeDef* I2Cx, uint8_t address, uint8_t direction);
 void i2c_write(I2C_TypeDef* I2Cx, uint8_t data);

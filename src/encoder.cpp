@@ -1,13 +1,20 @@
 #if !defined(INCLUDE)
+#define __ENCODER__
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
 
 #include "lclcmd.h"
-#if !defined(EXT)
+
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
+#include "encoder.h"
 #endif
-#endif
+
+#if defined(__ENCODER_INC__)	// <-
 
 #define ENCMAX (2540 * 8)
 #define FCY 84000000
@@ -18,7 +25,8 @@ void encInit(void);
 void encStart(int tEna);
 void encStop(void);
 
-#if !defined(INCLUDE)
+#endif	// ->
+#if !defined(__ENCODER__)
 
 #if ENC_TEST
 

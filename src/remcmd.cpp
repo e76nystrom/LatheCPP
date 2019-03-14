@@ -1,4 +1,5 @@
 #if !defined(INCLUDE)
+#define __REMCMD__
 #if !defined(WIN32)
 #include "stm32f4xx_hal.h"
 #endif
@@ -11,7 +12,19 @@
 #include "spi.h"
 #include "encoder.h"
 #endif
+
+#ifdef EXT
+#undef EXT
+#endif
+
 #define EXT
+#include "remcmd.h"
+#endif
+
+#if defined(__REMCMD_INC__)	// <-
+
+#if !defined(EXT)
+#define EXT extern
 #endif
 
 #define REM_ISR 1		/* remote port using isr */
@@ -45,7 +58,8 @@ EXT int16_t tmpval;
 #include "parmList.h"
 #include "ctlbits.h"
 
-#if !defined(INCLUDE)
+#endif	// ->
+#ifdef __REMCMD__
 
 #if defined(WIN32)
 
