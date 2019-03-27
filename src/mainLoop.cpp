@@ -137,13 +137,12 @@ void mainLoopSetup(void)
  if constexpr (USEC_TIMER == INDEX_TIMER)
  {
   indexTmrScl((tmrClkFreq / 1000000U) - 1); /* load scaler */
-  idxFreq = 1000000U;
+  indexFreq = 1000000U;
  }
 // #else
  {
- {
   indexTmrScl(0);
-  idxFreq = tmrClkFreq;
+  indexFreq = tmrClkFreq;
  }
 // #endif
 
@@ -164,7 +163,6 @@ void mainLoopSetup(void)
   usecTmrSet(65535);		/* set to maximum */
   usecTmrStart();		/* start */
  }
-//#endif
 
  if constexpr (0)
   testOutputs(0);

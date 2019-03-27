@@ -306,9 +306,6 @@ EXT int wdState;		/* watchdog state */
 #define WD_INTERVAL 50		/* interval between watchdog pulses */
 #define WD_PULSE 2		/* watchdog pulse width */
 
-EXT int indexTmrAct;		/* index timer active */
-EXT unsigned int indexTimeout;
-
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
 EXT int16_t encState;		/* state of encoder */
@@ -501,10 +498,15 @@ typedef struct
  };
 } T_INDEX_COUNTER;
 
-EXT uint16_t idxOverflow;	/* index counter overflow */
-EXT uint32_t idxStart;		/* index period start count */
-EXT uint32_t idxTrkFreq;	/* freq for dbgTrk rpm calculation */
-EXT uint32_t idxFreq;		/* freq for remcmd rpm calculation */
+EXT int indexTmrPreScale;	/* index timer prescaler */
+EXT int indexTmrCount;		/* index timer count */
+EXT int indexTmrAct;		/* index timer active */
+EXT unsigned int indexTimeout;
+
+EXT uint16_t indexOverflow;	/* index counter overflow */
+EXT uint32_t indexStart;	/* index period start count */
+EXT uint32_t indexTrkFreq;	/* freq for dbgTrk rpm calculation */
+EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
 
 EXT int lcdRow;
 EXT int lcdActive;
