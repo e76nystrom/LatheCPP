@@ -742,7 +742,7 @@ typedef union
 } BITWORD;
 
 #include "main.h"
-#include "pindef.h"
+#include "pinDef.h"
 #include "timers.h"
 #include "home.h"
 #include "probe.h"
