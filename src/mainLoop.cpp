@@ -1,6 +1,6 @@
 #include "stm32f4xx_hal.h"
 
-#include "Lathe.h"
+#include "lathe.h"
 
 #include "serialio.h"
 #include "lclcmd.h"
