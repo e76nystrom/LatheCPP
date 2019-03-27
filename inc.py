@@ -29,3 +29,4 @@ for l in inp:
         if re.search(r".*?// ->", l):
             out = False
 inp.close()
+fOut.close()
