@@ -1,0 +1,20 @@
+--- main.h	2018-12-29 08:05:11.388687400 -0500
++++ mainNew.h	2018-12-29 08:02:14.311508200 -0500
+@@ -48,7 +48,7 @@
+ #endif
+ 
+ /* Includes ------------------------------------------------------------------*/
+-#include "stm32f4xx_hal.h"
++//#include "stm32f4xx_hal.h"
+ 
+ /* Private includes ----------------------------------------------------------*/
+ /* USER CODE BEGIN Includes */
+@@ -70,7 +70,7 @@
+ 
+ /* USER CODE END EM */
+ 
+-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
++//void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+ 
+ /* Exported functions prototypes ---------------------------------------------*/
+ void Error_Handler(void);
