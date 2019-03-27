@@ -341,9 +341,6 @@ EXT int wdState;		/* watchdog state */
 #define WD_INTERVAL 50		/* interval between watchdog pulses */
 #define WD_PULSE 2		/* watchdog pulse width */
 
-EXT int indexTmrAct;		/* index timer active */
-EXT unsigned int indexTimeout;
-
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
 EXT int16_t encState;		/* state of encoder */
@@ -536,10 +533,15 @@ typedef struct
  };
 } T_INDEX_COUNTER;
 
-EXT uint16_t idxOverflow;	/* index counter overflow */
-EXT uint32_t idxStart;		/* index period start count */
-EXT uint32_t idxTrkFreq;	/* freq for dbgTrk rpm calculation */
-EXT uint32_t idxFreq;		/* freq for remcmd rpm calculation */
+EXT int indexTmrPreScale;	/* index timer prescaler */
+EXT int indexTmrCount;		/* index timer count */
+EXT int indexTmrAct;		/* index timer active */
+EXT unsigned int indexTimeout;
+
+EXT uint16_t indexOverflow;	/* index counter overflow */
+EXT uint32_t indexStart;	/* index period start count */
+EXT uint32_t indexTrkFreq;	/* freq for dbgTrk rpm calculation */
+EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
 
 EXT int lcdRow;
 EXT int lcdActive;
@@ -732,49 +734,6 @@ void testOutputs(int inputTest);
 void pinDisplay(void);
 
 typedef union
-{
- struct
- {
-  unsigned b0:1;
-  unsigned b1:1;
-  unsigned b2:1;
-  unsigned b3:1;
-  unsigned b4:1;
-  unsigned b5:1;
-  unsigned b6:1;
-  unsigned b7:1;
-  unsigned b8:1;
-  unsigned b9:1;
-  unsigned b10:1;
-  unsigned b11:1;
-  unsigned b12:1;
-  unsigned b13:1;
-  unsigned b14:1;
-  unsigned b15:1;
-  unsigned b16:1;
-  unsigned b17:1;
-  unsigned b18:1;
-  unsigned b19:1;
-  unsigned b20:1;
-  unsigned b21:1;
-  unsigned b22:1;
-  unsigned b23:1;
-  unsigned b24:1;
-  unsigned b25:1;
-  unsigned b26:1;
-  unsigned b27:1;
-  unsigned b28:1;
-  unsigned b29:1;
-  unsigned b30:1;
-  unsigned b31:1;
- };
- struct
- {
-  int w;
- };
-} BITWORD;
-
-#include "main.h"
 #include "pindef.h"
 #include "timers.h"
 #include "home.h"
@@ -1157,66 +1116,104 @@ void spindleSetup(int rpm)
  xSyncInit = 0;
  if (DBG_SETUP)
  {
-  printf("\nspindleSetup\n");
+  printf("\nspindleSetup %d\n", rpm);
 
   if (stepperDrive)
   {
    printf("threading uses stepper timer\n");
   }
-  else if (spindleEncoder)
+  else
   {
-   if (spindleSync)
+   if (cfgVarSpeed)		/* if var speed */
    {
-    if (spindleSyncBoard)
-    {
-     printf("threading uses sync board\n");
-     zSyncInit = SYNC_ACTIVE_EXT;
-     if (useEncoder)
-     {
-      printf("runout uses encoder\n");
-      xSyncInit = SYNC_ACTIVE_ENC;
-     }
-     else
-     {
-      printf("runout uses local sync\n");
-      xSyncInit = SYNC_ACTIVE_TMR;
-      printf("enable capture timer\n");
-     }
+    if constexpr (PWM_TIMER != INDEX_TIMER)
+    { 
+     constexpr int PWM_FREQ = 100;
+     constexpr int MAX_COUNT = 65536;
+
+     int cnt = cfgFcy / PWM_FREQ;
+     int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
+     cnt /= preScale;
+     int pwmTmrVal = cnt;
+     cnt -= 1;
+    
+     int pwm = (rpm * pwmTmrVal) / maxSpeed;
+
+     printf("PWM_FREQ %d preScale %d cnt %d\n", PWM_FREQ, preScale, pwmTmrVal);
+     printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
+
+     pwmTmrInit();
+     pwmTmrScl(preScale - 1);
+     pwmTmrCntClr();
+     pwmTmrSet(cnt);
+     pwmTmrStart();
+     pwmTmrCCR(pwm - 1);
+     pwmTmrPWMMode();
     }
-    else			/* not SYNC_BOARD */
+    else
     {
-     if (useEncoder)
-     {
-      printf("threading uses encoder\n");
-      zSyncInit = SYNC_ACTIVE_ENC;
-      printf("runout uses encoder\n");
-      xSyncInit = SYNC_ACTIVE_ENC;
-     }
-     else
-     {
-      printf("threading uses local sync\n");
-      zSyncInit = SYNC_ACTIVE_TMR;
-      printf("enable capture timer\n");
-      printf("runout uses encoder\n");
-      xSyncInit = SYNC_ACTIVE_ENC;
-     }
+     int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
+    
+     pwmTmrCCR(pwm - 1);
+     pwmTmrPWMMode();
     }
    }
-   else				/* not SYNC */
+   
+   if (spindleEncoder)
    {
-    printf("threading uses encoder\n");
-    zSyncInit = SYNC_ACTIVE_ENC;
-    printf("runout uses encoder\n");
-    xSyncInit = SYNC_ACTIVE_ENC;
+    if (spindleSync)
+    {
+     if (spindleSyncBoard)
+     {
+      printf("threading uses sync board\n");
+      zSyncInit = SYNC_ACTIVE_EXT;
+      if (useEncoder)
+      {
+       printf("runout uses encoder\n");
+       xSyncInit = SYNC_ACTIVE_ENC;
+      }
+      else
+      {
+       printf("runout uses local sync\n");
+       xSyncInit = SYNC_ACTIVE_TMR;
+       printf("enable capture timer\n");
+      }
+     }
+     else			/* not SYNC_BOARD */
+     {
+      if (useEncoder)
+      {
+       printf("threading uses encoder\n");
+       zSyncInit = SYNC_ACTIVE_ENC;
+       printf("runout uses encoder\n");
+       xSyncInit = SYNC_ACTIVE_ENC;
+      }
+      else
+      {
+       printf("threading uses local sync\n");
+       zSyncInit = SYNC_ACTIVE_TMR;
+       printf("enable capture timer\n");
+       printf("runout uses encoder\n");
+       xSyncInit = SYNC_ACTIVE_ENC;
+      }
+     }
+    }
+    else				/* not SYNC */
+    {
+     printf("threading uses encoder\n");
+     zSyncInit = SYNC_ACTIVE_ENC;
+     printf("runout uses encoder\n");
+     xSyncInit = SYNC_ACTIVE_ENC;
+    }
    }
+   else				/* not SPINDLE_ENCODER */
+   {
+    printf("threading disabled\n");
+   }
+   encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
+   printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
+	  zSyncInit, xSyncInit, encoderDirect);
   }
-  else				/* not SPINDLE_ENCODER */
-  {
-   printf("threading disabled\n");
-  }
-  encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
-  printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
-	 zSyncInit, xSyncInit, encoderDirect);
  }
  
  if (sp.active == 0)		/* if spindle not active */
@@ -1392,20 +1389,34 @@ void spindleStart()
  indexTmrCntClr();		/* clear index timer */
  revCounter = 0;		/* and revolution counter */
 
- if (DBG_P)
-  printf("timer %d psc %u arr %u cnt %u\n", SPINDLE_TIMER,
-	 (unsigned int) SPINDLE_TMR->PSC, (unsigned int) SPINDLE_TMR->ARR,
-	 (unsigned int) SPINDLE_TMR->CNT);
-
- spindleTmrStart();		/* start spindle timer */
- putBufStrX("S\n");
- dbgSpStopSet();
-
- if (motorTest)			/* if testing motor */
+ if (stepperDrive)
  {
-  cmpTmr.encCycLen = 5;
-  cmpTmr.intCycLen = 4;
-  encoderStart();		/* start encoder */
+  if (DBG_P)
+   printf("timer %d psc %u arr %u cnt %u\n", SPINDLE_TIMER,
+	  (unsigned int) SPINDLE_TMR->PSC, (unsigned int) SPINDLE_TMR->ARR,
+	  (unsigned int) SPINDLE_TMR->CNT);
+
+  spindleTmrStart();		/* start spindle timer */
+  putBufStrX("S\n");
+  dbgSpStopSet();
+
+  if (motorTest)		/* if testing motor */
+  {
+   cmpTmr.encCycLen = 5;
+   cmpTmr.intCycLen = 4;
+   encoderStart();		/* start encoder */
+  }
+ }
+ else
+ {
+  if (cfgSwitch)		/* if spindle switched */
+  {
+   spRunSet();			/* turn on spindle */
+  }
+  if (cfgVarSpeed)		/* if var speed */
+  {
+   pwmTmrPWMEna();		/* start pwm */
+  }
  }
 }
 
@@ -1779,10 +1790,28 @@ void spindleStop(void)
  if (DBG_SETUP)
   printf("\nspindle stop\n");
 
- sp.accel = 0;			/* clear acceleration flag */
- sp.decel = 1;			/* set deceleration flag to stop */
- dbgSpStopSet();
- encoderStop();
+ if (stepperDrive)
+ {
+  sp.accel = 0;			/* clear acceleration flag */
+  sp.decel = 1;			/* set deceleration flag to stop */
+  dbgSpStopSet();
+  encoderStop();
+ }
+ else
+ {
+  if (cfgSwitch)		/* if switched spindle */
+  {
+   spRunClr();
+  }
+  if (cfgVarSpeed)		/* if variable speed */
+  {
+   if constexpr (PWM_TIMER != USEC_TIMER)
+   { 
+    pwmTmrStop();		/* stop timer */
+   }
+   pwmTmrPWMDis();		/* disable pwm */
+  }
+ }
 }
 
 float stepTime(float cFactor, int step)
@@ -3880,7 +3909,7 @@ void axisCtl(void)
   if (indexPeriod != 0)
   {
    indexPeriod = 0;		/* set index period to zero */
-   idxStart = 0;		/* reset start time */
+   indexStart = 0;		/* reset start time */
    revCounter = 0;
    printf("mainLoop clear indexPeriod\n");
   }

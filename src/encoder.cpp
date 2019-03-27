@@ -25,8 +25,8 @@ void encInit(void);
 void encStart(int tEna);
 void encStop(void);
 
-#endif	// ->
 #if !defined(__ENCODER__)
+#if ENC_TEST
 
 #if ENC_TEST
 

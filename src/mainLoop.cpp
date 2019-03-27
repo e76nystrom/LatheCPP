@@ -131,6 +131,7 @@ void mainLoopSetup(void)
  /* initialize timer 11 as index timer */
 
  indexTmrCnt(65535);
+ indexTmrCnt(65535);
 
 // #ifdef USEC_SHARED_INDEX
  if constexpr (USEC_TIMER == INDEX_TIMER)
@@ -140,12 +141,13 @@ void mainLoopSetup(void)
  }
 // #else
  {
+ {
   indexTmrScl(0);
   idxFreq = tmrClkFreq;
  }
 // #endif
 
- idxTrkFreq = idxFreq * 6;
+ indexTrkFreq = indexFreq * 6;
  indexTmrClrIF();
  indexTmrSetIE();
  indexTmrInit();
@@ -177,7 +179,7 @@ void mainLoopSetupX(void)
 int16_t mainLoop(void)
 {
  unsigned char ch;
- uint32_t extInt[] =
+ IRQn_Type extInt[] =
  {
   EXTI0_IRQn,
   EXTI1_IRQn,
@@ -192,10 +194,10 @@ int16_t mainLoop(void)
 
  DBGMCU->APB1FZ = DBGMCU_APB1_FZ_DBG_IWDG_STOP; /* stop wd on debug */
 
- uint32_t *p = extInt;		/* external interrupt list */
- int i = sizeof(extInt) / sizeof(uint32_t); /* sizeof list */
+ IRQn_Type *p = extInt;		/* external interrupt list */
+ int i = sizeof(extInt) / sizeof(IRQn_Type); /* sizeof list */
  while (--i >= 0)		/* while not at end of list */
-  HAL_NVIC_DisableIRQ((IRQn_Type) *p++);	/* disable external interrupt */
+  HAL_NVIC_DisableIRQ(*p++);	/* disable external interrupt */
 
 #if REM_ISR
  initRem();
@@ -203,15 +205,6 @@ int16_t mainLoop(void)
  HAL_NVIC_DisableIRQ(REMOTE_IRQn);
 #endif
 
- dbg0Ini();
- dbg1Ini();
- dbg2Ini();
- dbg3Ini();
- dbg4Ini();
- dbg5Ini();
- dbg6Ini();
- dbg7Ini();
- dbg8Ini();
  tpi = 0.0;
  zTaperDist = 0.0;
  taper = 0.0;
@@ -229,6 +222,7 @@ int16_t mainLoop(void)
 	(unsigned int) &__stack, (unsigned int) &__Main_Stack_Limit,
 	getSP());
  #endif
+
  putstr1("start remcmd\n");
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
  unsigned int FCY = HAL_RCC_GetPCLK2Freq() * 2;

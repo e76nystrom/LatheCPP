@@ -306,17 +306,17 @@ extern "C" void index1ISR(void)
 extern "C" void index2ISR(void)
 {
  EXTI->PR = Index2_Pin;		/* clear index 2 interrupt */
- static T_INDEX_COUNTER idxTmp;
+ static T_INDEX_COUNTER indexTmp;
 
  indexTmrStop();
- idxTmp.overflow = idxOverflow; /* copy overflow value */
- idxTmp.count = indexTmrRead(); /* read index timer */
+ indexTmp.overflow = indexOverflow; /* copy overflow value */
+ indexTmp.count = indexTmrRead(); /* read index timer */
  indexTmrStart();		/* restart counter */
- if (idxStart != 0)		/* if not the first index interrupt */
+ if (indexStart != 0)		/* if not the first index interrupt */
  {
-  indexPeriod = idxTmp.period - idxStart; /* save to period */
+  indexPeriod = indexTmp.period - indexStart; /* save to period */
  }
- idxStart = idxTmp.period;	/* set start for next period */
+ indexStart = indexTmp.period;	/* set start for next period */
 
  if (trackSpeed)		/* if tracking speed */
   updateFeed = 1;		/* set to update the feed */
@@ -325,7 +325,7 @@ extern "C" void index2ISR(void)
  {
   uint32_t tmp = (uint32_t) indexPeriod;
   tmp /= 10;
-  tmp = idxTrkFreq / tmp;
+  tmp = indexTrkFreq / tmp;
   dbgTrk1L(tmp);
  }
  indexUpdateTime = millis();	/* set update time */
@@ -1260,7 +1260,7 @@ extern "C" void indexTmrISR(void)
  if (indexTmrIF())		/* if index timer */
  {
   indexTmrClrIF();		/* clear interrupt flag */
-  idxOverflow++;		/* update overflow */
+  indexOverflow++;		/* update overflow */
  }
 }
 
