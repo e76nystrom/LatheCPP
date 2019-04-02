@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python27/Python.exe
+#!/cygdrive/c/Python37/Python.exe
 
 CPP = True
 
@@ -131,96 +131,103 @@ else:
     cl = ""
     opIn = ""
     clIn = ""
+
+def fWrite(file, txt):
+    file.write(txt.encode())
     
 f = open("include/pinDef.h", "wb")
-f.write("#ifdef __STM32F4xx_HAL_H\n")
-f.write("#if !defined(__PINDEF_H)\n")
-f.write("#define __PINDEF_H\n\n")
+fWrite(f, "#ifdef __STM32F4xx_HAL_H\n")
+fWrite(f, "#if !defined(__PINDEF_H)\n")
+fWrite(f, "#define __PINDEF_H\n\n")
 
 for (dir, name, pin, comment) in pinList:
     if len(comment) != 0:
-        f.write("/* %s */\n" % (comment))
+        fWrite(f, "/* %s */\n" % (comment))
 
     if dir == 'o':
-        f.write("#ifdef %s_Pin\n" % (pin))
-        f.write("%s %sSet() %s%s_GPIO_Port->BSRR = %s_Pin%s\n" % \
+        fWrite(f, "#ifdef %s_Pin\n" % (pin))
+        fWrite(f, "%s %sSet() %s%s_GPIO_Port->BSRR = %s_Pin%s\n" % \
                 (dout, name, op, pin, pin, cl))
-        f.write("%s %sClr() "
+        fWrite(f, "%s %sClr() "
                 "%s%s_GPIO_Port->BSRR = (%s_Pin << 16)%s\n" % \
                 (dout, name, op, pin, pin, cl))
-        f.write("#else\n")
-        f.write("%s %sSet()%s\n" % (dout, name, empty))
-        f.write("%s %sClr()%s\n" % (dout, name, empty))
-        f.write("#endif\n\n")
+        fWrite(f, "%s %sRead() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
+                (din, name, opIn, pin, pin, clIn))
+        fWrite(f, "#else\n")
+        fWrite(f, "%s %sSet()%s\n" % (dout, name, empty))
+        fWrite(f, "%s %sClr()%s\n" % (dout, name, empty))
+        fWrite(f, "%s %s()%s\n" % (din, name, emptyIn))
+        fWrite(f, "#endif\n\n")
     elif dir == 'i':
-        f.write("#ifdef %s_Pin\n" % (pin))
-        f.write("%s %s() %s(%s_GPIO_Port->BSRR & %s_Pin) != 0%s\n" % \
+        fWrite(f, "#ifdef %s_Pin\n" % (pin))
+        fWrite(f, "%s %s() %s(%s_GPIO_Port->BSRR & %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
-        f.write("%s %sSet() %s(%s_GPIO_Port->BSRR = %s_Pin) != 0%s\n" % \
+        fWrite(f, "%s %sIsSet() %s(%s_GPIO_Port->BSRR = %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
-        f.write("%s %sClr() %s(%s_GPIO_Port->BSRR = %s_Pin) == 0%s\n" % \
+        fWrite(f, "%s %sIsClr() %s(%s_GPIO_Port->IDR = %s_Pin) == 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
-        f.write("#else\n")
-        f.write("%s %sSet()%s\n" % (din, name, emptyIn))
-        f.write("%s %sClr()%s\n" % (din, name, emptyIn))
-        f.write("#endif\n\n")
+        fWrite(f, "#else\n")
+        fWrite(f, "%s %s()%s\n" % (din, name, emptyIn))
+        fWrite(f, "%s %sIsSet()%s\n" % (din, name, emptyIn))
+        fWrite(f, "%s %sIsClr()%s\n" % (din, name, emptyIn))
+        fWrite(f, "#endif\n\n")
     else:
         print("invalid dir\n");
 
-f.write("#endif /* __PINDEF_H */\n")
-f.write("#endif /* __STM32F4xx_HAL_H */\n")
+fWrite(f, "#endif /* __PINDEF_H */\n")
+fWrite(f, "#endif /* __STM32F4xx_HAL_H */\n")
 f.close()
 
 f = open("include/dbg.h", "wb")
 f1 = open("include/dbgPin.h", "wb")
 
-f.write("#ifdef __STM32F4xx_HAL_H\n")
-f.write("#if !defined(__DBG_H)\n")
-f.write("#define __DBG_H\n\n")
+fWrite(f, "#ifdef __STM32F4xx_HAL_H\n")
+fWrite(f, "#if !defined(__DBG_H)\n")
+fWrite(f, "#define __DBG_H\n\n")
 
 for pin in dbgPins:
     if CPP:
-        f.write("constexpr auto DBG%d = 1;\n" % (pin))
+        fWrite(f, "constexpr auto DBG%d = 1;\n" % (pin))
     else:
-        f.write("#define DBG%d 1\n" % (pin))
-f.write("\n")
+        fWrite(f, "#define DBG%d 1\n" % (pin))
+fWrite(f, "\n")
 
 for pin in dbgPins:
-    f.write("#ifdef Dbg%d_Pin\n" % (pin))
-    f.write("%s dbg%dIni()%s\n" % (dout, pin, empty))
-    f.write("%s dbg%dSet() %sDbg%d_GPIO_Port->BSRR = Dbg%d_Pin%s\n" % \
+    fWrite(f, "#ifdef Dbg%d_Pin\n" % (pin))
+    fWrite(f, "%s dbg%dIni()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%dSet() %sDbg%d_GPIO_Port->BSRR = Dbg%d_Pin%s\n" % \
             (dout, pin, op, pin, pin, cl))
-    f.write("%s dbg%dClr() %sDbg%d_GPIO_Port->BSRR = (Dbg%d_Pin << 16)%s\n" %\
+    fWrite(f, "%s dbg%dClr() %sDbg%d_GPIO_Port->BSRR = (Dbg%d_Pin << 16)%s\n" %\
             (dout, pin, op, pin, pin, cl))
-    f.write("#else\n")
-    f.write("%s dbg%dIni()%s\n" % (dout, pin, empty))
-    f.write("%s dbg%dSet()%s\n" % (dout, pin, empty))
-    f.write("%s dbg%dClr()%s\n" % (dout, pin, empty))
-    f.write("#endif\n\n")
+    fWrite(f, "#else\n")
+    fWrite(f, "%s dbg%dIni()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%dSet()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%dClr()%s\n" % (dout, pin, empty))
+    fWrite(f, "#endif\n\n")
 
 for (name, pin, comment) in dbgList:
     pin = int(pin)
-    f.write("/* %s */\n" % (comment))
+    fWrite(f, "/* %s */\n" % (comment))
     if pin >= 0:
-        f.write("#ifdef Dbg%d_Pin\n" % (pin))
-        f.write("%s %sSet() %sDbg%d_GPIO_Port->BSRR = Dbg%d_Pin%s\n" % \
+        fWrite(f, "#ifdef Dbg%d_Pin\n" % (pin))
+        fWrite(f, "%s %sSet() %sDbg%d_GPIO_Port->BSRR = Dbg%d_Pin%s\n" % \
                 (dout, name, op, pin, pin, cl))
-        f.write("%s %sClr() "
+        fWrite(f, "%s %sClr() "
                 "%sDbg%d_GPIO_Port->BSRR = (Dbg%d_Pin << 16)%s\n" % \
                 (dout, name, op, pin, pin, cl))
-        f.write("#else\n")
-        f.write("%s %sSet()%s\n" % (dout, name, empty))
-        f.write("%s %sClr()%s\n" % (dout, name, empty))
-        f.write("#endif\n\n")
+        fWrite(f, "#else\n")
+        fWrite(f, "%s %sSet()%s\n" % (dout, name, empty))
+        fWrite(f, "%s %sClr()%s\n" % (dout, name, empty))
+        fWrite(f, "#endif\n\n")
 
-        f1.write("#ifdef Dbg%d_Pin\n" % (pin))
-        f1.write(" PIN(%s, Dbg%d),\n" % (name, pin))
-        f1.write("#endif\n")
+        fWrite(f1, "#ifdef Dbg%d_Pin\n" % (pin))
+        fWrite(f1, " PIN(%s, Dbg%d),\n" % (name, pin))
+        fWrite(f1, "#endif\n")
     else:
-        f.write("%s %sSet()%s\n" % (dout, name, empty))
-        f.write("%s %sClr()%s\n\n" % (dout, name, empty))
-f.write("#endif /* __DBG_H */\n")
-f.write("#endif /* __STM32F4xx_HAL_H */\n")
+        fWrite(f, "%s %sSet()%s\n" % (dout, name, empty))
+        fWrite(f, "%s %sClr()%s\n\n" % (dout, name, empty))
+fWrite(f, "#endif /* __DBG_H */\n")
+fWrite(f, "#endif /* __STM32F4xx_HAL_H */\n")
 f.close()
 f1.close()
 
@@ -279,36 +286,36 @@ else:
     empty = ""
     eol = ""
 
-f.write("#define DBGTRK 1\n\n")
+fWrite(f, "#define DBGTRK 1\n\n")
 
-f.write("#if DBGTRK\n\n")
+fWrite(f, "#if DBGTRK\n\n")
 
 for (label, comment) in dbgTrkList:
     define = "%s DBGTRK%s%s %d%s" % (d0, label, eq, label == dbgTrk, eol)
-    f.write("%s/* %s */\n" % (define.ljust(32), comment))
+    fWrite(f, "%s/* %s */\n" % (define.ljust(32), comment))
 
-f.write("\n")
+fWrite(f, "\n")
 
 for (label, arg, argType, macro) in dbgTrkCode:
     defined = label == code
-    f.write("%s DBGTRK%s%s %d%s\n" % (d0, label, eq, defined, eol))
-    f.write("%s dbgTrk%s(" % (d1, label))
+    fWrite(f, "%s DBGTRK%s%s %d%s\n" % (d0, label, eq, defined, eol))
+    fWrite(f, "%s dbgTrk%s(" % (d1, label))
     first = True
     for i in range(len(arg)):
         if first:
             first = False
         else:
-            f.write(",\n\t")
+            fWrite(f, ",\n\t")
         if CPP:
-            f.write("%s " % (argType[i]))
-        f.write(arg[i])
+            fWrite(f, "%s " % (argType[i]))
+        fWrite(f, arg[i])
         if CPP:
-            f.write("  __attribute__((unused))");
-    f.write(")")
+            fWrite(f, "  __attribute__((unused))");
+    fWrite(f, ")")
     if defined:
-        f.write(" \\\n%s\n" % (macro))
+        fWrite(f, " \\\n%s\n" % (macro))
     else:
-        f.write("%s\n\n" % (empty))
+        fWrite(f, "%s\n\n" % (empty))
                 
-f.write("#endif /* DBGTRK */\n")
+fWrite(f, "#endif /* DBGTRK */\n")
 f.close()

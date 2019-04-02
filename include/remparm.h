@@ -233,10 +233,11 @@ T_PARM remparm[] =
 
 // motor and speed control
 
- PARM(minSpeed),                /* 0x89 minimum speed for current range */
- PARM(maxSpeed),                /* 0x8a maximum speed for current range */
+ PARM(pwmFreq),                 /* 0x89 spindle speed pwm frequency */
+ PARM(minSpeed),                /* 0x8a minimum speed for current range */
+ PARM(maxSpeed),                /* 0x8b maximum speed for current range */
 
 // max parameter number
 
- PARM(maxParm),                 /* 0x8b maximum parameter */
+ PARM(maxParm),                 /* 0x8c maximum parameter */
 };

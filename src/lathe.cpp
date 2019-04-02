@@ -1171,10 +1171,9 @@ void spindleSetup(int rpm)
    {
     if constexpr (PWM_TIMER != INDEX_TIMER)
     { 
-     constexpr int PWM_FREQ = 100;
      constexpr int MAX_COUNT = 65536;
 
-     int cnt = cfgFcy / PWM_FREQ;
+     int cnt = cfgFcy / pwmFreq;
      int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
      cnt /= preScale;
      int pwmTmrVal = cnt;
@@ -1182,7 +1181,7 @@ void spindleSetup(int rpm)
     
      int pwm = (rpm * pwmTmrVal) / maxSpeed;
 
-     printf("PWM_FREQ %d preScale %d cnt %d\n", PWM_FREQ, preScale, pwmTmrVal);
+     printf("pwmFreq %d preScale %d cnt %d\n", pwmFreq, preScale, pwmTmrVal);
      printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
 
      pwmTmrInit();
@@ -1455,6 +1454,8 @@ void spindleStart()
   if (cfgSwitch)		/* if spindle switched */
   {
    spRunSet();			/* turn on spindle */
+   if (DBG_SETUP)
+    printf("spRun %d\n", spRunRead());
   }
   if (cfgVarSpeed)		/* if var speed */
   {
@@ -4631,7 +4632,7 @@ void procMove(void)
 
  case M_WAIT_SYNC_READY:
 //  if (readyEQ0())		/* if sync ready */
-  if (readyClr())		/* if sync ready */
+  if (readyIsClr())		/* if sync ready */
   {
    startSet();			/* clear start flag */
    mv->state = M_WAIT_SYNC_DONE;
@@ -4640,7 +4641,7 @@ void procMove(void)
 
  case M_WAIT_SYNC_DONE:
 //  if (readyNE0())		/* if ready cleared */
-  if (readySet())		/* if ready cleared */
+  if (readyIsSet())		/* if ready cleared */
   {
    if (useEncoder == 0)		/* if not using encoder directly */
    {

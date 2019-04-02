@@ -233,10 +233,11 @@ enum PARM
 
 // motor and speed control
 
- MIN_SPEED,                     /* 0x89 minimum speed for current range */
- MAX_SPEED,                     /* 0x8a maximum speed for current range */
+ PWM_FREQ,                      /* 0x89 spindle speed pwm frequency */
+ MIN_SPEED,                     /* 0x8a minimum speed for current range */
+ MAX_SPEED,                     /* 0x8b maximum speed for current range */
 
 // max parameter number
 
- MAX_PARM,                      /* 0x8b maximum parameter */
+ MAX_PARM,                      /* 0x8c maximum parameter */
 };

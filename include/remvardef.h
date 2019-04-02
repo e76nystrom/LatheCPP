@@ -231,9 +231,10 @@
 
 // motor and speed control
 
- EXT int16_t minSpeed;          /* 0x89 minimum speed for current range */
- EXT int16_t maxSpeed;          /* 0x8a maximum speed for current range */
+ EXT int16_t pwmFreq;           /* 0x89 spindle speed pwm frequency */
+ EXT int16_t minSpeed;          /* 0x8a minimum speed for current range */
+ EXT int16_t maxSpeed;          /* 0x8b maximum speed for current range */
 
 // max parameter number
 
- EXT int16_t maxParm;           /* 0x8b maximum parameter */
+ EXT int16_t maxParm;           /* 0x8c maximum parameter */

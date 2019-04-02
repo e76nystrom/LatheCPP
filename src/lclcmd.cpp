@@ -64,7 +64,7 @@ void loadregb(char addr, char val)
 }
 #endif
 
-typedef struct
+typedef struct s_port_list
 {
  char ch;
  GPIO_TypeDef *port;
@@ -77,6 +77,22 @@ T_PORT_LIST portList[] =
  {'c', GPIOC},
  {'d', GPIOD},
  {'e', GPIOE},
+};
+
+typedef struct s_output_pin
+{
+ int pin;
+ void (*set) (void);
+ void (*clr) (void);
+ uint16_t (*read) (void);
+} T_OUTPUT_PIN, *P_OUTPUT_PIN;
+
+T_OUTPUT_PIN outputPins[] =
+{
+ {1, pin1Set, pin1Clr, pin1Read},
+ {14, pin14Set, pin14Clr, pin14Read},
+ {16, pin16Set, pin16Clr, pin16Read},
+ {17, pin16Set, pin17Clr, pin17Read},
 };
 
 void lclcmd(int ch)
@@ -105,6 +121,39 @@ void lclcmd(int ch)
  {
   newline();
   encoderCalculate();
+ }
+ else if (ch == 'o')
+ {
+  printf("\npin: ");
+  flushBuf();
+  if (getnum())
+  {
+   int pin = val;
+   char found = 0;
+   P_OUTPUT_PIN p = outputPins;
+   for (unsigned int i = 0; i < sizeof(outputPins) / sizeof(T_OUTPUT_PIN);
+	i++, p++)
+   {
+    if (pin == p->pin)
+    {
+     found = true;
+     break;
+    }
+   }
+   if (found)
+   {
+    printf("\nval: ");
+    flushBuf();
+    if (getnum())
+    {
+     if (val != 0)
+      p->set();
+     else
+      p->clr();
+    }
+    printf("\npin %d %d", pin, p->read());
+   }
+  }
  }
  else if (ch == 'e')
  {
