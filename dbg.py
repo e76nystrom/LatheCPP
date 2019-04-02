@@ -160,9 +160,9 @@ for (dir, name, pin, comment) in pinList:
         fWrite(f, "#endif\n\n")
     elif dir == 'i':
         fWrite(f, "#ifdef %s_Pin\n" % (pin))
-        fWrite(f, "%s %s() %s(%s_GPIO_Port->BSRR & %s_Pin) != 0%s\n" % \
+        fWrite(f, "%s %s() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
-        fWrite(f, "%s %sIsSet() %s(%s_GPIO_Port->BSRR = %s_Pin) != 0%s\n" % \
+        fWrite(f, "%s %sIsSet() %s(%s_GPIO_Port->IDR = %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
         fWrite(f, "%s %sIsClr() %s(%s_GPIO_Port->IDR = %s_Pin) == 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
