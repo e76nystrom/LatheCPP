@@ -3,7 +3,6 @@
 #include "stm32f4xx_hal.h"
 
 #include "lathe.h"
-
 #include "lclcmd.h"
 
 #ifdef EXT
@@ -25,8 +24,9 @@ void encInit(void);
 void encStart(int tEna);
 void encStop(void);
 
-#endif
-#if !defined(__ENCODER__)
+#endif	// ->
+#ifdef __ENCODER__
+
 #if ENC_TEST
 
 void encInit(void)
