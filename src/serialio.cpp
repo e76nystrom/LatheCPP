@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "main.h"
 #include "config.h"
@@ -59,6 +60,9 @@ char gethex(void);
 char getstr(char *buf, int bufLen);
 unsigned char getnum(void);
 unsigned char getfloat(void);
+
+char query(const char *format, ...);
+char query(unsigned char (*get)(), const char *format, ...);
 
 void prtbuf(unsigned char *p, int size);
 void prtibuf(int16_t *p, int size);
@@ -509,6 +513,31 @@ unsigned char getfloat(void)
   return(1);
  }
  return(0);
+}
+
+char query(const char *format, ...)
+{
+ va_list args;
+ va_start(args, format);
+ vprintf(format, args);
+ va_end(args);
+ flushBuf();
+ char ch = getx();
+ putx(ch);
+ newline();
+ return(ch);
+}
+
+char query(unsigned char (*get)(), const char *format, ...)
+{
+ va_list args;
+ va_start(args, format);
+ vprintf(format, args);
+ va_end(args);
+ flushBuf();
+ char ch = get();
+ newline();
+ return(ch);
 }
 
 void prtbuf(unsigned char *p, int size)

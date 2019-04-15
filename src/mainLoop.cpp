@@ -431,7 +431,7 @@ void lcdDisplay(void)
   {
    if ((millis() - lcdDelayStart) > LCD_DELAY)
    {
-    char buf[22];
+    char buf[32];
     switch(lcdRow)
     {
     case 0:
@@ -477,8 +477,9 @@ void lcdDisplay(void)
       else
        spring = (springInfo & 0xff) + '0';
      }
-     sprintf(buf, "RPM %3d Pass %2d/%2d %c",
-	     rpm, currentPass, totalPasses, spring);
+     sprintf(buf, "RPM %3hu Pass %2hhu/%2hhu %c",
+	     (uint16_t) rpm, (unsigned char) currentPass,
+	     (unsigned char) totalPasses, spring);
     }
     lcdRow = 0;
     break;

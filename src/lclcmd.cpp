@@ -40,7 +40,7 @@ void zCommand(void);
 void xCommand(void);
 void pinDisplay(void);
 
-int lastFlags;
+uint32_t lastFlags;
 
 #if 0
 void readreg(char addr, char *str)
@@ -124,9 +124,7 @@ void lclcmd(int ch)
  }
  else if (ch == 'o')
  {
-  printf("\npin: ");
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "\npin: "))
   {
    int pin = val;
    char found = 0;
@@ -142,9 +140,7 @@ void lclcmd(int ch)
    }
    if (found)
    {
-    printf("\nval: ");
-    flushBuf();
-    if (getnum())
+    if (query(&getnum, "val: "))
     {
      if (val != 0)
       p->set();
@@ -159,23 +155,17 @@ void lclcmd(int ch)
  {
   newline();
   encoderStop();
-  printf("encoder cycle %d: ",  lSyncCycle);
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "encoder cycle %d: ",  lSyncCycle))
   {
    if (val != 0)
     lSyncCycle = val;
   }
-  printf("\noutput %d: ", lSyncOutput);
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "output %d: ", lSyncOutput))
   {
    if (val != 0)
     lSyncOutput = val;
   }
-  printf("\nprescaler %d: ", lSyncPrescaler);
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "prescaler %d: ", lSyncPrescaler))
   {
    if (val != 0)
     lSyncPrescaler = val;
@@ -195,21 +185,13 @@ void lclcmd(int ch)
 
   while (1)
   {
-   printf("\nreg ");
-   flushBuf();
-   if (getnum())
+   if (query(&getnum, "\nreg "))
     reg = val;
    else
     break;
-
-   printf("\nmask ");
-   flushBuf();
-   if (getnum())
+   if (query(&getnum, "mask "))
     mask = val;
-    
-   printf("\ninvert ");
-   flushBuf();
-   if (getnum())
+   if (query(&getnum, "invert "))
     invert = val != 0;
   
    int set = (((reg & mask) != 0) ^ invert);
@@ -232,9 +214,7 @@ void lclcmd(int ch)
 	 "\nout test 0x08"
 	 "\ninp plup 0x10"
 	 "\ninp pldn 0x20");
-  printf("\npin test: ");
-  flushBuf();
-  getnum();
+  query(&getnum, "\npin test: ");
   newline();
   testOutputs(val);
  }
@@ -262,15 +242,11 @@ void lclcmd(int ch)
    spJogRpm = fVal;
 
   unsigned int delay = 250;
-  printf("delay [%u]: ", delay);
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "delay [%u]: ", delay))
    delay = (unsigned int) val;
 
   int repeat = 1;
-  printf("\nrepeat [%d]: ", repeat);
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "repeat [%d]: ", repeat))
    repeat = val;
   printf("\n");
 
@@ -353,18 +329,14 @@ void lclcmd(int ch)
  }
  else if (ch == 'F')
  {
-  printf("\nIRQn: ");
-  flushBuf();
-  if (getnum())
+  if (query(&getnum, "\nIRQn: "))
   {
     HAL_NVIC_EnableIRQ((IRQn_Type) val);
   }
  }
  else if (ch == 'I')
  {
-  printf("\nPort: ");
-  flushBuf();
-  ch = getx();
+  ch = query("\nPort: ");
   unsigned int i;
   P_PORT_LIST p = portList;
   GPIO_TypeDef *port = 0;
@@ -409,9 +381,7 @@ void lclcmd(int ch)
  }
  else if (ch == 'L')
  {
-  printf("\ninit: ");
-  flushBuf();
-  ch = getx();
+  ch = query("\ninit: ");
   putBufChar(ch);
   newline();
   if (ch == 'y')
@@ -422,7 +392,6 @@ void lclcmd(int ch)
  else if (ch == 'O')
  {
   zSynSetup(runCtl.feedType, runCtl.zFeed, runoutDistance, runoutDepth);
-//	    runCtl.taper);
   unsigned int step;
   int count;
   int curCount;
@@ -442,9 +411,7 @@ void lclcmd(int ch)
  }
  else if (ch == 'Q')		/* print peripheral info */
  {
-  printf(" flag: ");
-  flushBuf();
-  if (getnum() == 0)
+  if (query(&getnum, " flag [0x%x]: ", lastFlags) == 0)
   {
    val = lastFlags;
   }
@@ -874,9 +841,7 @@ void zCommand(void)
   {
    if (zDist == 0)
     zDist = 1000;
-   printf("dist [%d] ", zDist);
-   fflush(stdout);
-   if (getnum())
+   if (query(&getnum, "dist [%d] ", zDist))
     zDist = val;
    newline();
    zMoveInit(&zMA, 1, zDist);
@@ -943,19 +908,13 @@ void zCommand(void)
   {
    if (zDist == 0)
     zDist = 1000;
-   printf("dist [%d] ", zDist);
-   fflush(stdout);
-   putBufChar(' ');
-   if (getnum())
+   if (query(&getnum, "dist [%d] ", zDist))
     zDist = val;
    newline();
 
    if (zFlag == 0)
     zFlag = CMD_MOV;
-   printf("flag [%d] ", zFlag);
-   fflush(stdout);
-   putBufChar(' ');
-   if (getnum())
+   if (query(&getnum, "flag [%d] ", zFlag))
     zFlag = val;
    newline();
 
