@@ -189,8 +189,10 @@ void lclcmd(int ch)
     reg = val;
    else
     break;
+
    if (query(&getnum, "mask "))
     mask = val;
+
    if (query(&getnum, "invert "))
     invert = val != 0;
   
@@ -351,9 +353,7 @@ void lclcmd(int ch)
   }
   if (port != 0)
   {
-   printf("\nmask: ");
-   flushBuf();
-   if (gethex())
+   if (query(&gethex, "\nmask: "))
    {
     port->ODR = val;
     printf("\n");

@@ -28,7 +28,7 @@ void putx(char c);
 void putstr(const char *p);
 void sndhex(unsigned char *p, int size);
 char getx(void);
-char gethex(void);
+unsigned char gethex(void);
 char getstr(char *buf, int bufLen);
 unsigned char getnum(void);
 unsigned char getfloat(void);
