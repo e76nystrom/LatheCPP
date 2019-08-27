@@ -48,10 +48,10 @@ macros = \
 (\
  (None, "dirSpinFwd", None, None, "DIR_SPIN_PORT->BSRR = spA.dirFwd"),
  (None, "dirSpinRev", None, None, "DIR_SPIN_PORT->BSRR = spA.dirRev"),
- (None, "dirZFwd",    None, None, "DIR_SPIN_PORT->BSRR = zAxis.dirFwd"),
- (None, "dirZRev",    None, None, "DIR_SPIN_PORT->BSRR = zAxis.dirRev"),
- (None, "dirXFwd",    None, None, "DIR_SPIN_PORT->BSRR = xAxis.dirFwd"),
- (None, "dirXRev",    None, None, "DIR_SPIN_PORT->BSRR = xAxis.dirRev"),
+ (None, "dirZFwd",    None, None, "Dir1_GPIO_Port->BSRR = zAxis.dirFwd"),
+ (None, "dirZRev",    None, None, "Dir1_GPIO_Port->BSRR = zAxis.dirRev"),
+ (None, "dirXFwd",    None, None, "Dir2_GPIO_Port->BSRR = xAxis.dirFwd"),
+ (None, "dirXRev",    None, None, "Dir2_GPIO_Port->BSRR = xAxis.dirRev"),
  ("uint32_t", "CALC_STEP_WIDTH", "uint32_t", "x", "(cfgFcy * x) / 1000000l"),
 )
 
@@ -530,13 +530,13 @@ while True:
         path = "LatheCPP"
     elif val == "core407":
         cfg = core407
-        path = "LatheD"
+        path = "LatheCPPD"
     elif val == "nuc446":
         cfg = nuc446
-        path = "LatheN"
+        path = "LatheCPPN"
     elif val == "nuc401":
         cfg = nuc401
-        path = "LatheX0"
+        path = "LatheCPPX0"
     n += 1
 
 main(cfg, path)
