@@ -436,8 +436,8 @@ void lcdDisplay(void)
     {
     case 0:
      sprintf(buf, "Z %8.4f X %7.4f",
-	     ((float) zLoc) / zAxis.stepsInch - zHomeOffset,
-	     ((float) xLoc) / xAxis.stepsInch - xHomeOffset);
+	     ((float) (zLoc - zHomeOffset)) / zAxis.stepsInch,
+	     ((float) (xLoc - xHomeOffset)) / xAxis.stepsInch);
      lcdRow = 1;
      break;
 
@@ -446,7 +446,7 @@ void lcdDisplay(void)
      char h = xHomeStatus == HOME_SUCCESS ? 'H' : ' ';
      char p = cmdPause ? 'P' : ' ';
      sprintf(buf, "%c%c         D %7.4f", h, p,
-	     2.0 * fabsf(((float) xLoc) / xAxis.stepsInch - xHomeOffset));
+	     2.0 * fabsf(((float) (xLoc - xHomeOffset)) / xAxis.stepsInch));
      if (cfgDro)
       lcdRow = 2;
      else
@@ -457,8 +457,8 @@ void lcdDisplay(void)
     case 2:
      if (cfgDro)
       sprintf(buf, "Z %8.4f X %7.4f",
-	      ((float) zDroPos) / zDroInch - zDroOffset,
-	      ((float) xDroPos) / xDroInch - xDroOffset);
+	      ((float) (zDroPos - zDroOffset)) / zDroCountInch,
+	      ((float) (xDroPos - xDroOffset)) / xDroCountInch);
      lcdRow = 3;
      break;
 

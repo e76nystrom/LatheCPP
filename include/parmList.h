@@ -123,7 +123,7 @@ enum PARM
 
  Z_DRO_POS,                     /* 0x4c z dro location */
  Z_DRO_OFFSET,                  /* 0x4d z dro to zero */
- Z_DRO_INCH,                    /* 0x4e z dro scale */
+ Z_DRO_COUNT_INCH,              /* 0x4e z dro scale */
  Z_DRO_INVERT,                  /* 0x4f z dro invert */
 
 // x home parameters
@@ -141,7 +141,7 @@ enum PARM
  X_HOME_OFFSET,                 /* 0x57 x home offset */
  X_DRO_POS,                     /* 0x58 x dro location */
  X_DRO_OFFSET,                  /* 0x59 x dro to zero */
- X_DRO_INCH,                    /* 0x5a x dro scale */
+ X_DRO_COUNT_INCH,              /* 0x5a x dro scale */
  X_DRO_INVERT,                  /* 0x5b x dro invert */
 
 // x home or probe status
@@ -236,8 +236,5 @@ enum PARM
  PWM_FREQ,                      /* 0x89 spindle speed pwm frequency */
  MIN_SPEED,                     /* 0x8a minimum speed for current range */
  MAX_SPEED,                     /* 0x8b maximum speed for current range */
-
-// max parameter number
-
  MAX_PARM,                      /* 0x8c maximum parameter */
 };

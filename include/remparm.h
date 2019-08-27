@@ -123,7 +123,7 @@ T_PARM remparm[] =
 
  PARM(zDroPos),                 /* 0x4c z dro location */
  PARM(zDroOffset),              /* 0x4d z dro to zero */
- PARM(zDroInch),                /* 0x4e z dro scale */
+ PARM(zDroCountInch),           /* 0x4e z dro scale */
  PARM(zDroInvert),              /* 0x4f z dro invert */
 
 // x home parameters
@@ -141,7 +141,7 @@ T_PARM remparm[] =
  PARM(xHomeOffset),             /* 0x57 x home offset */
  PARM(xDroPos),                 /* 0x58 x dro location */
  PARM(xDroOffset),              /* 0x59 x dro to zero */
- PARM(xDroInch),                /* 0x5a x dro scale */
+ PARM(xDroCountInch),           /* 0x5a x dro scale */
  PARM(xDroInvert),              /* 0x5b x dro invert */
 
 // x home or probe status
@@ -236,8 +236,5 @@ T_PARM remparm[] =
  PARM(pwmFreq),                 /* 0x89 spindle speed pwm frequency */
  PARM(minSpeed),                /* 0x8a minimum speed for current range */
  PARM(maxSpeed),                /* 0x8b maximum speed for current range */
-
-// max parameter number
-
  PARM(maxParm),                 /* 0x8c maximum parameter */
 };

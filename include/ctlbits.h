@@ -8,6 +8,7 @@
 #define CMD_MAX      (4 << 0)    /* 0x04 rapid move */
 #define CMD_SPEED    (5 << 0)    /* 0x05 jog at speed */
 #define JOGSLOW      (6 << 0)    /* 0x06 slow jog for home or probe */
+#define DRO_POS      (7 << 0)    /* 0x07 use dro for moving */
 
 // common definitions
 

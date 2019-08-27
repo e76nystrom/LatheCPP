@@ -148,6 +148,7 @@ typedef struct s_axis
  float accel;			/* acceleration */
  float backlash;		/* backlash */
  int stepsInch;			/* axis steps per inch */
+ int droCountsInch;		/* dro count inch */
  int backlashSteps;		/* backlash steps */
  int dirFwd;			/* mask for forward */
  int dirRev;			/* mask for reverse */
@@ -163,6 +164,8 @@ typedef struct s_accel
  float accel;			/* acceleration units/sec^2 */
  float pitch;			/* pitch for threading or feed */
  int stepsInch;			/* axis steps per inch */
+ int droCountsInch;		/* dro counts per inch */
+ int *droPos;			/* pointer to current dro position */
  char taper;			/* set up for tapering second */
  float taperInch;		/* taper per inch */
  union
@@ -174,6 +177,7 @@ typedef struct s_accel
    float stepsSec2;		/* acceleration in steps per sec^2 */
    float time;			/* acceleration time */
    int steps;			/* acceleration steps */
+   int droCounts;		/* acceleration dro count */
    int clocks;			/* acceleration clocks */
    float dist;			/* acceleration distance */
 
@@ -195,6 +199,7 @@ typedef struct s_accel
    int incr2;			/* incr 2 value */
    int delta;
    int stepsCycle;		/* steps in a cycle */
+   char useDro;			/* use dro for move */
   };
   struct			/* xilinx control */
   {
@@ -243,6 +248,7 @@ typedef struct s_zxisr
  char doneHome;			/* stopped for home signal */
  char axis;			/* axis name */
  char encoderDirect;		/* use encoder directly */
+ char useDro;			/* use dro for move */
 
  char syncInit;			/* initialized for sync operation */
  char syncStart;		/* waiting for start */
@@ -265,6 +271,7 @@ typedef struct s_zxisr
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
+ unsigned int droDist;		/* dro distance to move */
  unsigned int accelStep;	/* current step in accel */
  int lastCount;			/* last count value */
  int curCount;			/* current count value */
@@ -463,8 +470,8 @@ typedef struct s_runctl
  int feedType;			/* feed type */
  float zFeed;			/* z feed value */
  float xFeed;			/* x feed value */
- float zHomeOffset;		/* z home ofset */
- float xHomeOffset;		/* x home offset */
+ int zHomeOffset;		/* z home ofset */
+ int xHomeOffset;		/* x home offset */
  int zStart;			/* threading z start */
  int xStart;			/* threading x start */
  float tanAngle;		/* tangent of threading angle */
@@ -680,6 +687,7 @@ void xMoveSetup(void);
 void xSynSetup(int feedType, float feed);
 void xInfo(char flag);
 void xMove(int pos, int cmd);
+void xMoveDro(float pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
 void xFwd(void);
@@ -1000,8 +1008,8 @@ void clearAll(void)
   
  zAxis.stepsInch = INT_MAX;
  xAxis.stepsInch = INT_MAX;
- zDroInch = INT_MAX;
- xDroInch = INT_MAX;
+ zDroCountInch = INT_MAX;
+ xDroCountInch = INT_MAX;
 
  startSet();
  runInit();
@@ -2084,6 +2092,7 @@ int turnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
  isr->stepsCycle = ac->stepsCycle;
  isr->accelSpSteps = ac->accelSpSteps;
 
+ isr->useDro = ac->useDro;
  isr->steps = 0;
  isr->done = 0;
  isr->dir = dir;
@@ -2202,6 +2211,7 @@ int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
  isr->clocksStep = ac->clocksStep;
  isr->cFactor = ac->cFactor;
 
+ isr->useDro = 0;
  isr->steps = 0;
  isr->done = 0;
  isr->home = 0;
@@ -2699,7 +2709,7 @@ void zMoveAbsCmd(void)
 {
  if (zMoveCtl.state == ZIDLE)
  {
-  int pos = (int) ((zHomeOffset + zMovePos) * zAxis.stepsInch);
+  int pos = lrint(zMovePos * zAxis.stepsInch) + zHomeOffset;
   zMove(pos, zFlag);
  }
 }
@@ -2708,7 +2718,7 @@ void zMoveRelCmd(void)
 {
  if (zMoveCtl.state == ZIDLE)
  {
-  int dist = (int) (zMoveDist * zAxis.stepsInch);
+  int dist = lrint(zMoveDist * zAxis.stepsInch);
   zMoveRel(dist, zFlag);
  }
 }
@@ -3378,7 +3388,7 @@ void xMoveAbsCmd(void)
 {
  if (xMoveCtl.state == XIDLE)
  {
-  int pos = (int) ((xHomeOffset + xMovePos) * xAxis.stepsInch);
+  int pos = lrint(xMovePos * xAxis.stepsInch) + xHomeOffset;
   xMove(pos, xFlag);
  }
 }
@@ -3387,7 +3397,7 @@ void xMoveRelCmd(void)
 {
  if (xMoveCtl.state == XIDLE)
  {
-  int dist = (int) (xMoveDist * xAxis.stepsInch);
+  int dist = lrint(xMoveDist * xAxis.stepsInch);
   xMoveRel(dist, xFlag);
  }
 }
@@ -3463,6 +3473,7 @@ void xSetup(void)
 			axis->ratio) / axis->pitch);
  axis->stepsInch = stepsInch;
  axis->backlashSteps = lrint(axis->backlash * axis->stepsInch);
+ axis->droCountsInch = xDroCountInch;
 
  xIsr.axis = 'x';
 
@@ -3490,6 +3501,7 @@ void xMoveSetup(void)
  ac->maxSpeed = xMoveMax;
  ac->accel = xAxis.accel;
  ac->stepsInch = xAxis.stepsInch;
+ ac->droCountsInch = xAxis.droCountsInch;
  accelCalc(ac);
 
  ac = &xJA;			/* jog accel */
@@ -3534,7 +3546,7 @@ void xMoveRel(int dist, int cmd)
  int stepsInch = xAxis.stepsInch;
  if (DBG_MOVOP)
  {
-  float xTmp = (float) xLoc / stepsInch - xHomeOffset;
+  float xTmp = (float) (xLoc - xHomeOffset) / stepsInch;
   printf("xMoveRel %2x l %7.4f d %7.4f diam %7.4f\n",
 	 cmd, xTmp, (float) dist / stepsInch, 2.0 * xTmp);
  }
@@ -3627,8 +3639,19 @@ void xInfo(char flag)
 
 void xMove(int pos, int cmd)
 {
- dbgmsg(D_XMOV, pos);
  int dist = pos - xLoc;
+ xMoveRel(dist, cmd);
+}
+
+void xMoveDro(float pos, int cmd)
+{
+ /* counts / (counts / inch) = inches */
+ float droPos = ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch;
+ /* inch * (steps / inch) = steps */
+ int dist = lrint((pos - droPos) * xAxis.stepsInch);
+ if (DBG_QUE)
+  printf("xMoveDro pos %7.4f droPos %7.4f dist %7.4f %d\n",
+	 pos, droPos, pos - droPos, dist);
  xMoveRel(dist, cmd);
 }
 
@@ -3744,6 +3767,7 @@ void xControl(void)
    
   case CMD_MAX:			/* move at max speed */
   case CMD_MOV:			/* move */
+   xMA.useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
    xMoveInit(&xMA, mov->dir, mov->dist); /* setup move */
    xStart();
    break;
@@ -4029,8 +4053,8 @@ void runInit(void)
  mv->taper = 0.0;
  mv->zVal = 0.0;
  mv->xVal = 0.0;
- mv->zHomeOffset = 0.0;
- mv->xHomeOffset = 0.0;
+ mv->zHomeOffset = 0;
+ mv->xHomeOffset = 0;
  mv->threadFlags = 0;
  mv->feedType = 0;
  mv->tanAngle = 0.0;
@@ -4132,7 +4156,7 @@ void procMove(void)
    switch (cmd->cmd)
    {
    case MOVE_Z:
-    val = (int) ((cmd->val + mv->zHomeOffset) * zAxis.stepsInch);
+    val = lrint(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
     if (cfgXilinx == 0)
      zMove(val, cmd->flag);
     else
@@ -4141,18 +4165,27 @@ void procMove(void)
     break;
 
    case MOVE_X:
-    val = (int) ((cmd->val + mv->xHomeOffset) * xAxis.stepsInch);
-    if (cfgXilinx == 0)
+    val = lrint(cmd->val * xAxis.stepsInch) + mv->xHomeOffset;
+    dbgmsg(D_XMOV, val);
+    if (!cfgDro			/* if not confugre */
+    ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
     {
-     /*
-       printf("xMove x %7.4f xHomeOffset %7.4f val %d xLoc %d %7.4f\n",
-            cmd->val, mv->xHomeOffset, val,
-	    xLoc, (float) xLoc / xAxis.stepsInch);
-     */
-     xMove(val, cmd->flag);
+     if (cfgXilinx == 0)
+     {
+      /*
+	printf("xMove x %7.4f xHomeOffset %7.4f val %d xLoc %d %7.4f\n",
+	cmd->val, mv->xHomeOffset, val,
+	xLoc, (float) xLoc / xAxis.stepsInch);
+      */
+      xMove(val, cmd->flag);
+     }
+     else
+      xMoveX(val, cmd->flag);
     }
-    else
-     xMoveX(val, cmd->flag);
+    else			/* if using dro for position */
+    {
+     xMoveDro(cmd->val, cmd->flag);
+    }
     mv->state = M_WAIT_X;
     break;
 
@@ -4160,7 +4193,7 @@ void procMove(void)
     if (DBG_QUE)
      printf("save z %7.4f\n", cmd->val);
 
-    mv->zVal = (int) ((cmd->val + mv->zHomeOffset) * zAxis.stepsInch);
+    mv->zVal = lrint(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
     done = 0;
     break;
 
@@ -4168,7 +4201,7 @@ void procMove(void)
     if (DBG_QUE)
      printf("save X %7.4f\n", cmd->val);
 
-    mv->xVal = (int) ((cmd->val + mv->xHomeOffset) * xAxis.stepsInch);
+    mv->xVal = lrint(cmd->val * xAxis.stepsInch) + mv->xHomeOffset;
     done = 0;
     break;
 
@@ -4200,7 +4233,7 @@ void procMove(void)
     if (DBG_QUE)
      printf("move zx %7.4f\n", cmd->val);
 
-    val = (int) ((cmd->val + mv->zHomeOffset) * zAxis.stepsInch);
+    val = lrint(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
     moveZX(val, mv->xVal);
     mv->state = M_WAIT_Z;
     break;
@@ -4209,7 +4242,7 @@ void procMove(void)
     if (DBG_QUE)
      printf("move xz %7.4f\n", cmd->val);
 
-    val = (int) ((cmd->val + mv->xHomeOffset) * xAxis.stepsInch);
+    val = lrint(cmd->val * xAxis.stepsInch) + mv->xHomeOffset;
     moveXZ(mv->zVal, val);
     mv->state = M_WAIT_X;
     break;
@@ -4220,7 +4253,7 @@ void procMove(void)
      printf("taper zx %7.4f\n", cmd->val);
 
     xPA.stepsInch = xAxis.stepsInch;
-    val = (int) ((cmd->val + mv->zHomeOffset) * zAxis.stepsInch);
+    val = lrint(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
     int dist = mv->xVal - xLoc;
     int dir = dist >= 0 ? DIR_POS : DIR_NEG;
 
@@ -4252,7 +4285,7 @@ void procMove(void)
      printf("taper xz %7.4f\n", cmd->val);
 
     zPA.stepsInch = zAxis.stepsInch;
-    val = (int) ((cmd->val + mv->xHomeOffset) * xAxis.stepsInch);
+    val = lrint(cmd->val * xAxis.stepsInch) + mv->xHomeOffset;
     int dist = mv->zVal - zLoc;
     int dir = dist >= 0 ? DIR_POS : DIR_NEG;
     
@@ -4351,8 +4384,8 @@ void procMove(void)
        spindleStop();
       else
        spindleStopX();
-      mv->safeZ = zLoc - (int) (zHomeOffset * zAxis.stepsInch);
-      mv->safeX = xLoc - (int) (xHomeOffset * xAxis.stepsInch);
+      mv->safeZ = zLoc - zHomeOffset;
+      mv->safeX = xLoc - xHomeOffset;
       mv->state = M_WAIT_SPINDLE;
      }
      else
@@ -4981,6 +5014,7 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
   ac->cFactor = 0.0;
   ac->clocks = 0;
   ac->dist = 0.0;
+  ac->droCounts = 0.0;
   ac->accelSpSteps = 0;
   ac->accelSpRem = 0;
   ac->initialStep = 0;
@@ -4999,6 +5033,7 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
   ac->clocks = (int) (ac->cFactor * sqrt(ac->finalStep));
   ac->time = ((float) ac->clocks) / cfgFcy;
   ac->dist = ((float) ac->steps) / ac->stepsInch;
+  ac->droCounts = (int) (ac->dist * ac->droCountsInch);
 
   ac->finalCount = (int) (ac->cFactor * sqrt(ac->finalStep));
   ac->initialCount = (int) (ac->cFactor * sqrt(ac->initialStep + 1));
@@ -5009,8 +5044,8 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
   if (dbg)
   {
    printf( "cFactor0 %0.2f cFactor1 %0.2f\n", cFactor0, cFactor1);
-   printf("time %8.6f steps %d clocks %d dist %5.3f\n",
-	  ac->time, ac->steps, ac->clocks, ac->dist);
+   printf("time %8.6f steps %d droCounts %d clocks %d dist %5.3f\n",
+	  ac->time, ac->steps, ac->droCounts, ac->clocks, ac->dist);
    printf("initialCount %d finalCount %d totAccelClocks %d\n",
 	  ac->initialCount, ac->finalCount, ac->totAccelClocks);
    printf("initalTime %8.6f isrTime %8.6f\n",
@@ -5191,6 +5226,11 @@ void accelCalc(P_ACCEL accel)
    printf("time %8.6f steps %d clocks %d dist %5.3f\n",
 	  accel->time, accel->steps, accel->clocks, accel->dist);
    printf("finalCount %d clocksStep %d\n", finalCount, accel->clocksStep);
+  }
+
+  if (accel->droCountsInch != 0)
+  {
+//   accel->droCounts =
   }
  }
  else

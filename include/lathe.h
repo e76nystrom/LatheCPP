@@ -113,6 +113,7 @@ typedef struct s_axis
  float accel;			/* acceleration */
  float backlash;		/* backlash */
  int stepsInch;			/* axis steps per inch */
+ int droCountsInch;		/* dro count inch */
  int backlashSteps;		/* backlash steps */
  int dirFwd;			/* mask for forward */
  int dirRev;			/* mask for reverse */
@@ -128,6 +129,8 @@ typedef struct s_accel
  float accel;			/* acceleration units/sec^2 */
  float pitch;			/* pitch for threading or feed */
  int stepsInch;			/* axis steps per inch */
+ int droCountsInch;		/* dro counts per inch */
+ int *droPos;			/* pointer to current dro position */
  char taper;			/* set up for tapering second */
  float taperInch;		/* taper per inch */
  union
@@ -139,6 +142,7 @@ typedef struct s_accel
    float stepsSec2;		/* acceleration in steps per sec^2 */
    float time;			/* acceleration time */
    int steps;			/* acceleration steps */
+   int droCounts;		/* acceleration dro count */
    int clocks;			/* acceleration clocks */
    float dist;			/* acceleration distance */
 
@@ -160,6 +164,7 @@ typedef struct s_accel
    int incr2;			/* incr 2 value */
    int delta;
    int stepsCycle;		/* steps in a cycle */
+   char useDro;			/* use dro for move */
   };
   struct			/* xilinx control */
   {
@@ -208,6 +213,7 @@ typedef struct s_zxisr
  char doneHome;			/* stopped for home signal */
  char axis;			/* axis name */
  char encoderDirect;		/* use encoder directly */
+ char useDro;			/* use dro for move */
 
  char syncInit;			/* initialized for sync operation */
  char syncStart;		/* waiting for start */
@@ -230,6 +236,7 @@ typedef struct s_zxisr
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
+ unsigned int droDist;		/* dro distance to move */
  unsigned int accelStep;	/* current step in accel */
  int lastCount;			/* last count value */
  int curCount;			/* current count value */
@@ -428,8 +435,8 @@ typedef struct s_runctl
  int feedType;			/* feed type */
  float zFeed;			/* z feed value */
  float xFeed;			/* x feed value */
- float zHomeOffset;		/* z home ofset */
- float xHomeOffset;		/* x home offset */
+ int zHomeOffset;		/* z home ofset */
+ int xHomeOffset;		/* x home offset */
  int zStart;			/* threading z start */
  int xStart;			/* threading x start */
  float tanAngle;		/* tangent of threading angle */
@@ -645,6 +652,7 @@ void xMoveSetup(void);
 void xSynSetup(int feedType, float feed);
 void xInfo(char flag);
 void xMove(int pos, int cmd);
+void xMoveDro(float pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
 void xFwd(void);
