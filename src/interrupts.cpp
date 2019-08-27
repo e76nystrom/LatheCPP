@@ -137,6 +137,21 @@ extern "C" void encoderISR(void)
   xDroPos += val;		/* update position */
  }
 
+ if (xIsr.useDro)		/* if using dro for move */
+ {
+  if (xIsr.droDist != 0)	/* if distance set */
+  {
+   --xIsr.droDist;		/* decrement distance */
+   if (xIsr.droDist == 0)	/* if done */
+   {
+    xIsrStop();			/* stop isr */
+   }
+   else				/* if not done */
+   {
+   }
+  }
+ }
+
 #if !defined(index1ISR)
  if (EXTI->PR & Index1_Pin)	/* if index bit */
  {

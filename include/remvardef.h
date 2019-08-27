@@ -115,13 +115,13 @@
 
 // z home offset
 
- EXT float zHomeOffset;         /* 0x4b z home offset */
+ EXT int zHomeOffset;           /* 0x4b z home offset */
 
 // z dro
 
  EXT int zDroPos;               /* 0x4c z dro location */
- EXT float zDroOffset;          /* 0x4d z dro to zero */
- EXT int zDroInch;              /* 0x4e z dro scale */
+ EXT int zDroOffset;            /* 0x4d z dro to zero */
+ EXT int zDroCountInch;         /* 0x4e z dro scale */
  EXT int zDroInvert;            /* 0x4f z dro invert */
 
 // x home parameters
@@ -136,10 +136,10 @@
  EXT int xHomeLoc;              /* 0x54 x home test location */
  EXT int xHomeStart;            /* 0x55 x start of home signal */
  EXT int xHomeEnd;              /* 0x56 x end of home signal */
- EXT float xHomeOffset;         /* 0x57 x home offset */
+ EXT int xHomeOffset;           /* 0x57 x home offset */
  EXT int xDroPos;               /* 0x58 x dro location */
- EXT float xDroOffset;          /* 0x59 x dro to zero */
- EXT int xDroInch;              /* 0x5a x dro scale */
+ EXT int xDroOffset;            /* 0x59 x dro to zero */
+ EXT int xDroCountInch;         /* 0x5a x dro scale */
  EXT int xDroInvert;            /* 0x5b x dro invert */
 
 // x home or probe status
@@ -234,7 +234,4 @@
  EXT int16_t pwmFreq;           /* 0x89 spindle speed pwm frequency */
  EXT int16_t minSpeed;          /* 0x8a minimum speed for current range */
  EXT int16_t maxSpeed;          /* 0x8b maximum speed for current range */
-
-// max parameter number
-
  EXT int16_t maxParm;           /* 0x8c maximum parameter */
