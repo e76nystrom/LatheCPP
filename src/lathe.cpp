@@ -488,18 +488,18 @@ typedef struct s_movecmd
  {
   struct
   {
-   char cmd;
-   char flag;
+   uint16_t cmd;		/* move command */
+   uint16_t flag;		/* command flags */
   };
   struct
   {
-   int op;
+   uint32_t op;			/* combination of command and flags */
   };
  };
  union
  {
-  float val;
-  int iVal;
+  float val;			/* floating value */
+  int32_t iVal;			/* integer value */
  };
 } T_MOVECMD, *P_MOVECMD;
 
@@ -698,8 +698,8 @@ void xHomeControl(void);
 void axisCtl(void);
 
 void runInit(void);
-char queMoveCmd(int op, float val);
-char queIntCmd(int op, int val);
+char queMoveCmd(uint32_t op, float val);
+char queIntCmd(uint32_t op, int val);
 void stopMove(void);
 void procMove(void);
 
@@ -3547,7 +3547,7 @@ void xMoveRel(int dist, int cmd)
  if (DBG_MOVOP)
  {
   float xTmp = (float) (xLoc - runCtl.xHomeOffset) / stepsInch;
-  printf("xMoveRel %2x l %7.4f d %7.4f diam %7.4f\n",
+  printf("xMoveRel cmd %03x l %7.4f d %7.4f diam %7.4f\n",
 	 cmd, xTmp, (float) dist / stepsInch, 2.0 * xTmp);
  }
  mov->loc = xLoc;		/* save current location */
@@ -3650,8 +3650,8 @@ void xMoveDro(float pos, int cmd)
  /* inch * (steps / inch) = steps */
  int dist = lrint((pos - droPos) * xAxis.stepsInch);
  if (DBG_QUE)
-  printf("xMoveDro pos %7.4f droPos %7.4f dist %7.4f %d\n",
-	 pos, droPos, pos - droPos, dist);
+  printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f %d\n",
+	 cmd, pos, droPos, pos - droPos, dist);
  xMoveRel(dist, cmd);
 }
 
@@ -3688,7 +3688,7 @@ void xControl(void)
  case XSTARTMOVE:		/* 0x02 start an x move */
  {
   if (DBG_P)
-   printf("xstartmove %x\n", cmd);
+   printf("xstartmove %03x\n", cmd);
 
   switch (cmd & CMD_MSK)	/* select on move type */
   {
@@ -4062,7 +4062,7 @@ void runInit(void)
  clr(moveQue);
 }
 
-char queMoveCmd(int op, float val)
+char queMoveCmd(uint32_t op, float val)
 {
  P_MOVEQUE que = &moveQue;
  if (que->count < MAX_CMDS)
@@ -4076,7 +4076,7 @@ char queMoveCmd(int op, float val)
   que->count++;
 
   if (DBG_QUE)
-   printf("move %2d op %-18s %4x val %7.4f\n",
+   printf("move %2d op %-18s %8x val %7.4f\n",
 	   que->count, mCommandsList[(int) cmd->cmd], op, val);
   return(1);
  }
@@ -4086,7 +4086,7 @@ char queMoveCmd(int op, float val)
  return(0);
 }
 
-char queIntCmd(int op, int val)
+char queIntCmd(uint32_t op, int val)
 {
  P_MOVEQUE que = &moveQue;
  if (que->count < MAX_CMDS)
@@ -4150,7 +4150,8 @@ void procMove(void)
      tMs %= 1000;
      printf("%3u.%03u ", tS, tMs);
     }
-    printf("%2d %-14s\n", cmd->cmd, mCommandsList[(int) cmd->cmd]);
+    printf("%2d flag %03x %-14s\n",
+	   cmd->cmd, cmd->flag, mCommandsList[(int) cmd->cmd]);
    }
 
    switch (cmd->cmd)

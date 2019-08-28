@@ -8,7 +8,6 @@
 #define CMD_MAX      (4 << 0)    /* 0x04 rapid move */
 #define CMD_SPEED    (5 << 0)    /* 0x05 jog at speed */
 #define JOGSLOW      (6 << 0)    /* 0x06 slow jog for home or probe */
-#define DRO_POS      (7 << 0)    /* 0x07 use dro for moving */
 
 // common definitions
 
@@ -34,6 +33,7 @@
 #define XCLEAR_HOME  (1 << 7)    /* 0x80 move off of home */
 #define FIND_PROBE   (1 << 8)    /* 0x100 find home */
 #define CLEAR_PROBE  (1 << 9)    /* 0x200 move off of home */
+#define DRO_POS      (1 << 10)   /* 0x400 use dro for moving */
 
 // x direction
 
