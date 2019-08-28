@@ -59,10 +59,10 @@ constexpr uint32_t DIR_SPIN_BIT = Dir5_Pin;
 
 inline void dirSpinFwd() {DIR_SPIN_PORT->BSRR = spA.dirFwd;}
 inline void dirSpinRev() {DIR_SPIN_PORT->BSRR = spA.dirRev;}
-inline void dirZFwd() {DIR_SPIN_PORT->BSRR = zAxis.dirFwd;}
-inline void dirZRev() {DIR_SPIN_PORT->BSRR = zAxis.dirRev;}
-inline void dirXFwd() {DIR_SPIN_PORT->BSRR = xAxis.dirFwd;}
-inline void dirXRev() {DIR_SPIN_PORT->BSRR = xAxis.dirRev;}
+inline void dirZFwd() {Dir1_GPIO_Port->BSRR = zAxis.dirFwd;}
+inline void dirZRev() {Dir1_GPIO_Port->BSRR = zAxis.dirRev;}
+inline void dirXFwd() {Dir2_GPIO_Port->BSRR = xAxis.dirFwd;}
+inline void dirXRev() {Dir2_GPIO_Port->BSRR = xAxis.dirRev;}
 inline uint32_t CALC_STEP_WIDTH(uint32_t x) {return((cfgFcy * x) / 1000000l);}
 
 /* zTmr timer 2 pwm 3 */

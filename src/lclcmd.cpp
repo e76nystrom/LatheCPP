@@ -93,6 +93,10 @@ T_OUTPUT_PIN outputPins[] =
  {14, pin14Set, pin14Clr, pin14Read},
  {16, pin16Set, pin16Clr, pin16Read},
  {17, pin16Set, pin17Clr, pin17Read},
+ {2, dirZSet, dirZClr, dirZRead},
+ {4, dirXSet, dirXClr, dirXRead},
+ {6, dir3Set, dir3Clr, dir3Read},
+ {8, dir4Set, dir4Clr, dir4Read},
 };
 
 void lclcmd(int ch)
