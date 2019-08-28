@@ -3546,7 +3546,7 @@ void xMoveRel(int dist, int cmd)
  int stepsInch = xAxis.stepsInch;
  if (DBG_MOVOP)
  {
-  float xTmp = (float) (xLoc - xHomeOffset) / stepsInch;
+  float xTmp = (float) (xLoc - runCtl.xHomeOffset) / stepsInch;
   printf("xMoveRel %2x l %7.4f d %7.4f diam %7.4f\n",
 	 cmd, xTmp, (float) dist / stepsInch, 2.0 * xTmp);
  }
@@ -4207,17 +4207,17 @@ void procMove(void)
 
    case SAVE_Z_OFFSET:
     if (DBG_QUE)
-     printf("save z offset %7.4f\n", cmd->val);
+     printf("save z offset %7.4f\n", ((float) cmd->iVal) / zAxis.stepsInch);
 
-    mv->zHomeOffset = cmd->val;
+    mv->zHomeOffset = cmd->iVal;
     done = 0;
     break;
 
    case SAVE_X_OFFSET:
     if (DBG_QUE)
-     printf("save x offset %7.4f\n", cmd->val);
+     printf("save x offset %7.4f\n", ((float) cmd->iVal) / xAxis.stepsInch );
 
-    mv->xHomeOffset = cmd->val;
+    mv->xHomeOffset = cmd->iVal;
     done = 0;
     break;
 

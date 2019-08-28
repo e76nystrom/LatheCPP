@@ -799,21 +799,21 @@ void lclcmd(int ch)
 
   printf("zLoc %6d %7.4f zHomeOffset %7.4f %7.4f\n",
 	 zLoc, (float) zLoc / zAxis.stepsInch,
-	 (float) zHomeOffset / zAxis.stepsInch,
-	 (float) runCtl.zHomeOffset / zAxis.stepsInch);
+	 ((float) zHomeOffset) / zAxis.stepsInch,
+	 ((float) runCtl.zHomeOffset) / zAxis.stepsInch);
   if (cfgDro)
    printf("zDro %6d %7.4f  zDroOffset %7.4f\n",
-	  zDroPos, (float) zDroPos / zDroCountInch,
-	  (float) zDroOffset / zDroCountInch);
+	  zDroPos, ((float) zDroPos) / zDroCountInch,
+	  ((float) zDroOffset) / zDroCountInch);
 
   printf("xLoc %6d %7.4f xHomeOffset %7.4f %7.4f\n",
 	 xLoc, (float) xLoc / xAxis.stepsInch,
-	 (float) xHomeOffset / xAxis.stepsInch,
-	 (float) runCtl.xHomeOffset / xAxis.stepsInch);
+	 ((float) xHomeOffset) / xAxis.stepsInch,
+	 ((float) runCtl.xHomeOffset) / xAxis.stepsInch);
   if (cfgDro)
    printf("xDro %6d %7.4f  xDroOffset %7.4f\n",
-	  xDroPos, (float) xDroPos / xDroCountInch,
-	  (float) xDroOffset / xDroCountInch);
+	  xDroPos, ((float) xDroPos) / xDroCountInch,
+	  ((float) xDroOffset) / xDroCountInch);
   fflush(stdout);
  }
 }
