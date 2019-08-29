@@ -1,7 +1,9 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #include <stdint.h>          /* For uint16_t definition                       */
+#if !defined(EXT)
 #define EXT
 #endif
+//#endif
 
 #include "remvardef.h"
 #include "ctlbits.h"

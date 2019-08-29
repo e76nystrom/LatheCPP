@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __ENCODER__
 #include "stm32f4xx_hal.h"
 
@@ -11,7 +11,7 @@
 
 #define EXT
 #include "encoder.h"
-#endif
+//#endif
 
 #if defined(__ENCODER_INC__)	// <-
 

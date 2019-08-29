@@ -1,5 +1,5 @@
 /******************************************************************************/
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __LATHE__
 #include "stm32f4xx_hal.h"
 
@@ -31,7 +31,7 @@
 
 #define EXT
 #include "lathe.h"
-#endif
+//#endif
 
 #if defined(__LATHE_INC__)		// <-
 
@@ -430,7 +430,7 @@ typedef struct s_movectl
  P_ACCEL acMove;		/* unsynchronized movement */
  P_ACCEL acJog;			/* jog */
  P_ACCEL acJogSpeed;		/* jog at speed */
- void (*isrStop) (void);	/* isr stop routine */
+ void (*isrStop) (char ch);	/* isr stop routine */
  void (*move) (int pos, int cmd); /* move absolute function */
  void (*moveRel) (int pos, int cmd); /* move relative function */
  void (*moveInit) (P_ACCEL ac, char dir, int dist); /* move initialization */
@@ -597,8 +597,8 @@ void clearCmd(void);
 
 void allStop(void);			/* stop all */
 
-void zIsrStop(void);
-void xIsrStop(void);
+void zIsrStop(char ch);
+void xIsrStop(char ch);
 void spIsrStop(void);
 
 void clearAll(void);
@@ -2204,14 +2204,15 @@ void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir)
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
 {
  if (DBG_P)
-  printf("\nmoveInit %s\n", ac->label);
+  printf("\nmoveInit %s useDro %d\n", ac->label, ac->useDro);
 
  isr->initialStep = ac->initialStep;
  isr->finalStep = ac->finalStep;
  isr->clocksStep = ac->clocksStep;
  isr->cFactor = ac->cFactor;
 
- isr->useDro = 0;
+ isr->useDro = ac->useDro;	/* copy use dro flag */
+ ac->useDro = 0;		/* clear source of flag */
  isr->steps = 0;
  isr->done = 0;
  isr->home = 0;
@@ -2534,7 +2535,7 @@ void jogSpeed(P_MOVECTL mov, float speed)
    __disable_irq();		/* disable interrupt */
    if (isr->accelStep < 5)
    {
-    mov->isrStop();
+    mov->isrStop('8');
    }
    else
    {
@@ -3510,6 +3511,7 @@ void xMoveSetup(void)
  ac->maxSpeed = xJogMax;
  ac->accel = xAxis.accel;
  ac->stepsInch = xAxis.stepsInch;
+ ac->droCountsInch = xAxis.droCountsInch;
  accelCalc(ac);
 
  memcpy(&xJSA, ac, sizeof(xJSA)); /* jog speed accel */
@@ -3756,6 +3758,7 @@ void xControl(void)
    break;
 
   case CMD_JOG:			/* jog */
+   xJA.useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
    xMoveInit(&xJA, mov->dir, mov->dist); /* setup move */
    if ((cmd & XFIND_HOME) != 0)
     xIsr.home |= FIND_HOME;
@@ -3773,6 +3776,7 @@ void xControl(void)
    break;
 
   case CMD_SPEED:
+   xJSA.useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
    xMoveInit(&xJSA, mov->dir, mov->dist); /* setup move */
    xStart();			/* start move */
    if (DBG_MOVOP)
@@ -4076,13 +4080,14 @@ char queMoveCmd(uint32_t op, float val)
   que->count++;
 
   if (DBG_QUE)
-   printf("move %2d op %-18s %8x val %7.4f\n",
-	   que->count, mCommandsList[(int) cmd->cmd], op, val);
+   printf("move %2d op %-18s %4x val %7.4f\n",
+	   que->count, mCommandsList[(int) cmd->cmd],
+	  (unsigned int) cmd->op, cmd->val);
   return(1);
  }
 
  if (DBG_QUE)
-  printf("move of op %4x val %7.4f\n", op, val);
+  printf("move of op %8x val %7.4f\n", (unsigned int) op, val);
  return(0);
 }
 
@@ -4100,13 +4105,14 @@ char queIntCmd(uint32_t op, int val)
   que->count++;
 
   if (DBG_QUE)
-   printf("move %2d op %-14s %4x val %2d\n",
-	  que->count, mCommandsList[(int) cmd->cmd], op, val);
+   printf("move %2d op %-14s %4x val %7d\n",
+	  que->count, mCommandsList[(int) cmd->cmd],
+	  (unsigned int) cmd->op, (int) cmd->iVal);
   return(1);
  }
 
  if (DBG_QUE)
-  printf("move of op %4x val %d\n", op, val);
+  printf("move of op %8x val %d\n", (unsigned int) op, val);
  return(0);
 }
 
@@ -4150,7 +4156,7 @@ void procMove(void)
      tMs %= 1000;
      printf("%3u.%03u ", tS, tMs);
     }
-    printf("%2d flag %03x %-14s\n",
+    printf("%2d flag %04x %-14s\n",
 	   cmd->cmd, cmd->flag, mCommandsList[(int) cmd->cmd]);
    }
 
@@ -4315,7 +4321,7 @@ void procMove(void)
 
    case START_SPINDLE:
     if (DBG_QUE)
-     printf("start spindle %d rpm\n", cmd->iVal);
+     printf("start spindle %d rpm\n", (int) cmd->iVal);
 
     if (cfgXilinx == 0)
     {
@@ -4460,7 +4466,7 @@ void procMove(void)
 
    case SAVE_FLAGS:
     if (DBG_QUE)
-     printf("save flags %02x\n", cmd->iVal);
+     printf("save flags %02x\n", (unsigned int) cmd->iVal);
 
     mv->threadFlags = cmd->iVal;
     done = 0;

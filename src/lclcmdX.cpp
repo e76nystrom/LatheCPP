@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __LCLCMDX__
 #include "stm32f4xx_hal.h"
 
@@ -20,7 +20,7 @@ extern char *dMessageList[];
 
 #define EXT
 #include "lclcmdX.h"
-#endif
+//#endif
 
 #if defined(__LCLCMDX_INC__)	// <-
 

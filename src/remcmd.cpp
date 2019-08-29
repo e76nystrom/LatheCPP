@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __REMCMD__
 #if !defined(WIN32)
 #include "stm32f4xx_hal.h"
@@ -19,7 +19,7 @@
 
 #define EXT
 #include "remcmd.h"
-#endif
+//#endif
 
 #if defined(__REMCMD_INC__)	// <-
 

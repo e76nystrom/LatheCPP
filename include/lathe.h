@@ -395,7 +395,7 @@ typedef struct s_movectl
  P_ACCEL acMove;		/* unsynchronized movement */
  P_ACCEL acJog;			/* jog */
  P_ACCEL acJogSpeed;		/* jog at speed */
- void (*isrStop) (void);	/* isr stop routine */
+ void (*isrStop) (char ch);	/* isr stop routine */
  void (*move) (int pos, int cmd); /* move absolute function */
  void (*moveRel) (int pos, int cmd); /* move relative function */
  void (*moveInit) (P_ACCEL ac, char dir, int dist); /* move initialization */
@@ -453,18 +453,18 @@ typedef struct s_movecmd
  {
   struct
   {
-   char cmd;
-   char flag;
+   uint16_t cmd;		/* move command */
+   uint16_t flag;		/* command flags */
   };
   struct
   {
-   int op;
+   uint32_t op;			/* combination of command and flags */
   };
  };
  union
  {
-  float val;
-  int iVal;
+  float val;			/* floating value */
+  int32_t iVal;			/* integer value */
  };
 } T_MOVECMD, *P_MOVECMD;
 
@@ -562,8 +562,8 @@ void clearCmd(void);
 
 void allStop(void);			/* stop all */
 
-void zIsrStop(void);
-void xIsrStop(void);
+void zIsrStop(char ch);
+void xIsrStop(char ch);
 void spIsrStop(void);
 
 void clearAll(void);
@@ -663,8 +663,8 @@ void xHomeControl(void);
 void axisCtl(void);
 
 void runInit(void);
-char queMoveCmd(int op, float val);
-char queIntCmd(int op, int val);
+char queMoveCmd(uint32_t op, float val);
+char queIntCmd(uint32_t op, int val);
 void stopMove(void);
 void procMove(void);
 

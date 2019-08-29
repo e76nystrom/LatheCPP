@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __LCD__
 #include "stm32f4xx_hal.h"
 
@@ -12,7 +12,7 @@
 
 #define EXT
 #include "lcd.h"
-#endif
+//#endif
 
 #if defined(__LCD_INC__)	// <-
 

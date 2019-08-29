@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __SPI__
 #include "stm32f4xx_hal.h"
 
@@ -13,7 +13,7 @@
 
 #define EXT
 #include "spi.h"
-#endif
+//#endif
 
 #if defined(__SPI_INC__)	// <-
 

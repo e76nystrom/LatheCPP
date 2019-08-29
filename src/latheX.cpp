@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __LATHEX__
 #include "stm32f4xx_hal.h"
 
@@ -20,7 +20,7 @@
 
 #define EXT
 #include "latheX.h"
-#endif
+//#endif
 
 #if defined(__LATHEX_INC__)	// <-
 

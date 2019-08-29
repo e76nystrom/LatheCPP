@@ -38,8 +38,8 @@ x0 - x axis not in sync mod update feed rate
 #define jogISR(x) EXTI9_5_IRQHandler(x)
 
 void spIsrStop(void);
-void zIsrStop(void);
-void xIsrStop(void);
+void zIsrStop(char ch);
+void xIsrStop(char ch);
 
 extern "C" void encoderISR(void);
 extern "C" void jogISR(void);
@@ -144,7 +144,7 @@ extern "C" void encoderISR(void)
    --xIsr.droDist;		/* decrement distance */
    if (xIsr.droDist == 0)	/* if done */
    {
-    xIsrStop();			/* stop isr */
+    xIsrStop('0');		/* stop isr */
    }
    else				/* if not done */
    {
@@ -631,7 +631,7 @@ extern "C" void spindleTmrISR(void)
  dbgSpIsrClr();
 }
 
-void zIsrStop(void)
+void zIsrStop(char ch)
 {
  zTmrSlvDis();			/* disable slave mode */
  zTmrStop();			/* stop timer */
@@ -639,6 +639,7 @@ void zIsrStop(void)
  zIsr.accel = 0;		/* clear accel */
  zIsr.decel = 0;		/* and decel flags */
  zIsr.sync = 0;			/* clear sync flag */
+ putBufCharIsr(ch);
  if (zIsr.active)		/* if synchcronized move */
  {
   zIsr.active = 0;		/* clear active flag */
@@ -688,7 +689,7 @@ extern "C" void zTmrISR(void)
    if (probeSet())		/* if probe set */
    {
     zIsr.doneHome = 1;		/* indicate probe done */
-    zIsrStop();			/* stop movement */
+    zIsrStop('0');		/* stop movement */
    }
   }
  }
@@ -698,7 +699,7 @@ extern "C" void zTmrISR(void)
   --zIsr.dist;			/* decrement distance */
   if (zIsr.dist == 0)		/* if done */
   {
-   zIsrStop();			/* stop isr */
+   zIsrStop('1');		/* stop isr */
   }
   else				/* if not done */
   {
@@ -778,7 +779,7 @@ extern "C" void zTmrISR(void)
    }
    else
    {
-    zIsrStop();			/* stop isr */
+    zIsrStop('2');		/* stop isr */
     putBufStrIsr("zd");
    }
   }
@@ -829,7 +830,7 @@ extern "C" void zTmrISR(void)
  dbgZIsrClr();
 }
 
-void xIsrStop(void)
+void xIsrStop(char ch)
 {
  xTmrSlvDis();			/* disable slave mode */
  xTmrStop();			/* stop timer */
@@ -838,6 +839,7 @@ void xIsrStop(void)
  xIsr.decel = 0;		/* and decel flags */
  xIsr.sync = 0;			/* clear sync flag */
  
+ putBufCharIsr(ch);
  if (xIsr.active)		/* if synchrinized move */
  {
   xIsr.active = 0;		/* clear active flag */
@@ -899,7 +901,7 @@ extern "C" void xTmrISR(void)
    if (probeSet())		/* if probe set */
    {
     xIsr.doneHome = 1;		/* indicate probe done */
-    xIsrStop();			/* stop movement */
+    xIsrStop('1');		/* stop movement */
    }
   }
 
@@ -908,7 +910,7 @@ extern "C" void xTmrISR(void)
    if (xHomeSet())		/* if home found */
    {
     xIsr.doneHome = 1;		/* indicate homing done */
-    xIsrStop();			/* stop movement */
+    xIsrStop('2');		/* stop movement */
    }
   }
 
@@ -917,7 +919,7 @@ extern "C" void xTmrISR(void)
    if (xHomeClr())		/* if home moved off home */
    {
     xIsr.doneHome = 1;		/* indicate homing done */
-    xIsrStop();			/* stop movement */
+    xIsrStop('3');		/* stop movement */
    }
   }
  }
@@ -927,11 +929,14 @@ extern "C" void xTmrISR(void)
   --xIsr.dist;			/* decrement distance */
   if (xIsr.dist == 0)		/* if done */
   {
-   xIsrStop();			/* stop isr */
+   if (!xIsr.useDro)		/* if not using dro */
+   {
+    xIsrStop('4');		/* stop isr */
+   }
   }
   else
   {
-   if ((xIsr.decel == 0)		/* if not decelerating */
+   if ((xIsr.decel == 0)	/* if not decelerating */
    &&  (xIsr.dist <= (xIsr.accelStep - xIsr.initialStep))) /* time to decel */
    {
     xIsr.accel = 0;		/* stop acceleration */
@@ -976,7 +981,7 @@ extern "C" void xTmrISR(void)
   }
   else				/* if deceleration done */
   {
-   xIsrStop();			/* stop isr */
+   xIsrStop('6');		/* stop isr */
    dbg7Clr();
    putBufStrIsr("xd");
   }

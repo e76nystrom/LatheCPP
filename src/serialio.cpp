@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __SERIALIO__
 #include "stm32f4xx_hal.h"
 
@@ -24,7 +24,7 @@
 
 #define EXT
 #include "serialio.h"
-#endif	/* !defined(INCLUDE) */
+//#endif /* !defined(INCLUDE) */
 
 #if defined(__SERIALIO_INC__)	// <-
 

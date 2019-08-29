@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __ZCONTROL__
 #include "stm32f4xx_hal.h"
 
@@ -16,7 +16,7 @@
 
 #define EXT
 #include "zcontrol.h"
-#endif
+//#endif
 
 #if defined(__ZCONTROL_INC__)	// <-
 
