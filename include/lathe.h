@@ -236,7 +236,7 @@ typedef struct s_zxisr
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
- unsigned int droDist;		/* dro distance to move */
+ unsigned int droCounts;	/* dro counts to move */
  unsigned int accelStep;	/* current step in accel */
  int lastCount;			/* last count value */
  int curCount;			/* current count value */
@@ -377,6 +377,7 @@ typedef struct s_movectl
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
  unsigned int dist;		/* distance to move */
+ unsigned int droCounts;	/* dro counts to move */
  int loc;			/* current location */
  int expLoc;			/* expected location */
  int iniDist;			/* initial jog distance */

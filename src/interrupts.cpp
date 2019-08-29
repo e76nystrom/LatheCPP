@@ -132,22 +132,25 @@ extern "C" void encoderISR(void)
 
   int val = decoder[tmp.w];	/* look up direction */
   xDecode.w = tmp.w;
-  if (xDroInvert)		/* if dro motion inverted */
-   val = -val;			/* change direction */
-  xDroPos += val;		/* update position */
- }
-
- if (xIsr.useDro)		/* if using dro for move */
- {
-  if (xIsr.droDist != 0)	/* if distance set */
+  if (val != 0)			/* if valid transition */
   {
-   --xIsr.droDist;		/* decrement distance */
-   if (xIsr.droDist == 0)	/* if done */
+   if (xDroInvert)		/* if dro motion inverted */
+    val = -val;			/* change direction */
+   xDroPos += val;		/* update position */
+
+   if (xIsr.useDro)		/* if using dro for move */
    {
-    xIsrStop('0');		/* stop isr */
-   }
-   else				/* if not done */
-   {
+    if (xIsr.droCounts != 0)	/* if dro counts set */
+    {
+     xIsr.droCounts -= 1;	/* decrement count */
+     if (xIsr.droCounts == 0)	/* if done */
+     {
+      xIsrStop('0');		/* stop isr */
+     }
+     else			/* if not done */
+     {
+     }
+    }
    }
   }
  }
@@ -981,9 +984,12 @@ extern "C" void xTmrISR(void)
   }
   else				/* if deceleration done */
   {
-   xIsrStop('6');		/* stop isr */
-   dbg7Clr();
-   putBufStrIsr("xd");
+   if (!xIsr.useDro)		/* if not using dro */
+   {
+    xIsrStop('6');		/* stop isr */
+    dbg7Clr();
+    putBufStrIsr("xd");
+   }
   }
  }
  else				/* tracking state */

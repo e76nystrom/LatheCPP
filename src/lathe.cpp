@@ -271,7 +271,7 @@ typedef struct s_zxisr
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
- unsigned int droDist;		/* dro distance to move */
+ unsigned int droCounts;	/* dro counts to move */
  unsigned int accelStep;	/* current step in accel */
  int lastCount;			/* last count value */
  int curCount;			/* current count value */
@@ -412,6 +412,7 @@ typedef struct s_movectl
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
  unsigned int dist;		/* distance to move */
+ unsigned int droCounts;	/* dro counts to move */
  int loc;			/* current location */
  int expLoc;			/* expected location */
  int iniDist;			/* initial jog distance */
@@ -2204,7 +2205,12 @@ void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir)
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
 {
  if (DBG_P)
-  printf("\nmoveInit %s useDro %d\n", ac->label, ac->useDro);
+ {
+  printf("\nmoveInit %s", ac->label);
+  if (ac->useDro)
+   printf(" useDro %d droCounts %d", ac->useDro, ac->droCounts);
+  printf("\n");
+ }
 
  isr->initialStep = ac->initialStep;
  isr->finalStep = ac->finalStep;
@@ -2213,6 +2219,7 @@ int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
 
  isr->useDro = ac->useDro;	/* copy use dro flag */
  ac->useDro = 0;		/* clear source of flag */
+ isr->droCounts = ac->droCounts; /* load dro counts */
  isr->steps = 0;
  isr->done = 0;
  isr->home = 0;
@@ -3343,6 +3350,9 @@ void xEncRunoutInit(void)
 void xMoveInit(P_ACCEL ac, char dir, int dist)
 {
  xReset();
+ P_MOVECTL mov = &xMoveCtl;
+ ac->useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
+ ac->droCounts = mov->droCounts;
  int ctr = moveInit(&xIsr, ac, dir, dist);
  xHwEnable(ctr);
 }
@@ -3647,13 +3657,18 @@ void xMove(int pos, int cmd)
 
 void xMoveDro(float pos, int cmd)
 {
- /* counts / (counts / inch) = inches */
+ /* inches = counts / (counts / inch) */
  float droPos = ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch;
- /* inch * (steps / inch) = steps */
- int dist = lrint((pos - droPos) * xAxis.stepsInch);
+ float droDist = pos - droPos;
+ /* steps = inches * (steps / inch) */
+ int dist = lrint(droDist * xAxis.stepsInch);
+ /* counts = inches * (counts / inch) */
+ unsigned int droCounts = abs(lrint(droDist * xAxis.droCountsInch));
+ xMoveCtl.droCounts = droCounts;
  if (DBG_QUE)
-  printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f %d\n",
-	 cmd, pos, droPos, pos - droPos, dist);
+  printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f steps %d "
+	 "counts %d\n",
+	 cmd, pos, droPos, pos - droPos, dist, droCounts);
  xMoveRel(dist, cmd);
 }
 
@@ -3758,7 +3773,6 @@ void xControl(void)
    break;
 
   case CMD_JOG:			/* jog */
-   xJA.useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
    xMoveInit(&xJA, mov->dir, mov->dist); /* setup move */
    if ((cmd & XFIND_HOME) != 0)
     xIsr.home |= FIND_HOME;
@@ -3770,13 +3784,11 @@ void xControl(void)
    
   case CMD_MAX:			/* move at max speed */
   case CMD_MOV:			/* move */
-   xMA.useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
    xMoveInit(&xMA, mov->dir, mov->dist); /* setup move */
    xStart();
    break;
 
   case CMD_SPEED:
-   xJSA.useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
    xMoveInit(&xJSA, mov->dir, mov->dist); /* setup move */
    xStart();			/* start move */
    if (DBG_MOVOP)
