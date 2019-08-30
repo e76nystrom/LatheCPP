@@ -117,6 +117,11 @@ extern "C" void encoderISR(void)
 
  if (EXTI->PR & (XA_Pin | XB_Pin)) /* if bit change */
  {
+  if (dbgXDroRead())
+   dbgXDroClr();
+  else
+   dbgXDroSet();
+
   if (EXTI->PR & XA_Pin)
    EXTI->PR = XA_Pin;
   if (EXTI->PR & XB_Pin)
@@ -132,24 +137,21 @@ extern "C" void encoderISR(void)
 
   int val = decoder[tmp.w];	/* look up direction */
   xDecode.w = tmp.w;
-  if (val != 0)			/* if valid transition */
-  {
-   if (xDroInvert)		/* if dro motion inverted */
-    val = -val;			/* change direction */
-   xDroPos += val;		/* update position */
+  if (xDroInvert)		/* if dro motion inverted */
+   val = -val;			/* change direction */
+  xDroPos += val;		/* update position */
 
-   if (xIsr.useDro)		/* if using dro for move */
+  if (xIsr.useDro)		/* if using dro for move */
+  {
+   if (xIsr.droCounts != 0)	/* if dro counts set */
    {
-    if (xIsr.droCounts != 0)	/* if dro counts set */
+    xIsr.droCounts -= 1;	/* decrement count */
+    if (xIsr.droCounts == 0)	/* if done */
     {
-     xIsr.droCounts -= 1;	/* decrement count */
-     if (xIsr.droCounts == 0)	/* if done */
-     {
-      xIsrStop('0');		/* stop isr */
-     }
-     else			/* if not done */
-     {
-     }
+     xIsrStop('0');		/* stop isr */
+    }
+    else			/* if not done */
+    {
     }
    }
   }
