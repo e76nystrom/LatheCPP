@@ -3829,6 +3829,11 @@ void xControl(void)
      printf("x dist %7.4f %6d feed %7.4f spindle revs %d steps %d\n",
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
+   if (mov->cmd & DRO_POS)	/* fix x loc if used dro for position */
+   {
+    float droPos = ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch;
+    xLoc = lrint(droPos * xAxis.stepsInch) + xHomeOffset;
+   }
    mov->state = XDONE;		/* clean up everything */
   }
   break;
