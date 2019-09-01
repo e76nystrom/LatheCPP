@@ -3409,6 +3409,10 @@ void xMoveRelCmd(void)
  if (xMoveCtl.state == XIDLE)
  {
   int dist = lrint(xMoveDist * xAxis.stepsInch);
+  if ((xFlag & DRO_POS) != 0)
+  {
+   xMoveCtl.droCounts = abs(lrint(xMoveDist * xAxis.droCountsInch));
+  }
   xMoveRel(dist, xFlag);
  }
 }
