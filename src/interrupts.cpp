@@ -143,15 +143,29 @@ extern "C" void encoderISR(void)
 
   if (xIsr.useDro)		/* if using dro for move */
   {
-   if (xIsr.droCounts != 0)	/* if dro counts set */
+   int dist;
+   if (xIsr.dir > 0)		/* if direction positive */
    {
-    xIsr.droCounts -= 1;	/* decrement count */
-    if (xIsr.droCounts == 0)	/* if done */
+    dist = xIsr.droTarget - xDroPos;
+   }
+   else				/* if direction negative */
+   {
+    dist =  xDroPos - xIsr.droTarget;
+   }
+   if (dist < 10)		/* if close to end */
+   {
+    if (dist > 0)		/* if not done */
+    {
+     if (xIsr.decel)		/* if decelerating */
+     {
+      xIsr.accelStep = 0;	/* end deceleration */
+      xIsr.curCount = xIsr.finalCtr;
+      xTmrMax(xIsr.curCount);
+     }
+    }
+    else			/* if done */
     {
      xIsrStop('0');		/* stop isr */
-    }
-    else			/* if not done */
-    {
     }
    }
   }

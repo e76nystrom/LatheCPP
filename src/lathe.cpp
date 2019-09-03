@@ -177,7 +177,7 @@ typedef struct s_accel
    float stepsSec2;		/* acceleration in steps per sec^2 */
    float time;			/* acceleration time */
    int steps;			/* acceleration steps */
-   int droCounts;		/* acceleration dro count */
+   int droTarget;		/* target for dro position */
    int clocks;			/* acceleration clocks */
    float dist;			/* acceleration distance */
 
@@ -267,11 +267,12 @@ typedef struct s_zxisr
  int delta;			/* update on direction change */
  int stepsCycle;		/* steps in a cycle */
  int accelSpSteps;		/* spindle steps during acceleration */
+ int finalCtr;			/* final counter value */
 
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
- unsigned int droCounts;	/* dro counts to move */
+ int droTarget;			/* dro target value */
  unsigned int accelStep;	/* current step in accel */
  int lastCount;			/* last count value */
  int curCount;			/* current count value */
@@ -412,7 +413,7 @@ typedef struct s_movectl
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
  unsigned int dist;		/* distance to move */
- unsigned int droCounts;	/* dro counts to move */
+ int droTarget;			/* target dro value */
  int loc;			/* current location */
  int expLoc;			/* expected location */
  int iniDist;			/* initial jog distance */
@@ -2208,7 +2209,8 @@ int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
  {
   printf("\nmoveInit %s", ac->label);
   if (ac->useDro)
-   printf(" useDro %d droCounts %d", ac->useDro, ac->droCounts);
+   printf(" useDro %d dir %2d",
+	  ac->useDro, dir);
   printf("\n");
  }
 
@@ -2219,7 +2221,7 @@ int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
 
  isr->useDro = ac->useDro;	/* copy use dro flag */
  ac->useDro = 0;		/* clear source of flag */
- isr->droCounts = ac->droCounts; /* load dro counts */
+ isr->droTarget = ac->droTarget;
  isr->steps = 0;
  isr->done = 0;
  isr->home = 0;
@@ -2238,6 +2240,7 @@ int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
   isr->accelStep++;
   isr->lastCount = (int) (isr->cFactor * sqrt(isr->accelStep));
   ctr = isr->lastCount - ctr;
+  isr->finalCtr = ctr;
 
   if (DBG_P)
    printf("moveInit accel ctr %d\n", ctr);
@@ -3352,7 +3355,7 @@ void xMoveInit(P_ACCEL ac, char dir, int dist)
  xReset();
  P_MOVECTL mov = &xMoveCtl;
  ac->useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
- ac->droCounts = mov->droCounts;
+ ac->droTarget = mov->droTarget;
  int ctr = moveInit(&xIsr, ac, dir, dist);
  xHwEnable(ctr);
 }
@@ -3411,7 +3414,15 @@ void xMoveRelCmd(void)
   int dist = lrint(xMoveDist * xAxis.stepsInch);
   if ((xFlag & DRO_POS) != 0)
   {
-   xMoveCtl.droCounts = abs(lrint(xMoveDist * xAxis.droCountsInch));
+   int droCounts = lrint(xMoveDist * xAxis.droCountsInch);
+   xMoveCtl.droTarget = xDroPos + droCounts;
+   if (DBG_P)
+   {
+    printf("xMoveRelCmd dist %7.4f steps %7d droCounts %7d\n",
+	   xMoveDist, dist, droCounts);
+    printf("droTarget %7d droPos %7d droCounts %7d\n",
+	   xMoveCtl.droTarget, xDroPos, xMoveCtl.droTarget - xDroPos);
+   }
   }
   xMoveRel(dist, xFlag);
  }
@@ -3666,13 +3677,18 @@ void xMoveDro(float pos, int cmd)
  float droDist = pos - droPos;
  /* steps = inches * (steps / inch) */
  int dist = lrint(droDist * xAxis.stepsInch);
- /* counts = inches * (counts / inch) */
- unsigned int droCounts = abs(lrint(droDist * xAxis.droCountsInch));
- xMoveCtl.droCounts = droCounts;
+ int droTarget = lrint(pos * xAxis.droCountsInch + xDroOffset);
+ xMoveCtl.droTarget = droTarget;
  if (DBG_QUE)
+ {
+  /* counts = inches * (counts / inch) */
+  unsigned int droCounts = abs(lrint(droDist * xAxis.droCountsInch));
   printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f steps %d "
 	 "counts %d\n",
 	 cmd, pos, droPos, pos - droPos, dist, droCounts);
+  printf("droTarget %7d droPos %7d droCounts %7d\n",
+	 droTarget, xDroPos, droTarget - xDroPos);
+ }
  xMoveRel(dist, cmd);
 }
 
@@ -5042,7 +5058,6 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
   ac->cFactor = 0.0;
   ac->clocks = 0;
   ac->dist = 0.0;
-  ac->droCounts = 0.0;
   ac->accelSpSteps = 0;
   ac->accelSpRem = 0;
   ac->initialStep = 0;
@@ -5061,7 +5076,6 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
   ac->clocks = (int) (ac->cFactor * sqrt(ac->finalStep));
   ac->time = ((float) ac->clocks) / cfgFcy;
   ac->dist = ((float) ac->steps) / ac->stepsInch;
-  ac->droCounts = (int) (ac->dist * ac->droCountsInch);
 
   ac->finalCount = (int) (ac->cFactor * sqrt(ac->finalStep));
   ac->initialCount = (int) (ac->cFactor * sqrt(ac->initialStep + 1));
@@ -5072,8 +5086,8 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
   if (dbg)
   {
    printf( "cFactor0 %0.2f cFactor1 %0.2f\n", cFactor0, cFactor1);
-   printf("time %8.6f steps %d droCounts %d clocks %d dist %5.3f\n",
-	  ac->time, ac->steps, ac->droCounts, ac->clocks, ac->dist);
+   printf("time %8.6f steps %d clocks %d dist %5.3f\n",
+	  ac->time, ac->steps, ac->clocks, ac->dist);
    printf("initialCount %d finalCount %d totAccelClocks %d\n",
 	  ac->initialCount, ac->finalCount, ac->totAccelClocks);
    printf("initalTime %8.6f isrTime %8.6f\n",
@@ -5255,14 +5269,6 @@ void accelCalc(P_ACCEL accel)
 	  accel->time, accel->steps, accel->clocks, accel->dist);
    printf("finalCount %d clocksStep %d\n", finalCount, accel->clocksStep);
   }
-
-  if (accel->droCountsInch != 0)
-  {
-//   accel->droCounts =
-  }
- }
- else
- {
  }
 }
 

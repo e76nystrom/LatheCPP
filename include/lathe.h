@@ -142,7 +142,7 @@ typedef struct s_accel
    float stepsSec2;		/* acceleration in steps per sec^2 */
    float time;			/* acceleration time */
    int steps;			/* acceleration steps */
-   int droCounts;		/* acceleration dro count */
+   int droTarget;		/* target for dro position */
    int clocks;			/* acceleration clocks */
    float dist;			/* acceleration distance */
 
@@ -232,11 +232,12 @@ typedef struct s_zxisr
  int delta;			/* update on direction change */
  int stepsCycle;		/* steps in a cycle */
  int accelSpSteps;		/* spindle steps during acceleration */
+ int finalCtr;			/* final counter value */
 
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
- unsigned int droCounts;	/* dro counts to move */
+ int droTarget;			/* dro target value */
  unsigned int accelStep;	/* current step in accel */
  int lastCount;			/* last count value */
  int curCount;			/* current count value */
@@ -377,7 +378,7 @@ typedef struct s_movectl
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
  unsigned int dist;		/* distance to move */
- unsigned int droCounts;	/* dro counts to move */
+ int droTarget;			/* target dro value */
  int loc;			/* current location */
  int expLoc;			/* expected location */
  int iniDist;			/* initial jog distance */
