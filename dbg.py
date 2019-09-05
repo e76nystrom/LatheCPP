@@ -41,8 +41,8 @@ pinList = \
   ("i", "pin13", "Pin13", ""), \
   ("i", "pin15", "Pin15", ""), \
   
-  ("o", "start", "Start", ""), \
-  ("i", "ready", "Ready", ""), \
+  ("o", "start", "ZFlag", ""), \
+  ("i", "ready", "XFlag", ""), \
 
   ("i", "xFlagX", "XFlag", ""), \
   ("i", "zFlagX", "ZFlag", ""), \
@@ -152,7 +152,7 @@ for (dir, name, pin, comment) in pinList:
         fWrite(f, "%s %sClr() "
                 "%s%s_GPIO_Port->BSRR = (%s_Pin << 16)%s\n" % \
                 (dout, name, op, pin, pin, cl))
-        fWrite(f, "%s %sRead() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
+        fWrite(f, "%s %sRead() %s(%s_GPIO_Port->ODR & %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
         fWrite(f, "#else\n")
         fWrite(f, "%s %sSet()%s\n" % (dout, name, empty))
@@ -163,9 +163,9 @@ for (dir, name, pin, comment) in pinList:
         fWrite(f, "#ifdef %s_Pin\n" % (pin))
         fWrite(f, "%s %s() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
-        fWrite(f, "%s %sIsSet() %s(%s_GPIO_Port->IDR = %s_Pin) != 0%s\n" % \
+        fWrite(f, "%s %sIsSet() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
-        fWrite(f, "%s %sIsClr() %s(%s_GPIO_Port->IDR = %s_Pin) == 0%s\n" % \
+        fWrite(f, "%s %sIsClr() %s(%s_GPIO_Port->IDR & %s_Pin) == 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
         fWrite(f, "#else\n")
         fWrite(f, "%s %s()%s\n" % (din, name, emptyIn))

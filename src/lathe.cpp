@@ -1013,7 +1013,10 @@ void clearAll(void)
  zDroCountInch = INT_MAX;
  xDroCountInch = INT_MAX;
 
+ printf("Start ZFlag %d\n", ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
+ printf("Start set\n");
  startSet();
+ printf("Start ZFlag %d\n", ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
  runInit();
  printf("clearAll done\n");
  flushBuf();
@@ -4673,11 +4676,17 @@ void procMove(void)
 
       if (percent < 1.0)
       {
+       if (DBG_QUE)
+	printf("spindleSync %d spindleSyncBoard %d useEncoder %d\n",
+	       spindleSync, spindleSyncBoard, useEncoder);
        if (spindleSync)		/* *ok* if spindle sync */
        {
 	if (spindleSyncBoard)	/* *ok* if spindle sync board */
 	{
+	 printf("Start ZFlag %d\n", ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
+	 printf("Start clr\n");
 	 startClr();		/* set sync start flag */
+	 printf("Start ZFlag %d\n", ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
 	 mv->state = M_WAIT_SYNC_READY; /* wait for encoder */
 	}
 	else			/* if using local timer */
