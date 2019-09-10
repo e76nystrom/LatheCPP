@@ -668,7 +668,7 @@ void zIsrStop(char ch)
   {
    dbgZOutClr();
    dbgmsg(D_ZEDN, spEncCount);	/* send spindle encoder count */
-   if (spindleSync == 0)	/* *ok* using encodder directly */
+   if (zIsr.encoderDirect == 0)	/* *ok* using encodder directly */
    {
     dbgmsg(D_ZX, zIsr.x);
     dbgmsg(D_ZY, zIsr.y);

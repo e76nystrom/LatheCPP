@@ -302,6 +302,15 @@ EXT T_ZXISR xIsr;		/* x isr variables */
 
 EXT char xSyncInit;		/* x sync init */
 
+#define Z_ACTIVE 1		/* z axis active */
+#define X_ACTIVE 2		/* x axis active */
+
+EXT char runoutActive;		/* runout active */
+EXT char active;		/* axis driven by spindle */
+EXT char encActive;		/* encoder active */
+EXT char synIntActive;		/* sync internal active */
+EXT char synExtActive;		/* sync external active */
+
 EXT int32_t tmrStepWidth;	/* step width */
 EXT int32_t tmrMin;		/* timer minimum width */
 
@@ -429,6 +438,7 @@ typedef struct s_runctl
  char lastState;		/* last state */
  char spindleCmd;		/* wait spindle command */
  char probeCmd;			/* probe command */
+ int opType;			/* operation type */
  int pass;			/* current pass */
  char threadFlags;		/* threading flags */
  float taper;			/* taper */
@@ -491,6 +501,10 @@ EXT unsigned int remcmdUpdateTime;
 EXT unsigned int remcmdTimeout;
 
 EXT unsigned int indexUpdateTime;
+
+EXT char spindleSync;
+EXT char useEncoder;
+EXT char encoderDirect;
 
 typedef struct
 {
@@ -590,12 +604,18 @@ int taperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 
-void encoderSetup(void);
-void encoderMeasure(void);
-void encoderCalculate(void);
-void encoderStart(void);	/* start pulse encoder */
-void encoderStop(void);		/* stop pulse encoder */
+void cmpTmrInit(void);
+
+void synMoveSetup(void);
+
+void syncSetup(void);
+void syncMeasure(void);
+void syncCalculate(void);
+void syncStart(void);		/* start pulse encoder */
+void syncStop(void);		/* stop pulse encoder */
 void encoderSWIEnable(int enable);
+
+void encoderStart(void);
 
 void jogMove(P_MOVECTL mov, int dir);
 void jogMpg1(P_MOVECTL mov);

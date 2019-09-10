@@ -119,12 +119,12 @@ void lclcmd(int ch)
  else if (ch == 1)
  {
   newline();
-  encoderMeasure();
+  syncMeasure();
  }
  else if (ch == 2)
  {
   newline();
-  encoderCalculate();
+  syncCalculate();
  }
  else if (ch == 'o')
  {
@@ -158,7 +158,7 @@ void lclcmd(int ch)
  else if (ch == 'e')
  {
   newline();
-  encoderStop();
+  syncStop();
   if (query(&getnum, "encoder cycle %d: ",  lSyncCycle))
   {
    if (val != 0)
@@ -174,7 +174,7 @@ void lclcmd(int ch)
    if (val != 0)
     lSyncPrescaler = val;
   }
-  encoderStart();
+  syncStart();
  }
  else if (ch == '>')
  {

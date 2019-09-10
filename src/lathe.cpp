@@ -13,6 +13,10 @@
 
 #define ENUM_M_STATES
 #define ENUM_M_COMMANDS
+#define ENUM_SEL_TURN
+#define ENUM_SEL_THREAD
+#define ENUM_OPERATIONS
+
 #include "main.h"
 #include "config.h"
 #include "remvar.h"
@@ -260,7 +264,7 @@ typedef struct s_zxisr
  unsigned int initialStep;	/* initial accel step number */
  unsigned int finalStep;	/* final accel step number */
  unsigned int counterStep1;	/* counter value for incr1 */
- unsigned int counterStep2;	/* coutter value for incr2 */
+ unsigned int counterStep2;	/* counter value for incr2 */
  int d;				/* sum initial value */
  int incr1;			/* incr 1 value */
  int incr2;			/* incr 2 value */
@@ -336,6 +340,15 @@ EXT T_ACCEL xSA;		/* x slow jog accel */
 EXT T_ZXISR xIsr;		/* x isr variables */
 
 EXT char xSyncInit;		/* x sync init */
+
+#define Z_ACTIVE 1		/* z axis active */
+#define X_ACTIVE 2		/* x axis active */
+
+EXT char runoutActive;		/* runout active */
+EXT char active;		/* axis driven by spindle */
+EXT char encActive;		/* encoder active */
+EXT char synIntActive;		/* sync internal active */
+EXT char synExtActive;		/* sync external active */
 
 EXT int32_t tmrStepWidth;	/* step width */
 EXT int32_t tmrMin;		/* timer minimum width */
@@ -464,6 +477,7 @@ typedef struct s_runctl
  char lastState;		/* last state */
  char spindleCmd;		/* wait spindle command */
  char probeCmd;			/* probe command */
+ int opType;			/* operation type */
  int pass;			/* current pass */
  char threadFlags;		/* threading flags */
  float taper;			/* taper */
@@ -526,6 +540,10 @@ EXT unsigned int remcmdUpdateTime;
 EXT unsigned int remcmdTimeout;
 
 EXT unsigned int indexUpdateTime;
+
+EXT char spindleSync;
+EXT char useEncoder;
+EXT char encoderDirect;
 
 typedef struct
 {
@@ -625,12 +643,18 @@ int taperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 
-void encoderSetup(void);
-void encoderMeasure(void);
-void encoderCalculate(void);
-void encoderStart(void);	/* start pulse encoder */
-void encoderStop(void);		/* stop pulse encoder */
+void cmpTmrSetup(void);
+
+void syncMoveSetup(void);
+
+void syncSetup(void);
+void syncMeasure(void);
+void syncCalculate(void);
+void syncStart(void);		/* start pulse encoder */
+void syncStop(void);		/* stop pulse encoder */
 void encoderSWIEnable(int enable);
+
+void encoderStart(void);
 
 void jogMove(P_MOVECTL mov, int dir);
 void jogMpg1(P_MOVECTL mov);
@@ -941,7 +965,7 @@ void resumeCmd(void)
 
 void clearAll(void)
 {
- encoderStop();
+ syncStop();
  
  if (DBG_SETUP)
   printf("\nclear all\n");
@@ -1169,109 +1193,56 @@ void allStop(void)
 
 void spindleSetup(int rpm)
 {
- zSyncInit = 0;
- xSyncInit = 0;
  if (DBG_SETUP)
  {
   printf("\nspindleSetup %d\n", rpm);
+ }
 
-  if (stepperDrive)
-  {
+ if (stepperDrive)		/* if spindle using stepper drive */
+ {
+  if (DBG_SETUP)
    printf("threading uses stepper timer\n");
-  }
-  else
+ }
+ else				/* if spindle not using stepper drive */
+ {
+  if (cfgVarSpeed)		/* spindle driven with variable speed motor */
   {
-   if (cfgVarSpeed)		/* if var speed */
-   {
-    if constexpr (PWM_TIMER != INDEX_TIMER)
-    { 
-     constexpr int MAX_COUNT = 65536;
+   if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
+   { 
+    constexpr int MAX_COUNT = 65536;
 
-     int cnt = cfgFcy / pwmFreq;
-     int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
-     cnt /= preScale;
-     int pwmTmrVal = cnt;
-     cnt -= 1;
+    int cnt = cfgFcy / pwmFreq;
+    int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
+    cnt /= preScale;
+    int pwmTmrVal = cnt;
+    cnt -= 1;
     
-     int pwm = (rpm * pwmTmrVal) / maxSpeed;
+    int pwm = (rpm * pwmTmrVal) / maxSpeed;
 
+    if (DBG_SETUP)
+    {
      printf("pwmFreq %d preScale %d cnt %d\n", pwmFreq, preScale, pwmTmrVal);
      printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
+    }
 
-     pwmTmrInit();
-     pwmTmrScl(preScale - 1);
-     pwmTmrCntClr();
-     pwmTmrSet(cnt);
-     pwmTmrStart();
-     pwmTmrCCR(pwm - 1);
-     pwmTmrPWMMode();
-    }
-    else
-    {
-     int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
+    pwmTmrInit();
+    pwmTmrScl(preScale - 1);
+    pwmTmrCntClr();
+    pwmTmrSet(cnt);
+    pwmTmrStart();
+    pwmTmrCCR(pwm - 1);
+    pwmTmrPWMMode();
+   }
+   else			/* if pwm and idx timers the same */
+   {
+    int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
     
-     pwmTmrCCR(pwm - 1);
-     pwmTmrPWMMode();
-    }
+    pwmTmrCCR(pwm - 1);
+    pwmTmrPWMMode();
    }
-   
-   if (spindleEncoder)
-   {
-    if (spindleSync)
-    {
-     if (spindleSyncBoard)
-     {
-      printf("threading uses sync board\n");
-      zSyncInit = SYNC_ACTIVE_EXT;
-      if (useEncoder)
-      {
-       printf("runout uses encoder\n");
-       xSyncInit = SYNC_ACTIVE_ENC;
-      }
-      else
-      {
-       printf("runout uses local sync\n");
-       xSyncInit = SYNC_ACTIVE_TMR;
-       printf("enable capture timer\n");
-      }
-     }
-     else			/* not SYNC_BOARD */
-     {
-      if (useEncoder)
-      {
-       printf("threading uses encoder\n");
-       zSyncInit = SYNC_ACTIVE_ENC;
-       printf("runout uses encoder\n");
-       xSyncInit = SYNC_ACTIVE_ENC;
-      }
-      else
-      {
-       printf("threading uses local sync\n");
-       zSyncInit = SYNC_ACTIVE_TMR;
-       printf("enable capture timer\n");
-       printf("runout uses encoder\n");
-       xSyncInit = SYNC_ACTIVE_ENC;
-      }
-     }
-    }
-    else				/* not SYNC */
-    {
-     printf("threading uses encoder\n");
-     zSyncInit = SYNC_ACTIVE_ENC;
-     printf("runout uses encoder\n");
-     xSyncInit = SYNC_ACTIVE_ENC;
-    }
-   }
-   else				/* not SPINDLE_ENCODER */
-   {
-    printf("threading disabled\n");
-   }
-   encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
-   printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
-	  zSyncInit, xSyncInit, encoderDirect);
   }
  }
- 
+   
  if (sp.active == 0)		/* if spindle not active */
  {
   P_SPINDLE spa = &spA;
@@ -1294,14 +1265,6 @@ void spindleSetup(int rpm)
 
   HAL_NVIC_EnableIRQ(index2IRQn); /* enable index 2 interrupt */
   EXTI->PR = Index2_Pin;
-
-  if (spindleEncoder)		/* *ok* */
-  {
-   HAL_NVIC_EnableIRQ(spEncIRQn); /* enable spindle encoder interrupt */
-   EXTI->PR = ExtInt_Pin;
-  }
-  else
-   HAL_NVIC_DisableIRQ(spEncIRQn); /* disable spindle encoder interrupt */
 
   spa->label = "spA";
   if (stepperDrive		/* if using stepper drive */
@@ -1445,7 +1408,7 @@ void spindleStart()
  indexTmrCntClr();		/* clear index timer */
  revCounter = 0;		/* and revolution counter */
 
- if (stepperDrive)
+ if (stepperDrive)		/* if using stepper drive */
  {
   if (DBG_P)
    printf("timer %d psc %u arr %u cnt %u\n", SPINDLE_TIMER,
@@ -1460,10 +1423,10 @@ void spindleStart()
   {
    cmpTmr.encCycLen = 5;
    cmpTmr.intCycLen = 4;
-   encoderStart();		/* start encoder */
+   syncStart();		/* start encoder */
   }
  }
- else
+ else				/* if using motor drive */
  {
   if (cfgSwitch)		/* if spindle switched */
   {
@@ -1478,19 +1441,32 @@ void spindleStart()
  }
 }
 
-void encoderSetup(void)
+void cmpTmrSetup()
+{
+ cmpTmrClrIE();			/* disable update interrupts */
+ cmpTmrCntClr();		/* clear counter */
+ cmpTmrSet(0xffff);		/* set count to maximum */
+ cmpTmrScl(cmpTmr.preScale - 1); /* set prescaler */
+ cmpTmrCap1EnaSet();		/* enable capture from encoer */
+ cmpTmrCap1SetIE();		/* enable capture interrupt */
+ cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
+ cmpTmr.measure = 0;		/* clear measure flag */
+ cmpTmr.stop = 0;		/* clear stop flag */
+}
+
+void syncSetup(void)
 {
  cmpTmr.encCycLen = lSyncCycle;
  cmpTmr.encCycLen = lSyncOutput;
  cmpTmr.preScale = lSyncPrescaler;
 }
 
-void encoderMeasure(void)
+void syncMeasure(void)
 {
- encoderStop();			/* stop encoder */
+ syncStop();			/* stop encoder */
 
  if (DBG_SETUP)
-  printf("encoderMeasure\n");
+  printf("syncMeasure\n");
 
  capTmrEnable = 1;		/* enable capture timer */
 
@@ -1512,10 +1488,10 @@ void encoderMeasure(void)
  cmpTmrStart();			/* start capture timer */
 }
 
-void encoderCalculate(void)
+void syncCalculate(void)
 {
  if (DBG_SETUP)
-  printf("encoderCalculate\n");
+  printf("syncCalculatee\n");
 
  uint64_t n = clocksMin * cmpTmr.encCycLen;
  uint64_t d = ((uint64_t) cmpTmr.cycleClocks * encPerRev);
@@ -1533,11 +1509,11 @@ void encoderCalculate(void)
  lSyncPrescaler += 1;
 }
 
-void encoderStart(void)
+void syncStart(void)
 {
- encoderStop();			/* stop encoder */
+ syncStop();			/* stop encoder */
 
- if (useEncoder == 0)		/* if not using encoder */
+// if (useEncoder == 0)		/* if using encoder for sync algorithm */
  {
   capTmrEnable = 1;		/* enable capture timer */
   
@@ -1546,7 +1522,7 @@ void encoderStart(void)
   cmpTmr.preScale = lSyncPrescaler;
 
   if (DBG_SETUP)
-   printf("encoderStart cycle %d output %d preScale %u\n",
+   printf("syncStart cycle %d output %d preScale %u\n",
 	  cmpTmr.encCycLen, cmpTmr.intCycLen, cmpTmr.preScale);
   
   intTmrCntClr();		/* clear counter */
@@ -1573,35 +1549,27 @@ void encoderStart(void)
   cmpTmr.missedStart = 0;	/* clear missed flag */
 #endif
  }
- else
- {
-  if (DBG_SETUP)
-   printf("encoderStart\n");
+// else				/* if using encoder directly */
+// {
+//  if (DBG_SETUP)
+//   printf("syncStart\n");
+//
+//  cmpTmr.preScale = 1;
+// }
 
-  cmpTmr.preScale = 1;
- }
+ cmpTmrSetup();
 
- cmpTmrClrIE();			/* disable update interrupts */
- cmpTmrCntClr();		/* clear counter */
- cmpTmrSet(0xffff);		/* set count to maximum */
- cmpTmrScl(cmpTmr.preScale - 1); /* set prescaler */
- cmpTmrCap1EnaSet();		/* enable capture from encoer */
- cmpTmrCap1SetIE();		/* enable capture interrupt */
- cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
- cmpTmr.measure = 0;		/* clear measure flag */
- cmpTmr.stop = 0;		/* clear stop flag */
-
- if (useEncoder == 0)		/* if not using encoder */
- {
-  cmpTmr.startInt = 1;		/* start internal timer */
-  if (DBG_INT)
-  {
-   dbgCycEndSet();
-  }
-#if DBGTRK
-  dbgTrk = true;
-#endif
- }
+// if (useEncoder == 0)		/* if using encoder for sync algorithm */
+// {
+//  cmpTmr.startInt = 1;		/* start internal timer */
+//  if (DBG_INT)
+//  {
+//   dbgCycEndSet();
+//  }
+//#if DBGTRK
+//  dbgTrk = true;
+//#endif
+// }
  
  cmpTmrStart();			/* start capture timer */
 
@@ -1613,10 +1581,10 @@ void encoderStart(void)
 #endif
 }
 
-void encoderStop(void)
+void syncStop(void)
 {
  if (DBG_SETUP)
-  printf("encoderStop\n");
+  printf("syncStop\n");
 
  capTmrEnable = 0;		/* disable capture timer code */
  
@@ -1644,6 +1612,25 @@ void encoderStop(void)
  intTmrCntClr();
  intTmrClrIE();
  intTmrClrIF();
+}
+
+void encoderStart()
+{
+ syncStop();
+ if (DBG_SETUP)
+  printf("encoderStart\n");
+
+ cmpTmrSetup();
+ cmpTmr.preScale = 1;
+
+ cmpTmr.startInt = 1;		/* start internal timer */
+ if (DBG_INT)
+ {
+  dbgCycEndSet();
+ }
+#if DBGTRK
+ dbgTrk = true;
+#endif
 }
 
 void encoderSWIEnable(int enable)
@@ -1853,7 +1840,7 @@ void spindleStop(void)
   sp.accel = 0;			/* clear acceleration flag */
   sp.decel = 1;			/* set deceleration flag to stop */
   dbgSpStopSet();
-  encoderStop();
+  syncStop();
  }
  else
  {
@@ -2004,7 +1991,7 @@ void slaveEna(void)
  if (spindleEncoder == 0)	/* *ok* if not using spindle encodeer */
  {
   if (DBG_SETUP)
-   printf("\nslave enable z %d x %d\n", zIsr.sync, xIsr.sync);
+   printf("\nslave enable 0 z %d x %d\n", zIsr.sync, xIsr.sync);
 
   int tmp = sp.stepsRev - 1;	/* get maximum spindle step number */
   if (zIsr.sync)		/* if z sync */
@@ -2035,7 +2022,7 @@ void slaveEna(void)
  else				/* *chk* if using spindle encoder */
  {
   if (DBG_SETUP)
-   printf("\nslave enable z %d x %d\n", zIsr.syncInit, xIsr.syncInit);
+   printf("\nslave enable 1  z %d x %d\n", zIsr.syncInit, xIsr.syncInit);
 
   __disable_irq();		/* disable interrupts */
   if (zIsr.syncInit)		/* if initialized for sync op */
@@ -2610,43 +2597,41 @@ void zTurnInit(P_ACCEL ac, char dir, int dist)
  if (DBG_P)
   printf("\nzTurninit %s\n", ac->label);
 
- char flag = runCtl.threadFlags;
- if (spindleEncoder == 0)	/* *ok* if not using encoder */
+ if (spindleEncoder == 0)	/* if no spindle encoder */
  {
-  zReset();
-  if ((flag & TH_RUNOUT) != 0)	/* if runout */
+  if (stepperDrive == 0)	/* if motor driven */
   {
-   if ((flag & TH_LEFT) == 0)	/* if right hand threading */
+   motorSetup(&zTA, zAccel, runCtl.zFeed); /* setup feed based upon rpm */
+  }
+
+  int ctr = turnInit(&zIsr, ac, dir, dist);
+  zHwEnable(ctr);
+ }
+ else				/* if spindle encoder */
+ {
+  if (encActive & Z_ACTIVE)
+  {
+   encTurnInit(&zIsr, ac, dir, dist);
+   zIsr.syncInit = zSyncInit;
+  }
+  if (synIntActive & Z_ACTIVE)
+  {
+  }
+  if (synExtActive & Z_ACTIVE)
+  {
+  }
+
+  if (runoutActive)		/* if runout */
+  {
+   if (encActive & X_ACTIVE)	/* if using encoder */
+    xEncRunoutInit();		/* initialize for encoder runout */
+
+   if ((runCtl.threadFlags & TH_LEFT) == 0) /* if right hand threading */
    {
     zRunoutStart = zRunoutSteps; /* start of runout */
     zRunoutFlag = 1;		/* set runout flag */
    }
    else				/* if left hand threading */
-   {
-    xRunoutInit();		/* initialize for runout */
-   }
-  }
-  int ctr = turnInit(&zIsr, ac, dir, dist);
-  zHwEnable(ctr);
- }
- else				/* *chk* if using spindle encoder */
- {
-  encTurnInit(&zIsr, ac, dir, dist);
-  zIsr.syncInit = zSyncInit;
-
-  if ((flag & TH_RUNOUT) != 0)	/* if runout */
-  {
-   if (spindleSyncBoard)	/* if using sync board */
-    xSyncRunoutInit();		/* initialize for sync runout */
-   else				/* if using encoder for runout */
-    xEncRunoutInit();		/* initialize for encoder runout */
-
-   if ((flag & TH_LEFT) == 0)	/* if right hand threading */
-   {
-    zRunoutStart = zRunoutSteps; /* start of runout */
-    zRunoutFlag = 1;		/* set runout flag */
-   }
-   else
    {
     xIsr.syncInit = xSyncInit;
    }
@@ -2869,10 +2854,157 @@ void zMoveSetup(void)
  mov->pulse = &zPulse;
 }
 
+void syncMoveSetup(void)
+{
+ if (DBG_SETUP)
+  printf("\nsyncMoveSetup op %d %s turn %d %s thread %d %s\n",
+	 runCtl.opType, operationsList[(int) runCtl.opType],
+	 turnSync, selTurnList[(int) turnSync],
+	 threadSync, selThreadList[(int) threadSync]);
+
+ runoutActive = 0;
+ active = 0;
+ encActive = 0;
+ synIntActive = 0;
+ synExtActive = 0;
+ 
+ zSyncInit = 0;
+ xSyncInit = 0;
+
+ char active;
+ switch(runCtl.opType)
+ {
+ case OP_TURN:
+  active = Z_ACTIVE;
+  break;
+ case OP_FACE:
+  active = X_ACTIVE;
+  break;
+ case OP_CUTOFF:
+  active = X_ACTIVE;
+  break;
+ case OP_TAPER:
+  active = Z_ACTIVE;
+  break;
+ case OP_THREAD:
+  active = Z_ACTIVE;
+  break;
+ default:
+  active = Z_ACTIVE;
+  break;
+ }    
+    
+ if (runCtl.opType != OP_THREAD) /* if not threading */
+ {
+  switch(turnSync)
+  {
+  case SEL_TU_SPEED: /* Motor Speed */
+   break;
+    
+  case SEL_TU_STEP:  /* Stepper */
+   break;
+    
+  case SEL_TU_ENC:   /* Encoder */
+   encActive = active;
+   if (active == Z_ACTIVE)
+    zSyncInit = SYNC_ACTIVE_ENC;
+   else
+    xSyncInit = SYNC_ACTIVE_ENC;
+   break;
+    
+  case SEL_TU_ISYN:  /* Int Syn */
+   synIntActive = active;
+   if (active == Z_ACTIVE)
+    zSyncInit = SYNC_ACTIVE_TMR;
+   else
+    xSyncInit = SYNC_ACTIVE_TMR;
+   break;
+    
+  case SEL_TU_ESYN:  /* Ext Syn */
+   synExtActive = active;
+   if (active == Z_ACTIVE)
+    zSyncInit = SYNC_ACTIVE_EXT;
+  }
+ }
+ else
+ {
+  char flag = runCtl.threadFlags;
+  runoutActive = (flag & TH_RUNOUT) != 0;
+  switch(threadSync)
+  {
+  case SEL_TH_NO_ENC:		/* no encoder threading disabled */
+   break;
+
+  case SEL_TH_STEP:		/* spindle stepper sync timers */
+   break;
+
+  case SEL_TH_ENC:		/* use encoder directly */
+   encActive = Z_ACTIVE;
+   zSyncInit = SYNC_ACTIVE_ENC;
+   if (runoutActive)
+   {
+    encActive |= X_ACTIVE;
+    xSyncInit = SYNC_ACTIVE_ENC;
+   }
+   break;
+
+  case SEL_TH_ISYN_RENC:	/* internal sync runout encoder */
+   synIntActive = Z_ACTIVE;
+   zSyncInit = SYNC_ACTIVE_TMR;
+   if (runoutActive)
+   {
+    encActive = X_ACTIVE;
+    xSyncInit = SYNC_ACTIVE_ENC;
+    break;
+
+   case SEL_TH_ESYN_RENC:	/* external sync runout encoder */
+    synExtActive = Z_ACTIVE;
+    zSyncInit = SYNC_ACTIVE_EXT;
+    if (runoutActive)
+    {
+     encActive = X_ACTIVE;
+     xSyncInit = SYNC_ACTIVE_ENC;
+    }
+    break;
+
+   case SEL_TH_ESYN_RSYN:	/* external sync runout sync */
+    synExtActive = Z_ACTIVE;
+    zSyncInit = SYNC_ACTIVE_EXT;
+    if (runoutActive)
+    {
+     synIntActive = X_ACTIVE;
+     xSyncInit = SYNC_ACTIVE_TMR;
+    }
+    break;
+   }
+  }
+ }
+ 
+ encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
+ if (DBG_SETUP)
+ {
+  printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
+	 zSyncInit, xSyncInit, encoderDirect);
+  printf("active %d encActive %d synIntActive %d "
+	 "synExtAcitve %d runoutActive %d\n",
+	 active, encActive, synIntActive, synExtActive, runoutActive);
+ }
+
+ if (spindleEncoder)		/* *ok* */
+ {
+  HAL_NVIC_EnableIRQ(spEncIRQn); /* enable spindle encoder interrupt */
+  EXTI->PR = ExtInt_Pin;
+ }
+ else
+  HAL_NVIC_DisableIRQ(spEncIRQn); /* disable spindle encoder interrupt */
+}
+
 void zSynSetup(int feedType, float feed, float runoutDist, float runoutDepth)
 {
  if (DBG_SETUP)
   printf("\nzSynSetup\n");
+
+ syncMoveSetup();
 
  P_ACCEL ac = &zTA;
  switch (feedType)
@@ -2895,19 +3027,14 @@ void zSynSetup(int feedType, float feed, float runoutDist, float runoutDepth)
  }
  else				/* *chk* if spindle encoder */
  {
-  if (encoderDirect)		/* if using encoder directly */
+  if (encActive & Z_ACTIVE)	/* if using encoder for z */
   {
    zIsr.encoderDirect = 1;
    encTurnCalc(ac);
   }
  }
  
- if ((runCtl.threadFlags & TH_RUNOUT) == 0) /* if no runout */
- {
-  zRunoutDist = 0;
-  zRunoutSteps = 0;
- }
- else				/* if runout */
+ if (runoutActive)		/* if runout */
  {
   zRunoutDist = runoutDist;
   zRunoutSteps = lrint(runoutDist * ac->stepsInch);
@@ -2926,21 +3053,14 @@ void zSynSetup(int feedType, float feed, float runoutDist, float runoutDepth)
   }
   else				/* *chk* if spindle encoder */
   {
-   if (spindleSync == 0)	/* if not using spindle sync */
-   {
+   if (encActive & X_ACTIVE)
     encRunoutCalc(ac, &xRA, runout, runoutDepth);
-   }
-   else				/* if using spindle sync */
-   {
-    if (spindleSyncBoard)	/* if spindle sync board present */
-    {
-    }
-    else			/* if using internal spindle sync */
-    {
-     encRunoutCalc(ac, &xRA, runout, runoutDepth);
-    }
-   }
   }
+ }
+ else				/* if no runout */
+ {
+  zRunoutDist = 0;
+  zRunoutSteps = 0;
  }
 }
 
@@ -3055,12 +3175,6 @@ void zControl(void)
   switch (cmd & CMD_MSK)
   {
   case CMD_SYN:
-   if ((stepperDrive == 0)	/* if motor driven */
-   &&  (spindleEncoder == 0))	/* *ok* and no spindle encoder */
-   {
-    motorSetup(&zTA, zAccel, runCtl.zFeed); /* setup feed based upon rpm */
-   }
-
    zTurnInit(&zTA, mov->dir, mov->dist); /* init synchronized move */
    if ((cmd & (Z_SYN_START | Z_SYN_LEFT)) != 0) /* if start on index pulse */
    {
@@ -3068,7 +3182,7 @@ void zControl(void)
     {
      zIsr.taper = TAPER_CTL;	/* indicate z controlling taper */
      float dist = (float) mov->dist / zAxis.stepsInch; /* distance */
-     int taperDist = (int) (dist * xPA.taperInch * xAxis.stepsInch); /* taper */
+     int taperDist = (int) (dist * xPA.taperInch * xAxis.stepsInch);
      xIsr.dist = taperDist;	/* save for isr */
 
      if (cfgDro)
@@ -3088,7 +3202,7 @@ void zControl(void)
       xStart();			/* start x */
      }
      dbgXTaperSet();
-    }
+    } /* end taper */
 
     if (stepperDrive		/* if stepper drive */
     ||	spindleEncoder)		/* *chk* spindle encoder */
@@ -3225,15 +3339,29 @@ void xHwEnable(int ctr)
 
 void xTurnInit(P_ACCEL ac, char dir, int dist)
 {
- if (spindleEncoder == 0)	/* *ok* */
+ if (spindleEncoder == 0)	/* if no spindle encoder */
  {
+  if (stepperDrive == 0)	/* if motor drive */
+  {
+   motorSetup(&xTA, xAccel, runCtl.xFeed); /* setup feed based upon rpm */
+  }
+
   xReset();
   int ctr = turnInit(&xIsr, ac, dir, dist);
   xHwEnable(ctr);
  }
- else				/* *chk* */
+ else				/* if spindle encoder */
  {
-  encTurnInit(&xIsr, ac, dir, dist);
+  if (encActive & X_ACTIVE)	/* if using encoder directly */
+  {
+   encTurnInit(&xIsr, ac, dir, dist);
+  }
+  if (synIntActive & X_ACTIVE)	/* if internal sync */
+  {
+  }
+  if (synExtActive & X_ACTIVE)	/* if external sync */
+  {
+  }
  }
 }
 
@@ -3623,6 +3751,8 @@ void xSynSetup(int feedType, float feed)
  if (DBG_SETUP)
   printf("\nxSynSetup\n");
 
+ syncMoveSetup();
+
  P_ACCEL ac = &xTA;
  switch (feedType)
  {
@@ -3733,12 +3863,6 @@ void xControl(void)
   switch (cmd & CMD_MSK)	/* select on move type */
   {
   case CMD_SYN:			/* synchronized move */
-   if ((stepperDrive == 0)	/* if motor drive */
-   &&  (spindleEncoder == 0))	/* *ok* and no encoder */
-   {
-    motorSetup(&xTA, xAccel, runCtl.xFeed); /* setup feed based upon rpm */
-   }
-
    xTurnInit(&xTA, mov->dir, mov->dist); /* init for turning */
    if ((cmd & X_SYN_START) != 0) /* if start on index pulse */
    {
@@ -4276,6 +4400,13 @@ void procMove(void)
     done = 0;
     break;
 
+   case SAVE_OPERATION:
+    if (DBG_QUE)
+     printf("save operation %d\n", (int) cmd->iVal);
+
+    mv->opType = cmd->iVal;
+    break;
+
    case MOVE_ZX:
     if (DBG_QUE)
      printf("move zx %7.4f\n", cmd->val);
@@ -4402,7 +4533,7 @@ void procMove(void)
     if (cfgXilinx == 0)
      xSynSetup(mv->feedType, cmd->val);
     else
-     xSynSetupX(mv->feedType, cmd->val);
+     xSynSetup(mv->feedType, cmd->val);
     done = 0;
     break;
 
@@ -4601,7 +4732,7 @@ void procMove(void)
      jogPause = 0;
      if (capTmrEnable || encoderDirect)
      {
-      encoderStop();		/* stop x encoder */
+      syncStop();		/* stop x encoder */
       encoderSWIEnable(0);	/* disable software interrupt for encoder */
      }
     }
@@ -4679,35 +4810,76 @@ void procMove(void)
        if (DBG_QUE)
 	printf("spindleSync %d spindleSyncBoard %d useEncoder %d\n",
 	       spindleSync, spindleSyncBoard, useEncoder);
-       if (spindleSync)		/* *ok* if spindle sync */
+
+       if (mv->spindleCmd == STOP_SPINDLE) /* if stopping spindle */
        {
-	if (spindleSyncBoard)	/* *ok* if spindle sync board */
-	{
-	 printf("Start ZFlag %d\n", ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
-	 printf("Start clr\n");
-	 startClr();		/* set sync start flag */
-	 printf("Start ZFlag %d\n", ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
-	 mv->state = M_WAIT_SYNC_READY; /* wait for encoder */
-	}
-	else			/* if using local timer */
-	{
-	 if (useEncoder == 0)	/* if not using encoder directly */
-	 {
-	  encoderSetup();	/* set up x encoder variables */
-	  encoderMeasure();	/* measure for encoder */
-	  mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
-	 }
-	 else			/* if just using encoder */
-	  mv->state = M_START_ENCODER; /* start encoder */
-	}
-       }
-       else			/* if not using spindle sync */
-       {
-	encoderStart();		/* start encoder */
 	mv->state = M_IDLE;	/* return to idle state */
        }
-      }
-     }
+       else			/* if not stopping spindle */
+       {
+	if (synExtActive)	/* if using external sync board */
+	{
+	 printf("Start ZFlag %d\n",
+		((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
+	 printf("Start clr\n");
+	 startClr();		/* set sync start flag */
+	 printf("Start ZFlag %d\n",
+		((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
+	 mv->state = M_WAIT_SYNC_READY; /* wait for encoder */
+	}
+	else if (synIntActive)	/* if using internal sync */
+	{
+	 syncSetup();		/* set up x encoder variables */
+	 syncMeasure();		/* measure for encoder */
+	 mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
+	}
+	else if (encActive)	/* if using encoder directly */
+	{
+	 encoderStart();	/* start encoder to use interrupt */
+	 mv->state = M_IDLE;	/* return to idle state */
+	}
+#if 0	
+	if (mv->opType == OP_THREAD) /* if threading */
+	{
+	 if (spindleSync)	/* *ok* if spindle sync */
+	 {
+	  if (spindleSyncBoard)	/* *ok* if spindle sync board */
+	  {
+	   printf("Start ZFlag %d\n",
+		  ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
+	   printf("Start clr\n");
+	   startClr();		/* set sync start flag */
+	   printf("Start ZFlag %d\n",
+		  ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
+	   mv->state = M_WAIT_SYNC_READY; /* wait for encoder */
+	  }
+	  else			/* if using local timer */
+	  {
+	   if (useEncoder == 0)	/* if not using encoder directly */
+	   {
+	    syncSetup();	/* set up x encoder variables */
+	    syncMeasure();	/* measure for encoder */
+	    mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
+	   }
+	   else			/* if just using encoder */
+	    mv->state = M_START_SYNC; /* start encoder */
+	  }
+	 }
+	 else			/* if not using spindle sync */
+	 {
+	  syncStart();		/* start encoder to use interrupt */
+	  mv->state = M_IDLE;	/* return to idle state */
+	 }
+	}
+	else			/* if not threading */
+	{
+	 syncStart();		/* start encoder to use interrupt */
+	 mv->state = M_IDLE;	/* return to idle state */
+	}
+#endif
+       }	/* if not stopping spindle */
+      }		/* if speed stable */
+     }		/* if valid index period */
      lastIndexPeriod = indexPeriod; /* set new last period */
     }
    }
@@ -4718,7 +4890,6 @@ void procMove(void)
   break;
 
  case M_WAIT_SYNC_READY:
-//  if (readyEQ0())		/* if sync ready */
   if (readyIsClr())		/* if sync ready */
   {
    startSet();			/* clear start flag */
@@ -4727,31 +4898,36 @@ void procMove(void)
   break;
 
  case M_WAIT_SYNC_DONE:
-//  if (readyNE0())		/* if ready cleared */
   if (readyIsSet())		/* if ready cleared */
   {
-   if (useEncoder == 0)		/* if not using encoder directly */
+   if (synIntActive)		/* if using internal sync */
    {
-    encoderSetup();		/* set up x encoder variables */
-    encoderMeasure();		/* measure for x encoder */
+    syncSetup();		/* set up x encoder variables */
+    syncMeasure();		/* measure for x encoder */
     mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
    }
-   else				 /* if just using encoder */
-    mv->state = M_START_ENCODER; /* start encoder */
+   else	if (encActive)		/* if using encoder */
+   {
+    encoderStart();		/* start encoder to use interrupt */
+    mv->state = M_IDLE;		/* return to idle state */
+   }
+   else				/* if not using anything else */
+   {
+    mv->state = M_IDLE;		/* return to idle state */
+   }
   }
   break;
 
  case M_WAIT_MEASURE_DONE:
   if (cmpTmr.measure == 0)	/* if measurement complete */
   {
-   encoderCalculate();		/* calculate encoder pre scaler */
-   mv->state = M_START_ENCODER;	/* start encoder */
+   syncCalculate();		/* calculate encoder pre scaler */
+   mv->state = M_START_SYNC;	/* start sync */
   }
   break;
 
- case M_START_ENCODER:
-  encoderStart();		/* start encoder */
-  encoderSWIEnable(1);		/* enable software interrupt for encoder */
+ case M_START_SYNC:
+  syncStart();			/* start sync */
   mv->state = M_IDLE;		/* return to idle state */
   break;
 

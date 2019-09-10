@@ -166,75 +166,74 @@ T_PARM remparm[] =
  PARM(motorTest),               /* 0x64 use stepper drive to test motor */
  PARM(spindleEncoder),          /* 0x65 motor drive with spindle encoder */
  PARM(spindleSyncBoard),        /* 0x66 spindle sync board */
- PARM(spindleSync),             /* 0x67 spindle sync direct */
- PARM(useEncoder),              /* 0x68 config for use encoder interrupt directly */
- PARM(encoderDirect),           /* 0x69 use encoder interrupt directly */
- PARM(capTmrEnable),            /* 0x6a enable capture timer */
- PARM(cfgXilinx),               /* 0x6b using xilinx */
- PARM(cfgMpg),                  /* 0x6c manual pulse generator */
- PARM(cfgDro),                  /* 0x6d digital readout */
- PARM(cfgLcd),                  /* 0x6e lcd display */
- PARM(cfgFcy),                  /* 0x6f system clock speed */
- PARM(cfgSwitch),               /* 0x70 spindle off on switch */
- PARM(cfgVarSpeed),             /* 0x71 spindle variable speed */
+ PARM(turnSync),                /* 0x67 synchronization type for turning */
+ PARM(threadSync),              /* 0x68 synchronization type for threading */
+ PARM(capTmrEnable),            /* 0x69 enable capture timer */
+ PARM(cfgXilinx),               /* 0x6a using xilinx */
+ PARM(cfgMpg),                  /* 0x6b manual pulse generator */
+ PARM(cfgDro),                  /* 0x6c digital readout */
+ PARM(cfgLcd),                  /* 0x6d lcd display */
+ PARM(cfgFcy),                  /* 0x6e system clock speed */
+ PARM(cfgSwitch),               /* 0x6f spindle off on switch */
+ PARM(cfgVarSpeed),             /* 0x70 spindle variable speed */
 
 // setup
 
- PARM(setupDone),               /* 0x72 setup done */
+ PARM(setupDone),               /* 0x71 setup done */
 
 // encoder counts per revolution
 
- PARM(encPerRev),               /* 0x73 spindle encoder counts per revolution */
+ PARM(encPerRev),               /* 0x72 spindle encoder counts per revolution */
 
 // test encoder setup variables
 
- PARM(encEnable),               /* 0x74 encoder enable flag */
- PARM(encPreScaler),            /* 0x75 encoder prescaler */
- PARM(encTimer),                /* 0x76 encoder timer counts */
- PARM(encRunCount),             /* 0x77 encoder run count */
+ PARM(encEnable),               /* 0x73 encoder enable flag */
+ PARM(encPreScaler),            /* 0x74 encoder prescaler */
+ PARM(encTimer),                /* 0x75 encoder timer counts */
+ PARM(encRunCount),             /* 0x76 encoder run count */
 
 // test encoder status variables
 
- PARM(encRun),                  /* 0x78 encoder running flag */
- PARM(encCounter),              /* 0x79 encoder count in rev */
- PARM(encRevCounter),           /* 0x7a encoder revolution counter */
+ PARM(encRun),                  /* 0x77 encoder running flag */
+ PARM(encCounter),              /* 0x78 encoder count in rev */
+ PARM(encRevCounter),           /* 0x79 encoder revolution counter */
 
 // measured spindle speed
 
- PARM(rpm),                     /* 0x7b current rpm */
+ PARM(rpm),                     /* 0x7a current rpm */
 
 // xilinx frequency variables
 
- PARM(xFrequency),              /* 0x7c xilinx clock frequency */
- PARM(freqMult),                /* 0x7d frequency multiplier */
+ PARM(xFrequency),              /* 0x7b xilinx clock frequency */
+ PARM(freqMult),                /* 0x7c frequency multiplier */
 
 // xilinx configuration register
 
- PARM(xCfgReg),                 /* 0x7e xilinx configuration register */
+ PARM(xCfgReg),                 /* 0x7d xilinx configuration register */
 
 // sync parameters
 
- PARM(lSyncCycle),              /* 0x7f sync cycle length */
- PARM(lSyncOutput),             /* 0x80 sync outputs per cycle */
- PARM(lSyncPrescaler),          /* 0x81 sync prescaler */
+ PARM(lSyncCycle),              /* 0x7e sync cycle length */
+ PARM(lSyncOutput),             /* 0x7f sync outputs per cycle */
+ PARM(lSyncPrescaler),          /* 0x80 sync prescaler */
 
 // threading variables
 
- PARM(thZStart),                /* 0x82 threading z start */
- PARM(thXStart),                /* 0x83 threading x start */
- PARM(tanThreadAngle),          /* 0x84 tangent of threading angle */
- PARM(xFeed),                   /* 0x85 x feed */
- PARM(runoutDistance),          /* 0x86 runout distance */
- PARM(runoutDepth),             /* 0x87 runout depth */
+ PARM(thZStart),                /* 0x81 threading z start */
+ PARM(thXStart),                /* 0x82 threading x start */
+ PARM(tanThreadAngle),          /* 0x83 tangent of threading angle */
+ PARM(xFeed),                   /* 0x84 x feed */
+ PARM(runoutDistance),          /* 0x85 runout distance */
+ PARM(runoutDepth),             /* 0x86 runout depth */
 
 // jog debug
 
- PARM(jogDebug),                /* 0x88 jog interrupt debug */
+ PARM(jogDebug),                /* 0x87 jog interrupt debug */
 
 // motor and speed control
 
- PARM(pwmFreq),                 /* 0x89 spindle speed pwm frequency */
- PARM(minSpeed),                /* 0x8a minimum speed for current range */
- PARM(maxSpeed),                /* 0x8b maximum speed for current range */
- PARM(maxParm),                 /* 0x8c maximum parameter */
+ PARM(pwmFreq),                 /* 0x88 spindle speed pwm frequency */
+ PARM(minSpeed),                /* 0x89 minimum speed for current range */
+ PARM(maxSpeed),                /* 0x8a maximum speed for current range */
+ PARM(maxParm),                 /* 0x8b maximum parameter */
 };
