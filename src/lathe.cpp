@@ -477,7 +477,6 @@ typedef struct s_runctl
  char lastState;		/* last state */
  char spindleCmd;		/* wait spindle command */
  char probeCmd;			/* probe command */
- int opType;			/* operation type */
  int pass;			/* current pass */
  char threadFlags;		/* threading flags */
  float taper;			/* taper */
@@ -639,6 +638,7 @@ void slaveEna(void);		/* enable slave */
 void accelInit(P_AXIS ax, P_ACCEL ac);
 int turnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 void encTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
+void syncTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 int taperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
@@ -1198,48 +1198,40 @@ void spindleSetup(int rpm)
   printf("\nspindleSetup %d\n", rpm);
  }
 
- if (stepperDrive)		/* if spindle using stepper drive */
+ if (cfgVarSpeed)		/* spindle driven with variable speed motor */
  {
-  if (DBG_SETUP)
-   printf("threading uses stepper timer\n");
- }
- else				/* if spindle not using stepper drive */
- {
-  if (cfgVarSpeed)		/* spindle driven with variable speed motor */
-  {
-   if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
-   { 
-    constexpr int MAX_COUNT = 65536;
+  if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
+  { 
+   constexpr int MAX_COUNT = 65536;
 
-    int cnt = cfgFcy / pwmFreq;
-    int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
-    cnt /= preScale;
-    int pwmTmrVal = cnt;
-    cnt -= 1;
+   int cnt = cfgFcy / pwmFreq;
+   int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
+   cnt /= preScale;
+   int pwmTmrVal = cnt;
+   cnt -= 1;
     
-    int pwm = (rpm * pwmTmrVal) / maxSpeed;
+   int pwm = (rpm * pwmTmrVal) / maxSpeed;
 
-    if (DBG_SETUP)
-    {
-     printf("pwmFreq %d preScale %d cnt %d\n", pwmFreq, preScale, pwmTmrVal);
-     printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
-    }
-
-    pwmTmrInit();
-    pwmTmrScl(preScale - 1);
-    pwmTmrCntClr();
-    pwmTmrSet(cnt);
-    pwmTmrStart();
-    pwmTmrCCR(pwm - 1);
-    pwmTmrPWMMode();
-   }
-   else			/* if pwm and idx timers the same */
+   if (DBG_SETUP)
    {
-    int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
-    
-    pwmTmrCCR(pwm - 1);
-    pwmTmrPWMMode();
+    printf("pwmFreq %d preScale %d cnt %d\n", pwmFreq, preScale, pwmTmrVal);
+    printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
    }
+
+   pwmTmrInit();
+   pwmTmrScl(preScale - 1);
+   pwmTmrCntClr();
+   pwmTmrSet(cnt);
+   pwmTmrStart();
+   pwmTmrCCR(pwm - 1);
+   pwmTmrPWMMode();
+  }
+  else			/* if pwm and idx timers the same */
+  {
+   int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
+    
+   pwmTmrCCR(pwm - 1);
+   pwmTmrPWMMode();
   }
  }
    
@@ -1421,19 +1413,26 @@ void spindleStart()
 
   if (motorTest)		/* if testing motor */
   {
+#if 0
    cmpTmr.encCycLen = 5;
    cmpTmr.intCycLen = 4;
-   syncStart();		/* start encoder */
+   syncStart();			/* start encoder */
+#endif
   }
  }
  else				/* if using motor drive */
  {
+  lastRevCount = 0;
+  revCounter = 0;
+  lastIndexPeriod = 0;		/* clear last index period */
+
   if (cfgSwitch)		/* if spindle switched */
   {
    spRunSet();			/* turn on spindle */
    if (DBG_SETUP)
     printf("spRun %d\n", spRunRead());
   }
+
   if (cfgVarSpeed)		/* if var speed */
   {
    pwmTmrPWMEna();		/* start pwm */
@@ -1513,63 +1512,50 @@ void syncStart(void)
 {
  syncStop();			/* stop encoder */
 
-// if (useEncoder == 0)		/* if using encoder for sync algorithm */
- {
-  capTmrEnable = 1;		/* enable capture timer */
+ capTmrEnable = 1;		/* enable capture timer */
   
-  cmpTmr.encCycLen = lSyncCycle;
-  cmpTmr.intCycLen = lSyncOutput;
-  cmpTmr.preScale = lSyncPrescaler;
+ cmpTmr.encCycLen = lSyncCycle;
+ cmpTmr.intCycLen = lSyncOutput;
+ cmpTmr.preScale = lSyncPrescaler;
 
-  if (DBG_SETUP)
-   printf("syncStart cycle %d output %d preScale %u\n",
-	  cmpTmr.encCycLen, cmpTmr.intCycLen, cmpTmr.preScale);
+ if (DBG_SETUP)
+  printf("syncStart cycle %d output %d preScale %u\n",
+	 cmpTmr.encCycLen, cmpTmr.intCycLen, cmpTmr.preScale);
   
-  intTmrCntClr();		/* clear counter */
+ intTmrCntClr();		/* clear counter */
 
-  cmpTmr.startDelay = (uint16_t) ((cfgFcy * START_DELAY) / 1000000l - 1);
-  intTmrSet(cmpTmr.startDelay);	/* set to initial delay */
+ cmpTmr.startDelay = (uint16_t) ((cfgFcy * START_DELAY) / 1000000l - 1);
+ intTmrSet(cmpTmr.startDelay);	/* set to initial delay */
 
-  intTmrScl(cmpTmr.preScale - 1); /* set prescaler */
-  intTmrSetIE();			/* enable interrupts */
+ intTmrScl(cmpTmr.preScale - 1); /* set prescaler */
+ intTmrSetIE();			/* enable interrupts */
 
-  cmpTmr.cycleClocks = 0;	/* clear cycle clocks */
-  cmpTmr.lastEnc = 0;		/* clear last encoder vale */
-  memset(&cmpTmr.delta, 0, sizeof(cmpTmr.delta)); /* clear delta array */
+ cmpTmr.cycleClocks = 0;	/* clear cycle clocks */
+ cmpTmr.lastEnc = 0;		/* clear last encoder vale */
+ memset(&cmpTmr.delta, 0, sizeof(cmpTmr.delta)); /* clear delta array */
 
-  cmpTmr.encClocks = 0;		/* clear clocks in current cycle */
+ cmpTmr.encClocks = 0;		/* clear clocks in current cycle */
 
-  cmpTmr.encPulse = cmpTmr.encCycLen; /* initialize encoder counter */
-  cmpTmr.intPulse = cmpTmr.intCycLen; /* initialize internal counter */
+ cmpTmr.encPulse = cmpTmr.encCycLen; /* initialize encoder counter */
+ cmpTmr.intPulse = cmpTmr.intCycLen; /* initialize internal counter */
 
 #if DBG_SYNC_COUNT
-  cmpTmr.encCount = 0;		/* clear counters */
-  cmpTmr.intCount = 0;
-  cmpTmr.cycleCount = 0;
-  cmpTmr.missedStart = 0;	/* clear missed flag */
+ cmpTmr.encCount = 0;		/* clear counters */
+ cmpTmr.intCount = 0;
+ cmpTmr.cycleCount = 0;
+ cmpTmr.missedStart = 0;	/* clear missed flag */
 #endif
- }
-// else				/* if using encoder directly */
-// {
-//  if (DBG_SETUP)
-//   printf("syncStart\n");
-//
-//  cmpTmr.preScale = 1;
-// }
 
  cmpTmrSetup();
 
-// if (useEncoder == 0)		/* if using encoder for sync algorithm */
-// {
-//  cmpTmr.startInt = 1;		/* start internal timer */
-//  if (DBG_INT)
-//  {
-//   dbgCycEndSet();
-//  }
-//#if DBGTRK
-//  dbgTrk = true;
-//#endif
-// }
+ cmpTmr.startInt = 1;		/* start internal timer */
+ if (DBG_INT)
+ {
+  dbgCycEndSet();
+ }
+#if DBGTRK
+ dbgTrk = true;
+#endif
  
  cmpTmrStart();			/* start capture timer */
 
@@ -1622,15 +1608,6 @@ void encoderStart()
 
  cmpTmrSetup();
  cmpTmr.preScale = 1;
-
- cmpTmr.startInt = 1;		/* start internal timer */
- if (DBG_INT)
- {
-  dbgCycEndSet();
- }
-#if DBGTRK
- dbgTrk = true;
-#endif
 }
 
 void encoderSWIEnable(int enable)
@@ -2129,17 +2106,30 @@ void encTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
 	 d, dist, ac->pitch, rev, (int) (rev * encPerRev));
  }
 
- if (isr->encoderDirect)
+ isr->d = ac->d;
+ isr->incr1 = ac->incr1;
+ isr->incr2 = ac->incr2;
+ isr->delta = ac->delta;
+ isr->x = 0;
+ isr->y = 0;
+
+ isr->steps = 0;
+ isr->done = 0;
+ isr->dir = dir;
+ isr->dist = dist;
+}
+
+void syncTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist)
+{
+ if (DBG_P)
  {
-  isr->d = ac->d;
-  isr->incr1 = ac->incr1;
-  isr->incr2 = ac->incr2;
-  isr->delta = ac->delta;
-  isr->x = 0;
-  isr->y = 0;
+  float d = (float) dist / ac->stepsInch;
+  float rev = d / ac->pitch;
+  printf("\nsyncTurnInit %s\n", ac->label);
+  printf("dist %7.4f steps %d pitch %6.4f rev %6.2f spSteps %d\n",
+	 d, dist, ac->pitch, rev, (int) (rev * encPerRev));
  }
 
- isr->syncInit = SYNC_ACTIVE_ENC;
  isr->steps = 0;
  isr->done = 0;
  isr->dir = dir;
@@ -2614,11 +2604,15 @@ void zTurnInit(P_ACCEL ac, char dir, int dist)
    encTurnInit(&zIsr, ac, dir, dist);
    zIsr.syncInit = zSyncInit;
   }
-  if (synIntActive & Z_ACTIVE)
+  else if (synIntActive & Z_ACTIVE)
   {
+   syncTurnInit(&zIsr, ac, dir, dist);
+   zIsr.syncInit = zSyncInit;
   }
-  if (synExtActive & Z_ACTIVE)
+  else if (synExtActive & Z_ACTIVE)
   {
+   syncTurnInit(&zIsr, ac, dir, dist);
+   zIsr.syncInit = zSyncInit;
   }
 
   if (runoutActive)		/* if runout */
@@ -2858,7 +2852,7 @@ void syncMoveSetup(void)
 {
  if (DBG_SETUP)
   printf("\nsyncMoveSetup op %d %s turn %d %s thread %d %s\n",
-	 runCtl.opType, operationsList[(int) runCtl.opType],
+	 currentOp, operationsList[(int) currentOp],
 	 turnSync, selTurnList[(int) turnSync],
 	 threadSync, selThreadList[(int) threadSync]);
 
@@ -2872,7 +2866,7 @@ void syncMoveSetup(void)
  xSyncInit = 0;
 
  char active;
- switch(runCtl.opType)
+ switch(currentOp)
  {
  case OP_TURN:
   active = Z_ACTIVE;
@@ -2894,7 +2888,7 @@ void syncMoveSetup(void)
   break;
  }    
     
- if (runCtl.opType != OP_THREAD) /* if not threading */
+ if (currentOp != OP_THREAD) /* if not threading */
  {
   switch(turnSync)
   {
@@ -2924,6 +2918,9 @@ void syncMoveSetup(void)
    synExtActive = active;
    if (active == Z_ACTIVE)
     zSyncInit = SYNC_ACTIVE_EXT;
+   else
+    xSyncInit = SYNC_ACTIVE_EXT;
+   break;
   }
  }
  else
@@ -3003,8 +3000,6 @@ void zSynSetup(int feedType, float feed, float runoutDist, float runoutDepth)
 {
  if (DBG_SETUP)
   printf("\nzSynSetup\n");
-
- syncMoveSetup();
 
  P_ACCEL ac = &zTA;
  switch (feedType)
@@ -3358,9 +3353,13 @@ void xTurnInit(P_ACCEL ac, char dir, int dist)
   }
   if (synIntActive & X_ACTIVE)	/* if internal sync */
   {
+   syncTurnInit(&xIsr, ac, dir, dist);
+   xIsr.syncInit = xSyncInit;
   }
   if (synExtActive & X_ACTIVE)	/* if external sync */
   {
+   syncTurnInit(&xIsr, ac, dir, dist);
+   xIsr.syncInit = xSyncInit;
   }
  }
 }
@@ -3750,8 +3749,6 @@ void xSynSetup(int feedType, float feed)
 {
  if (DBG_SETUP)
   printf("\nxSynSetup\n");
-
- syncMoveSetup();
 
  P_ACCEL ac = &xTA;
  switch (feedType)
@@ -4400,13 +4397,6 @@ void procMove(void)
     done = 0;
     break;
 
-   case SAVE_OPERATION:
-    if (DBG_QUE)
-     printf("save operation %d\n", (int) cmd->iVal);
-
-    mv->opType = cmd->iVal;
-    break;
-
    case MOVE_ZX:
     if (DBG_QUE)
      printf("move zx %7.4f\n", cmd->val);
@@ -4615,24 +4605,30 @@ void procMove(void)
     if (DBG_QUE)
      printf("z feed setup\n");
 
+#if 0
     lastRevCount = 0;
     revCounter = 0;
     lastIndexPeriod = 0;	/* clear last index period */
     mv->zFeed = cmd->val;
     mv->spindleCmd = cmd->cmd;	/* save cmd for wait spindle */
     mv->state = M_WAIT_SPINDLE;	/* wait for spindle to start */
+#endif
+    done = 0;
     break;
 
    case X_FEED_SETUP:
     if (DBG_QUE)
      printf("x feed setup\n");
 
+#if 0
     lastRevCount = 0;
     revCounter = 0;
     lastIndexPeriod = 0;	/* clear last index period */
     mv->xFeed = cmd->val;
     mv->spindleCmd = cmd->cmd;	/* save cmd for wait spindle */
     mv->state = M_WAIT_SPINDLE;	/* wait for spindle to start */
+#endif
+    done = 0;
     break;
 
    case SAVE_FLAGS:
@@ -4839,7 +4835,7 @@ void procMove(void)
 	 mv->state = M_IDLE;	/* return to idle state */
 	}
 #if 0	
-	if (mv->opType == OP_THREAD) /* if threading */
+	if (currentOp == OP_THREAD) /* if threading */
 	{
 	 if (spindleSync)	/* *ok* if spindle sync */
 	 {

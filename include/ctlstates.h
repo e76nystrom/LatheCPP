@@ -96,27 +96,26 @@ enum M_COMMANDS
  SAVE_Z_OFFSET,                 /*  4 x04 save z offset */
  SAVE_X_OFFSET,                 /*  5 x05 save x offset */
  SAVE_TAPER,                    /*  6 x06 save taper */
- SAVE_OPERATION,                /*  7 x07 save operation type */
- MOVE_ZX,                       /*  8 x08 move x in sync with z */
- MOVE_XZ,                       /*  9 x09 move z in sync with x */
- TAPER_ZX,                      /* 10 x0a taper x */
- TAPER_XZ,                      /* 11 x0b taper z */
- START_SPINDLE,                 /* 12 x0c spindle start */
- STOP_SPINDLE,                  /* 13 x0d spindle stop */
- Z_SYN_SETUP,                   /* 14 x0e z sync setup */
- X_SYN_SETUP,                   /* 15 x0f x sync setup */
- PASS_NUM,                      /* 16 x10 set pass number */
- QUE_PAUSE,                     /* 17 x11 pause queue */
- MOVE_Z_OFFSET,                 /* 18 x12 move z offset */
- SAVE_FEED_TYPE,                /* 19 x13 save feed type */
- Z_FEED_SETUP,                  /* 20 x14 setup z feed */
- X_FEED_SETUP,                  /* 21 x15 setup x feed */
- SAVE_FLAGS,                    /* 22 x16 save thread flags */
- PROBE_Z,                       /* 23 x17 probe in z direction */
- PROBE_X,                       /* 24 x18 probe in x direction */
- SAVE_Z_DRO,                    /* 25 x19 save z dro reading */
- SAVE_X_DRO,                    /* 26 x1a save x dro reading */
- OP_DONE,                       /* 27 x1b operation done */
+ MOVE_ZX,                       /*  7 x07 move x in sync with z */
+ MOVE_XZ,                       /*  8 x08 move z in sync with x */
+ TAPER_ZX,                      /*  9 x09 taper x */
+ TAPER_XZ,                      /* 10 x0a taper z */
+ START_SPINDLE,                 /* 11 x0b spindle start */
+ STOP_SPINDLE,                  /* 12 x0c spindle stop */
+ Z_SYN_SETUP,                   /* 13 x0d z sync setup */
+ X_SYN_SETUP,                   /* 14 x0e x sync setup */
+ PASS_NUM,                      /* 15 x0f set pass number */
+ QUE_PAUSE,                     /* 16 x10 pause queue */
+ MOVE_Z_OFFSET,                 /* 17 x11 move z offset */
+ SAVE_FEED_TYPE,                /* 18 x12 save feed type */
+ Z_FEED_SETUP,                  /* 19 x13 setup z feed */
+ X_FEED_SETUP,                  /* 20 x14 setup x feed */
+ SAVE_FLAGS,                    /* 21 x15 save thread flags */
+ PROBE_Z,                       /* 22 x16 probe in z direction */
+ PROBE_X,                       /* 23 x17 probe in x direction */
+ SAVE_Z_DRO,                    /* 24 x18 save z dro reading */
+ SAVE_X_DRO,                    /* 25 x19 save x dro reading */
+ OP_DONE,                       /* 26 x1a operation done */
 };
 
 #ifdef ENUM_M_COMMANDS
@@ -130,27 +129,26 @@ const char *mCommandsList[] =
  "SAVE_Z_OFFSET",               /*  4 x04 save z offset */
  "SAVE_X_OFFSET",               /*  5 x05 save x offset */
  "SAVE_TAPER",                  /*  6 x06 save taper */
- "SAVE_OPERATION",              /*  7 x07 save operation type */
- "MOVE_ZX",                     /*  8 x08 move x in sync with z */
- "MOVE_XZ",                     /*  9 x09 move z in sync with x */
- "TAPER_ZX",                    /* 10 x0a taper x */
- "TAPER_XZ",                    /* 11 x0b taper z */
- "START_SPINDLE",               /* 12 x0c spindle start */
- "STOP_SPINDLE",                /* 13 x0d spindle stop */
- "Z_SYN_SETUP",                 /* 14 x0e z sync setup */
- "X_SYN_SETUP",                 /* 15 x0f x sync setup */
- "PASS_NUM",                    /* 16 x10 set pass number */
- "QUE_PAUSE",                   /* 17 x11 pause queue */
- "MOVE_Z_OFFSET",               /* 18 x12 move z offset */
- "SAVE_FEED_TYPE",              /* 19 x13 save feed type */
- "Z_FEED_SETUP",                /* 20 x14 setup z feed */
- "X_FEED_SETUP",                /* 21 x15 setup x feed */
- "SAVE_FLAGS",                  /* 22 x16 save thread flags */
- "PROBE_Z",                     /* 23 x17 probe in z direction */
- "PROBE_X",                     /* 24 x18 probe in x direction */
- "SAVE_Z_DRO",                  /* 25 x19 save z dro reading */
- "SAVE_X_DRO",                  /* 26 x1a save x dro reading */
- "OP_DONE",                     /* 27 x1b operation done */
+ "MOVE_ZX",                     /*  7 x07 move x in sync with z */
+ "MOVE_XZ",                     /*  8 x08 move z in sync with x */
+ "TAPER_ZX",                    /*  9 x09 taper x */
+ "TAPER_XZ",                    /* 10 x0a taper z */
+ "START_SPINDLE",               /* 11 x0b spindle start */
+ "STOP_SPINDLE",                /* 12 x0c spindle stop */
+ "Z_SYN_SETUP",                 /* 13 x0d z sync setup */
+ "X_SYN_SETUP",                 /* 14 x0e x sync setup */
+ "PASS_NUM",                    /* 15 x0f set pass number */
+ "QUE_PAUSE",                   /* 16 x10 pause queue */
+ "MOVE_Z_OFFSET",               /* 17 x11 move z offset */
+ "SAVE_FEED_TYPE",              /* 18 x12 save feed type */
+ "Z_FEED_SETUP",                /* 19 x13 setup z feed */
+ "X_FEED_SETUP",                /* 20 x14 setup x feed */
+ "SAVE_FLAGS",                  /* 21 x15 save thread flags */
+ "PROBE_Z",                     /* 22 x16 probe in z direction */
+ "PROBE_X",                     /* 23 x17 probe in x direction */
+ "SAVE_Z_DRO",                  /* 24 x18 save z dro reading */
+ "SAVE_X_DRO",                  /* 25 x19 save x dro reading */
+ "OP_DONE",                     /* 26 x1a operation done */
 };
 
 #endif

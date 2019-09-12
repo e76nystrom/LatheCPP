@@ -303,6 +303,12 @@ void remcmd(void)
  }
  break;
 
+ case CMD_SYNCSETUP:
+ {
+  syncMoveSetup();
+ }
+ break;
+
  case CMD_ZSETUP:
  {
   zSetup();

@@ -225,7 +225,7 @@ typedef struct s_zxisr
  unsigned int initialStep;	/* initial accel step number */
  unsigned int finalStep;	/* final accel step number */
  unsigned int counterStep1;	/* counter value for incr1 */
- unsigned int counterStep2;	/* coutter value for incr2 */
+ unsigned int counterStep2;	/* counter value for incr2 */
  int d;				/* sum initial value */
  int incr1;			/* incr 1 value */
  int incr2;			/* incr 2 value */
@@ -438,7 +438,6 @@ typedef struct s_runctl
  char lastState;		/* last state */
  char spindleCmd;		/* wait spindle command */
  char probeCmd;			/* probe command */
- int opType;			/* operation type */
  int pass;			/* current pass */
  char threadFlags;		/* threading flags */
  float taper;			/* taper */
@@ -604,9 +603,9 @@ int taperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 
-void cmpTmrInit(void);
+void cmpTmrSetup(void);
 
-void synMoveSetup(void);
+void syncMoveSetup(void);
 
 void syncSetup(void);
 void syncMeasure(void);

@@ -235,5 +235,9 @@ T_PARM remparm[] =
  PARM(pwmFreq),                 /* 0x88 spindle speed pwm frequency */
  PARM(minSpeed),                /* 0x89 minimum speed for current range */
  PARM(maxSpeed),                /* 0x8a maximum speed for current range */
- PARM(maxParm),                 /* 0x8b maximum parameter */
+
+// current operation
+
+ PARM(currentOp),               /* 0x8b current operation */
+ PARM(maxParm),                 /* 0x8c maximum parameter */
 };

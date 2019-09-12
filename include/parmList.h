@@ -235,5 +235,9 @@ enum PARM
  PWM_FREQ,                      /* 0x88 spindle speed pwm frequency */
  MIN_SPEED,                     /* 0x89 minimum speed for current range */
  MAX_SPEED,                     /* 0x8a maximum speed for current range */
- MAX_PARM,                      /* 0x8b maximum parameter */
+
+// current operation
+
+ CURRENT_OP,                    /* 0x8b current operation */
+ MAX_PARM,                      /* 0x8c maximum parameter */
 };

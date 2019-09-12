@@ -233,4 +233,8 @@
  EXT int16_t pwmFreq;           /* 0x88 spindle speed pwm frequency */
  EXT int16_t minSpeed;          /* 0x89 minimum speed for current range */
  EXT int16_t maxSpeed;          /* 0x8a maximum speed for current range */
- EXT int16_t maxParm;           /* 0x8b maximum parameter */
+
+// current operation
+
+ EXT char currentOp;            /* 0x8b current operation */
+ EXT int16_t maxParm;           /* 0x8c maximum parameter */
