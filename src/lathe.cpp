@@ -2165,14 +2165,14 @@ int taperInit(P_ZXISR isr, P_ACCEL ac, char dir)
  return(ctr);
 }
 
-void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir)
+void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir, char syncInit)
 {
  if (DBG_P)
   printf("\ntaperInit %s\n", ac->label);
 
  isr->dir = dir;
 
- isr->syncInit = SYNC_ACTIVE_ENC;
+ isr->syncInit = syncInit;
  isr->d = ac->d;
  isr->sum = ac->d;
  isr->incr1 = ac->incr1;
@@ -2644,7 +2644,20 @@ void zTaperInit(P_ACCEL ac, char dir)
   }
   else				/* *chk* if spindle encoder */
   {
-   encTaperInit(&zIsr, ac, dir);
+   char syncInit = 0;
+   if (encActive)
+   {
+    syncInit = SYNC_ACTIVE_ENC;
+   }
+   if (synIntActive)
+   {
+    syncInit = SYNC_ACTIVE_TAPER;
+   }
+   if (synExtActive)
+   {
+    syncInit = SYNC_ACTIVE_TAPER;
+   }
+   encTaperInit(&zIsr, ac, dir, syncInit);
   }
  }
 }
@@ -2878,7 +2891,7 @@ void syncMoveSetup(void)
   active = X_ACTIVE;
   break;
  case OP_TAPER:
-  active = Z_ACTIVE;
+  active = X_ACTIVE | Z_ACTIVE;
   break;
  case OP_THREAD:
   active = Z_ACTIVE;
@@ -2900,25 +2913,25 @@ void syncMoveSetup(void)
     
   case SEL_TU_ENC:   /* Encoder */
    encActive = active;
-   if (active == Z_ACTIVE)
+   if ((active & Z_ACTIVE) != 0)
     zSyncInit = SYNC_ACTIVE_ENC;
-   else
+   if ((active & X_ACTIVE) != 0)
     xSyncInit = SYNC_ACTIVE_ENC;
    break;
     
   case SEL_TU_ISYN:  /* Int Syn */
    synIntActive = active;
-   if (active == Z_ACTIVE)
+   if (active & Z_ACTIVE)
     zSyncInit = SYNC_ACTIVE_TMR;
-   else
+   if (active & X_ACTIVE)
     xSyncInit = SYNC_ACTIVE_TMR;
    break;
     
   case SEL_TU_ESYN:  /* Ext Syn */
    synExtActive = active;
-   if (active == Z_ACTIVE)
+   if (active & Z_ACTIVE)
     zSyncInit = SYNC_ACTIVE_EXT;
-   else
+   if (active & X_ACTIVE)
     xSyncInit = SYNC_ACTIVE_EXT;
    break;
   }
@@ -2989,11 +3002,11 @@ void syncMoveSetup(void)
 
  if (spindleEncoder)		/* *ok* */
  {
-  HAL_NVIC_EnableIRQ(spEncIRQn); /* enable spindle encoder interrupt */
+  HAL_NVIC_EnableIRQ(spSyncIRQn); /* enable spindle sync interrupt */
   EXTI->PR = ExtInt_Pin;
  }
  else
-  HAL_NVIC_DisableIRQ(spEncIRQn); /* disable spindle encoder interrupt */
+  HAL_NVIC_DisableIRQ(spSyncIRQn); /* disable spindle sync interrupt */
 }
 
 void zSynSetup(int feedType, float feed, float runoutDist, float runoutDepth)
@@ -3350,6 +3363,7 @@ void xTurnInit(P_ACCEL ac, char dir, int dist)
   if (encActive & X_ACTIVE)	/* if using encoder directly */
   {
    encTurnInit(&xIsr, ac, dir, dist);
+   xIsr.syncInit = xSyncInit;
   }
   if (synIntActive & X_ACTIVE)	/* if internal sync */
   {
@@ -3375,7 +3389,20 @@ void xTaperInit(P_ACCEL ac, char dir)
   }
   else				/* *chk* if spindle encoder */
   {
-   encTaperInit(&xIsr, ac, dir);
+   char syncInit = 0;
+   if (encActive)
+   {
+    syncInit = SYNC_ACTIVE_ENC;
+   }
+   if (synIntActive)
+   {
+    syncInit = SYNC_ACTIVE_TAPER;
+   }
+   if (synExtActive)
+   {
+    syncInit = SYNC_ACTIVE_TAPER;
+   }
+   encTaperInit(&xIsr, ac, dir, syncInit);
   }
  }
 }
@@ -5511,15 +5538,31 @@ void taperCalc(P_ACCEL a0, P_ACCEL a1, float taper)
  }
  else				/* *chk* if using encoder */
  {
-  int dx = lrint((encPerRev * a0CycleDist) / a0->pitch); /* encPercycle */
-  int dy = lrint(a1CycleDist * a1->stepsInch); /* stepsCycle */
-  a1->incr1 = 2 * dy;
-  a1->incr2 = a1->incr1 - 2 * dx;
-  a1->d = a1->incr1 - dx;
+  if (encActive)		/* if using encoder */
+  {
+   int dx = lrint((encPerRev * a0CycleDist) / a0->pitch); /* encPercycle */
+   int dy = lrint(a1CycleDist * a1->stepsInch); /* stepsCycle */
+   a1->incr1 = 2 * dy;
+   a1->incr2 = a1->incr1 - 2 * dx;
+   a1->d = a1->incr1 - dx;
 
-  if (DBG_P)
-   printf("encPerCycle dx %d stepsCycle dy %d incr1 %d incr2 %d d %d\n",
-	  dx, dy, a1->incr1, a1->incr2, a1->d);
+   if (DBG_P)
+    printf("encPerCycle dx %d stepsCycle dy %d incr1 %d incr2 %d d %d\n",
+	   dx, dy, a1->incr1, a1->incr2, a1->d);
+  }
+  if (synIntActive		/* if using sync */
+  ||  synExtActive)
+  {
+   int dx = lrint(a0CycleDist * a0->stepsInch);
+   int dy = lrint(a1CycleDist * a1->stepsInch);
+   a1->incr1 = 2 * dy;
+   a1->incr2 = a1->incr1 - 2 * dx;
+   a1->d = a1->incr1 - dx;
+
+   if (DBG_P)
+    printf("synPerCycle dx %d stepsCycle dy %d incr1 %d incr2 %d d %d\n",
+	   dx, dy, a1->incr1, a1->incr2, a1->d);
+  }
  }
 }
 
