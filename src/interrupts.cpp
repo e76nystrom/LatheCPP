@@ -650,6 +650,45 @@ extern "C" void spindleTmrISR(void)
  dbgSpIsrClr();
 }
 
+void inline zCheckStep(void)
+{
+ dbgZEncSet();
+ dbgZOutClr();
+
+ zIsr.x += 1;
+ if (zIsr.d < 0)
+ {
+  zIsr.d += zIsr.incr1;
+ }
+ else
+ {
+  dbgZOutSet();
+  zIsr.y += 1;
+  zPulse();
+  zIsr.d += zIsr.incr2;
+ }
+ dbgZEncClr();
+}
+
+void inline xCheckStep(void)
+{
+ dbgXEncSet();
+ dbgXOutClr();
+ xIsr.x += 1;
+ if (xIsr.d < 0)
+ {
+  xIsr.d += xIsr.incr1;
+ }
+ else
+ {
+  dbgXOutSet();
+  xIsr.y += 1;
+  xPulse();
+  xIsr.d += xIsr.incr2;
+ }
+ dbgXEncClr();
+}
+
 void zIsrStop(char ch)
 {
  zTmrSlvDis();			/* disable slave mode */
@@ -1053,7 +1092,7 @@ extern "C" void xTmrISR(void)
  dbgXIsrClr();
 }
 
-extern "C" void spEncISR(void)
+extern "C" void spSyncISR(void)
 {
  EXTI->PR = ExtInt_Pin;		/* clear encoder interrupt */
 
@@ -1061,6 +1100,10 @@ extern "C" void spEncISR(void)
  {
   dbgZEncSet();
   zPulse();
+  if (xIsr.active & SYNC_ACTIVE_TAPER)
+  {
+   xCheckStep();		/* check for x axis step */
+  }
   dbgZEncClr();
  }
    
@@ -1068,6 +1111,10 @@ extern "C" void spEncISR(void)
  {
   dbgXEncSet();
   xPulse();
+  if (zIsr.active & SYNC_ACTIVE_TAPER)
+  {
+   zCheckStep();		/* check for z axis step */
+  }
   dbgXEncClr();
  }
 }
@@ -1078,41 +1125,12 @@ extern "C" void encISR(void)
 
  if ((zIsr.active & SYNC_ACTIVE_ENC) != 0)	/* if z axis active */
  {
-  dbgZEncSet();
-  dbgZOutClr();
-
-  zIsr.x += 1;
-  if (zIsr.d < 0)
-  {
-   zIsr.d += zIsr.incr1;
-  }
-  else
-  {
-   dbgZOutSet();
-   zIsr.y += 1;
-   zPulse();
-   zIsr.d += zIsr.incr2;
-  }
-  dbgZEncClr();
+  zCheckStep();			/* check for z axis step */
  }
 
  if ((xIsr.active & SYNC_ACTIVE_ENC) != 0)	/* if x axis active */
  {
-  dbgXEncSet();
-  dbgXOutClr();
-  xIsr.x += 1;
-  if (xIsr.d < 0)
-  {
-   xIsr.d += xIsr.incr1;
-  }
-  else
-  {
-   dbgXOutSet();
-   xIsr.y += 1;
-   xPulse();
-   xIsr.d += xIsr.incr2;
-  }
-  dbgXEncClr();
+  xCheckStep();			/* check for x axis step */
  }
 }
 
@@ -1268,6 +1286,10 @@ extern "C" void intTmrISR(void)
  {
   dbgZEncSet();
   zPulse();			/* trigger z interrupt */
+  if (xIsr.active & SYNC_ACTIVE_TAPER)
+  {
+   xCheckStep();		/* check for x axis step */
+  }
   dbgZEncClr();
  }
 
@@ -1275,6 +1297,10 @@ extern "C" void intTmrISR(void)
  {
   dbgXEncSet();
   xPulse();			/* trigger x interrupt */
+  if (zIsr.active & SYNC_ACTIVE_TAPER)
+  {
+   zCheckStep();		/* check for z axis step */
+  }
   dbgXEncClr();
  }
 

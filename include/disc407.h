@@ -47,8 +47,8 @@
 #define encIRQn EXTI1_IRQn
 #define encIRQ_Bit (1 << 1)
 
-#define spEncISR(x) EXTI4_IRQHandler(x)
-#define spEncIRQn EXTI4_IRQn
+#define spSyncISR(x) EXTI4_IRQHandler(x)
+#define spSyncIRQn EXTI4_IRQn
 
 //#define STEP1_TIM2		/* step 1 z axis timer 2 */
 //#define STEP1_PWM3		/* step 1 pwm 1 */
