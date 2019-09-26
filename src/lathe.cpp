@@ -437,6 +437,8 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  char mpgFlag;			/* mpg direction flag */
  char mpgBackWait;		/* mpg backlash wait */
+ char jogCmd;			/* command for jog */
+ char speedCmd;			/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
  P_ZXISR isr;			/* isr control block */
  P_JOGQUE jogQue;		/* jog queue */
@@ -2389,7 +2391,7 @@ void jogMpg(P_MOVECTL mov)
   mov->maxDist = *(mov->mpgJogMax); /* set maximum distance */
   dist *= *(mov->mpgJogInc);	/* calculate distance */
   //printf("mpgJog 0 dist %4d\n", dist);
-  mov->moveRel(dist, CMD_JOG);	/* start relative move */
+  mov->moveRel(dist, mov->jogCmd); /* start relative move */
   dbgJogMPG0Clr();
  }
  else if (mov->state == ZWAITBKLS) /* if waiting for backlash */
@@ -2441,7 +2443,7 @@ void jogMpg(P_MOVECTL mov)
    __enable_irq();		/* enable interrupts */
    mov->maxDist = *(mov->mpgJogMax); /* set maximum distance */
    dist *= *(mov->mpgJogInc);	/* calculate distance */
-   mov->moveRel(dist, CMD_JOG); /* start relative move */
+   mov->moveRel(dist, mov->jogCmd); /* start relative move */
   }
   else				/* if isr active */
   {
@@ -2502,7 +2504,7 @@ void jogSpeed(P_MOVECTL mov, float speed)
 	  mov->maxDist / stepsInch);
   }
 
-  mov->moveRel(d, CMD_SPEED);	/* start movement */
+  mov->moveRel(d, mov->speedCmd); /* start movement */
  }
  else if (mov->state == ZWAITBKLS) /* if waiting for backlash */
  {
@@ -2540,7 +2542,7 @@ void jogSpeed(P_MOVECTL mov, float speed)
    if (speed != ac->maxSpeed) /* if jog speed different */
    {
     speedCalc(ac, isr, speed); /* calculate acceleration */
-    mov->jogInc = (int) (2 * jogTimeInc * ac->stepsSec); /* unpdate increment */
+    mov->jogInc = (int) (2 * jogTimeInc * ac->stepsSec); /* upd increment */
     mov->maxDist = (int) (2 * jogTimeMax * ac->stepsSec); /* update maximum */
    }
    __disable_irq();		/* disable interrupt */
@@ -2550,7 +2552,7 @@ void jogSpeed(P_MOVECTL mov, float speed)
     int d = mov->iniDist;	/* get initial distance */
     if (dir < 0)		/* if distance negative */
      d = -d;			/* make negative */
-    mov->moveRel(d, CMD_SPEED);	/* start movement */
+    mov->moveRel(d, mov->speedCmd); /* start movement */
    }
    else				/* if still moving */
    {
@@ -2854,6 +2856,13 @@ void zMoveSetup(void)
  mov->isrStop = &zIsrStop;
  mov->move = &zMove;
  mov->moveRel = &zMoveRel;
+ mov->jogCmd = CMD_JOG;
+ mov->speedCmd = CMD_SPEED;
+ if (zUseDro)
+ {
+  mov->jogCmd |= DRO_UPD;
+  mov->speedCmd |= CMD_SPEED;
+ }
  mov->moveInit = &zMoveInit;
  mov->dirFwd = &zFwd;
  mov->dirRev = &zRev;
@@ -3716,6 +3725,13 @@ void xMoveSetup(void)
  mov->isrStop = &xIsrStop;
  mov->move = &xMove;
  mov->moveRel = &xMoveRel;
+ mov->jogCmd = CMD_JOG;
+ mov->speedCmd = CMD_SPEED;
+ if (xUseDro)
+ {
+  mov->jogCmd |= DRO_UPD;
+  mov->speedCmd |= CMD_SPEED;
+ }
  mov->moveInit = &xMoveInit;
  mov->dirFwd = &xFwd;
  mov->dirRev = &xRev;
@@ -3894,7 +3910,7 @@ void xControl(void)
     {
      xIsr.taper = TAPER_CTL;	/* indicate x controlling taper */
      float dist = (float) mov->dist / xAxis.stepsInch; /* distance */
-     int taperDist = (int) (dist * zPA.taperInch * zAxis.stepsInch); /* taper */
+     int taperDist = (int) (dist * zPA.taperInch * zAxis.stepsInch);
      zIsr.dist = taperDist;	/* save for isr */
      if (cfgDro)
       dbgmsg(D_ZDRO, zDroPos);
@@ -4000,7 +4016,7 @@ void xControl(void)
      printf("x dist %7.4f %6d feed %7.4f spindle revs %d steps %d\n",
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
-   if (mov->cmd & DRO_POS)	/* fix x loc if used dro for position */
+   if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
    {
     float droPos = ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch;
     xLoc = lrint(droPos * xAxis.stepsInch) + xHomeOffset;

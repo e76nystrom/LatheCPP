@@ -125,119 +125,121 @@ enum PARM
  Z_DRO_OFFSET,                  /* 0x4d z dro to zero */
  Z_DRO_COUNT_INCH,              /* 0x4e z dro scale */
  Z_DRO_INVERT,                  /* 0x4f z dro invert */
+ Z_USE_DRO,                     /* 0x50 z use dro for position */
 
 // x home parameters
 
- X_HOME_SPEED,                  /* 0x50 x final homing speed */
- X_HOME_DIST,                   /* 0x51 x max homing distance */
- X_HOME_BACKOFF_DIST,           /* 0x52 x home backoff dist */
- X_HOME_DIR,                    /* 0x53 x homing direction */
+ X_HOME_SPEED,                  /* 0x51 x final homing speed */
+ X_HOME_DIST,                   /* 0x52 x max homing distance */
+ X_HOME_BACKOFF_DIST,           /* 0x53 x home backoff dist */
+ X_HOME_DIR,                    /* 0x54 x homing direction */
 
 // x home test parameters
 
- X_HOME_LOC,                    /* 0x54 x home test location */
- X_HOME_START,                  /* 0x55 x start of home signal */
- X_HOME_END,                    /* 0x56 x end of home signal */
- X_HOME_OFFSET,                 /* 0x57 x home offset */
- X_DRO_POS,                     /* 0x58 x dro location */
- X_DRO_OFFSET,                  /* 0x59 x dro to zero */
- X_DRO_COUNT_INCH,              /* 0x5a x dro scale */
- X_DRO_INVERT,                  /* 0x5b x dro invert */
+ X_HOME_LOC,                    /* 0x55 x home test location */
+ X_HOME_START,                  /* 0x56 x start of home signal */
+ X_HOME_END,                    /* 0x57 x end of home signal */
+ X_HOME_OFFSET,                 /* 0x58 x home offset */
+ X_DRO_POS,                     /* 0x59 x dro location */
+ X_DRO_OFFSET,                  /* 0x5a x dro to zero */
+ X_DRO_COUNT_INCH,              /* 0x5b x dro scale */
+ X_DRO_INVERT,                  /* 0x5c x dro invert */
+ X_USE_DRO,                     /* 0x5d x use dro for position */
 
 // x home or probe status
 
- X_HOME_DONE,                   /* 0x5c x home done */
- X_HOME_STATUS,                 /* 0x5d x home status */
+ X_HOME_DONE,                   /* 0x5e x home done */
+ X_HOME_STATUS,                 /* 0x5f x home status */
 
 // Z home or probe status
 
- Z_HOME_DONE,                   /* 0x5e z home done */
- Z_HOME_STATUS,                 /* 0x5f z home status */
+ Z_HOME_DONE,                   /* 0x60 z home done */
+ Z_HOME_STATUS,                 /* 0x61 z home status */
 
 // probe configuration
 
- PROBE_SPEED,                   /* 0x60 probe speed */
- PROBE_DIST,                    /* 0x61 probe test distance */
- PROBE_INV,                     /* 0x62 invert polarity of probe */
+ PROBE_SPEED,                   /* 0x62 probe speed */
+ PROBE_DIST,                    /* 0x63 probe test distance */
+ PROBE_INV,                     /* 0x64 invert polarity of probe */
 
 // configuration
 
- STEPPER_DRIVE,                 /* 0x63 stepper driven spindle */
- MOTOR_TEST,                    /* 0x64 use stepper drive to test motor */
- SPINDLE_ENCODER,               /* 0x65 motor drive with spindle encoder */
- SPINDLE_SYNC_BOARD,            /* 0x66 spindle sync board */
- TURN_SYNC,                     /* 0x67 synchronization type for turning */
- THREAD_SYNC,                   /* 0x68 synchronization type for threading */
- CAP_TMR_ENABLE,                /* 0x69 enable capture timer */
- CFG_XILINX,                    /* 0x6a using xilinx */
- CFG_MPG,                       /* 0x6b manual pulse generator */
- CFG_DRO,                       /* 0x6c digital readout */
- CFG_LCD,                       /* 0x6d lcd display */
- CFG_FCY,                       /* 0x6e system clock speed */
- CFG_SWITCH,                    /* 0x6f spindle off on switch */
- CFG_VAR_SPEED,                 /* 0x70 spindle variable speed */
+ STEPPER_DRIVE,                 /* 0x65 stepper driven spindle */
+ MOTOR_TEST,                    /* 0x66 use stepper drive to test motor */
+ SPINDLE_ENCODER,               /* 0x67 motor drive with spindle encoder */
+ SPINDLE_SYNC_BOARD,            /* 0x68 spindle sync board */
+ TURN_SYNC,                     /* 0x69 synchronization type for turning */
+ THREAD_SYNC,                   /* 0x6a synchronization type for threading */
+ CAP_TMR_ENABLE,                /* 0x6b enable capture timer */
+ CFG_XILINX,                    /* 0x6c using xilinx */
+ CFG_MPG,                       /* 0x6d manual pulse generator */
+ CFG_DRO,                       /* 0x6e digital readout */
+ CFG_LCD,                       /* 0x6f lcd display */
+ CFG_FCY,                       /* 0x70 system clock speed */
+ CFG_SWITCH,                    /* 0x71 spindle off on switch */
+ CFG_VAR_SPEED,                 /* 0x72 spindle variable speed */
 
 // setup
 
- SETUP_DONE,                    /* 0x71 setup done */
+ SETUP_DONE,                    /* 0x73 setup done */
 
 // encoder counts per revolution
 
- ENC_PER_REV,                   /* 0x72 spindle encoder counts per revolution */
+ ENC_PER_REV,                   /* 0x74 spindle encoder counts per revolution */
 
 // test encoder setup variables
 
- ENC_ENABLE,                    /* 0x73 encoder enable flag */
- ENC_PRE_SCALER,                /* 0x74 encoder prescaler */
- ENC_TIMER,                     /* 0x75 encoder timer counts */
- ENC_RUN_COUNT,                 /* 0x76 encoder run count */
+ ENC_ENABLE,                    /* 0x75 encoder enable flag */
+ ENC_PRE_SCALER,                /* 0x76 encoder prescaler */
+ ENC_TIMER,                     /* 0x77 encoder timer counts */
+ ENC_RUN_COUNT,                 /* 0x78 encoder run count */
 
 // test encoder status variables
 
- ENC_RUN,                       /* 0x77 encoder running flag */
- ENC_COUNTER,                   /* 0x78 encoder count in rev */
- ENC_REV_COUNTER,               /* 0x79 encoder revolution counter */
+ ENC_RUN,                       /* 0x79 encoder running flag */
+ ENC_COUNTER,                   /* 0x7a encoder count in rev */
+ ENC_REV_COUNTER,               /* 0x7b encoder revolution counter */
 
 // measured spindle speed
 
- RPM,                           /* 0x7a current rpm */
+ RPM,                           /* 0x7c current rpm */
 
 // xilinx frequency variables
 
- X_FREQUENCY,                   /* 0x7b xilinx clock frequency */
- FREQ_MULT,                     /* 0x7c frequency multiplier */
+ X_FREQUENCY,                   /* 0x7d xilinx clock frequency */
+ FREQ_MULT,                     /* 0x7e frequency multiplier */
 
 // xilinx configuration register
 
- X_CFG_REG,                     /* 0x7d xilinx configuration register */
+ X_CFG_REG,                     /* 0x7f xilinx configuration register */
 
 // sync parameters
 
- L_SYNC_CYCLE,                  /* 0x7e sync cycle length */
- L_SYNC_OUTPUT,                 /* 0x7f sync outputs per cycle */
- L_SYNC_PRESCALER,              /* 0x80 sync prescaler */
+ L_SYNC_CYCLE,                  /* 0x80 sync cycle length */
+ L_SYNC_OUTPUT,                 /* 0x81 sync outputs per cycle */
+ L_SYNC_PRESCALER,              /* 0x82 sync prescaler */
 
 // threading variables
 
- TH_Z_START,                    /* 0x81 threading z start */
- TH_X_START,                    /* 0x82 threading x start */
- TAN_THREAD_ANGLE,              /* 0x83 tangent of threading angle */
- X_FEED,                        /* 0x84 x feed */
- RUNOUT_DISTANCE,               /* 0x85 runout distance */
- RUNOUT_DEPTH,                  /* 0x86 runout depth */
+ TH_Z_START,                    /* 0x83 threading z start */
+ TH_X_START,                    /* 0x84 threading x start */
+ TAN_THREAD_ANGLE,              /* 0x85 tangent of threading angle */
+ X_FEED,                        /* 0x86 x feed */
+ RUNOUT_DISTANCE,               /* 0x87 runout distance */
+ RUNOUT_DEPTH,                  /* 0x88 runout depth */
 
 // jog debug
 
- JOG_DEBUG,                     /* 0x87 jog interrupt debug */
+ JOG_DEBUG,                     /* 0x89 jog interrupt debug */
 
 // motor and speed control
 
- PWM_FREQ,                      /* 0x88 spindle speed pwm frequency */
- MIN_SPEED,                     /* 0x89 minimum speed for current range */
- MAX_SPEED,                     /* 0x8a maximum speed for current range */
+ PWM_FREQ,                      /* 0x8a spindle speed pwm frequency */
+ MIN_SPEED,                     /* 0x8b minimum speed for current range */
+ MAX_SPEED,                     /* 0x8c maximum speed for current range */
 
 // current operation
 
- CURRENT_OP,                    /* 0x8b current operation */
- MAX_PARM,                      /* 0x8c maximum parameter */
+ CURRENT_OP,                    /* 0x8d current operation */
+ MAX_PARM,                      /* 0x8e maximum parameter */
 };

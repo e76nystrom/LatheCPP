@@ -34,6 +34,7 @@
 #define FIND_PROBE   (1 << 8)    /* 0x100 find home */
 #define CLEAR_PROBE  (1 << 9)    /* 0x200 move off of home */
 #define DRO_POS      (1 << 10)   /* 0x400 use dro for moving */
+#define DRO_UPD      (1 << 11)   /* 0x800 update internal position from dro */
 
 // x direction
 

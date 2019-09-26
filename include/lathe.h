@@ -398,6 +398,8 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  char mpgFlag;			/* mpg direction flag */
  char mpgBackWait;		/* mpg backlash wait */
+ char jogCmd;			/* command for jog */
+ char speedCmd;			/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
  P_ZXISR isr;			/* isr control block */
  P_JOGQUE jogQue;		/* jog queue */
@@ -599,6 +601,7 @@ void slaveEna(void);		/* enable slave */
 void accelInit(P_AXIS ax, P_ACCEL ac);
 int turnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 void encTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
+void syncTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
 int taperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir);
 int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
