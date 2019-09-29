@@ -350,5 +350,27 @@ inline void dbgXDroClr() {}
 inline uint16_t dbgXDroRead() {return(0);}
 #endif
 
+/* x stop */
+#ifdef Dbg4_Pin
+inline void dbgXStopSet() {Dbg4_GPIO_Port->BSRR = Dbg4_Pin;}
+inline void dbgXStopClr() {Dbg4_GPIO_Port->BSRR = (Dbg4_Pin << 16);}
+inline uint16_t dbgXStopRead() {return((Dbg4_GPIO_Port->IDR & Dbg4_Pin) != 0);}
+#else
+inline void dbgXStopSet() {}
+inline void dbgXStopClr() {}
+inline uint16_t dbgXStopRead() {return(0);}
+#endif
+
+/* x done */
+#ifdef Dbg5_Pin
+inline void dbgXDoneSet() {Dbg5_GPIO_Port->BSRR = Dbg5_Pin;}
+inline void dbgXDoneClr() {Dbg5_GPIO_Port->BSRR = (Dbg5_Pin << 16);}
+inline uint16_t dbgXDoneRead() {return((Dbg5_GPIO_Port->IDR & Dbg5_Pin) != 0);}
+#else
+inline void dbgXDoneSet() {}
+inline void dbgXDoneClr() {}
+inline uint16_t dbgXDoneRead() {return(0);}
+#endif
+
 #endif /* __DBG_H */
 #endif /* __STM32F4xx_HAL_H */

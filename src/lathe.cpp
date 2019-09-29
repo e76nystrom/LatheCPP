@@ -437,8 +437,8 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  char mpgFlag;			/* mpg direction flag */
  char mpgBackWait;		/* mpg backlash wait */
- char jogCmd;			/* command for jog */
- char speedCmd;			/* command for jog speed */
+ int16_t jogCmd;		/* command for jog */
+ int16_t speedCmd;		/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
  P_ZXISR isr;			/* isr control block */
  P_JOGQUE jogQue;		/* jog queue */
@@ -715,7 +715,7 @@ void xMoveSetup(void);
 void xSynSetup(int feedType, float feed);
 void xInfo(char flag);
 void xMove(int pos, int cmd);
-void xMoveDro(float pos, int cmd);
+void xMoveDro(int pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
 void xFwd(void);
@@ -2266,7 +2266,7 @@ void jogMove(P_MOVECTL mov, int dir)
 	  mov->maxDist / stepsInch);
   }
 
-  mov->moveRel(d, CMD_JOG);	/* start movement */
+  mov->moveRel(d, mov->jogCmd);	/* start movement */
  }
  else if (mov->state == ZWAITBKLS) /* if waiting for backlash */
  {
@@ -2291,7 +2291,7 @@ void jogMove(P_MOVECTL mov, int dir)
   int d = mov->iniDist;		/* get initial distance */
   if (dir < 0)			/* if distance negative */
     d = -d;			/* make negative */
-   zMoveRel(d, CMD_JOG);	/* start movement */
+   zMoveRel(d, mov->jogCmd);	/* start movement */
   }
   else				/* if still moving */
   {
@@ -3636,6 +3636,7 @@ void xStop(void)
  xIsr.accel = 0;
  xIsr.decel = 1;
  dbgXAccelSet();
+ dbgXStopSet();
 }
 
 void xSetup(void)
@@ -3732,6 +3733,8 @@ void xMoveSetup(void)
   mov->jogCmd |= DRO_UPD;
   mov->speedCmd |= CMD_SPEED;
  }
+ if (DBG_SETUP)
+  printf("xUseDro %d jogCmd %x\n", xUseDro, (unsigned int) mov->jogCmd);
  mov->moveInit = &xMoveInit;
  mov->dirFwd = &xFwd;
  mov->dirRev = &xRev;
@@ -3843,14 +3846,12 @@ void xMove(int pos, int cmd)
  xMoveRel(dist, cmd);
 }
 
-void xMoveDro(float pos, int cmd)
+void xMoveDro(int pos, int cmd)
 {
- /* inches = counts / (counts / inch) */
- float droPos = ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch;
- float droDist = pos - droPos;
- /* steps = inches * (steps / inch) */
- int dist = lrint(droDist * xAxis.stepsInch);
- int droTarget = lrint(pos * xAxis.droCountsInch + xDroOffset);
+ int droDist = pos - (xDroPos - xDroOffset);
+ /* dist = droDist * (stepsInch / countsInch) */
+ int dist = droDist * (10 / 5);
+ int droTarget = pos + xDroOffset;
  xMoveCtl.droTarget = droTarget;
  if (DBG_QUE)
  {
@@ -3858,7 +3859,9 @@ void xMoveDro(float pos, int cmd)
   unsigned int droCounts = abs(lrint(droDist * xAxis.droCountsInch));
   printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f steps %d "
 	 "counts %d\n",
-	 cmd, pos, droPos, pos - droPos, dist, droCounts);
+	 cmd, ((float) pos) / xAxis.droCountsInch,
+	 ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
+	 ((float) droDist) / xAxis.droCountsInch, dist, droCounts);
   printf("droTarget %7d droPos %7d droCounts %7d\n",
 	 droTarget, xDroPos, droTarget - xDroPos);
  }
@@ -3869,8 +3872,8 @@ void xControl(void)
 {
  P_MOVECTL mov = &xMoveCtl;
 
- if (mov->stop)			/* if stop */
-  mov->state = XDONE;		/* clean up in done state */
+// if (mov->stop)			/* if stop */
+//  mov->state = XDONE;		/* clean up in done state */
 
 #if DBGMSG
  if (mov->state != mov->prev)
@@ -4016,17 +4019,23 @@ void xControl(void)
      printf("x dist %7.4f %6d feed %7.4f spindle revs %d steps %d\n",
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
-   if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
-   {
-    float droPos = ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch;
-    xLoc = lrint(droPos * xAxis.stepsInch) + xHomeOffset;
-   }
    mov->state = XDONE;		/* clean up everything */
   }
   break;
 
  case XDONE:			/* 0x04 done state */
  default:			/* all others */
+  if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
+  {
+   /* xLoc = droPos * (stepsInch / countsInch) */
+   xLoc = (xDroPos - xDroOffset) * (10 / 5) + xHomeOffset;
+   if (DBG_P)
+    printf("DRO_UPD droPos %7.4f xPos %7.4f xLoc %6d\n",
+	   2.0 * ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
+	   2.0 * ((float) (xLoc - xHomeOffset)) / xAxis.stepsInch,
+	   xLoc);
+  }
+  dbgXDoneClr();
   xIsr.done = 0;		/* clear done flag */
   mov->stop = 0;		/* clear stop flag */
   mov->cmd = 0;			/* clear command */
@@ -4376,7 +4385,7 @@ void procMove(void)
     break;
 
    case MOVE_X:
-    val = lrint(cmd->val * xAxis.stepsInch) + mv->xHomeOffset;
+    val = cmd->iVal + mv->xHomeOffset;
     dbgmsg(D_XMOV, val);
     if (!cfgDro			/* if not confugre */
     ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
@@ -4395,7 +4404,7 @@ void procMove(void)
     }
     else			/* if using dro for position */
     {
-     xMoveDro(cmd->val, cmd->flag);
+     xMoveDro(cmd->iVal, cmd->flag);
     }
     mv->state = M_WAIT_X;
     break;
@@ -4496,7 +4505,7 @@ void procMove(void)
      printf("taper xz %7.4f\n", cmd->val);
 
     zPA.stepsInch = zAxis.stepsInch;
-    val = lrint(cmd->val * xAxis.stepsInch) + mv->xHomeOffset;
+    val = cmd->iVal + mv->xHomeOffset;
     int dist = mv->zVal - zLoc;
     int dir = dist >= 0 ? DIR_POS : DIR_NEG;
     

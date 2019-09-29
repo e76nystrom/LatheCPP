@@ -398,8 +398,8 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  char mpgFlag;			/* mpg direction flag */
  char mpgBackWait;		/* mpg backlash wait */
- char jogCmd;			/* command for jog */
- char speedCmd;			/* command for jog speed */
+ int16_t jogCmd;		/* command for jog */
+ int16_t speedCmd;		/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
  P_ZXISR isr;			/* isr control block */
  P_JOGQUE jogQue;		/* jog queue */
@@ -676,7 +676,7 @@ void xMoveSetup(void);
 void xSynSetup(int feedType, float feed);
 void xInfo(char flag);
 void xMove(int pos, int cmd);
-void xMoveDro(float pos, int cmd);
+void xMoveDro(int pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
 void xFwd(void);

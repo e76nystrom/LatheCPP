@@ -95,6 +95,8 @@ dbgList = \
  ("dbgJogMPG3", -1, "jog moving add to current distance"), \
  ("dbgAxisCtl", -1, "axis control"), \
  ("dbgXDro",     3, "x dro isr"), \
+ ("dbgXStop",    4, "x stop"), \
+ ("dbgXDone",    5, "x done"), \
 )
 
 dbgPins = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)

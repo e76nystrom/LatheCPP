@@ -939,6 +939,8 @@ void xIsrStop(char ch)
   dbgmsg(D_XDRO, xDroPos);
  dbgmsg(D_XLOC, xLoc);
  dbgXAccelClr();
+ dbgXStopClr();
+ dbgXDoneSet();
 }
 
 extern "C" void xTmrISR(void)
