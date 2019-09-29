@@ -114,6 +114,8 @@ typedef struct s_axis
  float backlash;		/* backlash */
  int stepsInch;			/* axis steps per inch */
  int droCountsInch;		/* dro count inch */
+ int stepFactor;		/* factored steps per inch */
+ int droFactor;			/* factored dro counts per inch */
  int backlashSteps;		/* backlash steps */
  int dirFwd;			/* mask for forward */
  int dirRev;			/* mask for reverse */

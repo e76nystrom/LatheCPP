@@ -153,6 +153,8 @@ typedef struct s_axis
  float backlash;		/* backlash */
  int stepsInch;			/* axis steps per inch */
  int droCountsInch;		/* dro count inch */
+ int stepFactor;		/* factored steps per inch */
+ int droFactor;			/* factored dro counts per inch */
  int backlashSteps;		/* backlash steps */
  int dirFwd;			/* mask for forward */
  int dirRev;			/* mask for reverse */
@@ -3667,6 +3669,8 @@ void xSetup(void)
  axis->stepsInch = stepsInch;
  axis->backlashSteps = lrint(axis->backlash * axis->stepsInch);
  axis->droCountsInch = xDroCountInch;
+ axis->stepFactor = 10;
+ axis->droFactor = 5;
 
  xIsr.axis = 'x';
 
@@ -3850,7 +3854,8 @@ void xMoveDro(int pos, int cmd)
 {
  int droDist = pos - (xDroPos - xDroOffset);
  /* dist = droDist * (stepsInch / countsInch) */
- int dist = droDist * (10 / 5);
+ int dist = (2 * droDist * xAxis.stepFactor) / xAxis.droFactor;
+ dist = (dist + 1) >> 1;
  int droTarget = pos + xDroOffset;
  xMoveCtl.droTarget = droTarget;
  if (DBG_QUE)
@@ -4028,11 +4033,15 @@ void xControl(void)
   if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
   {
    /* xLoc = droPos * (stepsInch / countsInch) */
-   xLoc = (xDroPos - xDroOffset) * (10 / 5) + xHomeOffset;
+
+   int xTmp = ((2 * (xDroPos - xDroOffset) * xAxis.stepFactor) /
+	       xAxis.droFactor);
+   xTmp = (xTmp + 1) >> 1;	/* round */
+   xLoc = xTmp + xHomeOffset;
    if (DBG_P)
     printf("DRO_UPD droPos %7.4f xPos %7.4f xLoc %6d\n",
-	   2.0 * ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
-	   2.0 * ((float) (xLoc - xHomeOffset)) / xAxis.stepsInch,
+	   (2.0 * (float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
+	   (2.0 * (float) (xLoc - xHomeOffset)) / xAxis.stepsInch,
 	   xLoc);
   }
   dbgXDoneClr();
