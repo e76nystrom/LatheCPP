@@ -31,7 +31,8 @@ enum X_STATES
  XWAITBKLS,                     /*  1 x01 wait for backlash move complete */
  XSTARTMOVE,                    /*  2 x02 start x move */
  XWAITMOVE,                     /*  3 x03 wait for move complete */
- XDONE,                         /*  4 x04 clean up state */
+ XDELAY,                        /*  4 x04 wait for position to settle */
+ XDONE,                         /*  5 x05 clean up state */
 };
 
 #ifdef ENUM_X_STATES
@@ -42,7 +43,8 @@ const char *xStatesList[] =
  "XWAITBKLS",                   /*  1 x01 wait for backlash move complete */
  "XSTARTMOVE",                  /*  2 x02 start x move */
  "XWAITMOVE",                   /*  3 x03 wait for move complete */
- "XDONE",                       /*  4 x04 clean up state */
+ "XDELAY",                      /*  4 x04 wait for position to settle */
+ "XDONE",                       /*  5 x05 clean up state */
 };
 
 #endif

@@ -385,6 +385,7 @@ typedef struct s_movectl
  char wait;			/* waiting for done xilinx */
  char ctlreg;			/* control register xilinx */
  char axisName;			/* axis name */
+ int delayCount;		/* delay count */
  int cmd;			/* move command */
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
@@ -422,6 +423,8 @@ typedef struct s_movectl
 
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
+
+#define MOV_DELAY 10		/* done delay timeout */
 
 typedef struct s_homectl
 {

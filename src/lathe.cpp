@@ -424,6 +424,7 @@ typedef struct s_movectl
  char wait;			/* waiting for done xilinx */
  char ctlreg;			/* control register xilinx */
  char axisName;			/* axis name */
+ int delayCount;		/* delay count */
  int cmd;			/* move command */
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
@@ -461,6 +462,8 @@ typedef struct s_movectl
 
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
+
+#define MOV_DELAY 10		/* done delay timeout */
 
 typedef struct s_homectl
 {
@@ -4024,11 +4027,27 @@ void xControl(void)
      printf("x dist %7.4f %6d feed %7.4f spindle revs %d steps %d\n",
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
-   mov->state = XDONE;		/* clean up everything */
+   mov->state = XDELAY;		/* wait for position to settle */
+   mov->delayCount = MOV_DELAY;	/* set timeout */
+//   mov->state = XDONE;		/* clean up everything */
   }
   break;
 
- case XDONE:			/* 0x04 done state */
+ case XDELAY:			/* 0x04 delay for position to settle */
+  if (mov->delayCount == 0)	/* if no delay */
+  {
+   mov->state = XDONE;		/* advance to done state */
+  }
+  else				/* if delay */
+  {
+   if (--mov->delayCount <= 0)	/* if delay done */
+   {
+    mov->state = XDONE;		/* advance to done state */
+   }
+  }
+  break;
+
+ case XDONE:			/* 0x05 done state */
  default:			/* all others */
   if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
   {
