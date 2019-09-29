@@ -424,7 +424,8 @@ typedef struct s_movectl
  char wait;			/* waiting for done xilinx */
  char ctlreg;			/* control register xilinx */
  char axisName;			/* axis name */
- int delayCount;		/* delay count */
+ unsigned int delayStart;	/* delay start time */
+ unsigned int delayTimeout;	/* delay timeout in millis */
  int cmd;			/* move command */
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
@@ -463,7 +464,7 @@ typedef struct s_movectl
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
 
-#define MOV_DELAY 10		/* done delay timeout */
+#define MOV_DELAY 50		/* done delay timeout */
 
 typedef struct s_homectl
 {
@@ -4028,22 +4029,16 @@ void xControl(void)
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
    mov->state = XDELAY;		/* wait for position to settle */
-   mov->delayCount = MOV_DELAY;	/* set timeout */
+   mov->delayStart = millis();	/* set start of delay */
+   mov->delayTimeout = MOV_DELAY; /* set delay length */
 //   mov->state = XDONE;		/* clean up everything */
   }
   break;
 
  case XDELAY:			/* 0x04 delay for position to settle */
-  if (mov->delayCount == 0)	/* if no delay */
+  if ((millis() - mov->delayStart) >= mov->delayTimeout) /* if delay done */
   {
    mov->state = XDONE;		/* advance to done state */
-  }
-  else				/* if delay */
-  {
-   if (--mov->delayCount <= 0)	/* if delay done */
-   {
-    mov->state = XDONE;		/* advance to done state */
-   }
   }
   break;
 
