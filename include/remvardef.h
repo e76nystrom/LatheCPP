@@ -28,215 +28,218 @@
  EXT float zAccelTime;          /* 0x15 z axis acceleration */
  EXT float zAccel;              /* 0x16 z accel rpm/sec^2 */
  EXT float zBacklash;           /* 0x17 z axis backlash */
- EXT char zDirFlag;             /* 0x18 z invert direction */
- EXT char zMpgFlag;             /* 0x19 z invert mpg */
+ EXT int xStepFactor;           /* 0x18 x steps inch factored */
+ EXT char zDirFlag;             /* 0x19 z invert direction */
+ EXT char zMpgFlag;             /* 0x1a z invert mpg */
 
 // x axis parameters
 
- EXT float xPitch;              /* 0x1a x axis leadscrew pitch */
- EXT float xRatio;              /* 0x1b x axis ratio */
- EXT int16_t xMicro;            /* 0x1c x axis micro steps */
- EXT int16_t xMotor;            /* 0x1d x axis motor steps */
- EXT float xAccelTime;          /* 0x1e x axis acceleration */
- EXT float xAccel;              /* 0x1f z accel rpm/sec^2 */
- EXT float xBacklash;           /* 0x20 x axis backlash */
- EXT char xDirFlag;             /* 0x21 x invert direction */
- EXT char xMpgFlag;             /* 0x22 x invert mpg */
- EXT int xDiameter;             /* 0x23 x diameter */
+ EXT float xPitch;              /* 0x1b x axis leadscrew pitch */
+ EXT float xRatio;              /* 0x1c x axis ratio */
+ EXT int16_t xMicro;            /* 0x1d x axis micro steps */
+ EXT int16_t xMotor;            /* 0x1e x axis motor steps */
+ EXT float xAccelTime;          /* 0x1f x axis acceleration */
+ EXT float xAccel;              /* 0x20 z accel rpm/sec^2 */
+ EXT float xBacklash;           /* 0x21 x axis backlash */
+ EXT char xDirFlag;             /* 0x22 x invert direction */
+ EXT char xMpgFlag;             /* 0x23 x invert mpg */
+ EXT int xDiameter;             /* 0x24 x diameter */
 
 // z move parameters
 
- EXT float zMoveMin;            /* 0x24 z move min speed */
- EXT float zMoveMax;            /* 0x25 z move max speed */
+ EXT float zMoveMin;            /* 0x25 z move min speed */
+ EXT float zMoveMax;            /* 0x26 z move max speed */
 
 // z jog parameters
 
- EXT float zJogMin;             /* 0x26 z jog min speed */
- EXT float zJogMax;             /* 0x27 z jog max speed */
- EXT float zJogSpeed;           /* 0x28 z jog speed */
+ EXT float zJogMin;             /* 0x27 z jog min speed */
+ EXT float zJogMax;             /* 0x28 z jog max speed */
+ EXT float zJogSpeed;           /* 0x29 z jog speed */
 
 // x move parameters
 
- EXT float xMoveMin;            /* 0x29 x move min speed */
- EXT float xMoveMax;            /* 0x2a x move max speed */
+ EXT float xMoveMin;            /* 0x2a x move min speed */
+ EXT float xMoveMax;            /* 0x2b x move max speed */
 
 // x jog parameters
 
- EXT float xJogMin;             /* 0x2b x jog min speed */
- EXT float xJogMax;             /* 0x2c x jog max speed */
- EXT float xJogSpeed;           /* 0x2d x jog speed */
+ EXT float xJogMin;             /* 0x2c x jog min speed */
+ EXT float xJogMax;             /* 0x2d x jog max speed */
+ EXT float xJogSpeed;           /* 0x2e x jog speed */
 
 // pass information
 
- EXT int16_t totalPasses;       /* 0x2e total passes */
- EXT int16_t currentPass;       /* 0x2f current passes */
- EXT int16_t mvStatus;          /* 0x30 movement status */
+ EXT int16_t totalPasses;       /* 0x2f total passes */
+ EXT int16_t currentPass;       /* 0x30 current passes */
+ EXT int16_t mvStatus;          /* 0x31 movement status */
 
 // z axis move values
 
- EXT float zMoveDist;           /* 0x31 z move distance */
- EXT float zMovePos;            /* 0x32 z move position */
- EXT int zJogDir;               /* 0x33 x jog direction */
- EXT float zSetLoc;             /* 0x34 z location to set */
- EXT int zLoc;                  /* 0x35 z dro location */
- EXT int zFlag;                 /* 0x36 z move flag */
- EXT int zAbsLoc;               /* 0x37 z absolute location */
- EXT int zMpgInc;               /* 0x38 z man pulse gen incr */
- EXT int zMpgMax;               /* 0x39 z man pulse max distance */
+ EXT float zMoveDist;           /* 0x32 z move distance */
+ EXT float zMovePos;            /* 0x33 z move position */
+ EXT int zJogDir;               /* 0x34 x jog direction */
+ EXT float zSetLoc;             /* 0x35 z location to set */
+ EXT int zLoc;                  /* 0x36 z dro location */
+ EXT int zFlag;                 /* 0x37 z move flag */
+ EXT int zAbsLoc;               /* 0x38 z absolute location */
+ EXT int zMpgInc;               /* 0x39 z man pulse gen incr */
+ EXT int zMpgMax;               /* 0x3a z man pulse max distance */
 
 // x axis move values
 
- EXT float xMoveDist;           /* 0x3a x move distance */
- EXT float xMovePos;            /* 0x3b x move position */
- EXT int xJogDir;               /* 0x3c x jog direction */
- EXT float xSetLoc;             /* 0x3d x location to set */
- EXT int xLoc;                  /* 0x3e x dro location */
- EXT int xFlag;                 /* 0x3f x move flag */
- EXT int xAbsLoc;               /* 0x40 x absolute location */
- EXT int xMpgInc;               /* 0x41 X man pulse gen incr */
- EXT int xMpgMax;               /* 0x42 x man pulse max distance */
+ EXT float xMoveDist;           /* 0x3b x move distance */
+ EXT float xMovePos;            /* 0x3c x move position */
+ EXT int xJogDir;               /* 0x3d x jog direction */
+ EXT float xSetLoc;             /* 0x3e x location to set */
+ EXT int xLoc;                  /* 0x3f x dro location */
+ EXT int xFlag;                 /* 0x40 x move flag */
+ EXT int xAbsLoc;               /* 0x41 x absolute location */
+ EXT int xMpgInc;               /* 0x42 X man pulse gen incr */
+ EXT int xMpgMax;               /* 0x43 x man pulse max distance */
 
 // common jog parameters
 
- EXT float jogTimeInitial;      /* 0x43 jog time initial */
- EXT float jogTimeInc;          /* 0x44 jog time increment */
- EXT float jogTimeMax;          /* 0x45 jog time max */
+ EXT float jogTimeInitial;      /* 0x44 jog time initial */
+ EXT float jogTimeInc;          /* 0x45 jog time increment */
+ EXT float jogTimeMax;          /* 0x46 jog time max */
 
 // taper parameters
 
- EXT float taperCycleDist;      /* 0x46 taperCycleDist */
+ EXT float taperCycleDist;      /* 0x47 taperCycleDist */
 
 // index pulse variables
 
- EXT int indexPreScaler;        /* 0x47 index pre scaler */
- EXT unsigned int lastIndexPeriod;/* 0x48 last index period */
- EXT unsigned int indexPeriod;  /* 0x49 index period */
- EXT unsigned int revCounter;   /* 0x4a revolution counter */
+ EXT int indexPreScaler;        /* 0x48 index pre scaler */
+ EXT unsigned int lastIndexPeriod;/* 0x49 last index period */
+ EXT unsigned int indexPeriod;  /* 0x4a index period */
+ EXT unsigned int revCounter;   /* 0x4b revolution counter */
 
 // z home offset
 
- EXT int zHomeOffset;           /* 0x4b z home offset */
+ EXT int zHomeOffset;           /* 0x4c z home offset */
 
 // z dro
 
- EXT int zDroPos;               /* 0x4c z dro location */
- EXT int zDroOffset;            /* 0x4d z dro to zero */
- EXT int zDroCountInch;         /* 0x4e z dro scale */
- EXT int zDroInvert;            /* 0x4f z dro invert */
- EXT char zUseDro;              /* 0x50 z use dro for position */
+ EXT int zDroPos;               /* 0x4d z dro location */
+ EXT int zDroOffset;            /* 0x4e z dro to zero */
+ EXT int zDroCountInch;         /* 0x4f z dro scale */
+ EXT int zDroInvert;            /* 0x50 z dro invert */
+ EXT char zUseDro;              /* 0x51 z use dro for position */
 
 // x home parameters
 
- EXT float xHomeSpeed;          /* 0x51 x final homing speed */
- EXT float xHomeDist;           /* 0x52 x max homing distance */
- EXT float xHomeBackoffDist;    /* 0x53 x home backoff dist */
- EXT int xHomeDir;              /* 0x54 x homing direction */
+ EXT float xHomeSpeed;          /* 0x52 x final homing speed */
+ EXT float xHomeDist;           /* 0x53 x max homing distance */
+ EXT float xHomeBackoffDist;    /* 0x54 x home backoff dist */
+ EXT int xHomeDir;              /* 0x55 x homing direction */
 
 // x home test parameters
 
- EXT int xHomeLoc;              /* 0x55 x home test location */
- EXT int xHomeStart;            /* 0x56 x start of home signal */
- EXT int xHomeEnd;              /* 0x57 x end of home signal */
- EXT int xHomeOffset;           /* 0x58 x home offset */
- EXT int xDroPos;               /* 0x59 x dro location */
- EXT int xDroOffset;            /* 0x5a x dro to zero */
- EXT int xDroCountInch;         /* 0x5b x dro scale */
- EXT int xDroInvert;            /* 0x5c x dro invert */
- EXT char xUseDro;              /* 0x5d x use dro for position */
+ EXT int xHomeLoc;              /* 0x56 x home test location */
+ EXT int xHomeStart;            /* 0x57 x start of home signal */
+ EXT int xHomeEnd;              /* 0x58 x end of home signal */
+ EXT int xHomeOffset;           /* 0x59 x home offset */
+ EXT int xDroPos;               /* 0x5a x dro location */
+ EXT int xDroOffset;            /* 0x5b x dro to zero */
+ EXT int xDroCountInch;         /* 0x5c x dro scale */
+ EXT int xDroFactor;            /* 0x5d x dro counts inch factored */
+ EXT int xDroInvert;            /* 0x5e x dro invert */
+ EXT char xUseDro;              /* 0x5f x use dro for position */
+ EXT int xDoneDelay;            /* 0x60 x done to read dro delay */
 
 // x home or probe status
 
- EXT int xHomeDone;             /* 0x5e x home done */
- EXT int xHomeStatus;           /* 0x5f x home status */
+ EXT int xHomeDone;             /* 0x61 x home done */
+ EXT int xHomeStatus;           /* 0x62 x home status */
 
 // Z home or probe status
 
- EXT int zHomeDone;             /* 0x60 z home done */
- EXT int zHomeStatus;           /* 0x61 z home status */
+ EXT int zHomeDone;             /* 0x63 z home done */
+ EXT int zHomeStatus;           /* 0x64 z home status */
 
 // probe configuration
 
- EXT float probeSpeed;          /* 0x62 probe speed */
- EXT int probeDist;             /* 0x63 probe test distance */
- EXT int probeInv;              /* 0x64 invert polarity of probe */
+ EXT float probeSpeed;          /* 0x65 probe speed */
+ EXT int probeDist;             /* 0x66 probe test distance */
+ EXT int probeInv;              /* 0x67 invert polarity of probe */
 
 // configuration
 
- EXT char stepperDrive;         /* 0x65 stepper driven spindle */
- EXT char motorTest;            /* 0x66 use stepper drive to test motor */
- EXT char spindleEncoder;       /* 0x67 motor drive with spindle encoder */
- EXT char spindleSyncBoard;     /* 0x68 spindle sync board */
- EXT char turnSync;             /* 0x69 synchronization type for turning */
- EXT char threadSync;           /* 0x6a synchronization type for threading */
- EXT char capTmrEnable;         /* 0x6b enable capture timer */
- EXT char cfgXilinx;            /* 0x6c using xilinx */
- EXT char cfgMpg;               /* 0x6d manual pulse generator */
- EXT char cfgDro;               /* 0x6e digital readout */
- EXT char cfgLcd;               /* 0x6f lcd display */
- EXT int cfgFcy;                /* 0x70 system clock speed */
- EXT int cfgSwitch;             /* 0x71 spindle off on switch */
- EXT int cfgVarSpeed;           /* 0x72 spindle variable speed */
+ EXT char stepperDrive;         /* 0x68 stepper driven spindle */
+ EXT char motorTest;            /* 0x69 use stepper drive to test motor */
+ EXT char spindleEncoder;       /* 0x6a motor drive with spindle encoder */
+ EXT char spindleSyncBoard;     /* 0x6b spindle sync board */
+ EXT char turnSync;             /* 0x6c synchronization type for turning */
+ EXT char threadSync;           /* 0x6d synchronization type for threading */
+ EXT char capTmrEnable;         /* 0x6e enable capture timer */
+ EXT char cfgXilinx;            /* 0x6f using xilinx */
+ EXT char cfgMpg;               /* 0x70 manual pulse generator */
+ EXT char cfgDro;               /* 0x71 digital readout */
+ EXT char cfgLcd;               /* 0x72 lcd display */
+ EXT int cfgFcy;                /* 0x73 system clock speed */
+ EXT int cfgSwitch;             /* 0x74 spindle off on switch */
+ EXT int cfgVarSpeed;           /* 0x75 spindle variable speed */
 
 // setup
 
- EXT char setupDone;            /* 0x73 setup done */
+ EXT char setupDone;            /* 0x76 setup done */
 
 // encoder counts per revolution
 
- EXT uint16_t encPerRev;        /* 0x74 spindle encoder counts per revolution */
+ EXT uint16_t encPerRev;        /* 0x77 spindle encoder counts per revolution */
 
 // test encoder setup variables
 
- EXT char encEnable;            /* 0x75 encoder enable flag */
- EXT uint16_t encPreScaler;     /* 0x76 encoder prescaler */
- EXT uint16_t encTimer;         /* 0x77 encoder timer counts */
- EXT int encRunCount;           /* 0x78 encoder run count */
+ EXT char encEnable;            /* 0x78 encoder enable flag */
+ EXT uint16_t encPreScaler;     /* 0x79 encoder prescaler */
+ EXT uint16_t encTimer;         /* 0x7a encoder timer counts */
+ EXT int encRunCount;           /* 0x7b encoder run count */
 
 // test encoder status variables
 
- EXT char encRun;               /* 0x79 encoder running flag */
- EXT int16_t encCounter;        /* 0x7a encoder count in rev */
- EXT int32_t encRevCounter;     /* 0x7b encoder revolution counter */
+ EXT char encRun;               /* 0x7c encoder running flag */
+ EXT int16_t encCounter;        /* 0x7d encoder count in rev */
+ EXT int32_t encRevCounter;     /* 0x7e encoder revolution counter */
 
 // measured spindle speed
 
- EXT int16_t rpm;               /* 0x7c current rpm */
+ EXT int16_t rpm;               /* 0x7f current rpm */
 
 // xilinx frequency variables
 
- EXT int32_t xFrequency;        /* 0x7d xilinx clock frequency */
- EXT int16_t freqMult;          /* 0x7e frequency multiplier */
+ EXT int32_t xFrequency;        /* 0x80 xilinx clock frequency */
+ EXT int16_t freqMult;          /* 0x81 frequency multiplier */
 
 // xilinx configuration register
 
- EXT int16_t xCfgReg;           /* 0x7f xilinx configuration register */
+ EXT int16_t xCfgReg;           /* 0x82 xilinx configuration register */
 
 // sync parameters
 
- EXT uint16_t lSyncCycle;       /* 0x80 sync cycle length */
- EXT uint16_t lSyncOutput;      /* 0x81 sync outputs per cycle */
- EXT uint16_t lSyncPrescaler;   /* 0x82 sync prescaler */
+ EXT uint16_t lSyncCycle;       /* 0x83 sync cycle length */
+ EXT uint16_t lSyncOutput;      /* 0x84 sync outputs per cycle */
+ EXT uint16_t lSyncPrescaler;   /* 0x85 sync prescaler */
 
 // threading variables
 
- EXT int32_t thZStart;          /* 0x83 threading z start */
- EXT int32_t thXStart;          /* 0x84 threading x start */
- EXT float tanThreadAngle;      /* 0x85 tangent of threading angle */
- EXT int16_t xFeed;             /* 0x86 x feed */
- EXT float runoutDistance;      /* 0x87 runout distance */
- EXT float runoutDepth;         /* 0x88 runout depth */
+ EXT int32_t thZStart;          /* 0x86 threading z start */
+ EXT int32_t thXStart;          /* 0x87 threading x start */
+ EXT float tanThreadAngle;      /* 0x88 tangent of threading angle */
+ EXT int16_t xFeed;             /* 0x89 x feed */
+ EXT float runoutDistance;      /* 0x8a runout distance */
+ EXT float runoutDepth;         /* 0x8b runout depth */
 
 // jog debug
 
- EXT char jogDebug;             /* 0x89 jog interrupt debug */
+ EXT char jogDebug;             /* 0x8c jog interrupt debug */
 
 // motor and speed control
 
- EXT int16_t pwmFreq;           /* 0x8a spindle speed pwm frequency */
- EXT int16_t minSpeed;          /* 0x8b minimum speed for current range */
- EXT int16_t maxSpeed;          /* 0x8c maximum speed for current range */
+ EXT int16_t pwmFreq;           /* 0x8d spindle speed pwm frequency */
+ EXT int16_t minSpeed;          /* 0x8e minimum speed for current range */
+ EXT int16_t maxSpeed;          /* 0x8f maximum speed for current range */
 
 // current operation
 
- EXT char currentOp;            /* 0x8d current operation */
- EXT int16_t maxParm;           /* 0x8e maximum parameter */
+ EXT char currentOp;            /* 0x90 current operation */
+ EXT int16_t maxParm;           /* 0x91 maximum parameter */

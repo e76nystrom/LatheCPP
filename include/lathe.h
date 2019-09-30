@@ -425,8 +425,6 @@ typedef struct s_movectl
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
 
-#define MOV_DELAY 50		/* done delay timeout */
-
 typedef struct s_homectl
 {
  int state;

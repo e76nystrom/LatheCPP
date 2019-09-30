@@ -30,216 +30,219 @@ T_PARM remparm[] =
  PARM(zAccelTime),              /* 0x15 z axis acceleration */
  PARM(zAccel),                  /* 0x16 z accel rpm/sec^2 */
  PARM(zBacklash),               /* 0x17 z axis backlash */
- PARM(zDirFlag),                /* 0x18 z invert direction */
- PARM(zMpgFlag),                /* 0x19 z invert mpg */
+ PARM(xStepFactor),             /* 0x18 x steps inch factored */
+ PARM(zDirFlag),                /* 0x19 z invert direction */
+ PARM(zMpgFlag),                /* 0x1a z invert mpg */
 
 // x axis parameters
 
- PARM(xPitch),                  /* 0x1a x axis leadscrew pitch */
- PARM(xRatio),                  /* 0x1b x axis ratio */
- PARM(xMicro),                  /* 0x1c x axis micro steps */
- PARM(xMotor),                  /* 0x1d x axis motor steps */
- PARM(xAccelTime),              /* 0x1e x axis acceleration */
- PARM(xAccel),                  /* 0x1f z accel rpm/sec^2 */
- PARM(xBacklash),               /* 0x20 x axis backlash */
- PARM(xDirFlag),                /* 0x21 x invert direction */
- PARM(xMpgFlag),                /* 0x22 x invert mpg */
- PARM(xDiameter),               /* 0x23 x diameter */
+ PARM(xPitch),                  /* 0x1b x axis leadscrew pitch */
+ PARM(xRatio),                  /* 0x1c x axis ratio */
+ PARM(xMicro),                  /* 0x1d x axis micro steps */
+ PARM(xMotor),                  /* 0x1e x axis motor steps */
+ PARM(xAccelTime),              /* 0x1f x axis acceleration */
+ PARM(xAccel),                  /* 0x20 z accel rpm/sec^2 */
+ PARM(xBacklash),               /* 0x21 x axis backlash */
+ PARM(xDirFlag),                /* 0x22 x invert direction */
+ PARM(xMpgFlag),                /* 0x23 x invert mpg */
+ PARM(xDiameter),               /* 0x24 x diameter */
 
 // z move parameters
 
- PARM(zMoveMin),                /* 0x24 z move min speed */
- PARM(zMoveMax),                /* 0x25 z move max speed */
+ PARM(zMoveMin),                /* 0x25 z move min speed */
+ PARM(zMoveMax),                /* 0x26 z move max speed */
 
 // z jog parameters
 
- PARM(zJogMin),                 /* 0x26 z jog min speed */
- PARM(zJogMax),                 /* 0x27 z jog max speed */
- PARM(zJogSpeed),               /* 0x28 z jog speed */
+ PARM(zJogMin),                 /* 0x27 z jog min speed */
+ PARM(zJogMax),                 /* 0x28 z jog max speed */
+ PARM(zJogSpeed),               /* 0x29 z jog speed */
 
 // x move parameters
 
- PARM(xMoveMin),                /* 0x29 x move min speed */
- PARM(xMoveMax),                /* 0x2a x move max speed */
+ PARM(xMoveMin),                /* 0x2a x move min speed */
+ PARM(xMoveMax),                /* 0x2b x move max speed */
 
 // x jog parameters
 
- PARM(xJogMin),                 /* 0x2b x jog min speed */
- PARM(xJogMax),                 /* 0x2c x jog max speed */
- PARM(xJogSpeed),               /* 0x2d x jog speed */
+ PARM(xJogMin),                 /* 0x2c x jog min speed */
+ PARM(xJogMax),                 /* 0x2d x jog max speed */
+ PARM(xJogSpeed),               /* 0x2e x jog speed */
 
 // pass information
 
- PARM(totalPasses),             /* 0x2e total passes */
- PARM(currentPass),             /* 0x2f current passes */
- PARM(mvStatus),                /* 0x30 movement status */
+ PARM(totalPasses),             /* 0x2f total passes */
+ PARM(currentPass),             /* 0x30 current passes */
+ PARM(mvStatus),                /* 0x31 movement status */
 
 // z axis move values
 
- PARM(zMoveDist),               /* 0x31 z move distance */
- PARM(zMovePos),                /* 0x32 z move position */
- PARM(zJogDir),                 /* 0x33 x jog direction */
- PARM(zSetLoc),                 /* 0x34 z location to set */
- PARM(zLoc),                    /* 0x35 z dro location */
- PARM(zFlag),                   /* 0x36 z move flag */
- PARM(zAbsLoc),                 /* 0x37 z absolute location */
- PARM(zMpgInc),                 /* 0x38 z man pulse gen incr */
- PARM(zMpgMax),                 /* 0x39 z man pulse max distance */
+ PARM(zMoveDist),               /* 0x32 z move distance */
+ PARM(zMovePos),                /* 0x33 z move position */
+ PARM(zJogDir),                 /* 0x34 x jog direction */
+ PARM(zSetLoc),                 /* 0x35 z location to set */
+ PARM(zLoc),                    /* 0x36 z dro location */
+ PARM(zFlag),                   /* 0x37 z move flag */
+ PARM(zAbsLoc),                 /* 0x38 z absolute location */
+ PARM(zMpgInc),                 /* 0x39 z man pulse gen incr */
+ PARM(zMpgMax),                 /* 0x3a z man pulse max distance */
 
 // x axis move values
 
- PARM(xMoveDist),               /* 0x3a x move distance */
- PARM(xMovePos),                /* 0x3b x move position */
- PARM(xJogDir),                 /* 0x3c x jog direction */
- PARM(xSetLoc),                 /* 0x3d x location to set */
- PARM(xLoc),                    /* 0x3e x dro location */
- PARM(xFlag),                   /* 0x3f x move flag */
- PARM(xAbsLoc),                 /* 0x40 x absolute location */
- PARM(xMpgInc),                 /* 0x41 X man pulse gen incr */
- PARM(xMpgMax),                 /* 0x42 x man pulse max distance */
+ PARM(xMoveDist),               /* 0x3b x move distance */
+ PARM(xMovePos),                /* 0x3c x move position */
+ PARM(xJogDir),                 /* 0x3d x jog direction */
+ PARM(xSetLoc),                 /* 0x3e x location to set */
+ PARM(xLoc),                    /* 0x3f x dro location */
+ PARM(xFlag),                   /* 0x40 x move flag */
+ PARM(xAbsLoc),                 /* 0x41 x absolute location */
+ PARM(xMpgInc),                 /* 0x42 X man pulse gen incr */
+ PARM(xMpgMax),                 /* 0x43 x man pulse max distance */
 
 // common jog parameters
 
- PARM(jogTimeInitial),          /* 0x43 jog time initial */
- PARM(jogTimeInc),              /* 0x44 jog time increment */
- PARM(jogTimeMax),              /* 0x45 jog time max */
+ PARM(jogTimeInitial),          /* 0x44 jog time initial */
+ PARM(jogTimeInc),              /* 0x45 jog time increment */
+ PARM(jogTimeMax),              /* 0x46 jog time max */
 
 // taper parameters
 
- PARM(taperCycleDist),          /* 0x46 taperCycleDist */
+ PARM(taperCycleDist),          /* 0x47 taperCycleDist */
 
 // index pulse variables
 
- PARM(indexPreScaler),          /* 0x47 index pre scaler */
- PARM(lastIndexPeriod),         /* 0x48 last index period */
- PARM(indexPeriod),             /* 0x49 index period */
- PARM(revCounter),              /* 0x4a revolution counter */
+ PARM(indexPreScaler),          /* 0x48 index pre scaler */
+ PARM(lastIndexPeriod),         /* 0x49 last index period */
+ PARM(indexPeriod),             /* 0x4a index period */
+ PARM(revCounter),              /* 0x4b revolution counter */
 
 // z home offset
 
- PARM(zHomeOffset),             /* 0x4b z home offset */
+ PARM(zHomeOffset),             /* 0x4c z home offset */
 
 // z dro
 
- PARM(zDroPos),                 /* 0x4c z dro location */
- PARM(zDroOffset),              /* 0x4d z dro to zero */
- PARM(zDroCountInch),           /* 0x4e z dro scale */
- PARM(zDroInvert),              /* 0x4f z dro invert */
- PARM(zUseDro),                 /* 0x50 z use dro for position */
+ PARM(zDroPos),                 /* 0x4d z dro location */
+ PARM(zDroOffset),              /* 0x4e z dro to zero */
+ PARM(zDroCountInch),           /* 0x4f z dro scale */
+ PARM(zDroInvert),              /* 0x50 z dro invert */
+ PARM(zUseDro),                 /* 0x51 z use dro for position */
 
 // x home parameters
 
- PARM(xHomeSpeed),              /* 0x51 x final homing speed */
- PARM(xHomeDist),               /* 0x52 x max homing distance */
- PARM(xHomeBackoffDist),        /* 0x53 x home backoff dist */
- PARM(xHomeDir),                /* 0x54 x homing direction */
+ PARM(xHomeSpeed),              /* 0x52 x final homing speed */
+ PARM(xHomeDist),               /* 0x53 x max homing distance */
+ PARM(xHomeBackoffDist),        /* 0x54 x home backoff dist */
+ PARM(xHomeDir),                /* 0x55 x homing direction */
 
 // x home test parameters
 
- PARM(xHomeLoc),                /* 0x55 x home test location */
- PARM(xHomeStart),              /* 0x56 x start of home signal */
- PARM(xHomeEnd),                /* 0x57 x end of home signal */
- PARM(xHomeOffset),             /* 0x58 x home offset */
- PARM(xDroPos),                 /* 0x59 x dro location */
- PARM(xDroOffset),              /* 0x5a x dro to zero */
- PARM(xDroCountInch),           /* 0x5b x dro scale */
- PARM(xDroInvert),              /* 0x5c x dro invert */
- PARM(xUseDro),                 /* 0x5d x use dro for position */
+ PARM(xHomeLoc),                /* 0x56 x home test location */
+ PARM(xHomeStart),              /* 0x57 x start of home signal */
+ PARM(xHomeEnd),                /* 0x58 x end of home signal */
+ PARM(xHomeOffset),             /* 0x59 x home offset */
+ PARM(xDroPos),                 /* 0x5a x dro location */
+ PARM(xDroOffset),              /* 0x5b x dro to zero */
+ PARM(xDroCountInch),           /* 0x5c x dro scale */
+ PARM(xDroFactor),              /* 0x5d x dro counts inch factored */
+ PARM(xDroInvert),              /* 0x5e x dro invert */
+ PARM(xUseDro),                 /* 0x5f x use dro for position */
+ PARM(xDoneDelay),              /* 0x60 x done to read dro delay */
 
 // x home or probe status
 
- PARM(xHomeDone),               /* 0x5e x home done */
- PARM(xHomeStatus),             /* 0x5f x home status */
+ PARM(xHomeDone),               /* 0x61 x home done */
+ PARM(xHomeStatus),             /* 0x62 x home status */
 
 // Z home or probe status
 
- PARM(zHomeDone),               /* 0x60 z home done */
- PARM(zHomeStatus),             /* 0x61 z home status */
+ PARM(zHomeDone),               /* 0x63 z home done */
+ PARM(zHomeStatus),             /* 0x64 z home status */
 
 // probe configuration
 
- PARM(probeSpeed),              /* 0x62 probe speed */
- PARM(probeDist),               /* 0x63 probe test distance */
- PARM(probeInv),                /* 0x64 invert polarity of probe */
+ PARM(probeSpeed),              /* 0x65 probe speed */
+ PARM(probeDist),               /* 0x66 probe test distance */
+ PARM(probeInv),                /* 0x67 invert polarity of probe */
 
 // configuration
 
- PARM(stepperDrive),            /* 0x65 stepper driven spindle */
- PARM(motorTest),               /* 0x66 use stepper drive to test motor */
- PARM(spindleEncoder),          /* 0x67 motor drive with spindle encoder */
- PARM(spindleSyncBoard),        /* 0x68 spindle sync board */
- PARM(turnSync),                /* 0x69 synchronization type for turning */
- PARM(threadSync),              /* 0x6a synchronization type for threading */
- PARM(capTmrEnable),            /* 0x6b enable capture timer */
- PARM(cfgXilinx),               /* 0x6c using xilinx */
- PARM(cfgMpg),                  /* 0x6d manual pulse generator */
- PARM(cfgDro),                  /* 0x6e digital readout */
- PARM(cfgLcd),                  /* 0x6f lcd display */
- PARM(cfgFcy),                  /* 0x70 system clock speed */
- PARM(cfgSwitch),               /* 0x71 spindle off on switch */
- PARM(cfgVarSpeed),             /* 0x72 spindle variable speed */
+ PARM(stepperDrive),            /* 0x68 stepper driven spindle */
+ PARM(motorTest),               /* 0x69 use stepper drive to test motor */
+ PARM(spindleEncoder),          /* 0x6a motor drive with spindle encoder */
+ PARM(spindleSyncBoard),        /* 0x6b spindle sync board */
+ PARM(turnSync),                /* 0x6c synchronization type for turning */
+ PARM(threadSync),              /* 0x6d synchronization type for threading */
+ PARM(capTmrEnable),            /* 0x6e enable capture timer */
+ PARM(cfgXilinx),               /* 0x6f using xilinx */
+ PARM(cfgMpg),                  /* 0x70 manual pulse generator */
+ PARM(cfgDro),                  /* 0x71 digital readout */
+ PARM(cfgLcd),                  /* 0x72 lcd display */
+ PARM(cfgFcy),                  /* 0x73 system clock speed */
+ PARM(cfgSwitch),               /* 0x74 spindle off on switch */
+ PARM(cfgVarSpeed),             /* 0x75 spindle variable speed */
 
 // setup
 
- PARM(setupDone),               /* 0x73 setup done */
+ PARM(setupDone),               /* 0x76 setup done */
 
 // encoder counts per revolution
 
- PARM(encPerRev),               /* 0x74 spindle encoder counts per revolution */
+ PARM(encPerRev),               /* 0x77 spindle encoder counts per revolution */
 
 // test encoder setup variables
 
- PARM(encEnable),               /* 0x75 encoder enable flag */
- PARM(encPreScaler),            /* 0x76 encoder prescaler */
- PARM(encTimer),                /* 0x77 encoder timer counts */
- PARM(encRunCount),             /* 0x78 encoder run count */
+ PARM(encEnable),               /* 0x78 encoder enable flag */
+ PARM(encPreScaler),            /* 0x79 encoder prescaler */
+ PARM(encTimer),                /* 0x7a encoder timer counts */
+ PARM(encRunCount),             /* 0x7b encoder run count */
 
 // test encoder status variables
 
- PARM(encRun),                  /* 0x79 encoder running flag */
- PARM(encCounter),              /* 0x7a encoder count in rev */
- PARM(encRevCounter),           /* 0x7b encoder revolution counter */
+ PARM(encRun),                  /* 0x7c encoder running flag */
+ PARM(encCounter),              /* 0x7d encoder count in rev */
+ PARM(encRevCounter),           /* 0x7e encoder revolution counter */
 
 // measured spindle speed
 
- PARM(rpm),                     /* 0x7c current rpm */
+ PARM(rpm),                     /* 0x7f current rpm */
 
 // xilinx frequency variables
 
- PARM(xFrequency),              /* 0x7d xilinx clock frequency */
- PARM(freqMult),                /* 0x7e frequency multiplier */
+ PARM(xFrequency),              /* 0x80 xilinx clock frequency */
+ PARM(freqMult),                /* 0x81 frequency multiplier */
 
 // xilinx configuration register
 
- PARM(xCfgReg),                 /* 0x7f xilinx configuration register */
+ PARM(xCfgReg),                 /* 0x82 xilinx configuration register */
 
 // sync parameters
 
- PARM(lSyncCycle),              /* 0x80 sync cycle length */
- PARM(lSyncOutput),             /* 0x81 sync outputs per cycle */
- PARM(lSyncPrescaler),          /* 0x82 sync prescaler */
+ PARM(lSyncCycle),              /* 0x83 sync cycle length */
+ PARM(lSyncOutput),             /* 0x84 sync outputs per cycle */
+ PARM(lSyncPrescaler),          /* 0x85 sync prescaler */
 
 // threading variables
 
- PARM(thZStart),                /* 0x83 threading z start */
- PARM(thXStart),                /* 0x84 threading x start */
- PARM(tanThreadAngle),          /* 0x85 tangent of threading angle */
- PARM(xFeed),                   /* 0x86 x feed */
- PARM(runoutDistance),          /* 0x87 runout distance */
- PARM(runoutDepth),             /* 0x88 runout depth */
+ PARM(thZStart),                /* 0x86 threading z start */
+ PARM(thXStart),                /* 0x87 threading x start */
+ PARM(tanThreadAngle),          /* 0x88 tangent of threading angle */
+ PARM(xFeed),                   /* 0x89 x feed */
+ PARM(runoutDistance),          /* 0x8a runout distance */
+ PARM(runoutDepth),             /* 0x8b runout depth */
 
 // jog debug
 
- PARM(jogDebug),                /* 0x89 jog interrupt debug */
+ PARM(jogDebug),                /* 0x8c jog interrupt debug */
 
 // motor and speed control
 
- PARM(pwmFreq),                 /* 0x8a spindle speed pwm frequency */
- PARM(minSpeed),                /* 0x8b minimum speed for current range */
- PARM(maxSpeed),                /* 0x8c maximum speed for current range */
+ PARM(pwmFreq),                 /* 0x8d spindle speed pwm frequency */
+ PARM(minSpeed),                /* 0x8e minimum speed for current range */
+ PARM(maxSpeed),                /* 0x8f maximum speed for current range */
 
 // current operation
 
- PARM(currentOp),               /* 0x8d current operation */
- PARM(maxParm),                 /* 0x8e maximum parameter */
+ PARM(currentOp),               /* 0x90 current operation */
+ PARM(maxParm),                 /* 0x91 maximum parameter */
 };

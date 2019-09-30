@@ -464,8 +464,6 @@ typedef struct s_movectl
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
 
-#define MOV_DELAY 50		/* done delay timeout */
-
 typedef struct s_homectl
 {
  int state;
@@ -3673,8 +3671,8 @@ void xSetup(void)
  axis->stepsInch = stepsInch;
  axis->backlashSteps = lrint(axis->backlash * axis->stepsInch);
  axis->droCountsInch = xDroCountInch;
- axis->stepFactor = 10;
- axis->droFactor = 5;
+ axis->stepFactor = xStepFactor;
+ axis->droFactor = xDroFactor;
 
  xIsr.axis = 'x';
 
@@ -4030,8 +4028,7 @@ void xControl(void)
    }
    mov->state = XDELAY;		/* wait for position to settle */
    mov->delayStart = millis();	/* set start of delay */
-   mov->delayTimeout = MOV_DELAY; /* set delay length */
-//   mov->state = XDONE;		/* clean up everything */
+   mov->delayTimeout = xDoneDelay; /* set delay length */
   }
   break;
 
@@ -4047,7 +4044,6 @@ void xControl(void)
   if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
   {
    /* xLoc = droPos * (stepsInch / countsInch) */
-
    int xTmp = ((2 * (xDroPos - xDroOffset) * xAxis.stepFactor) /
 	       xAxis.droFactor);
    xTmp = (xTmp + 1) >> 1;	/* round */
