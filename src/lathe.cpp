@@ -3863,12 +3863,11 @@ void xMoveDro(int pos, int cmd)
  if (DBG_QUE)
  {
   /* counts = inches * (counts / inch) */
-  unsigned int droCounts = abs(lrint(droDist * xAxis.droCountsInch));
   printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f steps %d "
 	 "counts %d\n",
 	 cmd, ((float) pos) / xAxis.droCountsInch,
 	 ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
-	 ((float) droDist) / xAxis.droCountsInch, dist, droCounts);
+	 ((float) droDist) / xAxis.droCountsInch, dist, droDist);
   printf("droTarget %7d droPos %7d droCounts %7d\n",
 	 droTarget, xDroPos, droTarget - xDroPos);
  }
