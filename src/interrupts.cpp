@@ -117,10 +117,7 @@ extern "C" void encoderISR(void)
 
  if (EXTI->PR & (XA_Pin | XB_Pin)) /* if bit change */
  {
-  if (dbgXDroRead())
-   dbgXDroClr();
-  else
-   dbgXDroSet();
+  dbgXDroSet();
 
   if (EXTI->PR & XA_Pin)
    EXTI->PR = XA_Pin;
@@ -169,6 +166,7 @@ extern "C" void encoderISR(void)
     }
    }
   }
+  dbgXDroClr();
  }
 
 #if !defined(index1ISR)
