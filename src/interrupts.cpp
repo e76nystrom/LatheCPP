@@ -149,7 +149,7 @@ extern "C" void encoderISR(void)
    {
     dist =  xDroPos - xIsr.droTarget;
    }
-   if (dist < 10)		/* if close to end */
+   if (dist < xDroFinalDist)	/* if close to end */
    {
     if (dist > 0)		/* if not done */
     {

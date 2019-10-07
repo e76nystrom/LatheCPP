@@ -34,6 +34,6 @@ ldscripts/
 Middlewares/
 Old/
 src/test.cpp
-stm32f407xx.h
 timer.sh
 TrueStudio/
+/stm32f407xx.h
