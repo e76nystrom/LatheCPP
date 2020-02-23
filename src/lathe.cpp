@@ -424,6 +424,9 @@ typedef struct s_movectl
  char wait;			/* waiting for done xilinx */
  char ctlreg;			/* control register xilinx */
  char axisName;			/* axis name */
+ char limitMove;		/* move off limits in progress */
+ char mpgFlag;			/* mpg direction flag */
+ char mpgBackWait;		/* mpg backlash wait */
  unsigned int delayStart;	/* delay start time */
  unsigned int delayTimeout;	/* delay timeout in millis */
  int cmd;			/* move command */
@@ -440,8 +443,6 @@ typedef struct s_movectl
  int jogFlag;			/* jog enable flag */
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
- char mpgFlag;			/* mpg direction flag */
- char mpgBackWait;		/* mpg backlash wait */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
@@ -2250,6 +2251,14 @@ void jogMove(P_MOVECTL mov, int dir)
 {
  if (mov->state == ZIDLE)	/* if not moving */
  {
+  if (mov->limitDir != 0)	/* if at a limit */
+  {
+   if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
+   ||  ((mov->limitDir > 0) && (dir > 0)))
+    return;
+   mov->limitMove = 1;		/* set moving off limit flag */
+  }
+  
   P_ACCEL ac = mov->acJog;	/* pointer to jog */
 #if 0
   float time = jogTimeInitial - ac->time; /* time after accel */
@@ -2374,6 +2383,7 @@ void jogMpg(P_MOVECTL mov)
  if (mov->state == ZIDLE)	/* if not moving */
  {
   dbgJogMPG0Set();
+
   __disable_irq();		/* disable interrupt */
   if (jog->count != 0)		/* if anything in count */
   {
@@ -2391,6 +2401,14 @@ void jogMpg(P_MOVECTL mov)
    return;			/* and exit */
   }
    
+  if (mov->limitDir != 0)	/* if at a limit */
+  {
+   if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+   ||  ((mov->limitDir > 0) && (dist> 0)))
+    return;
+   mov->limitMove = 1;		/* set moving off limit flag */
+  }
+
   if (mov->mpgFlag)		/* if direction inverted */
    dist = -dist;		/* invert distance */
   mov->maxDist = *(mov->mpgJogMax); /* set maximum distance */
@@ -4054,6 +4072,12 @@ void xControl(void)
 	   (2.0 * (float) (xLoc - xHomeOffset)) / xAxis.stepsInch,
 	   xLoc);
   }
+  if (limitIsClr())
+  {
+   mov->limitDir = 0;		/* clear limit flags */
+   mov->limitMove = 0;
+  }
+  
   dbgXDoneClr();
   xIsr.done = 0;		/* clear done flag */
   mov->stop = 0;		/* clear stop flag */
@@ -4220,12 +4244,18 @@ void axisCtl(void)
   }
  }
 
- if (limitIsSet())
+ if (limitIsSet())		/* if limit is set */
  {
   if (xIsr.active)		/* if x isr active */
   {
-   zMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
-   xIsrStop('7');		/* stop x isr */
+   if (xMoveCtl.limitMove == 0)	/* if not a limit move */
+   {
+    if (xMoveCtl.limitDir == 0)	/* if not at limit */
+    {
+     xIsrStop('7');		/* stop x isr */
+     xMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
+    }
+   }
   }
   
   if (zIsr.active)		/* if z isr active */

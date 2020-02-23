@@ -385,6 +385,9 @@ typedef struct s_movectl
  char wait;			/* waiting for done xilinx */
  char ctlreg;			/* control register xilinx */
  char axisName;			/* axis name */
+ char limitMove;		/* move off limits in progress */
+ char mpgFlag;			/* mpg direction flag */
+ char mpgBackWait;		/* mpg backlash wait */
  unsigned int delayStart;	/* delay start time */
  unsigned int delayTimeout;	/* delay timeout in millis */
  int cmd;			/* move command */
@@ -401,8 +404,6 @@ typedef struct s_movectl
  int jogFlag;			/* jog enable flag */
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
- char mpgFlag;			/* mpg direction flag */
- char mpgBackWait;		/* mpg backlash wait */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
