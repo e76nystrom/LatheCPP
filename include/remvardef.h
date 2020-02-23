@@ -173,7 +173,7 @@
  EXT char turnSync;             /* 0x6d synchronization type for turning */
  EXT char threadSync;           /* 0x6e synchronization type for threading */
  EXT char capTmrEnable;         /* 0x6f enable capture timer */
- EXT char cfgXilinx;            /* 0x70 using xilinx */
+ EXT char cfgFpga;              /* 0x70 using fpga */
  EXT char cfgMpg;               /* 0x71 manual pulse generator */
  EXT char cfgDro;               /* 0x72 digital readout */
  EXT char cfgLcd;               /* 0x73 lcd display */
@@ -206,9 +206,9 @@
 
  EXT int16_t rpm;               /* 0x80 current rpm */
 
-// xilinx frequency variables
+// fpga frequency variables
 
- EXT int32_t xFrequency;        /* 0x81 xilinx clock frequency */
+ EXT int32_t fpgaFrequency;     /* 0x81 fpga clock frequency */
  EXT int16_t freqMult;          /* 0x82 frequency multiplier */
 
 // xilinx configuration register

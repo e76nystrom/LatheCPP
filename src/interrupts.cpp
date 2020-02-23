@@ -965,7 +965,7 @@ extern "C" void xTmrISR(void)
 
   if (xIsr.home & FIND_HOME)	/* if looking for home */
   {
-   if (xHomeSet())		/* if home found */
+   if (xHomeIsSet())		/* if home found */
    {
     xIsr.doneHome = 1;		/* indicate homing done */
     xIsrStop('2');		/* stop movement */

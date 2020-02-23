@@ -40,6 +40,10 @@ pinList = \
   ("i", "pin12", "Pin12", ""), \
   ("i", "pin13", "Pin13", ""), \
   ("i", "pin15", "Pin15", ""), \
+
+  ("i", "eStop", "Pin10", ""), \
+  ("i", "limit", "Pin11", ""), \
+  ("i", "xHome", "Pin12", ""), \
   
   ("o", "start", "ZFlag", ""), \
   ("i", "ready", "XFlag", ""), \

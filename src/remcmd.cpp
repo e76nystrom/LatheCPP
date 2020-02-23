@@ -433,7 +433,7 @@ void remcmd(void)
 //  else
 //   putstrrem("# ");
 
-  if (cfgXilinx == 0)		/* processor control */
+  if (cfgFpga == 0)		/* processor control */
   {
    if (indexPeriod != 0)
    {

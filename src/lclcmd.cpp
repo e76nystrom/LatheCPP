@@ -340,6 +340,46 @@ void lclcmd(int ch)
     HAL_NVIC_EnableIRQ((IRQn_Type) val);
   }
  }
+ else if (ch == '@')
+ {
+  ch = query("\nPort: ");
+  unsigned int i;
+  P_PORT_LIST p = portList;
+  GPIO_TypeDef *port = 0;
+  for (i = 0; i < sizeof(portList) / sizeof(T_PORT_LIST); i++)
+  {
+   if (ch == p->ch)
+   {
+    port = p->port;
+    putBufChar(ch);
+    break;
+   }
+  }
+  if (port != 0)
+  {
+   int modeSave = port->MODER;
+   gpioInfo(port);
+   if (query(&gethex, "\nbit: "))
+   {
+    int pin = val;
+    int modeShift = 2 * pin;
+    int modeMask = 3 << modeShift;
+    port->MODER &= ~modeMask;
+    port->MODER |= 1 << modeShift;
+    int bit = (1 << pin);
+    port->ODR |= bit;
+    gpioInfo(port);
+
+    query(&gethex, "\nset: ");
+    port->ODR &= ~bit;
+    gpioInfo(port);
+
+    query(&gethex, "\nclr: ");
+    port->MODER = modeSave;
+    gpioInfo(port);
+   }
+  }
+ }
  else if (ch == 'I')
  {
   ch = query("\nPort: ");

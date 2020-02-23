@@ -312,6 +312,36 @@ inline uint16_t pin15IsSet() {return(0);}
 inline uint16_t pin15IsClr() {return(0);}
 #endif
 
+#ifdef Pin10_Pin
+inline uint16_t eStop() {return((Pin10_GPIO_Port->IDR & Pin10_Pin) != 0);}
+inline uint16_t eStopIsSet() {return((Pin10_GPIO_Port->IDR & Pin10_Pin) != 0);}
+inline uint16_t eStopIsClr() {return((Pin10_GPIO_Port->IDR & Pin10_Pin) == 0);}
+#else
+inline uint16_t eStop() {return(0);}
+inline uint16_t eStopIsSet() {return(0);}
+inline uint16_t eStopIsClr() {return(0);}
+#endif
+
+#ifdef Pin11_Pin
+inline uint16_t limit() {return((Pin11_GPIO_Port->IDR & Pin11_Pin) != 0);}
+inline uint16_t limitIsSet() {return((Pin11_GPIO_Port->IDR & Pin11_Pin) != 0);}
+inline uint16_t limitIsClr() {return((Pin11_GPIO_Port->IDR & Pin11_Pin) == 0);}
+#else
+inline uint16_t limit() {return(0);}
+inline uint16_t limitIsSet() {return(0);}
+inline uint16_t limitIsClr() {return(0);}
+#endif
+
+#ifdef Pin12_Pin
+inline uint16_t xHome() {return((Pin12_GPIO_Port->IDR & Pin12_Pin) != 0);}
+inline uint16_t xHomeIsSet() {return((Pin12_GPIO_Port->IDR & Pin12_Pin) != 0);}
+inline uint16_t xHomeIsClr() {return((Pin12_GPIO_Port->IDR & Pin12_Pin) == 0);}
+#else
+inline uint16_t xHome() {return(0);}
+inline uint16_t xHomeIsSet() {return(0);}
+inline uint16_t xHomeIsClr() {return(0);}
+#endif
+
 #ifdef ZFlag_Pin
 inline void startSet() {ZFlag_GPIO_Port->BSRR = ZFlag_Pin;}
 inline void startClr() {ZFlag_GPIO_Port->BSRR = (ZFlag_Pin << 16);}

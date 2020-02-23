@@ -390,6 +390,7 @@ typedef struct s_movectl
  int cmd;			/* move command */
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
+ int limitDir;			/* direction when limit tripped */
  unsigned int dist;		/* distance to move */
  int droTarget;			/* target dro value */
  int loc;			/* current location */

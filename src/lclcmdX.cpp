@@ -158,7 +158,7 @@ void lclcmdX(int ch)
    {
     LOAD(XLDZCTL, j);
     read1(XRDZCTL);
-    int testVal = j & ((1 << (zCtl_size)) - 1);
+    int testVal = j & ((1 << (zCtlSize)) - 1);
     if (readval.i != testVal)
     {
 //     setSync();
@@ -169,7 +169,7 @@ void lclcmdX(int ch)
 
     LOAD(XLDXCTL, j);
     read1(XRDXCTL);
-    testVal = j & ((1 << (xCtl_size)) - 1);
+    testVal = j & ((1 << (xCtlSize)) - 1);
     if (readval.i != testVal)
     {
 //     setSync();

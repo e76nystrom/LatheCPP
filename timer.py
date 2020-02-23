@@ -86,7 +86,7 @@ pwm1List = \
 
 pwm2List = \
 ( \
-  ("CCR",       "x",  "%s->CCR1 = (x)"),
+  ("CCR",       "x",  "%s->CCR2 = (x)"),
   ("PWMMode",   None, "%s->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1)"),
   ("PWMEna",    "b",  "%s->CCER |= TIM_CCER_CC2E"),
   ("PWMDis",    None, "%s->CCER &= ~TIM_CCER_CC2E"),

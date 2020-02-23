@@ -175,7 +175,7 @@ enum PARM
  TURN_SYNC,                     /* 0x6d synchronization type for turning */
  THREAD_SYNC,                   /* 0x6e synchronization type for threading */
  CAP_TMR_ENABLE,                /* 0x6f enable capture timer */
- CFG_XILINX,                    /* 0x70 using xilinx */
+ CFG_FPGA,                      /* 0x70 using fpga */
  CFG_MPG,                       /* 0x71 manual pulse generator */
  CFG_DRO,                       /* 0x72 digital readout */
  CFG_LCD,                       /* 0x73 lcd display */
@@ -208,9 +208,9 @@ enum PARM
 
  RPM,                           /* 0x80 current rpm */
 
-// xilinx frequency variables
+// fpga frequency variables
 
- X_FREQUENCY,                   /* 0x81 xilinx clock frequency */
+ FPGA_FREQUENCY,                /* 0x81 fpga clock frequency */
  FREQ_MULT,                     /* 0x82 frequency multiplier */
 
 // xilinx configuration register

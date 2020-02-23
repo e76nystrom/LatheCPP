@@ -429,6 +429,7 @@ typedef struct s_movectl
  int cmd;			/* move command */
  int dir;			/* direction -1 neg, 0 backlash, 1 pos */
  int dirChange;			/* direction */
+ int limitDir;			/* direction when limit tripped */
  unsigned int dist;		/* distance to move */
  int droTarget;			/* target dro value */
  int loc;			/* current location */
@@ -899,7 +900,7 @@ void stopCmd(void)
   printf("\nstop\n");
 
  stopMove();
- if (cfgXilinx == 0)
+ if (cfgFpga == 0)
  {
   spindleStop();
   zStop();
@@ -976,7 +977,7 @@ void clearAll(void)
  if (DBG_SETUP)
   printf("\nclear all\n");
 
- if (cfgXilinx == 0)
+ if (cfgFpga == 0)
  {
   clr(zIsr);
   clr(xIsr);
@@ -1020,7 +1021,7 @@ void clearAll(void)
 
  clr(cmpTmr);
 
- if (cfgXilinx)
+ if (cfgFpga)
  {
   LOAD(XLDZCTL, ZRESET);
   LOAD(XLDZCTL, 0);
@@ -1113,7 +1114,7 @@ void setup(void)
  gpioInfo(GPIOC);
 #endif
 
- if (cfgXilinx == 0)
+ if (cfgFpga == 0)
  {
   enaDbgPins(XILINX_PIN);
   HAL_SPI_MspDeInit(&hspi2);
@@ -1131,7 +1132,7 @@ void setup(void)
 #endif
 #endif
 
- if (cfgXilinx == 0)
+ if (cfgFpga == 0)
   mainLoopSetup();
  else
   mainLoopSetupX();
@@ -1158,7 +1159,7 @@ void allStop(void)
  if (DBG_SETUP)
   printf("\nall stop\n");
 
- if (cfgXilinx == 0)
+ if (cfgFpga == 0)
  {
   if (stepperDrive		/* if stepper drive */
   ||  motorTest)		/* or testing motor drive */
@@ -4127,7 +4128,7 @@ void xHomeControl(void)
   break;
 
  case H_CHECK_ONHOME:		/* 0x01 check for home switch closed */
-  if (xHomeSet())		/* if home switch closed */
+  if (xHomeIsSet())		/* if home switch closed */
   {
    xMoveRel(home->backoffDist, CMD_JOG); /* send backoff move */
    home->state = H_BACKOFF_HOME; /* go to back state */
@@ -4142,7 +4143,7 @@ void xHomeControl(void)
  case H_WAIT_FINDHOME:		/* 0x02 wait to find home switch */
   if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
   {
-   if (xHomeSet())		/* if home switch set */
+   if (xHomeIsSet())		/* if home switch set */
     home->state = H_BACKOFF_HOME; /* advance to backoff state */
    else
    {				/* if did not find switch */
@@ -4156,7 +4157,7 @@ void xHomeControl(void)
  case H_BACKOFF_HOME:		/* 0x03 backoff home switch */
   if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
   {
-   if (xHomeSet())		/* if home switch closed */
+   if (xHomeIsSet())		/* if home switch closed */
     xMoveRel(home->backoffDist, CMD_JOG); /* send backoff move */
    else
    {
@@ -4169,7 +4170,7 @@ void xHomeControl(void)
  case H_WAIT_BACKOFF:		/* 0x04 wait for backoff complete */
   if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
   {
-   if (xHomeClr())		/* if clear of switch */
+   if (xHomeIsClr())		/* if clear of switch */
    {
     xMoveRel(home->slowDist, JOGSLOW | XFIND_HOME); /* move back slowly */
     home->state = H_WAIT_SLOWFIND; /* advance to wait */
@@ -4188,7 +4189,7 @@ void xHomeControl(void)
   {
    xHomeDone = 1;		/* set home done flag */
    mvStatus &= ~MV_HOME_ACTIVE;	/* home complete */
-   if (xHomeSet())		/* if successful */
+   if (xHomeIsSet())		/* if successful */
    {
     xHomeStatus = HOME_SUCCESS;	/* set flag */
     mvStatus |= MV_XHOME;	/* indicate homed */
@@ -4216,6 +4217,21 @@ void axisCtl(void)
    indexStart = 0;		/* reset start time */
    revCounter = 0;
    printf("mainLoop clear indexPeriod\n");
+  }
+ }
+
+ if (limitIsSet())
+ {
+  if (xIsr.active)		/* if x isr active */
+  {
+   zMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
+   xIsrStop('7');		/* stop x isr */
+  }
+  
+  if (zIsr.active)		/* if z isr active */
+  {
+   zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
+   zIsrStop('7');		/* stop z isr */
   }
  }
 
@@ -4395,7 +4411,7 @@ void procMove(void)
    {
    case MOVE_Z:
     val = lrint(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
      zMove(val, cmd->flag);
     else
      zMoveX(val, cmd->flag);
@@ -4408,7 +4424,7 @@ void procMove(void)
     if (!cfgDro			/* if not confugre */
     ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
     {
-     if (cfgXilinx == 0)
+     if (cfgFpga == 0)
      {
       /*
 	printf("xMove x %7.4f xHomeOffset %7.4f val %d xLoc %d %7.4f\n",
@@ -4501,7 +4517,7 @@ void procMove(void)
      motorSetup(&zTA, zAccel, runCtl.zFeed);
     }
 
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
     {
      taperCalc(&zTA, &xPA, mv->taper);
      xTaperInit(&xPA, dir);
@@ -4533,7 +4549,7 @@ void procMove(void)
      motorSetup(&xTA, xAccel, runCtl.xFeed);
     }
     
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
     {
      taperCalc(&xTA, &zPA, mv->taper);
      zTaperInit(&zPA, dir);
@@ -4554,7 +4570,7 @@ void procMove(void)
     if (DBG_QUE)
      printf("start spindle %d rpm\n", (int) cmd->iVal);
 
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
     {
      spindleSetup(cmd->iVal);
      spindleStart();
@@ -4569,7 +4585,7 @@ void procMove(void)
     break;
 
    case STOP_SPINDLE:
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
      spindleStop();
     else
      spindleStopX();
@@ -4590,7 +4606,7 @@ void procMove(void)
 
    case X_SYN_SETUP:
     mv->xFeed = cmd->val;
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
      xSynSetup(mv->feedType, cmd->val);
     else
      xSynSetup(mv->feedType, cmd->val);
@@ -4618,7 +4634,7 @@ void procMove(void)
 
       cmdPause = 1;		/* pause */
       mvStatus |= MV_PAUSE;
-      if (cfgXilinx == 0)
+      if (cfgFpga == 0)
        spindleStop();
       else
        spindleStopX();
@@ -4833,7 +4849,7 @@ void procMove(void)
   break;
 
  case M_WAIT_SPINDLE:
-  if (cfgXilinx == 0)		/* processor control version */
+  if (cfgFpga == 0)		/* processor control version */
   {
    if (stepperDrive)		/* if stepper drive */
    {
@@ -4874,8 +4890,12 @@ void procMove(void)
       if (percent < 1.0)
       {
        if (DBG_QUE)
+       {
 	printf("spindleSync %d spindleSyncBoard %d useEncoder %d\n",
 	       spindleSync, spindleSyncBoard, useEncoder);
+	printf("synExtActive %d synIntActive %d, encActive %d\n",
+	       synExtActive, synIntActive, encActive);
+       }
 
        if (mv->spindleCmd == STOP_SPINDLE) /* if stopping spindle */
        {
@@ -4904,45 +4924,11 @@ void procMove(void)
 	 encoderStart();	/* start encoder to use interrupt */
 	 mv->state = M_IDLE;	/* return to idle state */
 	}
-#if 0	
-	if (currentOp == OP_THREAD) /* if threading */
-	{
-	 if (spindleSync)	/* *ok* if spindle sync */
-	 {
-	  if (spindleSyncBoard)	/* *ok* if spindle sync board */
-	  {
-	   printf("Start ZFlag %d\n",
-		  ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
-	   printf("Start clr\n");
-	   startClr();		/* set sync start flag */
-	   printf("Start ZFlag %d\n",
-		  ((ZFlag_Pin & ZFlag_GPIO_Port->ODR) != 0));
-	   mv->state = M_WAIT_SYNC_READY; /* wait for encoder */
-	  }
-	  else			/* if using local timer */
-	  {
-	   if (useEncoder == 0)	/* if not using encoder directly */
-	   {
-	    syncSetup();	/* set up x encoder variables */
-	    syncMeasure();	/* measure for encoder */
-	    mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
-	   }
-	   else			/* if just using encoder */
-	    mv->state = M_START_SYNC; /* start encoder */
-	  }
-	 }
-	 else			/* if not using spindle sync */
-	 {
-	  syncStart();		/* start encoder to use interrupt */
-	  mv->state = M_IDLE;	/* return to idle state */
-	 }
-	}
 	else			/* if not threading */
 	{
-	 syncStart();		/* start encoder to use interrupt */
+	 encoderStart();		/* enable interrupt for encoder */
 	 mv->state = M_IDLE;	/* return to idle state */
 	}
-#endif
        }	/* if not stopping spindle */
       }		/* if speed stable */
      }		/* if valid index period */
@@ -5044,7 +5030,7 @@ void procMove(void)
  case M_WAIT_SAFE_Z:
   if (zMoveCtl.state == ZIDLE)	/* if operation complete */
   {
-   if (cfgXilinx == 0)
+   if (cfgFpga == 0)
    {
     if (stepperDrive)
     {

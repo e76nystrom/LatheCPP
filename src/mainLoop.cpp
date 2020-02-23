@@ -283,7 +283,7 @@ int16_t mainLoop(void)
 
     procMove();			/* process move command */
 
-    if (cfgXilinx == 0)
+    if (cfgFpga == 0)
      axisCtl();			/* poll processor axis control routines */
     else
      axisCtlX();		/* poll xilinx axis control routines */
@@ -331,7 +331,7 @@ int16_t mainLoop(void)
   }
 
   flushBuf();
-  if (cfgXilinx == 0)
+  if (cfgFpga == 0)
    lclcmd(ch);			/* local commands */
   else
    lclcmdX(ch);

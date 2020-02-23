@@ -175,7 +175,7 @@ T_PARM remparm[] =
  PARM(turnSync),                /* 0x6d synchronization type for turning */
  PARM(threadSync),              /* 0x6e synchronization type for threading */
  PARM(capTmrEnable),            /* 0x6f enable capture timer */
- PARM(cfgXilinx),               /* 0x70 using xilinx */
+ PARM(cfgFpga),                 /* 0x70 using fpga */
  PARM(cfgMpg),                  /* 0x71 manual pulse generator */
  PARM(cfgDro),                  /* 0x72 digital readout */
  PARM(cfgLcd),                  /* 0x73 lcd display */
@@ -208,9 +208,9 @@ T_PARM remparm[] =
 
  PARM(rpm),                     /* 0x80 current rpm */
 
-// xilinx frequency variables
+// fpga frequency variables
 
- PARM(xFrequency),              /* 0x81 xilinx clock frequency */
+ PARM(fpgaFrequency),           /* 0x81 fpga clock frequency */
  PARM(freqMult),                /* 0x82 frequency multiplier */
 
 // xilinx configuration register

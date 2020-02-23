@@ -143,7 +143,7 @@ inline uint32_t xTmrMaxRead()       {return(TIM5->ARR);}
 
 #define X_TMR_PWM 2
 
-inline void     xTmrCCR(uint32_t x) {TIM5->CCR1 = (x);}
+inline void     xTmrCCR(uint32_t x) {TIM5->CCR2 = (x);}
 inline void     xTmrPWMMode()       \
 	{TIM5->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1);}
 inline void     xTmrPWMEna()        {TIM5->CCER |= TIM_CCER_CC2E;}
@@ -237,7 +237,7 @@ inline uint16_t step4TmrMaxRead()       {return(TIM4->ARR);}
 
 #define STEP4_TMR_PWM 2
 
-inline void     step4TmrCCR(uint16_t x) {TIM4->CCR1 = (x);}
+inline void     step4TmrCCR(uint16_t x) {TIM4->CCR2 = (x);}
 inline void     step4TmrPWMMode()       \
 	{TIM4->CCMR1 = (TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1);}
 inline void     step4TmrPWMEna()        {TIM4->CCER |= TIM_CCER_CC2E;}

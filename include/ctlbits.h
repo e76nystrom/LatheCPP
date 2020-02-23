@@ -8,6 +8,15 @@
 #define CMD_MAX      (4 << 0)    /* 0x04 rapid move */
 #define CMD_SPEED    (5 << 0)    /* 0x05 jog at speed */
 #define JOGSLOW      (6 << 0)    /* 0x06 slow jog for home or probe */
+#define SYN_START    (1 << 4)    /* 0x10 start on sync pulse */
+#define SYN_LEFT     (1 << 5)    /* 0x20 start sync left */
+#define SYN_TAPER    (1 << 6)    /* 0x40 taper on other axis */
+#define AX_FIND_HOME (1 << 7)    /* 0x80 find home */
+#define AX_CLEAR_HOME (1 << 8)   /* 0x100 move off of home */
+#define FIND_PROBE   (1 << 9)    /* 0x200 find probe */
+#define CLEAR_PROBE  (1 << 10)   /* 0x400 move off of probe */
+#define DRO_POS      (1 << 11)   /* 0x800 use dro for moving */
+#define DRO_UPD      (1 << 12)   /* 0x1000 update internal position from dro */
 
 // common definitions
 
@@ -28,13 +37,9 @@
 // x move command bits
 
 #define X_SYN_START  (1 << 4)    /* 0x10 start on sync pulse */
-#define Z_SYN_TAPER  (1 << 5)    /* 0x20 taper on z */
-#define XFIND_HOME   (1 << 6)    /* 0x40 find home */
-#define XCLEAR_HOME  (1 << 7)    /* 0x80 move off of home */
-#define FIND_PROBE   (1 << 8)    /* 0x100 find home */
-#define CLEAR_PROBE  (1 << 9)    /* 0x200 move off of home */
-#define DRO_POS      (1 << 10)   /* 0x400 use dro for moving */
-#define DRO_UPD      (1 << 11)   /* 0x800 update internal position from dro */
+#define Z_SYN_TAPER  (1 << 6)    /* 0x40 taper on z */
+#define XFIND_HOME   (1 << 7)    /* 0x80 find home */
+#define XCLEAR_HOME  (1 << 8)    /* 0x100 move off of home */
 
 // x direction
 

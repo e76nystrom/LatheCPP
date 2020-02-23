@@ -11,7 +11,7 @@
 #define ZSET_LOC      (1 << 4)  /* 0x010 set z location */
 #define ZBACKLASH     (1 << 5)  /* 0x020 backlash move no pos upd */
 #define ZWAIT_SYNC    (1 << 6)  /* 0x040 wait for sync to start */
-#define zCtl_size    7
+#define zCtlSize     7
 
 // x control register
 
@@ -24,21 +24,21 @@
 #define XDIR_NEG      (0 << 3)  /* 0x000 x negative direction */
 #define XSET_LOC      (1 << 4)  /* 0x010 set x location */
 #define XBACKLASH     (1 << 5)  /* 0x020 x backlash move no pos upd */
-#define xCtl_size    6
+#define xCtlSize     6
 
 // taper control register
 
 #define TENA          (1 << 0)  /* 0x001 taper enable */
 #define TZ            (1 << 1)  /* 0x002 one for taper z */
 #define TX            (0 << 1)  /* 0x000 zero for taper x */
-#define tCtl_size    2
+#define tCtlSize     2
 
 // position control register
 
 #define PRESET        (1 << 0)  /* 0x001 reset position */
 #define PLIMIT        (1 << 1)  /* 0x002 set flag on limit reached */
 #define PZERO         (1 << 2)  /* 0x004 set flag on zero reached */
-#define pCtl_size    3
+#define pCtlSize     3
 
 // configuration register
 
@@ -48,7 +48,7 @@
 #define XDIR_POL      (1 << 3)  /* 0x008 x direction polarity */
 #define ENC_POL       (1 << 4)  /* 0x010 encoder dir polarity */
 #define ZPULSE_MULT   (1 << 5)  /* 0x020 enable pulse multiplier */
-#define cCtl_size    6
+#define cCtlSize     6
 
 // debug control register
 
@@ -59,7 +59,7 @@
 #define DBG_INIT      (1 << 4)  /* 0x010 init z modules */
 #define DBG_RSYN      (1 << 5)  /* 0x020 running in sync mode */
 #define DBG_MOVE      (1 << 6)  /* 0x040 used debug clock for move */
-#define dCtl_size    7
+#define dCtlSize     7
 
 // status register
 
@@ -69,4 +69,4 @@
 #define S_Z_START     (1 << 3)  /* 0x008 z start */
 #define S_X_START     (1 << 4)  /* 0x010 x start */
 #define S_ENC_DIR_IN  (1 << 5)  /* 0x020 encoder direction in */
-#define stat_size    6
+#define statSize     6

@@ -398,7 +398,7 @@ void accelCalcX(P_ACCEL ac)
  int stepsSecMax = (int) ((ac->maxFeed / 60.0) * ac->stepsInch);
  ac->clockFreq = stepsSecMax * freqMult;
  ac->clocksPerInch = ac->stepsInch * freqMult;
- ac->freqDivider = (xFrequency / ac->clockFreq) - 1;
+ ac->freqDivider = (fpgaFrequency / ac->clockFreq) - 1;
  if (DBG_SETUP)
   printf("freqGenMax %d freqDivider %d\n", ac->clockFreq, ac->freqDivider);
 
@@ -529,8 +529,8 @@ void accelSetupX(P_ACCEL ac)
  }
  ac->scale = scale;
  ac->incr1X = 2 * ac->dyIni;
+ ac->incr2X = ac->sum - 2 * ac->dx;
  ac->sum = ac->incr1X - ac->dx;
- ac->incr2X = ac->sum - ac->dx;
  ac->intAccel = 2 * intIncPerClock;
  if (DBG_SETUP)
   printf("\nincr1 %d incr2 %d sum %d\n", ac->incr1X, ac->incr2X, ac->sum);
