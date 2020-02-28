@@ -245,5 +245,9 @@ T_PARM remparm[] =
 // current operation
 
  PARM(currentOp),               /* 0x91 current operation */
- PARM(maxParm),                 /* 0x92 maximum parameter */
+
+// limit override
+
+ PARM(limitOverride),           /* 0x92 override limit switches */
+ PARM(maxParm),                 /* 0x93 maximum parameter */
 };

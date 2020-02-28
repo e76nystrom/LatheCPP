@@ -867,7 +867,11 @@ void delayUSec(unsigned short delay)
 extern SPI_HandleTypeDef hspi2;
 extern I2C_HandleTypeDef hi2c1;
 
+#if 0
 extern uint32_t uwTick;
+#else
+extern __IO uint32_t uwTick;
+#endif
 
 unsigned int millis(void)
 {
@@ -1058,11 +1062,11 @@ void setup(void)
 {
  if (cfgMpg)
  {
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); /* enable mpg interrrupts */
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); /* enable mpg interrupts */
   EXTI->PR = JogA1_Pin | JogA2_Pin | JogB1_Pin | JogB2_Pin;
  }
  else
-  HAL_NVIC_DisableIRQ(EXTI9_5_IRQn); /* disable mpg interrrupts */
+  HAL_NVIC_DisableIRQ(EXTI9_5_IRQn); /* disable mpg interrupts */
 
  if (cfgDro)
  {
@@ -1624,13 +1628,13 @@ void encoderSWIEnable(int enable)
  {
   EXTI->PR = encIRQ_Bit;       /* clear pending interrupt */
   HAL_NVIC_SetPriority(encIRQn, 5, 0); /* set interrupt priority */
-  NVIC_EnableIRQ(encIRQn);     /* enable encoder interrrupts */
+  NVIC_EnableIRQ(encIRQn);     /* enable encoder interrupts */
   EXTI->IMR |= encIRQ_Bit;     /* enable in mask register */
  }
  else				/* if disabling interrupt */
  {
   EXTI->IMR &= ~encIRQ_Bit;     /* enable in mask register */
-  NVIC_DisableIRQ(encIRQn);	/* disable encoder interrrupts */
+  NVIC_DisableIRQ(encIRQn);	/* disable encoder interrupts */
  }
 }
 
@@ -2253,16 +2257,16 @@ void jogMove(P_MOVECTL mov, int dir)
  {
   if (mov->limitDir != 0)	/* if at a limit */
   {
-   int tmp = mov->limitDir + dir;
-   printf("jogMove limit %d\n", tmp);
-   if (tmp != 0)
-//   if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
-//   ||  ((mov->limitDir < 0) && (dir < 0)))
+   if (limitOverride == 0)	/* if not overriding limits */
    {
-    printf("%c at limit\n", mov->axisName);
-    return;
+    if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
+    ||  ((mov->limitDir < 0) && (dir < 0)))
+    {
+     printf("%c at limit\n", mov->axisName);
+     return;
+    }
+    mov->limitMove = 1;		/* set moving off limit flag */
    }
-   mov->limitMove = 1;		/* set moving off limit flag */
   }
   
   P_ACCEL ac = mov->acJog;	/* pointer to jog */
@@ -2409,13 +2413,16 @@ void jogMpg(P_MOVECTL mov)
    
   if (mov->limitDir != 0)	/* if at a limit */
   {
-   if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-   ||  ((mov->limitDir < 0) && (dist < 0)))
+   if (limitOverride == 0)	/* if not overriding limits */
    {
-    printf("%c at limit\n", mov->axisName);
-    return;
+    if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+	||  ((mov->limitDir < 0) && (dist < 0)))
+    {
+     printf("%c at limit\n", mov->axisName);
+     return;
+    }
+    mov->limitMove = 1;		/* set moving off limit flag */
    }
-   mov->limitMove = 1;		/* set moving off limit flag */
   }
 
   if (mov->mpgFlag)		/* if direction inverted */
@@ -3782,12 +3789,15 @@ void xMoveRel(int dist, int cmd)
 
   if (mov->limitDir != 0)	/* if at a limit */
   {
-   printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
-   if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-   ||  ((mov->limitDir < 0) && (dist < 0)))
+   if (limitOverride == 0)	/* if not overriding limits */
    {
-    printf("x at limit\n");
-    return;
+    printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
+    if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+	||  ((mov->limitDir < 0) && (dist < 0)))
+    {
+     printf("x at limit\n");
+     return;
+    }
    }
   }
 
@@ -4266,6 +4276,7 @@ void axisCtl(void)
 
  if (limitIsSet())		/* if limit is set */
  {
+  mvStatus |= MV_LIMIT;		/* set at limit bit */
   if (xIsr.dist)		/* if x isr active */
   {
    if (xMoveCtl.limitMove == 0)	/* if not a limit move */
@@ -4284,6 +4295,8 @@ void axisCtl(void)
    zIsrStop('7');		/* stop z isr */
   }
  }
+ else				/* if limit clear */
+  mvStatus &= MV_LIMIT;		/* clear at limit bit */
 
  if (zMoveCtl.state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */

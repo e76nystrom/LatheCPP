@@ -243,4 +243,8 @@
 // current operation
 
  EXT char currentOp;            /* 0x91 current operation */
- EXT int16_t maxParm;           /* 0x92 maximum parameter */
+
+// limit override
+
+ EXT char limitOverride;        /* 0x92 override limit switches */
+ EXT int16_t maxParm;           /* 0x93 maximum parameter */

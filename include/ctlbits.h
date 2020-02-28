@@ -76,9 +76,10 @@
 #define MV_READ_X    (1 << 1)    /* 0x02 pause x may change */
 #define MV_READ_Z    (1 << 2)    /* 0x04 pause z may change */
 #define MV_ACTIVE    (1 << 3)    /* 0x08 movement active */
-#define MV_HOME_ACTIVE (1 << 4)  /* 0x10 home active */
-#define MV_XHOME     (1 << 5)    /* 0x20 X home success */
-#define MV_MEASURE   (1 << 6)    /* 0x40 pause for measurement */
+#define MV_LIMIT     (1 << 4)    /* 0x10 at limit switch */
+#define MV_HOME_ACTIVE (1 << 5)  /* 0x20 home active */
+#define MV_XHOME     (1 << 6)    /* 0x40 X home success */
+#define MV_MEASURE   (1 << 7)    /* 0x80 pause for measurement */
 
 // pause flags
 

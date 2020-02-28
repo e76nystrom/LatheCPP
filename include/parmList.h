@@ -245,5 +245,9 @@ enum PARM
 // current operation
 
  CURRENT_OP,                    /* 0x91 current operation */
- MAX_PARM,                      /* 0x92 maximum parameter */
+
+// limit override
+
+ LIMIT_OVERRIDE,                /* 0x92 override limit switches */
+ MAX_PARM,                      /* 0x93 maximum parameter */
 };

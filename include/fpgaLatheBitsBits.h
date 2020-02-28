@@ -67,7 +67,7 @@
 #define XCLKINTCLK    (3 << 3)  /* 0x018  */
 #define XCLKZFREQ     (4 << 3)  /* 0x020  */
 #define XCLKZCH       (5 << 3)  /* 0x028  */
-#define XCLKSPARE     (6 << 0)  /* 0x006  */
+#define XCLKSPARE     (6 << 3)  /* 0x030  */
 #define XCLKDBGFREQ   (7 << 3)  /* 0x038  */
 #define CLKDBGFREQENA  (1 << 6) /* 0x040 enable debug frequency */
 #define clkCtlSize   7
