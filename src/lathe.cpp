@@ -2253,9 +2253,15 @@ void jogMove(P_MOVECTL mov, int dir)
  {
   if (mov->limitDir != 0)	/* if at a limit */
   {
-   if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
-   ||  ((mov->limitDir > 0) && (dir > 0)))
+   int tmp = mov->limitDir + dir;
+   printf("jogMove limit %d\n", tmp);
+   if (tmp != 0)
+//   if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
+//   ||  ((mov->limitDir < 0) && (dir < 0)))
+   {
+    printf("%c at limit\n", mov->axisName);
     return;
+   }
    mov->limitMove = 1;		/* set moving off limit flag */
   }
   
@@ -2404,8 +2410,11 @@ void jogMpg(P_MOVECTL mov)
   if (mov->limitDir != 0)	/* if at a limit */
   {
    if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-   ||  ((mov->limitDir > 0) && (dist> 0)))
+   ||  ((mov->limitDir < 0) && (dist < 0)))
+   {
+    printf("%c at limit\n", mov->axisName);
     return;
+   }
    mov->limitMove = 1;		/* set moving off limit flag */
   }
 
@@ -3771,6 +3780,17 @@ void xMoveRel(int dist, int cmd)
 {
  P_MOVECTL mov = &xMoveCtl;
 
+  if (mov->limitDir != 0)	/* if at a limit */
+  {
+   printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
+   if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+   ||  ((mov->limitDir < 0) && (dist < 0)))
+   {
+    printf("x at limit\n");
+    return;
+   }
+  }
+
  int stepsInch = xAxis.stepsInch;
  if (DBG_MOVOP)
  {
@@ -4246,7 +4266,7 @@ void axisCtl(void)
 
  if (limitIsSet())		/* if limit is set */
  {
-  if (xIsr.active)		/* if x isr active */
+  if (xIsr.dist)		/* if x isr active */
   {
    if (xMoveCtl.limitMove == 0)	/* if not a limit move */
    {
@@ -4258,7 +4278,7 @@ void axisCtl(void)
    }
   }
   
-  if (zIsr.active)		/* if z isr active */
+  if (zIsr.dist)		/* if z isr active */
   {
    zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
    zIsrStop('7');		/* stop z isr */

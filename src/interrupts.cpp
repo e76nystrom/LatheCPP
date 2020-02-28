@@ -695,6 +695,7 @@ void zIsrStop(char ch)
  zIsr.accel = 0;		/* clear accel */
  zIsr.decel = 0;		/* and decel flags */
  zIsr.sync = 0;			/* clear sync flag */
+ zIsr.dist = 0;			/* clear distance */
  putBufCharIsr(ch);
  if (zIsr.active)		/* if synchcronized move */
  {
@@ -894,6 +895,7 @@ void xIsrStop(char ch)
  xIsr.accel = 0;		/* clear accel */
  xIsr.decel = 0;		/* and decel flags */
  xIsr.sync = 0;			/* clear sync flag */
+ xIsr.dist = 0;			/* clear distance */
  
  putBufCharIsr(ch);
  if (xIsr.active)		/* if synchrinized move */
