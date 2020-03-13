@@ -1,10 +1,9 @@
-#!/cygdrive/c/Python27/Python.exe
+#!/cygdrive/c/Python37/Python.exe
 
 import sys
 from collections import namedtuple
 TmrCfg = namedtuple('TmrCfg', ('name', 'tmr', 'argType', 'pwm',
                                'isr', 'slave'))
-
 CPP = True
 
 CAP = 0x20
@@ -139,9 +138,9 @@ pwmList = (pwm1List, pwm2List, pwm3List, pwm4List)
 def makeConstant(cons):
     (type, name, val) = cons
     if CPP and type is not None:
-        f.write("constexpr %s %s = %s;\n" % (type, name, val))
+        fWrite(f, "constexpr %s %s = %s;\n" % (type, name, val))
     else:
-        f.write("#define %s (%s)\n" % (name, val))
+        fWrite(f, "#define %s (%s)\n" % (name, val))
 
 def makeMacro(macro, nameLen=None):
     (rtnType, funcName, arg, argType, body) = macro
@@ -163,7 +162,7 @@ def makeMacro(macro, nameLen=None):
     if nameLen is not None:
         pass
     else:
-        f.write("%s %s %s%s%s\n" % \
+        fWrite(f, "%s %s %s%s%s\n" % \
                 (funcType, call, op, body, cl))
 
 def timerInit(name, tmr, timer):
@@ -172,19 +171,19 @@ def timerInit(name, tmr, timer):
             "\t%s->CR1 &= ~TIM_CR1_CEN")
     body = body.replace("%d", str(tmr))
     makeFunc(timer, "Init" , None, body)
-    f.write("\n")
+    fWrite(f, "\n")
 
 def timerStart(name, timer):
     body = (" \\\n\t%s->EGR = TIM_EGR_UG; \\\n"
             "\t%s->CR1 |= TIM_CR1_CEN")
     makeFunc(timer, "Start" , None, body)
-    f.write("\n")
+    fWrite(f, "\n")
 
 def timerBDTR(name, tmr, timer):
     if tmr == 1 or tmr == 8:
         body = "%s->BDTR |= TIM_BDTR_MOE"
         makeFunc(timer, "BDTR" , None, body)
-        f.write("\n")
+        fWrite(f, "\n")
 
 def makeFuncList(timer, lst):
     maxLen = 0
@@ -199,7 +198,7 @@ def makeFuncList(timer, lst):
     # print("maxLen %d" % (maxLen))
     for (funcName, arg, body) in lst:
         makeFunc(timer, funcName, arg, body, nameLen=maxLen)
-    f.write("\n")
+    fWrite(f, "\n")
 
 def makeFunc(timer, funcName, arg, body, nameLen=None):
     argList = ""
@@ -237,19 +236,23 @@ def makeFunc(timer, funcName, arg, body, nameLen=None):
         body = op + body + cl
         if (len(body) + nameLen + 15) >= 80:
             body = "\\\n\t" + body
-        f.write("%s %s %s\n" % (define, call, body))
+        fWrite(f, "%s %s %s\n" % (define, call, body))
     else:
-        f.write("%s %s %s%s%s\n" % \
+        fWrite(f, "%s %s %s%s%s\n" % \
                 (define, call, op, body, cl))
+
+def fWrite(file, txt):
+    file.write(txt.encode())
 
 def main(cfg, path):
     global f
     global name, tmr, argType, pwm, isr, slave
 
     f = open("../" + path + "/inc/timers.h", "wb")
-    f.write("#ifdef __STM32F4xx_HAL_H\n")
-    f.write("#if !defined(__TIMERS_H)\n")
-    f.write("#define __TIMERS_H\n\n")
+    fWrite(f, "#if defined(__STM32F4xx_HAL_H) || "\
+           "defined( __STM32F7xx_HAL_H)\n")
+    fWrite(f, "#if !defined(__TIMERS_H)\n")
+    fWrite(f, "#define __TIMERS_H\n\n")
 
     setConfig(cfg)
 
@@ -258,36 +261,36 @@ def main(cfg, path):
         parm = tmp[0]
         if len(parm) > maxLen:
             maxLen = len(parm)
-    f.write("/*\n")
+    fWrite(f, "/*\n")
     for tmp in cfg:
         parm = tmp[0]
         val = tmp[1]
-        f.write("%s %s\n" % (parm.ljust(maxLen), str(globals()[parm])))
-    f.write("*/\n\n")
+        fWrite(f, "%s %s\n" % (parm.ljust(maxLen), str(globals()[parm])))
+    fWrite(f, "*/\n\n")
 
     for tmp in cfg:
         val = tmp[1]
         if len(tmp) > 2:
             symbol = tmp[2]
-            f.write("#define %s%s\n" % (symbol, val))
-    f.write("\n")
+            fWrite(f, "#define %s%s\n" % (symbol, val))
+    fWrite(f, "\n")
 
     triggers()
 
     for c in constants:
         makeConstant(c)
-    f.write("\n")
+    fWrite(f, "\n")
 
     for (test, constantList) in condConstants:
         cond = eval(test)
         if cond:
             for c in constantList:
                 makeConstant(c)
-            f.write("\n")
+            fWrite(f, "\n")
 
     for m in macros:
         makeMacro(m)
-    f.write("\n")
+    fWrite(f, "\n")
 
     for t in timers:
         name = t.name
@@ -301,16 +304,16 @@ def main(cfg, path):
 
         timer = "TIM%d" % tmr
 
-        f.write("/* %s timer %d" % (name, tmr))
+        fWrite(f, "/* %s timer %d" % (name, tmr))
         if pwm != 0:
-            f.write(" pwm %d" % (pwm))
-        f.write(" */\n\n")
+            fWrite(f, " pwm %d" % (pwm))
+        fWrite(f, " */\n\n")
 
-        f.write("#define %s %s\n" % (name.upper().replace("TMR", "_TIMER"), tmr))
-        f.write("#define %s %s\n\n" % (name.upper().replace("TMR", "_TMR"), timer))
+        fWrite(f, "#define %s %s\n" % (name.upper().replace("TMR", "_TIMER"), tmr))
+        fWrite(f, "#define %s %s\n\n" % (name.upper().replace("TMR", "_TMR"), timer))
 
         if isr != None and len(isr) != 0:
-            f.write("#define %sISR(x) %s_IRQHandler(x)\n\n" % (name, isr))
+            fWrite(f, "#define %sISR(x) %s_IRQHandler(x)\n\n" % (name, isr))
 
         timerInit(name, tmr, timer)
         # timerStart(name, timer)
@@ -318,8 +321,8 @@ def main(cfg, path):
 
         makeFuncList(timer, regList)
         if pwm != 0:
-            f.write("/* pwm %d */\n\n" % (pwm))
-            f.write("#define %s_PWM %d\n\n" % \
+            fWrite(f, "/* pwm %d */\n\n" % (pwm))
+            fWrite(f, "#define %s_PWM %d\n\n" % \
                     (name.upper().replace("TMR", "_TMR"), pwm))
             makeFuncList(timer, pwmList[pwm - 1])
 
@@ -341,15 +344,15 @@ def main(cfg, path):
                                 body += "TIM_SMCR_TS_0 | "
                             body += "\\\n"
                             body += "\tTIM_SMCR_SMS_2 | TIM_SMCR_SMS_1)"
-                            f.write("/* timer %d trigger %d */\n\n" % (spindleTmr, i))
+                            fWrite(f, "/* timer %d trigger %d */\n\n" % (spindleTmr, i))
                             makeFunc(timer, "SlvEna", None, body)
                             body = timer + "->SMCR = 0"
                             makeFunc(timer, "SlvDis", None, body)
-                            f.write("\n")
+                            fWrite(f, "\n")
                             break
 
-    f.write("#endif /* __TIMERS_H */\n")
-    f.write("#endif /* __STM32F4xx_HAL_H */\n")
+    fWrite(f, "#endif /* __TIMERS_H */\n")
+    fWrite(f, "#endif /* __STM32F4xx_HAL_H */\n")
     f.close()
     
 disc407 = \
@@ -474,9 +477,42 @@ nuc401 = \
   ("pwmTmrIsr",  None),
 )
 
+nuc746 = \
+( \
+  ("board",       "nuc746"),
+  ("proc",        "STM32F746"),
+  ("step1",       2,  "STEP1_TIM"),
+  ("step1Pwm",    3,  "STEP1_PWM"),
+  ("step2",       5,  "STEP2_TIM"),
+  ("step2Pwm",    3,  "STEP2_PWM"),
+  ("step3",       3,  "STEP3_TIM"),
+  ("step3Pwm",    2,  "STEP3_PWM"),
+  ("step4",       4,  "STEP4_TIM"),
+  ("step4Pwm",    3,  "STEP4_PWM"),
+  ("spindleTmr",  8,  "SPINDLE_TMR"),
+  ("spindlePwm",  1,  "SPINDLE_PWM"),
+
+  ("usecTmr",     6,  "USEC_TMR_TIM"),
+  ("encTestTmr",  7,  "ENC_TMR_TIM"),
+  ("indexTmr",    10, "INDEX_TMR"),
+  ("intTmr",      9,  "INT_TMR"),
+  ("intTmrPwm",   0,  "INT_TMR_PWM"),
+  ("cmpTmr",      11, "CMP_TMR"),
+  ("pwmTmr",      12, "PWM_TMR"),
+  ("pwmTmrPwm",   2,  "PWM_TMR_PWM"),
+  ("step3Isr",    "TIM4"),
+  ("step4Isr",    "TIM3"),
+  ("cmpTmrIsr",   "TIM1_TRG_COM_TIM11"),
+  ("intTmrIsr",   "TIM1_BRK_TIM9"),
+  ("spindleIsr",  "TIM8_UP_TIM13"),
+  ("indexTmrIsr", "TIM1_TRG_COM_TIM10"),
+  ("usecTmrIsr",  None),
+  ("pwmTmrIsr",   "TIM8_BRK_TIM12"),
+)
+
 def triggers():
     global slaveTrig
-    if proc == "STM32F407" or proc == "STM32F446":
+    if proc == "STM32F407" or proc == "STM32F446" or proc == "STM32F746":
         slaveTrig = \
         (\
         (2, (1, 8, 3, 4)),
@@ -537,6 +573,9 @@ while True:
     elif val == "nuc401":
         cfg = nuc401
         path = "LatheCPPX0"
+    elif val == "nuc746":
+        cfg = nuc746
+        path = "LatheCPPN1"
     n += 1
 
 main(cfg, path)

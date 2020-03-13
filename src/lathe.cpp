@@ -1,7 +1,12 @@
 /******************************************************************************/
 //#if !defined(INCLUDE)
 #define __LATHE__
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -1252,23 +1257,45 @@ void spindleSetup(int rpm)
   P_SPINDLE spa = &spA;
   GPIO_InitTypeDef gpio;
 
+#ifdef Index_Pin
   if (spTestIndex)		/* if testing index pulse */
   {
-   gpio.Pin = Index2_Pin;
+   gpio.Pin = Index_Pin;
    gpio.Mode = GPIO_MODE_INPUT;	/* configure as input */
    gpio.Pull = GPIO_NOPULL;
-   HAL_GPIO_Init(Index2_GPIO_Port, &gpio);
+   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
   }
   else				/* if normal operation */
   {
-   gpio.Pin = Index2_Pin;
+   gpio.Pin = Index_Pin;
    gpio.Mode = GPIO_MODE_IT_RISING; /* configure for interrupt */
    gpio.Pull = GPIO_NOPULL;
-   HAL_GPIO_Init(Index2_GPIO_Port, &gpio);
+   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
   }
 
-  HAL_NVIC_EnableIRQ(index2IRQn); /* enable index 2 interrupt */
-  EXTI->PR = Index2_Pin;
+  HAL_NVIC_EnableIRQ(indexIRQn); /* enable index 2 interrupt */
+  EXTI->PR = Index_Pin;
+#endif
+
+#ifdef Index_Pin
+  if (spTestIndex)		/* if testing index pulse */
+  {
+   gpio.Pin = Index_Pin;
+   gpio.Mode = GPIO_MODE_INPUT;	/* configure as input */
+   gpio.Pull = GPIO_NOPULL;
+   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
+  }
+  else				/* if normal operation */
+  {
+   gpio.Pin = Index_Pin;
+   gpio.Mode = GPIO_MODE_IT_RISING; /* configure for interrupt */
+   gpio.Pull = GPIO_NOPULL;
+   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
+  }
+
+  HAL_NVIC_EnableIRQ(indexIRQn); /* enable index 2 interrupt */
+  EXTI->PR = Index_Pin;
+#endif
 
   spa->label = "spA";
   if (stepperDrive		/* if using stepper drive */
@@ -2255,6 +2282,7 @@ void jogMove(P_MOVECTL mov, int dir)
 {
  if (mov->state == ZIDLE)	/* if not moving */
  {
+#if 0
   if (mov->limitDir != 0)	/* if at a limit */
   {
    if (limitOverride == 0)	/* if not overriding limits */
@@ -2268,7 +2296,7 @@ void jogMove(P_MOVECTL mov, int dir)
     mov->limitMove = 1;		/* set moving off limit flag */
    }
   }
-  
+#endif  
   P_ACCEL ac = mov->acJog;	/* pointer to jog */
 #if 0
   float time = jogTimeInitial - ac->time; /* time after accel */
@@ -2315,7 +2343,7 @@ void jogMove(P_MOVECTL mov, int dir)
   int d = mov->iniDist;		/* get initial distance */
   if (dir < 0)			/* if distance negative */
     d = -d;			/* make negative */
-   zMoveRel(d, mov->jogCmd);	/* start movement */
+   mov->moveRel(d, mov->jogCmd); /* start movement */
   }
   else				/* if still moving */
   {
@@ -2636,7 +2664,9 @@ void zTurnInit(P_ACCEL ac, char dir, int dist)
   }
 
   int ctr = turnInit(&zIsr, ac, dir, dist);
+  tmrInfo(TIM5);
   zHwEnable(ctr);
+  tmrInfo(TIM5);
  }
  else				/* if spindle encoder */
  {
@@ -4074,9 +4104,14 @@ void xControl(void)
      printf("x dist %7.4f %6d feed %7.4f spindle revs %d steps %d\n",
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
-   mov->state = XDELAY;		/* wait for position to settle */
-   mov->delayStart = millis();	/* set start of delay */
-   mov->delayTimeout = xDoneDelay; /* set delay length */
+   if (xDoneDelay != 0)		/* if delay */
+   {
+    mov->state = XDELAY;	/* wait for position to settle */
+    mov->delayStart = millis();	/* set start of delay */
+    mov->delayTimeout = xDoneDelay; /* set delay length */
+   }
+   else				/* if no delay */
+    mov->state = XDONE;
   }
   break;
 
@@ -4274,29 +4309,31 @@ void axisCtl(void)
   }
  }
 
- if (limitIsSet())		/* if limit is set */
+ if (0)
  {
-  mvStatus |= MV_LIMIT;		/* set at limit bit */
-  if (xIsr.dist)		/* if x isr active */
+  if (limitIsSet())		/* if limit is set */
   {
-   if (xMoveCtl.limitMove == 0)	/* if not a limit move */
+   mvStatus |= MV_LIMIT;		/* set at limit bit */
+   if (xIsr.dist)		/* if x isr active */
    {
-    if (xMoveCtl.limitDir == 0)	/* if not at limit */
+    if (xMoveCtl.limitMove == 0)	/* if not a limit move */
     {
-     xIsrStop('7');		/* stop x isr */
-     xMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
+     if (xMoveCtl.limitDir == 0)	/* if not at limit */
+     {
+      xIsrStop('7');		/* stop x isr */
+      xMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
+     }
     }
    }
+   if (zIsr.dist)		/* if z isr active */
+   {
+    zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
+    zIsrStop('7');		/* stop z isr */
+   }
   }
-  
-  if (zIsr.dist)		/* if z isr active */
-  {
-   zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
-   zIsrStop('7');		/* stop z isr */
-  }
+  else				/* if limit clear */
+   mvStatus &= MV_LIMIT;		/* clear at limit bit */
  }
- else				/* if limit clear */
-  mvStatus &= MV_LIMIT;		/* clear at limit bit */
 
  if (zMoveCtl.state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */
@@ -4340,7 +4377,7 @@ void axisCtl(void)
  {
   if (indexTmrAct == 0)		/* if index timer not active */
   {
-   if (EXTI->PR & Index2_Pin)	/* clear index 2 interrupt */
+   if (EXTI->PR & Index_Pin)	/* clear index 2 interrupt */
    {
     indexTmrAct = 1;
     indexPeriod = 0;
@@ -5155,7 +5192,7 @@ void turnPitch(P_ACCEL ac, float pitch)
    printf("pitch %5.3f revCycle %d cycleDist %5.3f\n",
 	  pitch, revCycle, cycleDist);
 
-  spA.clocksCycle = (int64_t) (spA.clocksRev * revCycle);
+  spA.clocksCycle = ((int64_t) spA.clocksRev) * revCycle;
   spA.stepsCycle = spA.stepsRev * revCycle;
   ac->stepsCycle = lrint(ac->stepsInch * cycleDist);
   float cycleTime = ((float) spA.clocksCycle) / cfgFcy;
@@ -5215,7 +5252,7 @@ void threadMetric(P_ACCEL ac, float pitch)
   int revolutions = 127;
   float inches = (pitch * revolutions) / 25.4;
 
-  spA.clocksCycle = (int64_t) (spA.clocksRev * revolutions);
+  spA.clocksCycle = ((int64_t) spA.clocksRev) * revolutions;
   spA.stepsCycle = spA.stepsRev * revolutions;
   ac->stepsCycle = ac->stepsInch * inches;
   float cycleTime = ((float) spA.clocksCycle) / cfgFcy;
@@ -5242,7 +5279,7 @@ void turnCalc(P_ACCEL ac)
 
  ac->clocksStep = (int) (spA.clocksCycle / ac->stepsCycle);
  ac->remainder = (int) (spA.clocksCycle - 
-			(int64_t) ac->clocksStep * ac->stepsCycle);
+			((int64_t) ac->clocksStep) * ac->stepsCycle);
  int dx = ac->stepsCycle;
  int dy = ac->remainder;
  if (dy != 0)
@@ -6058,6 +6095,12 @@ T_GPIO gpio[] =
  {GPIOC, 'C'},
  {GPIOD, 'D'},
  {GPIOE, 'E'},
+#ifdef GPIOF
+ {GPIOF, 'F'},
+#endif
+#ifdef GPIOG
+ {GPIOG, 'G'},
+#endif
 };
 
 char portName(GPIO_TypeDef *port);
@@ -6351,8 +6394,14 @@ void extiInfo(void)
 void usartInfo(USART_TypeDef *usart, const char *str)
 {
  printf("usart %x %s\n",(unsigned int) usart, str);
+#ifdef STM32F4
  printf("SR   %8x ",(unsigned int) usart->SR);
  printf("DR   %8x\n",(unsigned int) usart->DR);
+#endif
+#ifdef STM32F7
+ printf("ISR  %8x ",(unsigned int) usart->ISR);
+ printf("RDR  %8x\n",(unsigned int) usart->RDR);
+#endif
  printf("BRR  %8x ",(unsigned int) usart->BRR);
  printf("CR1  %8x\n",(unsigned int) usart->CR1);
  printf("CR2  %8x ",(unsigned int) usart->CR2);
@@ -6364,6 +6413,7 @@ void usartInfo(USART_TypeDef *usart, const char *str)
 void i2cInfo(I2C_TypeDef *i2c, const char *str)
 {
  printf("i2c %x %s\n",(unsigned int) i2c, str);
+#if 0
  printf("CR1   %8x ",(unsigned int) i2c->CR1);
  printf("CR2   %8x\n",(unsigned int) i2c->CR2);
  printf("OAR1  %8x ",(unsigned int) i2c->OAR1);
@@ -6373,6 +6423,7 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str)
  printf("DR    %8x ",(unsigned int) i2c->DR);
  printf("CCR   %8x\n",(unsigned int) i2c->CCR);
  printf("TRISE %8x\n",(unsigned int) i2c->TRISE);
+#endif
  flushBuf();
 }
 
@@ -6400,8 +6451,9 @@ T_PORT_INPUT inputDef[] =
  PORT_INPUT(JogB1),
  PORT_INPUT(JogA2),
  PORT_INPUT(JogB2),
- PORT_INPUT(Index1),
- PORT_INPUT(Index2),
+#ifdef Index_Pin
+ PORT_INPUT(Index),
+#endif
  PORT_INPUT(ExtInt),
  PORT_INPUT(ZFlag),
  PORT_INPUT(XFlag),
@@ -6573,8 +6625,8 @@ void testOutputs(int flag)
  int inputMask = 0;
  while (1)
  {
-  if ((chRdy() != 0)
-  ||  (chRdy1() != 0))
+  if ((dbgRxReady() != 0)
+  ||  (remRxReady() != 0))
    break;
   pollBufChar();
   if ((millis() - tmp) >= 10U)	/* if time elapsed */

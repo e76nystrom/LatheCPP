@@ -4,8 +4,7 @@ CPP = True
 
 pinList = \
 ( \
-  ("i", "index1", "Index1", ""), \
-  ("i", "index2", "Index2", ""), \
+  ("i", "idx", "Index", ""), \
   ("i", "zA", "ZA", ""), \
   ("i", "zB", "ZB", ""), \
   ("i", "xA", "XA", ""), \
@@ -44,6 +43,27 @@ pinList = \
   ("i", "eStop", "Pin10", ""), \
   ("i", "limit", "Pin11", ""), \
   ("i", "xHome", "Pin12", ""), \
+
+  ("i", "pinA2", "PinA2", ""), \
+  ("i", "pinA3", "PinA3", ""), \
+  ("i", "pinA4", "PinA4", ""), \
+  ("i", "pinA5", "PinA5", ""), \
+  ("i", "pinA6", "PinA5", ""), \
+  ("i", "pinA7", "PinA7", ""), \
+  ("i", "pinA8", "PinA8", ""), \
+  ("i", "pinA9", "PinA9", ""), \
+  ("i", "pinA10", "PinA10", ""), \
+  ("i", "pinA11", "PinA11", ""), \
+  ("i", "pinA12", "PinA12", ""), \
+  ("i", "pinA13", "PinA13", ""), \
+  ("i", "pinA15", "PinA15", ""), \
+  
+  ("i", "xPosLim", "PinA11", ""), \
+  ("i", "xNegLim", "PinA12", ""), \
+  ("i", "xAHome",  "PinA13", ""), \
+
+  ("o", "pinA16", "PinA16", ""), \
+  ("o", "pinA17", "PinA17", ""), \
   
   ("o", "start", "ZFlag", ""), \
   ("i", "ready", "XFlag", ""), \
@@ -143,7 +163,7 @@ def fWrite(file, txt):
     file.write(txt.encode())
     
 f = open("include/pinDef.h", "wb")
-fWrite(f, "#ifdef __STM32F4xx_HAL_H\n")
+fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)\n")
 fWrite(f, "#if !defined(__PINDEF_H)\n")
 fWrite(f, "#define __PINDEF_H\n\n")
 
@@ -188,7 +208,7 @@ f.close()
 f = open("include/dbg.h", "wb")
 f1 = open("include/dbgPin.h", "wb")
 
-fWrite(f, "#ifdef __STM32F4xx_HAL_H\n")
+fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)\n")
 fWrite(f, "#if !defined(__DBG_H)\n")
 fWrite(f, "#define __DBG_H\n\n")
 

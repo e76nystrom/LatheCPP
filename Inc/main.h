@@ -109,9 +109,9 @@ void Error_Handler(void);
 #define Dbg2_GPIO_Port GPIOA
 #define Dbg1_Pin GPIO_PIN_4
 #define Dbg1_GPIO_Port GPIOA
-#define Index2_Pin GPIO_PIN_0
-#define Index2_GPIO_Port GPIOB
-#define Index2_EXTI_IRQn EXTI0_IRQn
+#define Index_Pin GPIO_PIN_0
+#define Index_GPIO_Port GPIOB
+#define Index_EXTI_IRQn EXTI0_IRQn
 #define Dbg4_Pin GPIO_PIN_1
 #define Dbg4_GPIO_Port GPIOB
 #define JogA2_Pin GPIO_PIN_8

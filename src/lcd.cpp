@@ -1,6 +1,11 @@
 //#if !defined(INCLUDE)
 #define __LCD__
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
@@ -126,7 +131,9 @@ void lcd_write(uint8_t data)
  *p++ = tmp;
  *p++ = tmp | En;
  *p++ = tmp;
+#ifdef STM32F4
  i2cSendData(buf, p - buf);
+#endif
 }
 
 void setBacklight(int val)
@@ -168,8 +175,10 @@ void lcdString(char *str)
   *p++ = tmp;
  }
 // i2cSendData(buf, p - buf);
+#ifdef STM32F4
  i2cPutString(buf, p - buf);
  i2cSend();
+#endif
 }
 
 void data(uint8_t val)
@@ -185,9 +194,14 @@ void pulseEnable(uint8_t val)
 // char buf[2];
 // char *p = buf;
 // printf("pulseEnable %02x\n", val);
+#ifdef STM32F4
  uint8_t tmp = val | LCD_BACKLIGHT;
  i2cWrite(tmp | En);
  i2cWrite(tmp & ~En);
+#else
+ if (val == 1)
+  val = 0;
+#endif
 // *p++ = tmp | En;
 // *p++ = tmp & ~En;
 // i2cSendData(buf, p - buf);

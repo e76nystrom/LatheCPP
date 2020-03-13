@@ -1,4 +1,9 @@
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
@@ -53,8 +58,15 @@ T_PINDEF pinDef[] =
  PIN(StepSp, Step5),
  PIN(DirSp, Dir5),
 
+#ifdef Index1_Pin
  PIN(Index1, Index1),
+#endif
+#ifdef Index2_Pin
  PIN(Index2, Index2),
+#endif
+#ifdef Index_Pin
+ PIN(Index, Index),
+#endif
 
  PIN(Pin1,  Pin1),
  PIN(Pin14, Pin14),
@@ -231,7 +243,7 @@ int16_t mainLoop(void)
  printf("sysTick load %d\n", (int) SysTick->LOAD);
 
 #if 1
- printf("spindle timer %d pwm %d", SPINDLE_TIMER, SPINDLE_TMR_PWM);
+ printf("spindle timer %d pwm %d\n", SPINDLE_TIMER, SPINDLE_TMR_PWM);
 #else
  printf("spindle timer ");
  
@@ -295,21 +307,21 @@ int16_t mainLoop(void)
    }
 
    pollBufChar();		/* check for data to output */
-   if (chRdy())			/* if character available */
+   if (dbgRxReady())		/* if character available */
    {
-    ch = chRead();		/* return it */
+    ch = dbgRxRead();		/* return it */
     if (ch == 0x11)		/* if xon */
      continue;			/* no echo */
     if (ch == 0x13)		/* if xoff */
      continue;			/* no echo */
-    putBufChar(ch);		/* echo input */
+    dbgTxSend(ch);		/* echo input */
     break;
    }
 
 #if REM_ISR == 0
-   if (chRdy1())		/* if character on remote link */
+   if (remRxReady())		/* if character on remote link */
    {
-    ch = chRead1();		/* read character */
+    ch = remRxRead();		/* read character */
     if (ch == 1)		/* if control a */
     {
      remcmd();			/* process remote command */
@@ -318,9 +330,9 @@ int16_t mainLoop(void)
    else
    {
     pollBufChar();		/* check for data to output */
-    if (chRdy())		/* if character available */
+    if (dbgRxReady())		/* if character available */
     {
-     ch = chRead();		/* return it */
+     ch = dbgRxRead();		/* return it */
      if (ch == 3)		/* if control c */
      {
       setupDone = 1;		/* force setup done */
@@ -348,6 +360,7 @@ int16_t mainLoop(void)
 
 void pinDisplay(void)
 {
+ printf("CON_SIZE %d CON_PINS %d\n", CON_SIZE, CON_PINS);
  P_PINDEF pin = pinDef;
  for (unsigned int i = 0; i < (sizeof(pinDef) / sizeof(T_PINDEF)); i++)
  {

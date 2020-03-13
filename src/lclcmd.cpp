@@ -1,6 +1,11 @@
 //#if !defined(INCLUDE)
 #define __LCLCMD__
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #define ENUM_D_MESSAGE
 #include "lathe.h"
@@ -259,7 +264,7 @@ void lclcmd(int ch)
   unsigned int start = 0;
   while (1)
   {
-   if (chRdy())
+   if (dbgRxReady())
    {
     ch = getx();
     if (ch == 3)
@@ -291,7 +296,7 @@ void lclcmd(int ch)
   while (1)
   {
    char dir = 0;
-   if (chRdy())
+   if (dbgRxReady())
    {
     ch = getx();
     if (ch == 3)
@@ -405,6 +410,7 @@ void lclcmd(int ch)
    }
   }
  }
+#if 0
  else if (ch == 'J')
  {
   printf("\n");
@@ -423,6 +429,7 @@ void lclcmd(int ch)
   flushBuf();
   I2C1->CR1 &= ~I2C_CR1_SWRST;
  }
+ #endif
  else if (ch == 'L')
  {
   ch = query("\ninit: ");

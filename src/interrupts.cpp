@@ -1,4 +1,9 @@
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
@@ -46,8 +51,7 @@ extern "C" void jogISR(void);
 extern "C" void pwmTmrISR(void);
 extern "C" void TIM1_UP_TIM10_IRQHandler(void);
 extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void);
-extern "C" void index1ISR(void);
-extern "C" void index2ISR(void);
+extern "C" void indexISR(void);
 extern "C" void spindleTmrISR(void);
 extern "C" void zTmrISR(void);
 extern "C" void xTmrISR(void);
@@ -168,13 +172,6 @@ extern "C" void encoderISR(void)
   }
   dbgXDroClr();
  }
-
-#if !defined(index1ISR)
- if (EXTI->PR & Index1_Pin)	/* if index bit */
- {
-  index1ISR();
- }
-#endif
 }
 
 extern "C" void jogISR(void)
@@ -330,14 +327,10 @@ extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void)
  }
 }
 
-extern "C" void index1ISR(void)
+extern "C" void indexISR(void)
 {
- EXTI->PR = Index1_Pin;		/* clear index 2 interrupt */
-}
-
-extern "C" void index2ISR(void)
-{
- EXTI->PR = Index2_Pin;		/* clear index 2 interrupt */
+ EXTI->PR = Index_Pin;		/* clear index interrupt */
+ 
  static T_INDEX_COUNTER indexTmp;
 
  indexTmrStop();
@@ -461,11 +454,11 @@ extern "C" void spindleTmrISR(void)
   {
    spStep = 0;			/* reset step counter */
    index = 1;			/* set index pin */
-   EXTI->SWIER |= Index2_Pin;	/* generate software interrupt */
+   EXTI->SWIER |= Index_Pin;	/* generate software interrupt */
   }
  }
  else
-  index = index2();		/* read index pulse */
+  index = idx();		/* read index pulse */
 
  if (sp.initSync)		/* if initializing sync */
  {
@@ -778,7 +771,8 @@ extern "C" void zTmrISR(void)
     dbgRunoutSet();
    }
   
-   if ((zIsr.decel == 0)	/* if not decelerating */
+   if ((zIsr.cFactor != 0)	/* if acceleration enabled */
+   &&  (zIsr.decel == 0)	/* and not decelerating */
    &&  (zIsr.dist <= (zIsr.accelStep - zIsr.initialStep))) /* time to decel */
    {
     zIsr.accel = 0;		/* stop acceleration */
@@ -996,7 +990,8 @@ extern "C" void xTmrISR(void)
   }
   else
   {
-   if ((xIsr.decel == 0)	/* if not decelerating */
+   if ((xIsr.cFactor != 0)	/* if acceleration enabled */
+   &&  (xIsr.decel == 0)	/* and not decelerating */
    &&  (xIsr.dist <= (xIsr.accelStep - xIsr.initialStep))) /* time to decel */
    {
     xIsr.accel = 0;		/* stop acceleration */
@@ -1098,7 +1093,7 @@ extern "C" void spSyncISR(void)
 {
  EXTI->PR = ExtInt_Pin;		/* clear encoder interrupt */
 
- if ((zIsr.active & SYNC_ACTIVE_EXT) != 0)	/* if z axis active */
+ if ((zIsr.active & SYNC_ACTIVE_EXT) != 0) /* if z axis active */
  {
   dbgZEncSet();
   zPulse();
@@ -1109,7 +1104,7 @@ extern "C" void spSyncISR(void)
   dbgZEncClr();
  }
    
- if ((xIsr.active & SYNC_ACTIVE_EXT) != 0)	/* if x axis active */
+ if ((xIsr.active & SYNC_ACTIVE_EXT) != 0) /* if x axis active */
  {
   dbgXEncSet();
   xPulse();
@@ -1125,12 +1120,12 @@ extern "C" void encISR(void)
 {
  EXTI->PR = encIRQ_Bit;
 
- if ((zIsr.active & SYNC_ACTIVE_ENC) != 0)	/* if z axis active */
+ if ((zIsr.active & SYNC_ACTIVE_ENC) != 0) /* if z axis active */
  {
   zCheckStep();			/* check for z axis step */
  }
 
- if ((xIsr.active & SYNC_ACTIVE_ENC) != 0)	/* if x axis active */
+ if ((xIsr.active & SYNC_ACTIVE_ENC) != 0) /* if x axis active */
  {
   xCheckStep();			/* check for x axis step */
  }

@@ -1,6 +1,11 @@
 //#if !defined(INCLUDE)
 #define __ENCODER__
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include "lathe.h"
 #include "lclcmd.h"

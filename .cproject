@@ -91,7 +91,7 @@
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.1000328420" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
                             							
-                            <builder buildPath="${workspace_loc:/Lathe}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1190465943" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
+                            <builder buildPath="${workspace_loc:/Lathe}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1190465943" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="false" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
                             							
                             <tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.createflash.833517567" name="Cross ARM GNU Create Flash Image" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.createflash"/>
                             							

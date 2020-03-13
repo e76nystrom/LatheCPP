@@ -1,6 +1,11 @@
 //#if !defined(INCLUDE)
 #define __LCLCMDX__
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
@@ -242,9 +247,9 @@ void lclcmdX(int ch)
     while (1)
     {
      read1(addr);		/* read from device */
-     if (chRdy())		/* if character available */
+     if (dbgRxReady())		/* if character available */
      {
-      ch = chRead();
+      ch = dbgRxRead();
       break;
      }
      if ((i != 0)

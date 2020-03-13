@@ -1,25 +1,15 @@
-#ifdef __STM32F4xx_HAL_H
+#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)
 #if !defined(__PINDEF_H)
 #define __PINDEF_H
 
-#ifdef Index1_Pin
-inline uint16_t index1() {return((Index1_GPIO_Port->IDR & Index1_Pin) != 0);}
-inline uint16_t index1IsSet() {return((Index1_GPIO_Port->IDR & Index1_Pin) != 0);}
-inline uint16_t index1IsClr() {return((Index1_GPIO_Port->IDR & Index1_Pin) == 0);}
+#ifdef Index_Pin
+inline uint16_t idx() {return((Index_GPIO_Port->IDR & Index_Pin) != 0);}
+inline uint16_t idxIsSet() {return((Index_GPIO_Port->IDR & Index_Pin) != 0);}
+inline uint16_t idxIsClr() {return((Index_GPIO_Port->IDR & Index_Pin) == 0);}
 #else
-inline uint16_t index1() {return(0);}
-inline uint16_t index1IsSet() {return(0);}
-inline uint16_t index1IsClr() {return(0);}
-#endif
-
-#ifdef Index2_Pin
-inline uint16_t index2() {return((Index2_GPIO_Port->IDR & Index2_Pin) != 0);}
-inline uint16_t index2IsSet() {return((Index2_GPIO_Port->IDR & Index2_Pin) != 0);}
-inline uint16_t index2IsClr() {return((Index2_GPIO_Port->IDR & Index2_Pin) == 0);}
-#else
-inline uint16_t index2() {return(0);}
-inline uint16_t index2IsSet() {return(0);}
-inline uint16_t index2IsClr() {return(0);}
+inline uint16_t idx() {return(0);}
+inline uint16_t idxIsSet() {return(0);}
+inline uint16_t idxIsClr() {return(0);}
 #endif
 
 #ifdef ZA_Pin
@@ -340,6 +330,186 @@ inline uint16_t xHomeIsClr() {return((Pin12_GPIO_Port->IDR & Pin12_Pin) == 0);}
 inline uint16_t xHome() {return(0);}
 inline uint16_t xHomeIsSet() {return(0);}
 inline uint16_t xHomeIsClr() {return(0);}
+#endif
+
+#ifdef PinA2_Pin
+inline uint16_t pinA2() {return((PinA2_GPIO_Port->IDR & PinA2_Pin) != 0);}
+inline uint16_t pinA2IsSet() {return((PinA2_GPIO_Port->IDR & PinA2_Pin) != 0);}
+inline uint16_t pinA2IsClr() {return((PinA2_GPIO_Port->IDR & PinA2_Pin) == 0);}
+#else
+inline uint16_t pinA2() {return(0);}
+inline uint16_t pinA2IsSet() {return(0);}
+inline uint16_t pinA2IsClr() {return(0);}
+#endif
+
+#ifdef PinA3_Pin
+inline uint16_t pinA3() {return((PinA3_GPIO_Port->IDR & PinA3_Pin) != 0);}
+inline uint16_t pinA3IsSet() {return((PinA3_GPIO_Port->IDR & PinA3_Pin) != 0);}
+inline uint16_t pinA3IsClr() {return((PinA3_GPIO_Port->IDR & PinA3_Pin) == 0);}
+#else
+inline uint16_t pinA3() {return(0);}
+inline uint16_t pinA3IsSet() {return(0);}
+inline uint16_t pinA3IsClr() {return(0);}
+#endif
+
+#ifdef PinA4_Pin
+inline uint16_t pinA4() {return((PinA4_GPIO_Port->IDR & PinA4_Pin) != 0);}
+inline uint16_t pinA4IsSet() {return((PinA4_GPIO_Port->IDR & PinA4_Pin) != 0);}
+inline uint16_t pinA4IsClr() {return((PinA4_GPIO_Port->IDR & PinA4_Pin) == 0);}
+#else
+inline uint16_t pinA4() {return(0);}
+inline uint16_t pinA4IsSet() {return(0);}
+inline uint16_t pinA4IsClr() {return(0);}
+#endif
+
+#ifdef PinA5_Pin
+inline uint16_t pinA5() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) != 0);}
+inline uint16_t pinA5IsSet() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) != 0);}
+inline uint16_t pinA5IsClr() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) == 0);}
+#else
+inline uint16_t pinA5() {return(0);}
+inline uint16_t pinA5IsSet() {return(0);}
+inline uint16_t pinA5IsClr() {return(0);}
+#endif
+
+#ifdef PinA5_Pin
+inline uint16_t pinA6() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) != 0);}
+inline uint16_t pinA6IsSet() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) != 0);}
+inline uint16_t pinA6IsClr() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) == 0);}
+#else
+inline uint16_t pinA6() {return(0);}
+inline uint16_t pinA6IsSet() {return(0);}
+inline uint16_t pinA6IsClr() {return(0);}
+#endif
+
+#ifdef PinA7_Pin
+inline uint16_t pinA7() {return((PinA7_GPIO_Port->IDR & PinA7_Pin) != 0);}
+inline uint16_t pinA7IsSet() {return((PinA7_GPIO_Port->IDR & PinA7_Pin) != 0);}
+inline uint16_t pinA7IsClr() {return((PinA7_GPIO_Port->IDR & PinA7_Pin) == 0);}
+#else
+inline uint16_t pinA7() {return(0);}
+inline uint16_t pinA7IsSet() {return(0);}
+inline uint16_t pinA7IsClr() {return(0);}
+#endif
+
+#ifdef PinA8_Pin
+inline uint16_t pinA8() {return((PinA8_GPIO_Port->IDR & PinA8_Pin) != 0);}
+inline uint16_t pinA8IsSet() {return((PinA8_GPIO_Port->IDR & PinA8_Pin) != 0);}
+inline uint16_t pinA8IsClr() {return((PinA8_GPIO_Port->IDR & PinA8_Pin) == 0);}
+#else
+inline uint16_t pinA8() {return(0);}
+inline uint16_t pinA8IsSet() {return(0);}
+inline uint16_t pinA8IsClr() {return(0);}
+#endif
+
+#ifdef PinA9_Pin
+inline uint16_t pinA9() {return((PinA9_GPIO_Port->IDR & PinA9_Pin) != 0);}
+inline uint16_t pinA9IsSet() {return((PinA9_GPIO_Port->IDR & PinA9_Pin) != 0);}
+inline uint16_t pinA9IsClr() {return((PinA9_GPIO_Port->IDR & PinA9_Pin) == 0);}
+#else
+inline uint16_t pinA9() {return(0);}
+inline uint16_t pinA9IsSet() {return(0);}
+inline uint16_t pinA9IsClr() {return(0);}
+#endif
+
+#ifdef PinA10_Pin
+inline uint16_t pinA10() {return((PinA10_GPIO_Port->IDR & PinA10_Pin) != 0);}
+inline uint16_t pinA10IsSet() {return((PinA10_GPIO_Port->IDR & PinA10_Pin) != 0);}
+inline uint16_t pinA10IsClr() {return((PinA10_GPIO_Port->IDR & PinA10_Pin) == 0);}
+#else
+inline uint16_t pinA10() {return(0);}
+inline uint16_t pinA10IsSet() {return(0);}
+inline uint16_t pinA10IsClr() {return(0);}
+#endif
+
+#ifdef PinA11_Pin
+inline uint16_t pinA11() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
+inline uint16_t pinA11IsSet() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
+inline uint16_t pinA11IsClr() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) == 0);}
+#else
+inline uint16_t pinA11() {return(0);}
+inline uint16_t pinA11IsSet() {return(0);}
+inline uint16_t pinA11IsClr() {return(0);}
+#endif
+
+#ifdef PinA12_Pin
+inline uint16_t pinA12() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
+inline uint16_t pinA12IsSet() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
+inline uint16_t pinA12IsClr() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) == 0);}
+#else
+inline uint16_t pinA12() {return(0);}
+inline uint16_t pinA12IsSet() {return(0);}
+inline uint16_t pinA12IsClr() {return(0);}
+#endif
+
+#ifdef PinA13_Pin
+inline uint16_t pinA13() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
+inline uint16_t pinA13IsSet() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
+inline uint16_t pinA13IsClr() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) == 0);}
+#else
+inline uint16_t pinA13() {return(0);}
+inline uint16_t pinA13IsSet() {return(0);}
+inline uint16_t pinA13IsClr() {return(0);}
+#endif
+
+#ifdef PinA15_Pin
+inline uint16_t pinA15() {return((PinA15_GPIO_Port->IDR & PinA15_Pin) != 0);}
+inline uint16_t pinA15IsSet() {return((PinA15_GPIO_Port->IDR & PinA15_Pin) != 0);}
+inline uint16_t pinA15IsClr() {return((PinA15_GPIO_Port->IDR & PinA15_Pin) == 0);}
+#else
+inline uint16_t pinA15() {return(0);}
+inline uint16_t pinA15IsSet() {return(0);}
+inline uint16_t pinA15IsClr() {return(0);}
+#endif
+
+#ifdef PinA11_Pin
+inline uint16_t xPosLim() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
+inline uint16_t xPosLimIsSet() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
+inline uint16_t xPosLimIsClr() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) == 0);}
+#else
+inline uint16_t xPosLim() {return(0);}
+inline uint16_t xPosLimIsSet() {return(0);}
+inline uint16_t xPosLimIsClr() {return(0);}
+#endif
+
+#ifdef PinA12_Pin
+inline uint16_t xNegLim() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
+inline uint16_t xNegLimIsSet() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
+inline uint16_t xNegLimIsClr() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) == 0);}
+#else
+inline uint16_t xNegLim() {return(0);}
+inline uint16_t xNegLimIsSet() {return(0);}
+inline uint16_t xNegLimIsClr() {return(0);}
+#endif
+
+#ifdef PinA13_Pin
+inline uint16_t xAHome() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
+inline uint16_t xAHomeIsSet() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
+inline uint16_t xAHomeIsClr() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) == 0);}
+#else
+inline uint16_t xAHome() {return(0);}
+inline uint16_t xAHomeIsSet() {return(0);}
+inline uint16_t xAHomeIsClr() {return(0);}
+#endif
+
+#ifdef PinA16_Pin
+inline void pinA16Set() {PinA16_GPIO_Port->BSRR = PinA16_Pin;}
+inline void pinA16Clr() {PinA16_GPIO_Port->BSRR = (PinA16_Pin << 16);}
+inline uint16_t pinA16Read() {return((PinA16_GPIO_Port->ODR & PinA16_Pin) != 0);}
+#else
+inline void pinA16Set() {}
+inline void pinA16Clr() {}
+inline uint16_t pinA16() {return(0);}
+#endif
+
+#ifdef PinA17_Pin
+inline void pinA17Set() {PinA17_GPIO_Port->BSRR = PinA17_Pin;}
+inline void pinA17Clr() {PinA17_GPIO_Port->BSRR = (PinA17_Pin << 16);}
+inline uint16_t pinA17Read() {return((PinA17_GPIO_Port->ODR & PinA17_Pin) != 0);}
+#else
+inline void pinA17Set() {}
+inline void pinA17Clr() {}
+inline uint16_t pinA17() {return(0);}
 #endif
 
 #ifdef ZFlag_Pin

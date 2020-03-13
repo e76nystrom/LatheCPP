@@ -1,6 +1,11 @@
 //#if !defined(INCLUDE)
 #define __SERIALIO__
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include <stm32f7xx_hal.h>
+#endif
 
 #include <stdio.h>
 #include <stdint.h>
@@ -138,49 +143,135 @@ EXT char dbgBuffer;
 EXT char lineStart;
 EXT char eolFlag;
 
-/* debug port macros */
+#ifdef STM32F4
 
-#ifdef __cplusplus
-
-inline void PUTX(char c)
+inline uint32_t dbgRxReady()
 {
- while ((DBGPORT->SR & USART_SR_TXE) == 0)
- {
-  DBGPORT->DR = c;
- }
+ return(DBGPORT->SR & USART_SR_RXNE);
 }
-
-inline uint16_t chRdy()
-{
- return((DBGPORT->SR & USART_SR_RXNE));
-}
-
-inline char chRead()
+inline uint32_t dbgRxRead()
 {
  return(DBGPORT->DR);
 }
-
-inline uint16_t chRdy1()
+inline uint32_t dbgRxOverrun()
 {
- return((REMPORT->SR & USART_SR_RXNE));
+ return(DBGPORT->SR & USART_SR_ORE);
+}
+inline uint32_t dbgTxEmpty()
+{
+ return(DBGPORT->SR & USART_SR_TXE);
+}
+inline void dbgTxSend(char ch)
+{
+ DBGPORT->DR = ch;
+}
+inline void dbgTxIntEna()
+{
+ DBGPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void dbgTxIntDis()
+{
+ DBGPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-inline char chRead1()
+inline uint32_t remRxReady()
+{
+ return(REMPORT->SR & USART_SR_RXNE);
+}
+inline uint32_t remRxRead()
 {
  return(REMPORT->DR);
 }
+inline void remRxIntEna()
+{
+ REMPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t remRxOverrun()
+{
+ return(REMPORT->SR & USART_SR_ORE);
+}
+inline uint32_t remTxEmpty()
+{
+ return(REMPORT->SR & USART_SR_TXE);
+}
+inline void remTxSend(char ch)
+{
+ REMPORT->DR = ch;
+}
+inline void remTxIntEna()
+{
+ REMPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void remTxIntDis()
+{
+ REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
 
-#else
+#endif
 
-#define PUTX(c) while ((DBGPORT->SR & USART_SR_TXE) == 0); DBGPORT->DR = c
+#ifdef STM32F7
 
-#define chRdy() (DBGPORT->SR & USART_SR_RXNE)
-#define chRead() DBGPORT->DR
+inline uint32_t dbgRxReady()
+{
+ return(DBGPORT->ISR & USART_ISR_RXNE);
+}
+inline uint32_t dbgRxRead()
+{
+ return(DBGPORT->RDR);
+}
+inline uint32_t dbgRxOverrun()
+{
+ return(DBGPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t dbgTxEmpty()
+{
+ return(DBGPORT->ISR & USART_ISR_TXE);
+}
+inline void dbgTxSend(char ch)
+{
+ DBGPORT->TDR = ch;
+}
+inline void dbgTxIntEna()
+{
+ DBGPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void dbgTxIntDis()
+{
+ DBGPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
 
-/* remote port macros */
-
-#define chRdy1() (REMPORT->SR & USART_SR_RXNE)
-#define chRead1() REMPORT->DR
+inline uint32_t remRxReady()
+{
+ return(REMPORT->ISR & USART_ISR_RXNE);
+}
+inline uint32_t remRxRead()
+{
+ return(REMPORT->RDR);
+}
+inline void remRxIntEna()
+{
+ REMPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t remRxOverrun()
+{
+ return(REMPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t remTxEmpty()
+{
+ return(REMPORT->ISR & USART_ISR_TXE);
+}
+inline void remTxSend(char ch)
+{
+ REMPORT->TDR = ch;
+}
+inline void remTxIntEna()
+{
+ REMPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void remTxIntDis()
+{
+ REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
 
 #endif
 
@@ -259,9 +350,9 @@ void newline(void)
 
 void putx(char c)
 {
- while ((DBGPORT->SR & USART_SR_TXE) == 0)
+ while (dbgTxEmpty() == 0)
   ;
- DBGPORT->DR = c;
+ dbgTxSend(c);
 }
 
 void putstr(const char *p)
@@ -297,7 +388,7 @@ void sndhex(unsigned char *p, int size)
    ch += 'a' - 10;
 //  while (utxbf1);
 //  u1txreg = ch;
-  PUTX(ch);
+  dbgTxSend(ch);
 
   tmp &= 0xf;
   if (tmp < 10)
@@ -306,17 +397,17 @@ void sndhex(unsigned char *p, int size)
    tmp += 'a' - 10;
 //  while (utxbf1);
 //  u1txreg = tmp;
-  PUTX(tmp);
+  dbgTxSend(tmp);
  }
 }
 
 char getx(void)
 {
- while ((DBGPORT->SR & USART_SR_RXNE) == 0)
+ while (dbgRxReady() == 0)
  {
   pollBufChar();
  }
- return(DBGPORT->DR);
+ return(dbgRxRead());
 }
 
 unsigned char gethex(void)
@@ -600,9 +691,9 @@ void prtibuf(int16_t *p, int size)
 
 void putx1(char c)
 {
- while ((REMPORT->SR & USART_SR_TXE) == 0)
+ while (remTxEmpty() == 0)
   ;
- REMPORT->DR = c;
+ remTxSend(c);
 }
 
 void putstr1(const char *p)
@@ -649,9 +740,9 @@ void sndhex1(unsigned char *p, int size)
 
 char getx1(void)
 {
- while ((REMPORT->SR & USART_SR_RXNE) == 0)
+ while (remRxReady() == 0)
   pollBufChar();
- return(REMPORT->DR);
+ return(remRxRead());
 }
 
 char getstr1(char *buf, int bufLen)
@@ -782,15 +873,15 @@ unsigned char getnum1(void)
 void initRem(void)
 {
  memset(&remCtl, 0, sizeof(remCtl));
- REMPORT->CR1 |= USART_CR1_RXNEIE;
+ remRxIntEna();
 }
 
 extern "C" void remoteISR(void)
 {
  P_REMCTL u = &remCtl;
- if (REMPORT->SR & USART_SR_RXNE) /* if received character */
+ if (remRxReady())		/* if received character */
  {
-  char ch = REMPORT->DR;	/* read character */
+  char ch = remRxRead();	/* read character */
   if (u->state == 0)		/* if waiting for start */
   {
    if (ch == 1)			/* if start of message received */
@@ -818,25 +909,25 @@ extern "C" void remoteISR(void)
    }
   }
  }
- if (REMPORT->SR & USART_SR_ORE) /* if overrun errror */
+ if (remRxOverrun())		/* if overrun errror */
  {
-  if (REMPORT->DR)		/* read character */
+  if (remRxRead())		/* read character */
   {
   }
  }
- if (REMPORT->SR & USART_SR_TXE) /* if transmit empty */
+ if (remTxEmpty())		/* if transmit empty */
  {
   if (u->tx_count != 0)		/* if anything in buffer */
   {
    int emp = u->tx_emp;		/* temp copy of empty pointer */
-   REMPORT->DR = u->tx_buffer[emp++]; /* send character */
+   remTxSend(u->tx_buffer[emp++]); /* send character */
    if (emp >= TX_BUF_SIZE)	/* if at buffer end */
     emp = 0;			/* reset to start */
    u->tx_emp = emp;		/* save empty pointer */
    --u->tx_count;		/* count it off */
   }
   else				/* if nothing to send */
-   REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+   remTxIntDis();		/* disable transmit interrupt */
  }
 }
 
@@ -851,7 +942,7 @@ void putRem(char ch)
    fill = 0;			/* reset to zero */
   u->tx_fil = fill;		/* save fill pointer */
   u->tx_count++;		/* update count */
-  REMPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+  remTxIntEna();		/* enable transmit interrupt */
  }
 }
 
@@ -1169,7 +1260,7 @@ int pollBufChar(void)
  if (setupDone)
   wdUpdate();
 
- if ((DBGPORT->SR & USART_SR_TXE) != 0)
+ if (dbgTxEmpty() != 0)
  {
   if (lineStart)
   {
@@ -1178,7 +1269,7 @@ int pollBufChar(void)
    case 1:
     if (isrCount != 0)
     {
-     DBGPORT->DR = '*';
+     dbgTxSend('*');
      lineStart = 2;
     }
     else
@@ -1188,7 +1279,7 @@ int pollBufChar(void)
    case 2:
     if (isrCount > 0)
     {
-     DBGPORT->DR = isrBuf[isrEmp];
+     dbgTxSend(isrBuf[isrEmp]);
      isrEmp++;
      if (isrEmp >= ISR_BUF_SIZE)
       isrEmp = 0;
@@ -1201,12 +1292,12 @@ int pollBufChar(void)
     break;
 
    case 3:
-     DBGPORT->DR = '\n';
+    dbgTxSend('\n');
      lineStart = 4;
      break;
 
    case 4:
-     DBGPORT->DR = '\r';
+    dbgTxSend('\r');
      lineStart = 0;
      break;
    }
@@ -1219,7 +1310,7 @@ int pollBufChar(void)
     --charCount;
      __enable_irq();
     char ch = charBuf[charEmp];
-    DBGPORT->DR = ch;
+    dbgTxSend(ch);
     if (ch == '\r')
      eolFlag = 1;
     else

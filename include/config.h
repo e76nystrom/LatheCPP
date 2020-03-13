@@ -7,7 +7,7 @@
 #define DBG_MOVOP 1		/* move operation */
 #define DBG_QUE   1		/* que operation */
 #define DBG_TMR   0		/* debug timers */
-#define DBG_START 0		/* debug z and x start */
+#define DBG_START 1		/* debug z and x start */
 #define DBG_JOG   1		/* debug jogging */
 #define DBG_DISABLE 0		/* disable debugging */
 #define HOME_TEST 0		/* test homing without hardware */
@@ -67,6 +67,7 @@ enctst	7	7	7	1	7  | 1	sw
 #include "core407.h"
 #include "nuc446.h"
 #include "nuc401.h"
+#include "nuc746.h"
 
 //#include "step1.h"
 //#include "step2.h"

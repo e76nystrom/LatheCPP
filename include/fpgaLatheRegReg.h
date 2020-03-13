@@ -68,6 +68,12 @@ enum FPGALATHEREG
  F_Rd_Loc,                      /* 0x01 read axis location */
  F_Loc_Max,                     /* 0x02 number of location registers */
 
+// dro registers
+
+ F_Ld_Dro,                      /* 0x00 axis dro */
+ F_Rd_Dro,                      /* 0x01 read axis dro */
+ F_Dro_Max,                     /* 0x02 number of dro registers */
+
 // axis
 
  F_Ld_Axis_Ctl,                 /* 0x00 axis control register */
@@ -75,7 +81,8 @@ enum FPGALATHEREG
  F_Sync_Base,                   /* 0x02 sync registers */
  F_Dist_Base,                   /* 0x0c distance registers */
  F_Loc_Base,                    /* 0x0f location registers */
- F_Axis_Max,                    /* 0x11 number of axis registers */
+ F_Dro_Base,                    /* 0x11 dro registers */
+ F_Axis_Max,                    /* 0x13 number of axis registers */
 
 // register definitions
 
@@ -118,6 +125,6 @@ enum FPGALATHEREG
  F_Enc_Base,                    /* 0x13 encoder registers */
  F_Phase_Base,                  /* 0x16 phase registers */
  F_ZAxis_Base,                  /* 0x18 z axis registers */
- F_XAxis_Base,                  /* 0x29 x axis registers */
- F_Cmd_Max,                     /* 0x3a number of commands */
+ F_XAxis_Base,                  /* 0x2b x axis registers */
+ F_Cmd_Max,                     /* 0x3e number of commands */
 };

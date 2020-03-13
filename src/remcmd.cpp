@@ -1,7 +1,12 @@
 //#if !defined(INCLUDE)
 #define __REMCMD__
 #if !defined(WIN32)
+#ifdef STM32F4
 #include "stm32f4xx_hal.h"
+#endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 #endif
 
 #include "lathe.h"
