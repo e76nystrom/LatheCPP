@@ -575,7 +575,7 @@ while True:
         path = "LatheCPPX0"
     elif val == "nuc746":
         cfg = nuc746
-        path = "LatheCPPN1"
+        path = "LatheCPP7N"
     n += 1
 
 main(cfg, path)

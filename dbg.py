@@ -80,47 +80,47 @@ pinList = \
 
 dbgList = \
 (\
- ("dbgSpIsr",   0, "spindle isr time"), \
- ("dbgZIsr",    1, "z isr time"), \
- ("dbgXIsr",    2, "x isr time"), \
- ("dbgSpCyc",  -1, "spindle cycle counter update"), \
- ("dbgZEnc",   -1, "z encoder input"), \
- ("dbgZOut",   -1, "z encoder output"), \
- ("dbgXEnc",   -1, "x encoder"), \
- ("dbgXOut",   -1, "x encoder output"), \
+ ("dbgSpIsr",  "A", "spindle isr time"), \
+ ("dbgZIsr",   "B", "z isr time"), \
+ ("dbgXIsr",   "2", "x isr time"), \
+ ("dbgSpCyc",  "", "spindle cycle counter update"), \
+ ("dbgZEnc",   "", "z encoder input"), \
+ ("dbgZOut",   "", "z encoder output"), \
+ ("dbgXEnc",   "", "x encoder"), \
+ ("dbgXOut",   "", "x encoder output"), \
 
- ("dbgIntC",   -1, "toggle on compare input"), \
- ("dbgIntP",   -1, "toggle on output pulse"), \
- ("dbgCycle",  -1, "toggle on input cycle"), \
- ("dbgCycEnd", -1, "end of internal pulse cycle"), \
- ("dbgCapIsr", -1, "length of capture isr"), \
- ("dbgIntIsr", -1, "length of internal isr"), \
+ ("dbgIntC",   "", "toggle on compare input"), \
+ ("dbgIntP",   "", "toggle on output pulse"), \
+ ("dbgCycle",  "", "toggle on input cycle"), \
+ ("dbgCycEnd", "", "end of internal pulse cycle"), \
+ ("dbgCapIsr", "", "length of capture isr"), \
+ ("dbgIntIsr", "", "length of internal isr"), \
 
- ("dbgZCyc",   -1, "z cycle counter update"), \
- ("dbgXCyc",   -1, "x cycle counter update"), \
- ("dbgSpStop", -1, "spindle accel and decel"), \
- ("dbgZAccel", -1, "z accel and decel"), \
- ("dbgXAccel", -1, "x accel and decel"), \
- ("dbgXRem",   -1, "x remainder"), \
- ("dbgSpRev",  -1, "spindle rev counter"), \
- ("dbgRunout", -1, "runout start"), \
- ("dbgZTaper", -1, "z taper"), \
- ("dbgXTaper", -1, "x taper"), \
- ("dbgSlv",    -1, "slave start"), \
- ("dbgS2bIsr", -1, "step 2b isr"), \
- ("dbgS3Isr",  -1, "step 3 isr"), \
- ("dbgS4Isr",  -1, "step 4 isr"), \
- ("dbgS5Isr",  -1, "step 5 isr"), \
+ ("dbgZCyc",   "", "z cycle counter update"), \
+ ("dbgXCyc",   "", "x cycle counter update"), \
+ ("dbgSpStop", "", "spindle accel and decel"), \
+ ("dbgZAccel", "", "z accel and decel"), \
+ ("dbgXAccel", "", "x accel and decel"), \
+ ("dbgXRem",   "", "x remainder"), \
+ ("dbgSpRev",  "", "spindle rev counter"), \
+ ("dbgRunout", "", "runout start"), \
+ ("dbgZTaper", "", "z taper"), \
+ ("dbgXTaper", "", "x taper"), \
+ ("dbgSlv",    "", "slave start"), \
+ ("dbgS2bIsr", "", "step 2b isr"), \
+ ("dbgS3Isr",  "", "step 3 isr"), \
+ ("dbgS4Isr",  "", "step 4 isr"), \
+ ("dbgS5Isr",  "", "step 5 isr"), \
 
- ("dbgJogIsr",  -1, "jog isr transition put in queue"), \
- ("dbgJogMPG0", -1, "jog idle queue checked"), \
- ("dbgJogMPG1", -1, "jog moving all cases"), \
- ("dbgJogMPG2", -1, "jog moving isr done start again"), \
- ("dbgJogMPG3", -1, "jog moving add to current distance"), \
- ("dbgAxisCtl", -1, "axis control"), \
- ("dbgXDro",     3, "x dro isr"), \
- ("dbgXStop",    4, "x stop"), \
- ("dbgXDone",    5, "x done"), \
+ ("dbgJogIsr",  "", "jog isr transition put in queue"), \
+ ("dbgJogMPG0", "", "jog idle queue checked"), \
+ ("dbgJogMPG1", "", "jog moving all cases"), \
+ ("dbgJogMPG2", "", "jog moving isr done start again"), \
+ ("dbgJogMPG3", "", "jog moving add to current distance"), \
+ ("dbgAxisCtl", "", "axis control"), \
+ ("dbgXDro",    "3", "x dro isr"), \
+ ("dbgXStop",   "4", "x stop"), \
+ ("dbgXDone",   "5", "x done"), \
 )
 
 dbgPins = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
@@ -233,17 +233,16 @@ for pin in dbgPins:
     fWrite(f, "#endif\n\n")
 
 for (name, pin, comment) in dbgList:
-    pin = int(pin)
     fWrite(f, "/* %s */\n" % (comment))
-    if pin >= 0:
-        fWrite(f, "#ifdef Dbg%d_Pin\n" % (pin))
-        fWrite(f, "%s %sSet() %sDbg%d_GPIO_Port->BSRR = Dbg%d_Pin%s\n" % \
+    if len(pin) != 0:
+        fWrite(f, "#ifdef Dbg%s_Pin\n" % (pin))
+        fWrite(f, "%s %sSet() %sDbg%s_GPIO_Port->BSRR = Dbg%s_Pin%s\n" % \
                 (dout, name, op, pin, pin, cl))
         fWrite(f, "%s %sClr() "
-                "%sDbg%d_GPIO_Port->BSRR = (Dbg%d_Pin << 16)%s\n" % \
+                "%sDbg%s_GPIO_Port->BSRR = (Dbg%s_Pin << 16)%s\n" % \
                 (dout, name, op, pin, pin, cl))
         fWrite(f, "%s %sRead() "\
-               "%s(Dbg%d_GPIO_Port->IDR & Dbg%d_Pin) != 0)%s\n" % \
+               "%s(Dbg%s_GPIO_Port->IDR & Dbg%s_Pin) != 0)%s\n" % \
                (din, name, opIn, pin, pin, cl))
         fWrite(f, "#else\n")
         fWrite(f, "%s %sSet()%s\n" % (dout, name, empty))
@@ -251,8 +250,8 @@ for (name, pin, comment) in dbgList:
         fWrite(f, "%s %sRead()%s\n" % (din, name, emptyIn))
         fWrite(f, "#endif\n\n")
 
-        fWrite(f1, "#ifdef Dbg%d_Pin\n" % (pin))
-        fWrite(f1, " PIN(%s, Dbg%d),\n" % (name, pin))
+        fWrite(f1, "#ifdef Dbg%s_Pin\n" % (pin))
+        fWrite(f1, " PIN(%s, Dbg%s),\n" % (name, pin))
         fWrite(f1, "#endif\n")
     else:
         fWrite(f, "%s %sSet()%s\n" % (dout, name, empty))

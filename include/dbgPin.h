@@ -1,8 +1,8 @@
-#ifdef Dbg0_Pin
- PIN(dbgSpIsr, Dbg0),
+#ifdef DbgA_Pin
+ PIN(dbgSpIsr, DbgA),
 #endif
-#ifdef Dbg1_Pin
- PIN(dbgZIsr, Dbg1),
+#ifdef DbgB_Pin
+ PIN(dbgZIsr, DbgB),
 #endif
 #ifdef Dbg2_Pin
  PIN(dbgXIsr, Dbg2),

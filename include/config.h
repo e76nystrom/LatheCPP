@@ -68,22 +68,6 @@ enctst	7	7	7	1	7  | 1	sw
 #include "nuc446.h"
 #include "nuc401.h"
 #include "nuc746.h"
-
-//#include "step1.h"
-//#include "step2.h"
-//#include "step2b.h"
-//#include "step3.h"
-//#include "step4.h"
-//#include "step5.h"
-//#include "spindle.h"
-//
-//#include "pwmtmr.h"
-//#include "usectmr.h"
-//#include "indextmr.h"
-//#include "cmptmr.h"
-//#include "inttmr.h"
-//#include "enctmr.h"
-
 #define SPINDLE_MICRO_STEPS 64
 #define SPINDLE_MOTOR_STEPS 200
 
