@@ -94,6 +94,8 @@ int jog1LastDecode;
 int jog2LastDecode;
 BITWORD jog2Decode;
 
+unsigned int lastJogTime;
+
 extern "C" void encoderISR(void)
 {
  BITWORD tmp;
@@ -255,6 +257,9 @@ extern "C" void jogISR(void)
    P_JOGQUE jog = &xJogQue;
    if (jog->count < MAXJOG)
    {
+    unsigned int time = millis();
+    dbgTrk1L(time - lastJogTime);
+    lastJogTime = time;
     jog->count++;
     jog->buf[jog->fil] = (char) decoder[tmp.w];
     jog->fil++;
