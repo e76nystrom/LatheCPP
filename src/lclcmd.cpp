@@ -760,8 +760,18 @@ void lclcmd(int ch)
    while (--i >= 0)
    {
     int *p = (int *) &trkbuf[idx];
-    int tmp0 = *p;
-    printf("%4d %10d\n", idx, tmp0);
+    if (DBGTRK1L1)
+    {
+     MPG_VAL val;
+     val.intVal = *p;
+     printf("%4d x%08x %2d %8d\n",
+	    idx, (unsigned int) val.intVal, val.dir, val.delta);
+    }
+    else
+    {
+     int tmp0 = *p;
+     printf("%4d %10d\n", idx, tmp0);
+    }
     idx += 2;
     idx &= (TRKBUFSIZE - 1);
    }

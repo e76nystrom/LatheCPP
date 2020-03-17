@@ -94,7 +94,8 @@ int jog1LastDecode;
 int jog2LastDecode;
 BITWORD jog2Decode;
 
-unsigned int lastJogTime;
+unsigned int lastXJogUSec;
+unsigned int lastXJogMSec;
 
 extern "C" void encoderISR(void)
 {
@@ -212,7 +213,7 @@ extern "C" void jogISR(void)
    if (jog->count < MAXJOG)
    {
     jog->count++;
-    jog->buf[jog->fil] = (char) decoder[tmp.w];
+    jog->buf[jog->fil] = decoder[tmp.w];
     jog->fil++;
     if (jog->fil >= MAXJOG)
      jog->fil = 0;
@@ -253,18 +254,40 @@ extern "C" void jogISR(void)
   if ((jog2LastDecode == 0x7 && tmp.w == 1)
   ||  (jog2LastDecode == 0xb && tmp.w == 2))
   {
-   dbgJogIsrSet();
    P_JOGQUE jog = &xJogQue;
-   if (jog->count < MAXJOG)
+   if (jog->count < MAXJOG)	/* if queue not full */
    {
-    unsigned int time = millis();
-    dbgTrk1L(time - lastJogTime);
-    lastJogTime = time;
-    jog->count++;
-    jog->buf[jog->fil] = (char) decoder[tmp.w];
-    jog->fil++;
-    if (jog->fil >= MAXJOG)
-     jog->fil = 0;
+    dbgJogIsrSet();
+    if (jog->count < MAXJOG)
+    {
+     jog->count++;
+#if 1
+     unsigned int mSec = millis();
+     unsigned short uSec = usecTmrRead();
+     unsigned int delta = mSec - lastXJogMSec;
+     MPG_VAL val;
+     if (delta <= 20)		/* if less than 20 msec */
+     {
+      val.delta = (uSec - lastXJogUSec); /* use micro seconds */
+     }
+     else			/* if greater than 20 msec */
+     {
+      if (delta > 50)		/* if greater than 50 mSec */
+       delta = 50;		/* set to 50 mSec */
+      val.delta = delta * 1000;	/* convert to uSec */
+     }
+     dbgTrk1L(val.intVal);
+     lastXJogMSec = mSec;	/* set new last msec value */
+     lastXJogUSec = uSec;	/* set new last usec value */
+     val.dir = (char) decoder[tmp.w]; /* combine with delta time */
+     jog->buf[jog->fil] = val.intVal; /* add to queue */
+#else
+     jog->buf[jog->fil] = decoder[tmp.w];
+#endif
+     jog->fil++;
+     if (jog->fil >= MAXJOG)
+      jog->fil = 0;
+    }
    }
   }
   jog2LastDecode = tmp.w;	/* save for next interrupt */
@@ -873,7 +896,7 @@ extern "C" void zTmrISR(void)
     updateFeed = 0;		/* clear flag */
     if (indexPeriod != 0)	/* if period valid */
     {
-     zIsr.clocksStep = indexPeriod / zIsr.stepsCycle; /* works with motorSetup */
+     zIsr.clocksStep = indexPeriod / zIsr.stepsCycle; /* update speed */
      zTmrMax(zIsr.clocksStep);	/* set interrupt timer */
      if constexpr (DBGTRK2L3)
      {
@@ -952,7 +975,7 @@ extern "C" void xTmrISR(void)
  xIsr.steps++;			/* count a step moved */
  xUpdHomeLoc();			/* update home testing location */
 
- if (xIsr.home)			/* if homing operation */
+ if (xIsr.home)			/* 1*+ if homing operation */
  {
   updProbeDist();		/* update probe testing distance */
   if (xIsr.home & PROBE_SET)	/* if probing */
@@ -983,30 +1006,27 @@ extern "C" void xTmrISR(void)
   }
  }
 
- if (xIsr.dist != 0)		/* if distance set */
+ if (xIsr.dist != 0)		/* 2*+ if distance set */
  {
   --xIsr.dist;			/* decrement distance */
-  if (xIsr.dist == 0)		/* if done */
+  if (xIsr.dist == 0)		/* 2.1*+ if done */
   {
    if (!xIsr.useDro)		/* if not using dro */
    {
     xIsrStop('4');		/* stop isr */
    }
   }
-  else
+  else if ((xIsr.cFactor != 0)	/* 2.2*+ if acceleration enabled */
+       &&  (xIsr.decel == 0)	/* and not decelerating */
+       &&  (xIsr.dist <= (xIsr.accelStep - xIsr.initialStep))) /* decel time */
   {
-   if ((xIsr.cFactor != 0)	/* if acceleration enabled */
-   &&  (xIsr.decel == 0)	/* and not decelerating */
-   &&  (xIsr.dist <= (xIsr.accelStep - xIsr.initialStep))) /* time to decel */
-   {
-    xIsr.accel = 0;		/* stop acceleration */
-    xIsr.decel = 1;		/* start deceleration */
-    dbgXAccelSet();
-   }
+   xIsr.accel = 0;		/* stop acceleration */
+   xIsr.decel = 1;		/* start deceleration */
+   dbgXAccelSet();
   }
  }
   
- if (xIsr.accel)		/* if accelerating */
+ if (xIsr.accel)		/* 3*+ if accelerating */
  {
   if (xIsr.accelStep < xIsr.finalStep) /* if accelerating */
   {
@@ -1029,7 +1049,7 @@ extern "C" void xTmrISR(void)
    putBufStrIsr("xa");
   }
  }
- else if (xIsr.decel)		/* if decelerating */
+ else if (xIsr.decel)		/* 4*+ if decelerating */
  {
   if (xIsr.accelStep > xIsr.initialStep) /* if decelerating */
   {
@@ -1049,9 +1069,9 @@ extern "C" void xTmrISR(void)
    }
   }
  }
- else				/* tracking state */
+ else				/* 5*+ tracking state */
  {
-  if (xIsr.sync > 0)		/* if running in sync mode */
+  if (xIsr.sync > 0)		/* 5.1*+ if running in sync mode */
   {
    if (xIsr.sum < 0)		/* if tracking sum negative */
    {
@@ -1076,19 +1096,16 @@ extern "C" void xTmrISR(void)
     dbgXCycSet();
    }
   }
-  else				/* if not sync mode */
+  else if (updateFeed)		/* 5.2*+ if time to update feed */
   {
-   if (updateFeed)		/* if time to update feed */
+   updateFeed = 0;		/* clear flag */
+   if (xIsr.stepsCycle != 0)
    {
-    updateFeed = 0;		/* clear flag */
-    if (xIsr.stepsCycle != 0)
-    {
-     xIsr.clocksStep = indexPeriod / xIsr.stepsCycle;
-     xTmrMax(xIsr.clocksStep);	/* set interrupt timer */
-    }
-    else
-     putBufStrIsr("x0");
+    xIsr.clocksStep = indexPeriod / xIsr.stepsCycle;
+    xTmrMax(xIsr.clocksStep);	/* set interrupt timer */
    }
+   else
+    putBufStrIsr("x0");
   }
  }
  dbgXIsrClr();

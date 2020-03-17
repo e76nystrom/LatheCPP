@@ -412,7 +412,7 @@ typedef struct s_jogque
  int fil;
  int emp;
  int count;
- char buf[MAXJOG];
+ uint32_t buf[MAXJOG];
 } T_JOGQUE, *P_JOGQUE;
 
 EXT T_JOGQUE zJogQue;
@@ -448,6 +448,8 @@ typedef struct s_movectl
  int jogFlag;			/* jog enable flag */
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
+ int mpgStepsCount;		/* mpg jog steps per mpg count */
+ unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
@@ -458,18 +460,22 @@ typedef struct s_movectl
  P_ACCEL acMove;		/* unsynchronized movement */
  P_ACCEL acJog;			/* jog */
  P_ACCEL acJogSpeed;		/* jog at speed */
+ TIM_TypeDef *timer;		/* axis timer */
  void (*isrStop) (char ch);	/* isr stop routine */
  void (*move) (int pos, int cmd); /* move absolute function */
  void (*moveRel) (int pos, int cmd); /* move relative function */
  void (*moveInit) (P_ACCEL ac, char dir, int dist); /* move initialization */
  void (*dirFwd) (void);		/* direction forward */
  void (*dirRev) (void);		/* direction rev */
+ void (*hwEnable) (int ctr);	/* hardware enable */
  void (*start) (void);		/* axis start */
  void (*pulse) (void);		/* axis pulse */
 } T_MOVECTL, *P_MOVECTL;
 
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
+
+EXT unsigned int clksPerUSec;	/* clocks per usec */
 
 typedef struct s_homectl
 {
@@ -670,8 +676,9 @@ void encoderSWIEnable(int enable);
 void encoderStart(void);
 
 void jogMove(P_MOVECTL mov, int dir);
-void jogMpg1(P_MOVECTL mov);
 void jogMpg(P_MOVECTL mov);
+void jogMpg1(P_MOVECTL mov);
+void jogMpg2(P_MOVECTL mov);
 void jogSpeed(P_MOVECTL mov, float speed);
 
 void zInit(P_AXIS ax);
@@ -823,6 +830,20 @@ typedef union
   int w;
  };
 } BITWORD;
+
+typedef union
+{
+ struct
+ {
+  unsigned short delta;
+  char r0;
+  char dir;
+ };
+ struct
+ {
+  int intVal;
+ };
+} MPG_VAL;
 
 #include "main.h"
 #include "pinDef.h"
@@ -1162,6 +1183,8 @@ void setup(void)
  tmrMin -= 1;
 
  setupDone = 1;			/* indicate setup complete */
+
+ clksPerUSec = cfgFcy / 1000000; /* clocks per usec */
 }
 
 void allStop(void)
@@ -2541,6 +2564,94 @@ void jogMpg(P_MOVECTL mov)
  }
 }
 
+void jogMpg2(P_MOVECTL mov)
+{
+ if ((jogPause & DISABLE_JOG)	/* if jogging disabled */
+ &&  ((jogPause & mov->jogFlag) == 0)) /* and jogging not enabled */
+  return;
+ 
+ P_JOGQUE jog = mov->jogQue;	/* get queue pointer */
+
+ __disable_irq();		/* disable interrupt */
+ if (jog->count == 0)		/* if nothing in queue */
+ {
+  __enable_irq();		/* enable interrupts */
+  return;			/* and exit */
+ }
+ --jog->count;			/* count removal */
+ MPG_VAL val;
+ val.intVal = jog->buf[jog->emp]; /* get value */
+ __enable_irq();		/* enable interrupts */
+ 
+ jog->emp++;			/* update pointer */
+ if (jog->emp >= MAXJOG)	/* if at end of queue */
+  jog->emp = 0;			/* reset to start */
+   
+ char dir = val.dir;		/* get direction */
+ unsigned int delta = val.delta; /* mask off time delta */
+ printf("%2d %6d\n", dir, delta);
+ if (mov->mpgFlag)		/* if direction inverted */
+  dir = -dir;			/* invert distance */
+
+ P_ZXISR isr = mov->isr;	/* pointer to isr info */
+
+ int dist;			/* initialize distance */
+ if (delta < mov->mpgUSecSlow)	/* if fast jog */
+ {
+  dist = mov->mpgStepsCount;	/* set counts */
+ }
+ else				/* if slow jog */
+ {
+  delta = mov->mpgUSecSlow;	/* use slow limit for interval */
+  dist = 1;			/* set distance to 1 */
+ }
+ uint32_t ctr = (delta * clksPerUSec) / dist; /* calculate new time value */
+
+ __disable_irq();		/* disable interrupt */
+ if (isr->dist != 0)		/* if currently active */
+ {
+  if (dir == isr->dir)		/* if direction same */
+  {
+   isr->dist += dist;		/* update distance */
+   isr->clocksStep = ctr;	/* save counter value */
+   mov->timer->ARR = ctr - 1;	/* set new counter value */
+  }
+  else				/* if direction change */
+  {
+   mov->isrStop('9');		/* stop movement */
+  }
+  __enable_irq();		/* enable interrupts */
+  return;			/* and exit */
+ }
+ __enable_irq();		/* enable interrupts */
+
+ if (dir != isr->dir)		/* if direction change */
+ {
+  int backlashSteps = mov->axis->backlashSteps; /* get backlash */
+  if (backlashSteps != 0)	/* if non zero */
+  {
+   ctr = moveInit(isr, mov->acJog, dir, backlashSteps); /* setup move */
+   mov->hwEnable(ctr);		/* setup hardware */
+   mov->start();		/* start move */
+   mov->mpgBackWait = 1;	/* set to wait for backlash */
+   return;
+  }
+ }
+
+ isr->dir = dir;		/* set direction */
+ isr->dist = dist;		/* set distance */
+
+ isr->home = 0;			/* clear variables */
+ isr->useDro = 0;
+ isr->cFactor = 0;
+ isr->accel = 0;
+ isr->decel = 0;
+ isr->sync = 0;
+
+ mov->hwEnable(ctr);		/* setup hardware */
+ mov->start();			/* start */
+}
+
 void jogSpeed(P_MOVECTL mov, float speed)
 {
  int dir = 1;
@@ -2925,6 +3036,8 @@ void zMoveSetup(void)
  mov->isrStop = &zIsrStop;
  mov->move = &zMove;
  mov->moveRel = &zMoveRel;
+ mov->mpgStepsCount = 14;
+ mov->mpgUSecSlow = 20 * 1000;
  mov->jogCmd = CMD_JOG;
  mov->speedCmd = CMD_SPEED;
  if (zUseDro)
@@ -2932,9 +3045,11 @@ void zMoveSetup(void)
   mov->jogCmd |= DRO_UPD;
   mov->speedCmd |= CMD_SPEED;
  }
+ mov->timer = Z_TMR;
  mov->moveInit = &zMoveInit;
  mov->dirFwd = &zFwd;
  mov->dirRev = &zRev;
+ mov->hwEnable = zHwEnable;
  mov->start = &zStart;
  mov->pulse = &zPulse;
 }
@@ -3797,6 +3912,8 @@ void xMoveSetup(void)
  mov->isrStop = &xIsrStop;
  mov->move = &xMove;
  mov->moveRel = &xMoveRel;
+ mov->mpgStepsCount = 14;
+ mov->mpgUSecSlow = 20 * 1000;
  mov->jogCmd = CMD_JOG;
  mov->speedCmd = CMD_SPEED;
  if (xUseDro)
@@ -3806,10 +3923,13 @@ void xMoveSetup(void)
  }
  if (DBG_SETUP)
   printf("xUseDro %d jogCmd %x\n", xUseDro, (unsigned int) mov->jogCmd);
+ mov->timer = X_TMR;
  mov->moveInit = &xMoveInit;
  mov->dirFwd = &xFwd;
  mov->dirRev = &xRev;
- mov->start = &xStart;
+ mov->hwEnable = &xHwEnable;
+// mov->start = &xStart;
+ mov->start = &xTmrStart;
  mov->pulse = &xPulse;
 }
 
@@ -3817,19 +3937,21 @@ void xMoveRel(int dist, int cmd)
 {
  P_MOVECTL mov = &xMoveCtl;
 
-  if (mov->limitDir != 0)	/* if at a limit */
+#if 0
+ if (mov->limitDir != 0)	/* if at a limit */
+ {
+  if (limitOverride == 0)	/* if not overriding limits */
   {
-   if (limitOverride == 0)	/* if not overriding limits */
+   printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
+   if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+       ||  ((mov->limitDir < 0) && (dist < 0)))
    {
-    printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
-    if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-	||  ((mov->limitDir < 0) && (dist < 0)))
-    {
-     printf("x at limit\n");
-     return;
-    }
+    printf("x at limit\n");
+    return;
    }
   }
+ }
+#endif
 
  int stepsInch = xAxis.stepsInch;
  if (DBG_MOVOP)
@@ -4309,31 +4431,30 @@ void axisCtl(void)
   }
  }
 
- if (0)
+#if 0
+ if (limitIsSet())		/* if limit is set */
  {
-  if (limitIsSet())		/* if limit is set */
+  mvStatus |= MV_LIMIT;		/* set at limit bit */
+  if (xIsr.dist)		/* if x isr active */
   {
-   mvStatus |= MV_LIMIT;		/* set at limit bit */
-   if (xIsr.dist)		/* if x isr active */
+   if (xMoveCtl.limitMove == 0)	/* if not a limit move */
    {
-    if (xMoveCtl.limitMove == 0)	/* if not a limit move */
+    if (xMoveCtl.limitDir == 0)	/* if not at limit */
     {
-     if (xMoveCtl.limitDir == 0)	/* if not at limit */
-     {
-      xIsrStop('7');		/* stop x isr */
-      xMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
-     }
+     xIsrStop('7');		/* stop x isr */
+     xMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
     }
    }
-   if (zIsr.dist)		/* if z isr active */
-   {
-    zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
-    zIsrStop('7');		/* stop z isr */
-   }
   }
-  else				/* if limit clear */
-   mvStatus &= MV_LIMIT;		/* clear at limit bit */
+  if (zIsr.dist)		/* if z isr active */
+  {
+   zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
+   zIsrStop('7');		/* stop z isr */
+  }
  }
+ else				/* if limit clear */
+  mvStatus &= MV_LIMIT;		/* clear at limit bit */
+#endif
 
  if (zMoveCtl.state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */
@@ -4368,7 +4489,7 @@ void axisCtl(void)
   }
   else if (xJogQue.count != 0)	/* if x jog flag set */
   {
-   jogMpg(&xMoveCtl);		/* run z jog routine */
+   jogMpg2(&xMoveCtl);		/* run z jog routine */
   }
  }
 

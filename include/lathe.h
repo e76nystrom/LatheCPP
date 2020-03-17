@@ -368,7 +368,7 @@ typedef struct s_jogque
  int fil;
  int emp;
  int count;
- char buf[MAXJOG];
+ uint32_t buf[MAXJOG];
 } T_JOGQUE, *P_JOGQUE;
 
 EXT T_JOGQUE zJogQue;
@@ -404,6 +404,8 @@ typedef struct s_movectl
  int jogFlag;			/* jog enable flag */
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
+ int mpgStepsCount;		/* mpg jog steps per mpg count */
+ unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
  P_AXIS axis;			/* axis parameters */
@@ -414,18 +416,22 @@ typedef struct s_movectl
  P_ACCEL acMove;		/* unsynchronized movement */
  P_ACCEL acJog;			/* jog */
  P_ACCEL acJogSpeed;		/* jog at speed */
+ TIM_TypeDef *timer;		/* axis timer */
  void (*isrStop) (char ch);	/* isr stop routine */
  void (*move) (int pos, int cmd); /* move absolute function */
  void (*moveRel) (int pos, int cmd); /* move relative function */
  void (*moveInit) (P_ACCEL ac, char dir, int dist); /* move initialization */
  void (*dirFwd) (void);		/* direction forward */
  void (*dirRev) (void);		/* direction rev */
+ void (*hwEnable) (int ctr);	/* hardware enable */
  void (*start) (void);		/* axis start */
  void (*pulse) (void);		/* axis pulse */
 } T_MOVECTL, *P_MOVECTL;
 
 EXT T_MOVECTL zMoveCtl;
 EXT T_MOVECTL xMoveCtl;
+
+EXT unsigned int clksPerUSec;	/* clocks per usec */
 
 typedef struct s_homectl
 {
@@ -626,8 +632,9 @@ void encoderSWIEnable(int enable);
 void encoderStart(void);
 
 void jogMove(P_MOVECTL mov, int dir);
-void jogMpg1(P_MOVECTL mov);
 void jogMpg(P_MOVECTL mov);
+void jogMpg1(P_MOVECTL mov);
+void jogMpg2(P_MOVECTL mov);
 void jogSpeed(P_MOVECTL mov, float speed);
 
 void zInit(P_AXIS ax);
@@ -779,6 +786,20 @@ typedef union
   int w;
  };
 } BITWORD;
+
+typedef union
+{
+ struct
+ {
+  unsigned short delta;
+  char r0;
+  char dir;
+ };
+ struct
+ {
+  int intVal;
+ };
+} MPG_VAL;
 
 #include "main.h"
 #include "pinDef.h"
