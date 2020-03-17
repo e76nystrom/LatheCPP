@@ -736,8 +736,6 @@ void xMove(int pos, int cmd);
 void xMoveDro(int pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
-void xFwd(void);
-void xRev(void);
 void xHomeAxis(void);
 void xHomeControl(void);
 
@@ -2648,6 +2646,11 @@ void jogMpg2(P_MOVECTL mov)
  isr->decel = 0;
  isr->sync = 0;
 
+ if (dir > 0)			/* set direction */
+  mov->dirFwd();
+ else
+  mov->dirRev();
+
  mov->hwEnable(ctr);		/* setup hardware */
  mov->start();			/* start */
 }
@@ -3047,8 +3050,8 @@ void zMoveSetup(void)
  }
  mov->timer = Z_TMR;
  mov->moveInit = &zMoveInit;
- mov->dirFwd = &zFwd;
- mov->dirRev = &zRev;
+ mov->dirFwd = &dirZFwd;
+ mov->dirRev = &dirZRev;
  mov->hwEnable = zHwEnable;
  mov->start = &zStart;
  mov->pulse = &zPulse;
@@ -3925,8 +3928,8 @@ void xMoveSetup(void)
   printf("xUseDro %d jogCmd %x\n", xUseDro, (unsigned int) mov->jogCmd);
  mov->timer = X_TMR;
  mov->moveInit = &xMoveInit;
- mov->dirFwd = &xFwd;
- mov->dirRev = &xRev;
+ mov->dirFwd = &dirXFwd;
+ mov->dirRev = &dirXRev;
  mov->hwEnable = &xHwEnable;
 // mov->start = &xStart;
  mov->start = &xTmrStart;
@@ -4285,16 +4288,6 @@ void xControl(void)
   dbgmsg(D_XST, mov->state);
   break;
  }
-}
-
-void xFwd(void)
-{
- dirXFwd();
-}
-
-void xRev(void)
-{
- dirXRev();
 }
 
 void xHomeAxis(void)

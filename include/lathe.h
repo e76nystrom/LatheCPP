@@ -692,8 +692,6 @@ void xMove(int pos, int cmd);
 void xMoveDro(int pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
-void xFwd(void);
-void xRev(void);
 void xHomeAxis(void);
 void xHomeControl(void);
 
