@@ -92,8 +92,9 @@ BITWORD xDecode;
 
 int jog1LastDecode;
 int jog2LastDecode;
-BITWORD jog2Decode;
 
+unsigned int lastZJogUSec;
+unsigned int lastZJogMSec;
 unsigned int lastXJogUSec;
 unsigned int lastXJogMSec;
 
@@ -208,12 +209,33 @@ extern "C" void jogISR(void)
   if ((jog1LastDecode == 0x7 && tmp.w == 1)
   ||  (jog1LastDecode == 0xb && tmp.w == 2))
   {
-   dbgJogIsrSet();
    P_JOGQUE jog = &zJogQue;
    if (jog->count < MAXJOG)
    {
+    dbgJogIsrSet();
     jog->count++;
+#if 1
+    unsigned int mSec = millis();
+    unsigned short uSec = usecTmrRead();
+    unsigned int delta = mSec - lastZJogMSec;
+    MPG_VAL val;
+    if (delta <= 20)		/* if less than 20 msec */
+    {
+     val.delta = (uSec - lastZJogUSec); /* use micro seconds */
+    }
+    else			/* if greater than 20 msec */
+    {
+     if (delta > 50)		/* if greater than 50 mSec */
+      delta = 50;		/* set to 50 mSec */
+     val.delta = delta * 1000;	/* convert to uSec */
+    }
+    lastZJogMSec = mSec;	/* set new last msec value */
+    lastZJogUSec = uSec;	/* set new last usec value */
+    val.dir = (char) decoder[tmp.w]; /* combine with delta time */
+    jog->buf[jog->fil] = val.intVal; /* add to queue */
+#else
     jog->buf[jog->fil] = decoder[tmp.w];
+#endif
     jog->fil++;
     if (jog->fil >= MAXJOG)
      jog->fil = 0;
@@ -258,36 +280,32 @@ extern "C" void jogISR(void)
    if (jog->count < MAXJOG)	/* if queue not full */
    {
     dbgJogIsrSet();
-    if (jog->count < MAXJOG)
-    {
-     jog->count++;
+    jog->count++;
 #if 1
-     unsigned int mSec = millis();
-     unsigned short uSec = usecTmrRead();
-     unsigned int delta = mSec - lastXJogMSec;
-     MPG_VAL val;
-     if (delta <= 20)		/* if less than 20 msec */
-     {
-      val.delta = (uSec - lastXJogUSec); /* use micro seconds */
-     }
-     else			/* if greater than 20 msec */
-     {
-      if (delta > 50)		/* if greater than 50 mSec */
-       delta = 50;		/* set to 50 mSec */
-      val.delta = delta * 1000;	/* convert to uSec */
-     }
-     dbgTrk1L(val.intVal);
-     lastXJogMSec = mSec;	/* set new last msec value */
-     lastXJogUSec = uSec;	/* set new last usec value */
-     val.dir = (char) decoder[tmp.w]; /* combine with delta time */
-     jog->buf[jog->fil] = val.intVal; /* add to queue */
-#else
-     jog->buf[jog->fil] = decoder[tmp.w];
-#endif
-     jog->fil++;
-     if (jog->fil >= MAXJOG)
-      jog->fil = 0;
+    unsigned int mSec = millis();
+    unsigned short uSec = usecTmrRead();
+    unsigned int delta = mSec - lastXJogMSec;
+    MPG_VAL val;
+    if (delta <= 20)		/* if less than 20 msec */
+    {
+     val.delta = (uSec - lastXJogUSec); /* use micro seconds */
     }
+    else			/* if greater than 20 msec */
+    {
+     if (delta > 50)		/* if greater than 50 mSec */
+      delta = 50;		/* set to 50 mSec */
+     val.delta = delta * 1000;	/* convert to uSec */
+    }
+    lastXJogMSec = mSec;	/* set new last msec value */
+    lastXJogUSec = uSec;	/* set new last usec value */
+    val.dir = (char) decoder[tmp.w]; /* combine with delta time */
+    jog->buf[jog->fil] = val.intVal; /* add to queue */
+#else
+    jog->buf[jog->fil] = decoder[tmp.w];
+#endif
+    jog->fil++;
+    if (jog->fil >= MAXJOG)
+     jog->fil = 0;
    }
   }
   jog2LastDecode = tmp.w;	/* save for next interrupt */
@@ -937,7 +955,7 @@ void xIsrStop(char ch)
   }
  }
  
- if (xIsr.taper & TAPER_SLAVE) /* if tapering */
+ if (xIsr.taper & TAPER_SLAVE)	/* if tapering */
  {
   xIsr.lastRemCount = xIsr.remCount; /* save remainder count */
   if (xIsr.taper & TAPER_RUNOUT)

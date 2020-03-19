@@ -2439,6 +2439,7 @@ void jogMpg(P_MOVECTL mov)
  
  P_JOGQUE jog = mov->jogQue;	/* get queue pointer */
  int dist = 0;
+ MPG_VAL val;
  if (mov->state == ZIDLE)	/* if not moving */
  {
   dbgJogMPG0Set();
@@ -2447,7 +2448,7 @@ void jogMpg(P_MOVECTL mov)
   if (jog->count != 0)		/* if anything in count */
   {
    --jog->count;		/* count removal */
-   dist = jog->buf[jog->emp];	/* get value */
+   val.intVal = jog->buf[jog->emp]; /* get value */
    __enable_irq();		/* enable interrupts */
    jog->emp++;			/* update pointer */
    if (jog->emp >= MAXJOG)	/* if at end of queue */
@@ -2459,13 +2460,14 @@ void jogMpg(P_MOVECTL mov)
    dbgJogMPG0Clr();
    return;			/* and exit */
   }
+  dist = val.dir;
    
   if (mov->limitDir != 0)	/* if at a limit */
   {
    if (limitOverride == 0)	/* if not overriding limits */
    {
     if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-	||  ((mov->limitDir < 0) && (dist < 0)))
+    ||  ((mov->limitDir < 0) && (dist < 0)))
     {
      printf("%c at limit\n", mov->axisName);
      return;
@@ -2508,11 +2510,13 @@ void jogMpg(P_MOVECTL mov)
   if (jog->count != 0)		/* if anything in count */
   {
    --jog->count;		/* count removal */
-   dist = jog->buf[jog->emp];	/* get value */
+   val.intVal = jog->buf[jog->emp]; /* get value */
    __enable_irq();		/* enable interrupts */
+
    jog->emp++;			/* update pointer */
    if (jog->emp >= MAXJOG)	/* if at end of queue */
     jog->emp = 0;		/* reset to start */
+   dist = val.dir;		/* get distance */
    if (mov->mpgFlag)		/* if direction inverted */
     dist = -dist;		/* invert distance */
   }
@@ -2587,7 +2591,7 @@ void jogMpg2(P_MOVECTL mov)
    
  char dir = val.dir;		/* get direction */
  unsigned int delta = val.delta; /* mask off time delta */
- printf("%2d %6d\n", dir, delta);
+ /* printf("%2d %6d\n", dir, delta); */
  if (mov->mpgFlag)		/* if direction inverted */
   dir = -dir;			/* invert distance */
 
@@ -2604,6 +2608,7 @@ void jogMpg2(P_MOVECTL mov)
   dist = 1;			/* set distance to 1 */
  }
  uint32_t ctr = (delta * clksPerUSec) / dist; /* calculate new time value */
+ mov->expLoc += dist * dir;	/* update expected loc */
 
  __disable_irq();		/* disable interrupt */
  if (isr->dist != 0)		/* if currently active */
@@ -3053,7 +3058,8 @@ void zMoveSetup(void)
  mov->dirFwd = &dirZFwd;
  mov->dirRev = &dirZRev;
  mov->hwEnable = zHwEnable;
- mov->start = &zStart;
+ /* mov->start = &zStart; */
+ mov->start = &zTmrStart;
  mov->pulse = &zPulse;
 }
 
@@ -4462,7 +4468,10 @@ void axisCtl(void)
  }
  else if (zJogQue.count != 0)	/* if z jog flag set */
  {
-  jogMpg(&zMoveCtl);		/* run z jog routine */
+  if (zMpgInc == 0)		/* if increment is zero */
+   jogMpg2(&zMoveCtl);		/* run timed jog routine */
+  else				/* if non zero */
+   jogMpg(&zMoveCtl);		/* run distance jog routine */
  }
  
  if (xMoveCtl.state != XIDLE)	/* if x axis active */
@@ -4482,7 +4491,10 @@ void axisCtl(void)
   }
   else if (xJogQue.count != 0)	/* if x jog flag set */
   {
-   jogMpg2(&xMoveCtl);		/* run z jog routine */
+   if (xMpgInc == 0)		/* if increment is zero */
+    jogMpg2(&xMoveCtl);		/* run timed jog routine */
+   else				/* if non zero */
+    jogMpg(&xMoveCtl);		/* run distance jog routine */
   }
  }
 
