@@ -1,4 +1,4 @@
-#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)
+#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)
 #if !defined(__TIMERS_H)
 #define __TIMERS_H
 

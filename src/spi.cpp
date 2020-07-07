@@ -6,6 +6,9 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
@@ -17,7 +20,7 @@
 #endif
 
 #define EXT
-#include "spi.h"
+#include "latheSPI.h"
 //#endif
 
 #if defined(__SPI_INC__)	// <-
@@ -69,19 +72,19 @@ EXT int16_t spiw1;
 inline void spisel()
 {
  SPIn->CR1 |= SPI_CR1_SPE;
- SPI_Sel_GPIO_Port->BSRR = (SPI_Sel_Pin << 16);
+ SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
 }
 
 inline void spirel()
 {
-  SPI_Sel_GPIO_Port->BSRR = SPI_Sel_Pin;
+  SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
   SPIn->CR1 &= ~SPI_CR1_SPE;
 }
 
 #else
 
-#define SPI_SEL_BIT SPI_Sel_Pin
-#define SPI_SEL_REG SPI_Sel_GPIO_Port->BSRR
+#define SPI_SEL_BIT SPI_SEL_Pin
+#define SPI_SEL_REG SPI_SEL_GPIO_Port->BSRR
 
 #define spisel()  SPIn->CR1 |= SPI_CR1_SPE; \
  SPI_SEL_REG = (SPI_SEL_BIT << 16)
@@ -224,12 +227,22 @@ unsigned char spisend(unsigned char c)
  rsp = spi1buf;			/* read data response */
 #else
  SPI_TypeDef *spi = SPIn;
+#if defined(STM32F4) || defined(STM32F7)
  spi->DR = c;
  while ((spi->SR & SPI_SR_TXE) == 0)
   spiw0++;
  while ((spi->SR & SPI_SR_RXNE) == 0)
   spiw1++;
  c = spi->DR;
+#endif
+#if defined(STM32H7)
+ spi->TXDR = c;
+ while ((spi->SR & SPI_SR_TXP) == 0)
+  spiw0++;
+ while ((spi->SR & SPI_SR_RXP) == 0)
+  spiw1++;
+ c = spi->RXDR;
+#endif 
  return(c);
 #endif
 }
@@ -247,12 +260,22 @@ unsigned char spiread(void)
  return(spi1buf);
 #else
  SPI_TypeDef *spi = SPIn;
+#if defined(STM32F4) || defined(STM32F7)
  spi->DR = 0;
  while ((spi->SR & SPI_SR_TXE) == 0)
   spiw0++;
  while ((spi->SR & SPI_SR_RXNE) == 0)
   spiw1++;
  char c = spi->DR;
+#endif
+#if defined(STM32H7)
+ spi->TXDR = 0;
+ while ((spi->SR & SPI_SR_TXP) == 0)
+  spiw0++;
+ while ((spi->SR & SPI_SR_RXP) == 0)
+  spiw1++;
+ char c = spi->RXDR;
+#endif 
  return(c);
 #endif
 }

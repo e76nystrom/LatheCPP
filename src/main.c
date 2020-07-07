@@ -1057,7 +1057,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, Dir3_Pin|Dir4_Pin|Pin14_Pin|Pin1_Pin 
-                          |SPI_Sel_Pin, GPIO_PIN_RESET);
+                          |SPI_SEL_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : Dbg8_Pin Logic1_Pin Dbg9_Pin Dir2_Pin 
                            Dbg6_Pin Dbg7_Pin */
@@ -1124,9 +1124,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(Pin12_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Dir3_Pin Dir4_Pin Pin14_Pin Pin1_Pin 
-                           SPI_Sel_Pin */
+                           SPI_SEL_Pin */
   GPIO_InitStruct.Pin = Dir3_Pin|Dir4_Pin|Pin14_Pin|Pin1_Pin 
-                          |SPI_Sel_Pin;
+                          |SPI_SEL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -249,8 +249,7 @@ def main(cfg, path):
     global name, tmr, argType, pwm, isr, slave
 
     f = open("../" + path + "/inc/timers.h", "wb")
-    fWrite(f, "#if defined(__STM32F4xx_HAL_H) || "\
-           "defined( __STM32F7xx_HAL_H)\n")
+    fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
     fWrite(f, "#if !defined(__TIMERS_H)\n")
     fWrite(f, "#define __TIMERS_H\n\n")
 
@@ -399,16 +398,18 @@ core407 = \
   ("step3Pwm",   2, "STEP3_PWM"),
   ("step4",      3, "STEP4_TIM"),
   ("step4Pwm",   2, "STEP4_PWM"),
-  ("usecTmr",    6, "USEC_TMR_TIM"),
-  ("encTestTmr", 7,  "ENC_TMR_TIM"),
   ("spindleTmr", 8,  "SPINDLE_TMR"),
   ("spindlePwm", 4,  "SPINDLE_PWM"),
+
+  ("usecTmr",    6, "USEC_TMR_TIM"),
+  ("encTestTmr", 7,  "ENC_TMR_TIM"),
+  ("cmpTmr",     9,  "CMP_TMR"),
   ("indexTmr",   10, "INDEX_TMR"),
   ("intTmr",     11, "INT_TMR"),
   ("intTmrPwm",  0,  "INT_TMR_PWM"),
-  ("cmpTmr",     9,  "CMP_TMR"),
   ("pwmTmr",     12, "PWM_TMR"),
   ("pwmTmrPwm",  1,  "PWM_TMR_PWM"),
+
   ("step3Isr",   "TIM4"),
   ("step4Isr",   "TIM3"),
   ("spindleIsr", "TIM8_UP_TIM13"),
@@ -494,12 +495,13 @@ nuc746 = \
 
   ("usecTmr",     6,  "USEC_TMR_TIM"),
   ("encTestTmr",  7,  "ENC_TMR_TIM"),
-  ("indexTmr",    10, "INDEX_TMR"),
   ("intTmr",      9,  "INT_TMR"),
   ("intTmrPwm",   0,  "INT_TMR_PWM"),
+  ("indexTmr",    10, "INDEX_TMR"),
   ("cmpTmr",      11, "CMP_TMR"),
   ("pwmTmr",      12, "PWM_TMR"),
   ("pwmTmrPwm",   2,  "PWM_TMR_PWM"),
+
   ("step3Isr",    "TIM4"),
   ("step4Isr",    "TIM3"),
   ("cmpTmrIsr",   "TIM1_TRG_COM_TIM11"),
@@ -510,9 +512,43 @@ nuc746 = \
   ("pwmTmrIsr",   "TIM8_BRK_TIM12"),
 )
 
+nuch743 = \
+( \
+  ("board",       "nucH743"),
+  ("proc",        "STM32H743"),
+  ("step1",       2,  "STEP1_TIM"),
+  ("step1Pwm",    3,  "STEP1_PWM"),
+  ("step2",       5,  "STEP2_TIM"),
+  ("step2Pwm",    3,  "STEP2_PWM"),
+  ("step3",       3,  "STEP3_TIM"),
+  ("step3Pwm",    2,  "STEP3_PWM"),
+  ("step4",       4,  "STEP4_TIM"),
+  ("step4Pwm",    3,  "STEP4_PWM"),
+  ("spindleTmr",  8,  "SPINDLE_TMR"),
+  ("spindlePwm",  1,  "SPINDLE_PWM"),
+
+  ("usecTmr",     6,  "USEC_TMR_TIM"),
+  ("encTestTmr",  7,  "ENC_TMR_TIM"),
+  ("pwmTmr",      12, "PWM_TMR"),
+  ("pwmTmrPwm",   2,  "PWM_TMR_PWM"),
+  ("intTmr",      15, "INT_TMR"),
+  ("intTmrPwm",   0,  "INT_TMR_PWM"),
+  ("indexTmr",    16, "INDEX_TMR"),
+  ("cmpTmr",      17, "CMP_TMR"),
+
+  ("step3Isr",    "TIM4"),
+  ("step4Isr",    "TIM3"),
+  ("pwmTmrIsr",   "TIM8_BRK_TIM12"),
+  ("spindleIsr",  "TIM8_UP_TIM13"),
+  ("intTmrIsr",   "TIM15"),
+  ("indexTmrIsr", "TIM16"),
+  ("cmpTmrIsr",   "TIM17"),
+  ("usecTmrIsr",  None),
+)
+
 def triggers():
     global slaveTrig
-    if proc == "STM32F407" or proc == "STM32F446" or proc == "STM32F746":
+    if proc == "STM32F407" or proc == "STM32F446" or proc == "STM32F746" or proc == "STM32H743":
         slaveTrig = \
         (\
         (2, (1, 8, 3, 4)),
@@ -567,6 +603,9 @@ while True:
     elif val == "core407":
         cfg = core407
         path = "LatheCPPD"
+    elif val == "core4071":
+        cfg = core407
+        path = "LatheCPPD1"
     elif val == "nuc446":
         cfg = nuc446
         path = "LatheCPPN"
@@ -576,6 +615,9 @@ while True:
     elif val == "nuc746":
         cfg = nuc746
         path = "LatheCPP7N"
+    elif val == "nuch743":
+        cfg = nuch743
+        path = "LatheCPP7H"
     n += 1
 
 main(cfg, path)

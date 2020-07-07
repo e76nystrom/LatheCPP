@@ -7,6 +7,9 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 #endif
 
 #include "lathe.h"
@@ -14,7 +17,7 @@
 #include "Xilinx.h"
 #if !defined(WIN32)
 #include "serialio.h"
-#include "spi.h"
+#include "latheSPI.h"
 #include "encoder.h"
 #endif
 
@@ -574,6 +577,7 @@ void remcmd(void)
  }
 #endif
 
+ flushBuf();
  putrem('*');
 }
 

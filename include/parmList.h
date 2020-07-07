@@ -249,5 +249,17 @@ enum PARM
 // limit override
 
  LIMIT_OVERRIDE,                /* 0x92 override limit switches */
- MAX_PARM,                      /* 0x93 maximum parameter */
+ Z_LIM_ENA,                     /* 0x93 z limit enable */
+ Z_LIM_NEG_INV,                 /* 0x94 z negative limit invert */
+ Z_LIM_POS_INV,                 /* 0x95 z Positive limit Invert */
+ Z_HOME_ENA,                    /* 0x96 z home enable */
+ Z_HOME_INV,                    /* 0x97 z home invert */
+ X_LIM_ENA,                     /* 0x98 x limit enable */
+ X_LIM_NEG_INV,                 /* 0x99 x negative limit invert */
+ X_LIM_POS_INV,                 /* 0x9a x Positive limit Invert */
+ X_HOME_ENA,                    /* 0x9b x home enable */
+ X_HOME_INV,                    /* 0x9c x home invert */
+ E_STOP_ENA,                    /* 0x9d enable estop */
+ E_STOP_INV,                    /* 0x9e invert estop siganl */
+ MAX_PARM,                      /* 0x9f maximum parameter */
 };

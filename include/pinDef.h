@@ -1,4 +1,4 @@
-#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)
+#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)
 #if !defined(__PINDEF_H)
 #define __PINDEF_H
 
@@ -580,6 +580,36 @@ inline uint16_t syncRead() {return((Pin17_GPIO_Port->ODR & Pin17_Pin) != 0);}
 inline void syncSet() {}
 inline void syncClr() {}
 inline uint16_t sync() {return(0);}
+#endif
+
+#ifdef Led1_Pin
+inline void led1Set() {Led1_GPIO_Port->BSRR = Led1_Pin;}
+inline void led1Clr() {Led1_GPIO_Port->BSRR = (Led1_Pin << 16);}
+inline uint16_t led1Read() {return((Led1_GPIO_Port->ODR & Led1_Pin) != 0);}
+#else
+inline void led1Set() {}
+inline void led1Clr() {}
+inline uint16_t led1() {return(0);}
+#endif
+
+#ifdef Led2_Pin
+inline void led2Set() {Led2_GPIO_Port->BSRR = Led2_Pin;}
+inline void led2Clr() {Led2_GPIO_Port->BSRR = (Led2_Pin << 16);}
+inline uint16_t led2Read() {return((Led2_GPIO_Port->ODR & Led2_Pin) != 0);}
+#else
+inline void led2Set() {}
+inline void led2Clr() {}
+inline uint16_t led2() {return(0);}
+#endif
+
+#ifdef Led3_Pin
+inline void led3Set() {Led3_GPIO_Port->BSRR = Led3_Pin;}
+inline void led3Clr() {Led3_GPIO_Port->BSRR = (Led3_Pin << 16);}
+inline uint16_t led3Read() {return((Led3_GPIO_Port->ODR & Led3_Pin) != 0);}
+#else
+inline void led3Set() {}
+inline void led3Clr() {}
+inline uint16_t led3() {return(0);}
 #endif
 
 #endif /* __PINDEF_H */

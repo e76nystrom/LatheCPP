@@ -68,6 +68,7 @@ enctst	7	7	7	1	7  | 1	sw
 #include "nuc446.h"
 #include "nuc401.h"
 #include "nuc746.h"
+#include "nuch743.h"
 #define SPINDLE_MICRO_STEPS 64
 #define SPINDLE_MOTOR_STEPS 200
 

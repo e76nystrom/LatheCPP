@@ -249,5 +249,17 @@ T_PARM remparm[] =
 // limit override
 
  PARM(limitOverride),           /* 0x92 override limit switches */
- PARM(maxParm),                 /* 0x93 maximum parameter */
+ PARM(zLimEna),                 /* 0x93 z limit enable */
+ PARM(zLimNegInv),              /* 0x94 z negative limit invert */
+ PARM(zLimPosInv),              /* 0x95 z Positive limit Invert */
+ PARM(zHomeEna),                /* 0x96 z home enable */
+ PARM(zHomeInv),                /* 0x97 z home invert */
+ PARM(xLimEna),                 /* 0x98 x limit enable */
+ PARM(xLimNegInv),              /* 0x99 x negative limit invert */
+ PARM(xLimPosInv),              /* 0x9a x Positive limit Invert */
+ PARM(xHomeEna),                /* 0x9b x home enable */
+ PARM(xHomeInv),                /* 0x9c x home invert */
+ PARM(eStopEna),                /* 0x9d enable estop */
+ PARM(eStopInv),                /* 0x9e invert estop siganl */
+ PARM(maxParm),                 /* 0x9f maximum parameter */
 };

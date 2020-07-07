@@ -7,6 +7,9 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -27,7 +30,7 @@
 #include "remvar.h"
 
 #include "serialio.h"
-#include "spi.h"
+#include "latheSPI.h"
 #include "lcd.h"
 
 #include "Xilinx.h"
@@ -425,9 +428,9 @@ typedef struct s_movectl
  char prev;			/* previous state */
  char stop;			/* stop flag */
  char jog;			/* jogging with control */
- char done;			/* done flag xilinx */
- char wait;			/* waiting for done xilinx */
- char ctlreg;			/* control register xilinx */
+ char done;			/* done flag fpga */
+ char wait;			/* waiting for done fpga */
+ char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
  char limitMove;		/* move off limits in progress */
  char mpgFlag;			/* mpg direction flag */
@@ -2597,52 +2600,73 @@ void jogMpg2(P_MOVECTL mov)
 
  P_ZXISR isr = mov->isr;	/* pointer to isr info */
 
- int dist;			/* initialize distance */
- if (delta < mov->mpgUSecSlow)	/* if fast jog */
+ uint32_t ctr;
+ int dist = *mov->mpgJogInc;	/* read increment distance */
+ if (dist == 0)			/* if continuous jog */
  {
-  dist = mov->mpgStepsCount;	/* set counts */
- }
- else				/* if slow jog */
- {
-  delta = mov->mpgUSecSlow;	/* use slow limit for interval */
-  dist = 1;			/* set distance to 1 */
- }
- uint32_t ctr = (delta * clksPerUSec) / dist; /* calculate new time value */
- mov->expLoc += dist * dir;	/* update expected loc */
+  if (delta < mov->mpgUSecSlow)	/* if fast jog */
+  {
+   dist = mov->mpgStepsCount;	/* set counts */
+  }
+  else				/* if slow jog */
+  {
+   delta = mov->mpgUSecSlow;	/* use slow limit for interval */
+   dist = 1;			/* set distance to 1 */
+  }
+  ctr = (delta * clksPerUSec) / dist; /* calculate new time value */
 
- __disable_irq();		/* disable interrupt */
- if (isr->dist != 0)		/* if currently active */
+  __disable_irq();		/* disable interrupt */
+  if (isr->dist != 0)		/* if currently active */
+  {
+   if (dir == mov->dir)		/* if direction same */
+   {
+    isr->dist += dist;		/* update distance */
+    isr->clocksStep = ctr;	/* save counter value */
+    mov->timer->ARR = ctr - 1;	/* set new counter value */
+   }
+   else				/* if direction change */
+   {
+    mov->isrStop('9');		/* stop movement */
+   }
+   __enable_irq();		/* enable interrupts */
+   return;			/* and exit */
+  } 
+ }
+ else				/* if incremental jog */
  {
-  if (dir == isr->dir)		/* if direction same */
+  ctr = (mov->mpgUSecSlow * clksPerUSec) / mov->mpgStepsCount; /* set ctr */
+
+  __disable_irq();		/* disable interrupt */
+  if (isr->dist != 0)		/* if active */
   {
-   isr->dist += dist;		/* update distance */
-   isr->clocksStep = ctr;	/* save counter value */
-   mov->timer->ARR = ctr - 1;	/* set new counter value */
+   if (dir != isr->dir)		/* if direction change */
+   {
+    mov->isrStop('9');		/* stop movement */
+   }
+   __enable_irq();		/* enable interrupts */
+   return;			/* exit */
   }
-  else				/* if direction change */
-  {
-   mov->isrStop('9');		/* stop movement */
-  }
-  __enable_irq();		/* enable interrupts */
-  return;			/* and exit */
  }
  __enable_irq();		/* enable interrupts */
 
- if (dir != isr->dir)		/* if direction change */
+ mov->expLoc += dist * dir;	/* update expected loc */
+ if (dir != mov->dir)		/* if direction change */
  {
+  mov->dir = dir;		/* set direction */
   int backlashSteps = mov->axis->backlashSteps; /* get backlash */
   if (backlashSteps != 0)	/* if non zero */
   {
-   ctr = moveInit(isr, mov->acJog, dir, backlashSteps); /* setup move */
-   mov->hwEnable(ctr);		/* setup hardware */
-   mov->start();		/* start move */
+   dist = backlashSteps;	/* set distance */
+   isr->dir = 0;		/* set to zero for backlash */
    mov->mpgBackWait = 1;	/* set to wait for backlash */
-   return;
+  }
+  else				/* if no backlash */
+  {
+   isr->dir = dir;		/* set isr direction */
   }
  }
-
- isr->dir = dir;		/* set direction */
- isr->dist = dist;		/* set distance */
+ else				/* if no direction change */
+  isr->dir = dir;		/* set isr direction */
 
  isr->home = 0;			/* clear variables */
  isr->useDro = 0;
@@ -2651,6 +2675,8 @@ void jogMpg2(P_MOVECTL mov)
  isr->decel = 0;
  isr->sync = 0;
 
+// printf("%c %2d %2d %3d\n", mov->axisName, mov->dir, isr->dir, dist);
+ isr->dist = dist;		/* set distance */
  if (dir > 0)			/* set direction */
   mov->dirFwd();
  else
@@ -4430,18 +4456,20 @@ void axisCtl(void)
   }
  }
 
+ P_MOVECTL mov;
 #if 0
  if (limitIsSet())		/* if limit is set */
  {
   mvStatus |= MV_LIMIT;		/* set at limit bit */
   if (xIsr.dist)		/* if x isr active */
   {
-   if (xMoveCtl.limitMove == 0)	/* if not a limit move */
+   mov = &xMoveCtl;
+   if (mov->limitMove == 0)	/* if not a limit move */
    {
-    if (xMoveCtl.limitDir == 0)	/* if not at limit */
+    if (mov->limitDir == 0)	/* if not at limit */
     {
      xIsrStop('7');		/* stop x isr */
-     xMoveCtl.limitDir = xIsr.dir; /* save direction when limit tripped */
+     mov->limitDir = xIsr.dir; /* save direction when limit tripped */
     }
    }
   }
@@ -4454,69 +4482,40 @@ void axisCtl(void)
  else				/* if limit clear */
   mvStatus &= MV_LIMIT;		/* clear at limit bit */
 #endif
-
- if (zMoveCtl.state != ZIDLE)	/* if z axis active */
+ 
+ mov = &zMoveCtl;
+ if (mov->state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */
-
- if (zMoveCtl.mpgBackWait)	/* if waiting for mpg backlash */
+ else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
  {
   if (zIsr.done != 0)		/* if z done */
   {
    zIsr.done = 0;		/* clear done flag */
-   zMoveCtl.mpgBackWait = 0;	/* clear backlash flag */
+   mov->mpgBackWait = 0;	/* clear backlash flag */
   }
  }
  else if (zJogQue.count != 0)	/* if z jog flag set */
  {
-  if (zMpgInc == 0)		/* if increment is zero */
-   jogMpg2(&zMoveCtl);		/* run timed jog routine */
-  else				/* if non zero */
-   jogMpg(&zMoveCtl);		/* run distance jog routine */
+  jogMpg2(mov);			/* run timed jog routine */
  }
  
- if (xMoveCtl.state != XIDLE)	/* if x axis active */
+ mov = &xMoveCtl;
+ if (mov->state != XIDLE)	/* if x axis active */
   xControl();			/* run x axis state machine */
-
- if (xHomeCtl.state != H_IDLE) /* if home control not idle */
+ else if (xHomeCtl.state != H_IDLE) /* if home control not idle */
   xHomeControl();		/* run home statue machine */
- else
+ else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
  {
-  if (xMoveCtl.mpgBackWait)	/* if waiting for mpg backlash */
+  if (xIsr.done != 0)		/* if x done */
   {
-   if (xIsr.done != 0)		/* if x done */
-   {
-    xIsr.done = 0;		/* clear done flag */
-    xMoveCtl.mpgBackWait = 0;	/* clear backlash flag */
-   }
-  }
-  else if (xJogQue.count != 0)	/* if x jog flag set */
-  {
-   if (xMpgInc == 0)		/* if increment is zero */
-    jogMpg2(&xMoveCtl);		/* run timed jog routine */
-   else				/* if non zero */
-    jogMpg(&xMoveCtl);		/* run distance jog routine */
+   xIsr.done = 0;		/* clear done flag */
+   mov->mpgBackWait = 0;	/* clear backlash flag */
   }
  }
-
-#if 0
- if (stepperDrive == 0)
+ else if (xJogQue.count != 0)	/* if x jog flag set */
  {
-  if (indexTmrAct == 0)		/* if index timer not active */
-  {
-   if (EXTI->PR & Index_Pin)	/* clear index 2 interrupt */
-   {
-    indexTmrAct = 1;
-    indexPeriod = 0;
-    indexOverflow = 0;
-    indexTmrCntClr();
-    indexTmrSetIE();
-   }
-  }
-  else				/* if index timer act */
-  {
-  }
+  jogMpg2(mov);			/* run timed jog routine */
  }
-#endif
  
  dbgAxisCtlClr();
 }
@@ -6404,9 +6403,15 @@ T_TIM tim[] =
 #ifdef TIM8
  {TIM8,  8},
 #endif
+#ifdef TIM9
  {TIM9,  9},
+#endif
+#ifdef TIM10
  {TIM10, 10},
+#endif
+#ifdef TIM11
  {TIM11, 11},
+#endif
 #ifdef TIM12
  {TIM12, 12},
 #endif
@@ -6454,8 +6459,17 @@ void tmrInfo(TIM_TypeDef *tmr)
  printf("CCR4  %8x ",(unsigned int) tmr->CCR4);
  printf("BDTR  %8x\n",(unsigned int) tmr->BDTR);
  printf("DCR   %8x ",(unsigned int) tmr->DCR);
+#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
  printf("OR    %8x\n",(unsigned int) tmr->OR);
+#endif
  flushBuf();
+}
+
+void extiBit(const char *label, uint32_t val)
+{
+ printf("\n%6s", label);
+ for (int i = 0; i <= 22; i++)
+  printf(" %2d", (int) ((val >> i) & 0x1));
 }
 
 void extiInfo(void)
@@ -6466,6 +6480,7 @@ void extiInfo(void)
  for (i = 0; i <= 22; i++)
   printf(" %2d", i);
 
+#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
  printf("\nIMR   ");
  int val = EXTI->IMR;
  for (i = 0; i <= 22; i++)
@@ -6513,6 +6528,16 @@ void extiInfo(void)
    mask >>= 1;
   }
  }
+#endif
+#if defined(STM32H743xx_H)
+ extiBit("RTSR1", EXTI->RTSR1);
+ extiBit("FTSR1", EXTI->FTSR1);
+ extiBit("SWIER1", EXTI->SWIER1);
+ extiBit("D3PMR1", EXTI->D3PMR1);
+ extiBit("IMR1", EXTI->IMR1);
+ extiBit("EMR1", EXTI->EMR1);
+ extiBit("PR1", EXTI->PR1);
+#endif
  printf("\n");
  flushBuf();
 }

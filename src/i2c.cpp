@@ -34,7 +34,7 @@
 #endif
 
 #define EXT
-#include "i2c.h"
+#include "latheI2C.h"
 #endif	/* !defined(INCLUDE) */
 
 #if  defined(__I2C_INC__)	// <-
@@ -118,15 +118,15 @@ void initI2c(void)
 // GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
  GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
- GPIO_InitStruct.GPIO_Pin = I2C_Scl_Pin;
- GPIO_Init(I2C_Scl_GPIO_Port, &GPIO_InitStruct);
+ GPIO_InitStruct.GPIO_Pin = I2C_SCL_Pin;
+ GPIO_Init(I2C_SCL_GPIO_Port, &GPIO_InitStruct);
 
- GPIO_InitStruct.GPIO_Pin = I2C_Sda_Pin;
- GPIO_Init(I2C_Sda_GPIO_Port, &GPIO_InitStruct);
+ GPIO_InitStruct.GPIO_Pin = I2C_SDA_Pin;
+ GPIO_Init(I2C_SDA_GPIO_Port, &GPIO_InitStruct);
 	
  // Connect I2C1 pins to AF  
- GPIO_PinAFConfig(I2C_Scl_GPIO_Port, I2C_Scl_Pin, GPIO_AF_I2C1); // SCL
- GPIO_PinAFConfig(I2C_Sda_GPIO_Port, I2C_Sda_Pin, GPIO_AF_I2C1); // SDA
+ GPIO_PinAFConfig(I2C_SCL_GPIO_Port, I2C_SCL_Pin, GPIO_AF_I2C1); // SCL
+ GPIO_PinAFConfig(I2C_SDA_GPIO_Port, I2C_SDA_Pin, GPIO_AF_I2C1); // SDA
 
  // configure I2C1 
  // 100kHz

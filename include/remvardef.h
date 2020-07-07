@@ -247,4 +247,16 @@
 // limit override
 
  EXT char limitOverride;        /* 0x92 override limit switches */
- EXT int16_t maxParm;           /* 0x93 maximum parameter */
+ EXT char zLimEna;              /* 0x93 z limit enable */
+ EXT char zLimNegInv;           /* 0x94 z negative limit invert */
+ EXT char zLimPosInv;           /* 0x95 z Positive limit Invert */
+ EXT char zHomeEna;             /* 0x96 z home enable */
+ EXT char zHomeInv;             /* 0x97 z home invert */
+ EXT char xLimEna;              /* 0x98 x limit enable */
+ EXT char xLimNegInv;           /* 0x99 x negative limit invert */
+ EXT char xLimPosInv;           /* 0x9a x Positive limit Invert */
+ EXT char xHomeEna;             /* 0x9b x home enable */
+ EXT char xHomeInv;             /* 0x9c x home invert */
+ EXT char eStopEna;             /* 0x9d enable estop */
+ EXT char eStopInv;             /* 0x9e invert estop siganl */
+ EXT int16_t maxParm;           /* 0x9f maximum parameter */

@@ -110,7 +110,7 @@ EXT char dbgBuffer;
 EXT char lineStart;
 EXT char eolFlag;
 
-#ifdef STM32F4
+#if defined(STM32F4)
 
 inline uint32_t dbgRxReady()
 {
@@ -176,7 +176,7 @@ inline void remTxIntDis()
 
 #endif
 
-#ifdef STM32F7
+#if defined(STM32F7)
 
 inline uint32_t dbgRxReady()
 {
@@ -226,6 +226,72 @@ inline uint32_t remRxOverrun()
 inline uint32_t remTxEmpty()
 {
  return(REMPORT->ISR & USART_ISR_TXE);
+}
+inline void remTxSend(char ch)
+{
+ REMPORT->TDR = ch;
+}
+inline void remTxIntEna()
+{
+ REMPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void remTxIntDis()
+{
+ REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif
+
+#if defined(STM32H7)
+
+inline uint32_t dbgRxReady()
+{
+ return(DBGPORT->ISR & USART_ISR_RXNE_RXFNE);
+}
+inline uint32_t dbgRxRead()
+{
+ return(DBGPORT->RDR);
+}
+inline uint32_t dbgRxOverrun()
+{
+ return(DBGPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t dbgTxEmpty()
+{
+ return(DBGPORT->ISR & USART_ISR_TXE_TXFNF);
+}
+inline void dbgTxSend(char ch)
+{
+ DBGPORT->TDR = ch;
+}
+inline void dbgTxIntEna()
+{
+ DBGPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void dbgTxIntDis()
+{
+ DBGPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+inline uint32_t remRxReady()
+{
+ return(REMPORT->ISR & USART_ISR_RXNE_RXFNE);
+}
+inline uint32_t remRxRead()
+{
+ return(REMPORT->RDR);
+}
+inline void remRxIntEna()
+{
+ REMPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t remRxOverrun()
+{
+ return(REMPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t remTxEmpty()
+{
+ return(REMPORT->ISR & USART_ISR_TXE_TXFNF);
 }
 inline void remTxSend(char ch)
 {

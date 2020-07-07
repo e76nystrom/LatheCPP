@@ -120,7 +120,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     PB6     ------> I2C1_SCL
     PB9     ------> I2C1_SDA 
     */
-    GPIO_InitStruct.Pin = I2C_Scl_Pin|I2C_Sda_Pin;
+    GPIO_InitStruct.Pin = I2C_SCL_Pin|I2C_SDA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -156,7 +156,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     PB6     ------> I2C1_SCL
     PB9     ------> I2C1_SDA 
     */
-    HAL_GPIO_DeInit(GPIOB, I2C_Scl_Pin|I2C_Sda_Pin);
+    HAL_GPIO_DeInit(GPIOB, I2C_SCL_Pin|I2C_SDA_Pin);
 
   /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
@@ -189,19 +189,19 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     PC11     ------> SPI3_MISO
     PB5     ------> SPI3_MOSI 
     */
-    GPIO_InitStruct.Pin = SPI_Sck_Pin|SPI_Miso_Pin;
+    GPIO_InitStruct.Pin = SPI_SCK_Pin|SPI_MISO_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = SPI_Mosi_Pin;
+    GPIO_InitStruct.Pin = SPI_MOSI_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
-    HAL_GPIO_Init(SPI_Mosi_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(SPI_MOSI_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN SPI3_MspInit 1 */
 
@@ -231,9 +231,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     PC11     ------> SPI3_MISO
     PB5     ------> SPI3_MOSI 
     */
-    HAL_GPIO_DeInit(GPIOC, SPI_Sck_Pin|SPI_Miso_Pin);
+    HAL_GPIO_DeInit(GPIOC, SPI_SCK_Pin|SPI_MISO_Pin);
 
-    HAL_GPIO_DeInit(SPI_Mosi_GPIO_Port, SPI_Mosi_Pin);
+    HAL_GPIO_DeInit(SPI_MOSI_GPIO_Port, SPI_MOSI_Pin);
 
   /* USER CODE BEGIN SPI3_MspDeInit 1 */
 

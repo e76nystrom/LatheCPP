@@ -47,19 +47,19 @@ EXT int16_t spiw1;
 inline void spisel()
 {
  SPIn->CR1 |= SPI_CR1_SPE;
- SPI_Sel_GPIO_Port->BSRR = (SPI_Sel_Pin << 16);
+ SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
 }
 
 inline void spirel()
 {
-  SPI_Sel_GPIO_Port->BSRR = SPI_Sel_Pin;
+  SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
   SPIn->CR1 &= ~SPI_CR1_SPE;
 }
 
 #else
 
-#define SPI_SEL_BIT SPI_Sel_Pin
-#define SPI_SEL_REG SPI_Sel_GPIO_Port->BSRR
+#define SPI_SEL_BIT SPI_SEL_Pin
+#define SPI_SEL_REG SPI_SEL_GPIO_Port->BSRR
 
 #define spisel()  SPIn->CR1 |= SPI_CR1_SPE; \
  SPI_SEL_REG = (SPI_SEL_BIT << 16)

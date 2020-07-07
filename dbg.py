@@ -74,6 +74,9 @@ pinList = \
   ("o", "a", "Pin1", ""), \
   ("o", "b", "Pin14", ""), \
   ("o", "sync", "Pin17", ""), \
+  ("o", "led1", "Led1", ""), \
+  ("o", "led2", "Led2", ""), \
+  ("o", "led3", "Led3", ""), \
 )
 
 #  ("i", "xHome", "Pin11", ""),
@@ -164,7 +167,7 @@ def fWrite(file, txt):
     file.write(txt.encode())
     
 f = open("include/pinDef.h", "wb")
-fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)\n")
+fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
 fWrite(f, "#if !defined(__PINDEF_H)\n")
 fWrite(f, "#define __PINDEF_H\n\n")
 
@@ -209,7 +212,7 @@ f.close()
 f = open("include/dbg.h", "wb")
 f1 = open("include/dbgPin.h", "wb")
 
-fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined( __STM32F7xx_HAL_H)\n")
+fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
 fWrite(f, "#if !defined(__DBG_H)\n")
 fWrite(f, "#define __DBG_H\n\n")
 

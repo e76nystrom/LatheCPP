@@ -381,9 +381,9 @@ typedef struct s_movectl
  char prev;			/* previous state */
  char stop;			/* stop flag */
  char jog;			/* jogging with control */
- char done;			/* done flag xilinx */
- char wait;			/* waiting for done xilinx */
- char ctlreg;			/* control register xilinx */
+ char done;			/* done flag fpga */
+ char wait;			/* waiting for done fpga */
+ char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
  char limitMove;		/* move off limits in progress */
  char mpgFlag;			/* mpg direction flag */

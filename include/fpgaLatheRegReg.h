@@ -71,18 +71,36 @@ enum FPGALATHEREG
 // dro registers
 
  F_Ld_Dro,                      /* 0x00 axis dro */
- F_Rd_Dro,                      /* 0x01 read axis dro */
- F_Dro_Max,                     /* 0x02 number of dro registers */
+ F_Ld_Dro_End,                  /* 0x01 axis dro end */
+ F_Ld_Dro_Limit,                /* 0x02 axis dro deceleration limit */
+ F_Rd_Dro,                      /* 0x03 read axis dro */
+ F_Dro_Max,                     /* 0x04 number of dro registers */
+
+// jog registers
+
+ F_Ld_Jog_Ctl,                  /* 0x00 jog control */
+ F_Ld_Jog_Inc,                  /* 0x01 jog increment */
+ F_Ld_Jog_Back,                 /* 0x02 jog backlash increment */
+ F_Jog_Max,                     /* 0x03 number of jog registers */
 
 // axis
 
- F_Ld_Axis_Ctl,                 /* 0x00 axis control register */
- F_Ld_Freq,                     /* 0x01 frequency */
- F_Sync_Base,                   /* 0x02 sync registers */
- F_Dist_Base,                   /* 0x0c distance registers */
- F_Loc_Base,                    /* 0x0f location registers */
- F_Dro_Base,                    /* 0x11 dro registers */
- F_Axis_Max,                    /* 0x13 number of axis registers */
+ F_Rd_Axis_Status,              /* 0x00 axis status */
+ F_Ld_Axis_Ctl,                 /* 0x01 axis control register */
+ F_Ld_Freq,                     /* 0x02 frequency */
+ F_Sync_Base,                   /* 0x03 sync registers */
+ F_Dist_Base,                   /* 0x0d distance registers */
+ F_Loc_Base,                    /* 0x10 location registers */
+ F_Dro_Base,                    /* 0x12 dro registers */
+ F_Jog_Base,                    /* 0x16 jog registers */
+ F_Axis_Max,                    /* 0x19 number of axis registers */
+
+// spindle
+
+ F_Ld_Sp_Ctl,                   /* 0x00 spindle control register */
+ F_Ld_Sp_Freq,                  /* 0x01 freq for step spindle */
+ F_Sp_Sync_Base,                /* 0x02 spindle sync */
+ F_Sp_Jog_Base,                 /* 0x0c spindle jog */
 
 // register definitions
 
@@ -91,40 +109,45 @@ enum FPGALATHEREG
 // status registers
 
  F_Rd_Status,                   /* 0x01 status register */
+ F_Rd_Inputs,                   /* 0x02 inputs register */
 
 // control registers
 
- F_Ld_Run_Ctl,                  /* 0x02 run control register */
- F_Ld_Sync_Ctl,                 /* 0x03 sync control register */
- F_Ld_Cfg_Ctl,                  /* 0x04 config control register */
- F_Ld_Clk_Ctl,                  /* 0x05 clock control register */
- F_Ld_Dsp_Reg,                  /* 0x06 display register */
+ F_Ld_Run_Ctl,                  /* 0x03 run control register */
+ F_Ld_Sync_Ctl,                 /* 0x04 sync control register */
+ F_Ld_Cfg_Ctl,                  /* 0x05 config control register */
+ F_Ld_Clk_Ctl,                  /* 0x06 clock control register */
+ F_Ld_Dsp_Reg,                  /* 0x07 display register */
 
 // controller
 
- F_Ctrl_Base,                   /* 0x07 controller */
+ F_Ctrl_Base,                   /* 0x08 controller */
 
 // reader
 
- F_Read_Base,                   /* 0x0c reader */
+ F_Read_Base,                   /* 0x0d reader */
 
 // debug frequency control
 
- F_Dbg_Freq_Base,               /* 0x0e dbg frequency */
+ F_Dbg_Freq_Base,               /* 0x0f dbg frequency */
 
 // spindle speed
 
- F_Rd_Idx_Clks,                 /* 0x10 read clocks between index pulses */
+ F_Rd_Idx_Clks,                 /* 0x11 read clocks between index pulses */
+
+// step spindle frequency generator
+
 
 // pwm
 
- F_PWM_Base,                    /* 0x11 pwm control */
+ F_PWM_Base,                    /* 0x12 pwm control */
 
 // base for modules
 
- F_Enc_Base,                    /* 0x13 encoder registers */
- F_Phase_Base,                  /* 0x16 phase registers */
- F_ZAxis_Base,                  /* 0x18 z axis registers */
- F_XAxis_Base,                  /* 0x2b x axis registers */
- F_Cmd_Max,                     /* 0x3e number of commands */
+ F_Enc_Base,                    /* 0x14 encoder registers */
+ F_Phase_Base,                  /* 0x17 phase registers */
+ F_ZAxis_Base,                  /* 0x19 z axis registers */
+ F_XAxis_Base,                  /* 0x32 x axis registers */
+ F_Spindle_Base,                /* 0x4b spindle registers */
+ F_Cmd_Max,                     /* 0x5a number of commands */
 };

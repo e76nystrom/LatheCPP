@@ -6,12 +6,15 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
 #include "Xilinx.h"
 #include "remcmd.h"
-#include "spi.h"
+#include "latheSPI.h"
 #include "serialio.h"
 #include "latheX.h"
 

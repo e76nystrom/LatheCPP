@@ -6,10 +6,13 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 
 #include "lathe.h"
 
-#include "i2c.h"
+#include "latheI2C.h"
 
 #ifdef EXT
 #undef EXT

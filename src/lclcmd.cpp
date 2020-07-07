@@ -6,12 +6,15 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 
 #define ENUM_D_MESSAGE
 #include "lathe.h"
 
 #include "serialio.h"
-#include "i2c.h"
+#include "latheI2C.h"
 #include "lcd.h"
 
 #ifdef EXT
@@ -482,6 +485,7 @@ void lclcmd(int ch)
    tmrInfo(TIM4);
   if (val & 0x10)
    tmrInfo(TIM5);
+
   if (val & 0x20)
   {
 #ifdef TIM6
@@ -491,22 +495,50 @@ void lclcmd(int ch)
    tmrInfo(TIM7);
 #endif
   }
+
 #ifdef TIM8
   if (val & 0x40)
    tmrInfo(TIM8);
 #endif
+
   if (val & 0x80)
+  {
+#ifdef TIM9
    tmrInfo(TIM9);
+#endif
+#ifdef TIM15
+   tmrInfo(TIM15);
+#endif
+  }
+
   if (val & 0x100)
+  {
+#ifdef TIM10
    tmrInfo(TIM10);
+#endif
+#ifdef TIM16
+   tmrInfo(TIM16);
+#endif
+  }
+  
   if (val & 0x200)
+  {
+#ifdef TIM11
    tmrInfo(TIM11);
+#endif
+#ifdef TIM17
+   tmrInfo(TIM17);
+#endif
+  }
+  
 #ifdef TIM12
   if (val & 0x400)
    tmrInfo(TIM12);
 #endif
+
   if (val & 0x800)		/* exti */
    extiInfo();
+
   if (val & 0x01000)
    gpioInfo(GPIOA);
   if (val & 0x02000)
@@ -521,13 +553,23 @@ void lclcmd(int ch)
   if (val & 0x10000)
    gpioInfo(GPIOE);
 #endif
+#ifdef GPIOF
   if (val & 0x20000)
-   i2cInfo(I2C1, "I2C1");
+   gpioInfo(GPIOF);
+#endif
+#ifdef GPIOG
   if (val & 0x40000)
+   gpioInfo(GPIOH);
+#endif
+
+  if (val & 0x100000)
    usartInfo(DBGPORT, "DBG");
-  if (val & 0x80000)
+  if (val & 0x200000)
    usartInfo(REMPORT, "REM");
+  if (val & 0x400000)
+   i2cInfo(I2C1, "I2C1");
  }
+
 #if DBGMSG
  if (ch == 'D')			/* dump dbg buffer */
  {

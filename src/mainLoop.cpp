@@ -4,16 +4,20 @@
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
 #endif
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#endif
 
+#include "main.h"
 #include "lathe.h"
 
 #include "serialio.h"
 #include "lclcmd.h"
 #include "lclcmdX.h"
 #include "remcmd.h"
-#include "i2c.h"
+#include "latheI2C.h"
 #include "lcd.h"
-#include "spi.h"
+#include "latheSPI.h"
 #include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"
@@ -83,6 +87,9 @@ T_PINDEF pinDef[] =
  PIN(ZFlag, ZFlag),
  PIN(XFlag, XFlag),
  PIN(Encoder, Encoder),
+#ifdef Exti2_Pin
+ PIN(Exti2, Exti2),
+#endif
 
  PIN(DbgTx, DbgTx),
  PIN(DbgRx, DbgRx),
@@ -94,10 +101,92 @@ T_PINDEF pinDef[] =
  PIN(JogA2, JogA2),
  PIN(JogB2, JogB2),
 
+#ifdef Led1_Pin
+ PIN(Led1, Led1),
+#endif
+#ifdef Led2_Pin
+ PIN(Led2, Led2),
+#endif
+#ifdef Led3_Pin
+ PIN(Led3, Led3),
+#endif
+
  PIN(ZA, ZA),
  PIN(ZB, ZB),
  PIN(XA, XA),
  PIN(XB, XB),
+
+#ifdef SPI_SEL_Pin
+ PIN(SPI_SEL, SPI_SEL),
+#endif 
+#ifdef SPI_SCK_Pin
+ PIN(SPI_SCK, SPI_SCK),
+#endif 
+#ifdef SPI_MISO_Pin
+ PIN(SPI_MISO, SPI_MISO),
+#endif 
+#ifdef SPI_MOSI_Pin
+ PIN(SPI_MOSI, SPI_MOSI),
+#endif 
+
+#ifdef I2C_SCL_Pin
+ PIN(I2C_SCL, I2C_SCL),
+#endif 
+#ifdef I2C_SDA_Pin
+ PIN(I2C_SDA, I2C_SDA),
+#endif 
+
+#ifdef PinA1_Pin
+ PIN(PinA1, PinA1),
+#endif
+#ifdef PinA2_Pin
+ PIN(PinA2, PinA2),
+#endif
+#ifdef PinA3_Pin
+ PIN(PinA3, PinA3),
+#endif
+#ifdef PinA4_Pin
+ PIN(PinA4, PinA4),
+#endif
+#ifdef PinA1_Pin
+ PIN(PinA5, PinA5),
+#endif
+#ifdef PinA6_Pin
+ PIN(PinA6, PinA6),
+#endif
+#ifdef PinA7_Pin
+ PIN(PinA7, PinA7),
+#endif
+#ifdef PinA8_Pin
+ PIN(PinA8, PinA8),
+#endif
+#ifdef PinA9_Pin
+ PIN(PinA9, PinA9),
+#endif
+#ifdef PinA10_Pin
+ PIN(PinA10, PinA10),
+#endif
+#ifdef PinA11_Pin
+ PIN(PinA11, PinA11),
+#endif
+#ifdef PinA12_Pin
+ PIN(PinA12, PinA12),
+#endif
+#ifdef PinA13_Pin
+ PIN(PinA13, PinA13),
+#endif
+#ifdef PinA14_Pin
+ PIN(PinA14, PinA14),
+#endif
+#ifdef PinA15_Pin
+ PIN(PinA15, PinA15),
+#endif
+#ifdef PinA16_Pin
+ PIN(PinA16, PinA16),
+#endif
+#ifdef PinA17_Pin
+ PIN(PinA17, PinA17),
+#endif
 
 #include "dbgPin.h"
 };
@@ -143,7 +232,7 @@ void mainLoopSetup(void)
  /* initialize timer 11 as index timer */
 
  indexTmrCnt(65535);
- indexTmrCnt(65535);
+ indexTmrSet(65535);
 
 // #ifdef USEC_SHARED_INDEX
  if constexpr (USEC_TIMER == INDEX_TIMER)
@@ -184,10 +273,18 @@ void mainLoopSetupX(void)
 {
 }
 
+#define LED_DELAY 500
+
+#ifdef STM32H7
+extern UART_HandleTypeDef huart7;
+extern UART_HandleTypeDef huart3;
+#endif
+
 //#define main mainLoop
 
 int16_t mainLoop(void)
 {
+ uint32_t ledUpdTime;
  unsigned char ch;
  IRQn_Type extInt[] =
  {
@@ -200,9 +297,28 @@ int16_t mainLoop(void)
   EXTI15_10_IRQn
  };
 
+ ledUpdTime = millis();
+ led1Set();
+
  startSet();
 
+#if defined(STM32F4) || defined(STM32F7)
  DBGMCU->APB1FZ = DBGMCU_APB1_FZ_DBG_IWDG_STOP; /* stop wd on debug */
+#endif
+#if defined(STM32H7)
+ DBGMCU->APB1LFZ1 |= (DBGMCU_APB1LFZ1_DBG_TIM2 | DBGMCU_APB1LFZ1_DBG_TIM5 |
+		      DBGMCU_APB1LFZ1_DBG_TIM6 | DBGMCU_APB1LFZ1_DBG_TIM12);
+ DBGMCU->APB2FZ1 |= (DBGMCU_APB2FZ1_DBG_TIM8 | DBGMCU_APB2FZ1_DBG_TIM15 |
+		     DBGMCU_APB2FZ1_DBG_TIM16 | DBGMCU_APB2FZ1_DBG_TIM17);
+ DBGMCU->APB4FZ1 |= DBGMCU_APB4FZ1_DBG_IWDG1;
+
+ printf("IDCODE   %08x CR %08x\n", (unsigned int) DBGMCU->IDCODE, (unsigned int) DBGMCU->CR);
+ printf("APB3FZ1  %08x\n", (unsigned int) DBGMCU->APB3FZ1);
+ printf("APB1LFZ1 %08x\n", (unsigned int) DBGMCU->APB1LFZ1);
+ printf("APB1HFZ1 %08x\n", (unsigned int) DBGMCU->APB1HFZ1);
+ printf("APB2FZ1  %08x\n", (unsigned int) DBGMCU->APB2FZ1);
+ printf("APB4FZ1  %08x\n", (unsigned int) DBGMCU->APB4FZ1);
+#endif
 
  IRQn_Type *p = extInt;		/* external interrupt list */
  int i = sizeof(extInt) / sizeof(IRQn_Type); /* sizeof list */
@@ -221,6 +337,11 @@ int16_t mainLoop(void)
  zDist = 0;
  xDist = 0;
 
+#ifdef STM32H7
+ uint8_t startMsg[] = "start main loop\n\r";
+ HAL_UART_Transmit(&huart3, startMsg, sizeof(startMsg), HAL_MAX_DELAY);
+#endif
+ 
  initCharBuf();
 
  putstr("start main loop\n");
@@ -232,6 +353,11 @@ int16_t mainLoop(void)
 	(unsigned int) &__stack, (unsigned int) &__Main_Stack_Limit,
 	getSP());
  #endif
+
+#ifdef STM32H7
+ uint8_t remMsg[] = "start remcmd\n\r";
+ HAL_UART_Transmit(&huart7, remMsg, sizeof(remMsg), HAL_MAX_DELAY);
+#endif
 
  putstr1("start remcmd\n");
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
@@ -281,6 +407,18 @@ int16_t mainLoop(void)
   newline();
   while (1)			/* input background loop */
   {
+#ifdef Led1_Pin
+   uint32_t t = millis();
+   if ((t - ledUpdTime) > LED_DELAY) /* if time to flash led */
+   {
+    ledUpdTime = t;
+    if (led1Read())
+     led1Clr();
+    else
+     led1Set();
+   }
+#endif
+
    if (setupDone)		/* setup complete */
    {
     if ((millis() - remcmdUpdateTime) > remcmdTimeout) /* if timed out */
