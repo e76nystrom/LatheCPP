@@ -2591,14 +2591,17 @@ void jogMpg2(P_MOVECTL mov)
  jog->emp++;			/* update pointer */
  if (jog->emp >= MAXJOG)	/* if at end of queue */
   jog->emp = 0;			/* reset to start */
+ if (mov->mpgBackWait)		/* if waiting for backlash */
+  return;			/* ignore */
    
  char dir = val.dir;		/* get direction */
  unsigned int delta = val.delta; /* mask off time delta */
- /* printf("%2d %6d\n", dir, delta); */
+ P_ZXISR isr = mov->isr;	/* pointer to isr info */
+
+ if (jogDebug)
+  printf("%2d %6d %3d\n", dir, delta, isr->dist);
  if (mov->mpgFlag)		/* if direction inverted */
   dir = -dir;			/* invert distance */
-
- P_ZXISR isr = mov->isr;	/* pointer to isr info */
 
  uint32_t ctr;
  int dist = *mov->mpgJogInc;	/* read increment distance */
@@ -2649,24 +2652,28 @@ void jogMpg2(P_MOVECTL mov)
  }
  __enable_irq();		/* enable interrupts */
 
- mov->expLoc += dist * dir;	/* update expected loc */
  if (dir != mov->dir)		/* if direction change */
  {
   mov->dir = dir;		/* set direction */
   int backlashSteps = mov->axis->backlashSteps; /* get backlash */
   if (backlashSteps != 0)	/* if non zero */
   {
+   if (jogDebug)
+    printf("%c b %d\n", mov->axisName, backlashSteps);
    dist = backlashSteps;	/* set distance */
    isr->dir = 0;		/* set to zero for backlash */
    mov->mpgBackWait = 1;	/* set to wait for backlash */
+   int ctr = moveInit(isr, mov->acMove, dir, backlashSteps); /* init move */
+   xHwEnable(ctr);		/* enable hardware */
+   mov->start();		/* start move */
+   return;			/* exit */
   }
-  else				/* if no backlash */
-  {
-   isr->dir = dir;		/* set isr direction */
-  }
+  isr->dir = dir;		/* set isr direction */
  }
  else				/* if no direction change */
   isr->dir = dir;		/* set isr direction */
+
+ mov->expLoc += dist * dir;	/* update expected loc */
 
  isr->home = 0;			/* clear variables */
  isr->useDro = 0;
@@ -2675,7 +2682,10 @@ void jogMpg2(P_MOVECTL mov)
  isr->decel = 0;
  isr->sync = 0;
 
-// printf("%c %2d %2d %3d\n", mov->axisName, mov->dir, isr->dir, dist);
+ if (jogDebug)
+  printf("%c %2d %2d %3d %u\n",
+	 mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
+
  isr->dist = dist;		/* set distance */
  if (dir > 0)			/* set direction */
   mov->dirFwd();
