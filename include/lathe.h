@@ -15,6 +15,37 @@
 #define EXT extern
 #endif
 
+#ifdef STM32H7
+#define CPU_CYCLES 1
+#define DWT_CTRL_CycCntEna DWT_CTRL_CYCCNTENA_Msk
+inline void resetCnt()
+{
+ DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter    
+ DWT->CYCCNT = 0;		// reset the counter
+}
+
+inline void startCnt()
+{
+ DWT->CTRL |= DWT_CTRL_CycCntEna; // enable the counter
+}
+
+inline void stopCnt()
+{
+ DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter    
+}
+
+inline unsigned int getCycles()
+{
+ return DWT->CYCCNT;
+}
+#else
+#define CPU_CYCLES 0
+inline void resetCnt() {}
+inline void startCnt() {}
+inline void stopCnt() {}
+inline unsigned int getCycles() {return(0);}
+#endif
+
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
 #define DBG_INT 1		/* debug internal timer */
@@ -79,6 +110,7 @@ typedef struct s_spindleIsr
 
  /* control variables */
  float cFactor;			/* acceleration constant */
+ uint64_t cFactor2;		/* squared cfactor */
  int clocksStep;		/* final clocks per step value */
  unsigned int initialStep;	/* minimum acceleration step */
  unsigned int finalStep;	/* maximum acceleration step */
@@ -405,6 +437,7 @@ typedef struct s_movectl
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
+ int mpgBackDist;		/* mpg backlash counter */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
@@ -435,14 +468,23 @@ EXT unsigned int clksPerUSec;	/* clocks per usec */
 
 typedef struct s_homectl
 {
+ P_MOVECTL mov;
  int state;
  int prev;
+ int16_t clrActive;
+ int16_t setHomed;
+ int *status;
+ int *done;
  int findDist;
  int backoffDist;
  int slowDist;
+ uint16_t (*homeIsSet) (void);
+ uint16_t (*homeIsClr) (void);
+ void (*moveRel) (int pos, int cmd); /* move relative function */
 } T_HOMECTL, *P_HOMECTL;
 
 EXT T_HOMECTL xHomeCtl;
+EXT T_HOMECTL zHomeCtl;
 
 #define DEG_RAD (180.0 / 3.141592653589793)
 
@@ -661,8 +703,8 @@ void zInfo(char flag);
 void zMove(int pos, int cmd);
 void zMoveRel(int pos, int cmd);
 void zControl(void);
-void zFwd(void);
-void zRev(void);
+void zHomeAxis(void);
+void zHomeControl(void);
 
 void xInit(P_AXIS ax);
 void xReset(void);
@@ -696,6 +738,7 @@ void xHomeAxis(void);
 void xHomeControl(void);
 
 void axisCtl(void);
+void homeControl(P_HOMECTL home);
 
 void runInit(void);
 char queMoveCmd(uint32_t op, float val);

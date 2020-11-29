@@ -169,10 +169,10 @@ inline uint16_t dbgZIsrRead() {return(0);}
 #endif
 
 /* x isr time */
-#ifdef Dbg2_Pin
-inline void dbgXIsrSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
-inline void dbgXIsrClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
-inline uint16_t dbgXIsrRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
+#ifdef DbgC_Pin
+inline void dbgXIsrSet() {DbgC_GPIO_Port->BSRR = DbgC_Pin;}
+inline void dbgXIsrClr() {DbgC_GPIO_Port->BSRR = (DbgC_Pin << 16);}
+inline uint16_t dbgXIsrRead() {return((DbgC_GPIO_Port->IDR & DbgC_Pin) != 0);}
 #else
 inline void dbgXIsrSet() {}
 inline void dbgXIsrClr() {}
@@ -371,6 +371,21 @@ inline void dbgXDoneSet() {}
 inline void dbgXDoneClr() {}
 inline uint16_t dbgXDoneRead() {return(0);}
 #endif
+
+/* z dro isr */
+inline void dbgZDroSet() {}
+inline void dbgZDroClr() {}
+inline uint16_t dbgZDroRead() {return(0);}
+
+/* z stop */
+inline void dbgZStopSet() {}
+inline void dbgZStopClr() {}
+inline uint16_t dbgZStopRead() {return(0);}
+
+/* z done */
+inline void dbgZDoneSet() {}
+inline void dbgZDoneClr() {}
+inline uint16_t dbgZDoneRead() {return(0);}
 
 #endif /* __DBG_H */
 #endif /* __STM32F4xx_HAL_H */

@@ -62,6 +62,10 @@ pinList = \
   ("i", "xNegLim", "PinA12", ""), \
   ("i", "xAHome",  "PinA13", ""), \
 
+  ("i", "zPosLim", "PinA2", ""), \
+  ("i", "zNegLim", "PinA3", ""), \
+  ("i", "zAHome",  "PinA4", ""), \
+
   ("o", "pinA16", "PinA16", ""), \
   ("o", "pinA17", "PinA17", ""), \
   
@@ -85,7 +89,7 @@ dbgList = \
 (\
  ("dbgSpIsr",  "A", "spindle isr time"), \
  ("dbgZIsr",   "B", "z isr time"), \
- ("dbgXIsr",   "2", "x isr time"), \
+ ("dbgXIsr",   "C", "x isr time"), \
  ("dbgSpCyc",  "", "spindle cycle counter update"), \
  ("dbgZEnc",   "", "z encoder input"), \
  ("dbgZOut",   "", "z encoder output"), \
@@ -124,6 +128,9 @@ dbgList = \
  ("dbgXDro",    "3", "x dro isr"), \
  ("dbgXStop",   "4", "x stop"), \
  ("dbgXDone",   "5", "x done"), \
+ ("dbgZDro",    "", "z dro isr"), \
+ ("dbgZStop",   "", "z stop"), \
+ ("dbgZDone",   "", "z done"), \
 )
 
 dbgPins = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
@@ -163,19 +170,19 @@ else:
     opIn = ""
     clIn = ""
 
-def fWrite(file, txt):
-    file.write(txt.encode())
+def fWrite(f, txt):
+    f.write(txt.encode())
     
 f = open("include/pinDef.h", "wb")
 fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
 fWrite(f, "#if !defined(__PINDEF_H)\n")
 fWrite(f, "#define __PINDEF_H\n\n")
 
-for (dir, name, pin, comment) in pinList:
+for (direction, name, pin, comment) in pinList:
     if len(comment) != 0:
         fWrite(f, "/* %s */\n" % (comment))
 
-    if dir == 'o':
+    if direction == 'o':
         fWrite(f, "#ifdef %s_Pin\n" % (pin))
         fWrite(f, "%s %sSet() %s%s_GPIO_Port->BSRR = %s_Pin%s\n" % \
                 (dout, name, op, pin, pin, cl))
@@ -189,8 +196,10 @@ for (dir, name, pin, comment) in pinList:
         fWrite(f, "%s %sClr()%s\n" % (dout, name, empty))
         fWrite(f, "%s %s()%s\n" % (din, name, emptyIn))
         fWrite(f, "#endif\n\n")
-    elif dir == 'i':
+    elif direction == 'i':
         fWrite(f, "#ifdef %s_Pin\n" % (pin))
+        if name != pin:
+            fWrite(f, "#define %s_Pin\n" % (name))
         fWrite(f, "%s %s() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
                 (din, name, opIn, pin, pin, clIn))
         fWrite(f, "%s %sIsSet() %s(%s_GPIO_Port->IDR & %s_Pin) != 0%s\n" % \
@@ -203,7 +212,7 @@ for (dir, name, pin, comment) in pinList:
         fWrite(f, "%s %sIsClr()%s\n" % (din, name, emptyIn))
         fWrite(f, "#endif\n\n")
     else:
-        print("invalid dir\n");
+        print("invalid direction\n");
 
 fWrite(f, "#endif /* __PINDEF_H */\n")
 fWrite(f, "#endif /* __STM32F4xx_HAL_H */\n")

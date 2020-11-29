@@ -11,8 +11,8 @@
 #define SYN_START    (1 << 4)    /* 0x10 start on sync pulse */
 #define SYN_LEFT     (1 << 5)    /* 0x20 start sync left */
 #define SYN_TAPER    (1 << 6)    /* 0x40 taper on other axis */
-#define AX_FIND_HOME (1 << 7)    /* 0x80 find home */
-#define AX_CLEAR_HOME (1 << 8)   /* 0x100 move off of home */
+#define FIND_HOME    (1 << 7)    /* 0x80 find home */
+#define CLEAR_HOME   (1 << 8)    /* 0x100 move off of home */
 #define FIND_PROBE   (1 << 9)    /* 0x200 find probe */
 #define CLEAR_PROBE  (1 << 10)   /* 0x400 move off of probe */
 #define DRO_POS      (1 << 11)   /* 0x800 use dro for moving */
@@ -38,8 +38,6 @@
 
 #define X_SYN_START  (1 << 4)    /* 0x10 start on sync pulse */
 #define Z_SYN_TAPER  (1 << 6)    /* 0x40 taper on z */
-#define XFIND_HOME   (1 << 7)    /* 0x80 find home */
-#define XCLEAR_HOME  (1 << 8)    /* 0x100 move off of home */
 
 // x direction
 
@@ -54,8 +52,8 @@
 
 // home flag
 
-#define FIND_HOME    (1 << 0)    /* 0x01  */
-#define CLEAR_HOME   (1 << 1)    /* 0x02  */
+#define HOME_SET     (1 << 0)    /* 0x01  */
+#define HOME_CLR     (1 << 1)    /* 0x02  */
 #define PROBE_SET    (1 << 2)    /* 0x04  */
 #define PROBE_CLR    (1 << 3)    /* 0x08  */
 
@@ -77,9 +75,11 @@
 #define MV_READ_Z    (1 << 2)    /* 0x04 pause z may change */
 #define MV_ACTIVE    (1 << 3)    /* 0x08 movement active */
 #define MV_LIMIT     (1 << 4)    /* 0x10 at limit switch */
-#define MV_HOME_ACTIVE (1 << 5)  /* 0x20 home active */
+#define MV_XHOME_ACTIVE (1 << 5) /* 0x20 home active */
 #define MV_XHOME     (1 << 6)    /* 0x40 X home success */
-#define MV_MEASURE   (1 << 7)    /* 0x80 pause for measurement */
+#define MV_ZHOME_ACTIVE (1 << 7) /* 0x80 home active */
+#define MV_ZHOME     (1 << 8)    /* 0x100 X home success */
+#define MV_MEASURE   (1 << 9)    /* 0x200 pause for measurement */
 
 // pause flags
 

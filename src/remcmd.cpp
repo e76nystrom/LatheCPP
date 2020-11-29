@@ -202,6 +202,13 @@ void remcmd(void)
  }
  break;
 
+ case ZHOMEAXIS:
+ {
+  if (zMoveCtl.state == ZIDLE)
+   zHomeAxis();
+ }
+ break;
+
  case XMOVEABS:
  {
   xMoveAbsCmd();

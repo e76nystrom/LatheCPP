@@ -124,6 +124,36 @@ extern "C" void encoderISR(void)
   if (zDroInvert)		/* if dro motion inverted */
    val = -val;			/* change direction */
   zDroPos += val;		/* update position */
+
+  if (zIsr.useDro)		/* if using dro for move */
+  {
+   int dist;
+   if (zIsr.dir > 0)		/* if direction positive */
+   {
+    dist = zIsr.droTarget - zDroPos;
+   }
+   else				/* if direction negative */
+   {
+    dist =  zDroPos - zIsr.droTarget;
+   }
+   if (dist < zDroFinalDist)	/* if close to end */
+   {
+    if (dist > 0)		/* if not done */
+    {
+     if (zIsr.decel)		/* if decelerating */
+     {
+      zIsr.accelStep = 0;	/* end deceleration */
+      zIsr.curCount = xIsr.finalCtr;
+      zTmrMax(zIsr.curCount);
+     }
+    }
+    else			/* if done */
+    {
+     zIsrStop('0');		/* stop isr */
+    }
+   }
+  }
+  dbgZDroClr();
  }
 
  if (EXTI->PR & (XA_Pin | XB_Pin)) /* if bit change */
@@ -780,7 +810,7 @@ extern "C" void zTmrISR(void)
  zLoc += zIsr.dir;		/* update position */
  zIsr.steps++;			/* count a step moved */
 
- if (zIsr.home)			/* if homing operation */
+ if (zIsr.home)			/* 1*+ if homing operation */
  {
   updProbeDist();		/* update probe testing distance */
   if (zIsr.home & PROBE_SET)	/* if probing */
@@ -788,17 +818,38 @@ extern "C" void zTmrISR(void)
    if (probeSet())		/* if probe set */
    {
     zIsr.doneHome = 1;		/* indicate probe done */
-    zIsrStop('0');		/* stop movement */
+    zIsrStop('1');		/* stop movement */
+   }
+  }
+
+  if (zIsr.home & FIND_HOME)	/* if looking for home */
+  {
+   if (xHomeIsSet())		/* if home found */
+   {
+    zIsr.doneHome = 1;		/* indicate homing done */
+    zIsrStop('2');		/* stop movement */
+   }
+  }
+
+  if (zIsr.home & CLEAR_HOME)	/* if moving off home */
+  {
+   if (xHomeClr())		/* if home moved off home */
+   {
+    zIsr.doneHome = 1;		/* indicate homing done */
+    zIsrStop('3');		/* stop movement */
    }
   }
  }
 
- if (zIsr.dist != 0)		/* if distance set */
+ if (zIsr.dist != 0)		/* 2*+ if distance set */
  {
   --zIsr.dist;			/* decrement distance */
   if (zIsr.dist == 0)		/* if done */
   {
-   zIsrStop('1');		/* stop isr */
+   if (!zIsr.useDro)		/* if not using dro */
+   {
+    zIsrStop('4');		/* stop isr */
+   }
   }
   else				/* if not done */
   {
@@ -831,7 +882,7 @@ extern "C" void zTmrISR(void)
   } /* if not done */
  } /* if distance set */
  
- if (zIsr.accel)		/* if accelerating */
+ if (zIsr.accel)		/* 3*+ if accelerating */
  {
   if (zIsr.accelStep < zIsr.finalStep) /* if accelerating */
   {
@@ -859,7 +910,7 @@ extern "C" void zTmrISR(void)
    }
   }
  }
- else if (zIsr.decel)		/* if decelerating */
+ else if (zIsr.decel)		/* 4*+ if decelerating */
  {
   if (zIsr.accelStep > zIsr.initialStep) /* if decelerating */
   {
@@ -879,12 +930,15 @@ extern "C" void zTmrISR(void)
    }
    else
    {
-    zIsrStop('2');		/* stop isr */
-    putBufStrIsr("zd");
+    if (!zIsr.useDro)		/* if not using dro */
+    {
+     zIsrStop('6');		/* stop isr */
+     putBufStrIsr("zd");
+    }
    }
   }
  }
- else				/* tracking state */
+ else				/* 5*+ tracking state */
  {
   if (zIsr.sync > 0)		/* if running in sync mode */
   {

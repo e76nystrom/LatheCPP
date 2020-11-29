@@ -4,8 +4,8 @@
 #ifdef DbgB_Pin
  PIN(dbgZIsr, DbgB),
 #endif
-#ifdef Dbg2_Pin
- PIN(dbgXIsr, Dbg2),
+#ifdef DbgC_Pin
+ PIN(dbgXIsr, DbgC),
 #endif
 #ifdef Dbg3_Pin
  PIN(dbgXDro, Dbg3),

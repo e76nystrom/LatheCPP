@@ -1,3 +1,4 @@
+//******************************************************************************
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
 #endif
@@ -280,11 +281,53 @@ extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart3;
 #endif
 
+#ifdef STM32H7
+// Not defined in CMSIS 4.00 headers - check if defined
+// to allow for possible correction in later versions
+
+#if !defined DWT_LSR_Present_Msk 
+#define DWT_LSR_Present_Msk ITM_LSR_Present_Msk
+#endif
+
+#if !defined DWT_LSR_Access_Msk 
+#define DWT_LSR_Access_Msk ITM_LSR_Access_Msk
+#endif
+
+#define CoreDebug_DEMCR_TrcEna CoreDebug_DEMCR_TRCENA_Msk
+#define DWT_LAR_KEY 0xC5ACCE55
+
+void dwtAccessEnable(unsigned ena)
+{
+ uint32_t lsr = DWT->LSR;;
+
+ printf("lsr %08x\n", (unsigned int) lsr);
+
+ CoreDebug->DEMCR |= CoreDebug_DEMCR_TrcEna;
+ if ((lsr & DWT_LSR_Present_Msk) != 0) 
+ {
+  if (ena) 
+  {
+   if ((lsr & DWT_LSR_Access_Msk) != 0) //locked: access need unlock
+   {    
+    DWT->LAR = DWT_LAR_KEY;
+   }
+  } 
+  else 
+  {
+   if ((lsr & DWT_LSR_Access_Msk) == 0) //unlocked
+   {   
+    DWT->LAR = 0;
+   }
+  }
+ }
+}
+
+#endif
+
 //#define main mainLoop
 
 int16_t mainLoop(void)
 {
- uint32_t ledUpdTime;
  unsigned char ch;
  IRQn_Type extInt[] =
  {
@@ -297,8 +340,10 @@ int16_t mainLoop(void)
   EXTI15_10_IRQn
  };
 
- ledUpdTime = millis();
+#ifdef Led1_Pin
+ uint32_t ledUpdTime = millis();
  led1Set();
+#endif
 
  startSet();
 
@@ -306,13 +351,20 @@ int16_t mainLoop(void)
  DBGMCU->APB1FZ = DBGMCU_APB1_FZ_DBG_IWDG_STOP; /* stop wd on debug */
 #endif
 #if defined(STM32H7)
+ printf("DWT_CTRL %x\n", (unsigned int) DWT->CTRL);
+ dwtAccessEnable(1);
+ resetCnt();
+ startCnt();
+ stopCnt();
+ printf("cycles %u\n", getCycles());
  DBGMCU->APB1LFZ1 |= (DBGMCU_APB1LFZ1_DBG_TIM2 | DBGMCU_APB1LFZ1_DBG_TIM5 |
 		      DBGMCU_APB1LFZ1_DBG_TIM6 | DBGMCU_APB1LFZ1_DBG_TIM12);
  DBGMCU->APB2FZ1 |= (DBGMCU_APB2FZ1_DBG_TIM8 | DBGMCU_APB2FZ1_DBG_TIM15 |
 		     DBGMCU_APB2FZ1_DBG_TIM16 | DBGMCU_APB2FZ1_DBG_TIM17);
  DBGMCU->APB4FZ1 |= DBGMCU_APB4FZ1_DBG_IWDG1;
 
- printf("IDCODE   %08x CR %08x\n", (unsigned int) DBGMCU->IDCODE, (unsigned int) DBGMCU->CR);
+ printf("IDCODE   %08x CR %08x\n",
+	(unsigned int) DBGMCU->IDCODE, (unsigned int) DBGMCU->CR);
  printf("APB3FZ1  %08x\n", (unsigned int) DBGMCU->APB3FZ1);
  printf("APB1LFZ1 %08x\n", (unsigned int) DBGMCU->APB1LFZ1);
  printf("APB1HFZ1 %08x\n", (unsigned int) DBGMCU->APB1HFZ1);

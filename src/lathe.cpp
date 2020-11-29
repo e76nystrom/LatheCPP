@@ -62,6 +62,37 @@
 #define EXT extern
 #endif
 
+#ifdef STM32H7
+#define CPU_CYCLES 1
+#define DWT_CTRL_CycCntEna DWT_CTRL_CYCCNTENA_Msk
+inline void resetCnt()
+{
+ DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter    
+ DWT->CYCCNT = 0;		// reset the counter
+}
+
+inline void startCnt()
+{
+ DWT->CTRL |= DWT_CTRL_CycCntEna; // enable the counter
+}
+
+inline void stopCnt()
+{
+ DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter    
+}
+
+inline unsigned int getCycles()
+{
+ return DWT->CYCCNT;
+}
+#else
+#define CPU_CYCLES 0
+inline void resetCnt() {}
+inline void startCnt() {}
+inline void stopCnt() {}
+inline unsigned int getCycles() {return(0);}
+#endif
+
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
 #define DBG_INT 1		/* debug internal timer */
@@ -126,6 +157,7 @@ typedef struct s_spindleIsr
 
  /* control variables */
  float cFactor;			/* acceleration constant */
+ uint64_t cFactor2;		/* squared cfactor */
  int clocksStep;		/* final clocks per step value */
  unsigned int initialStep;	/* minimum acceleration step */
  unsigned int finalStep;	/* maximum acceleration step */
@@ -452,6 +484,7 @@ typedef struct s_movectl
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
+ int mpgBackDist;		/* mpg backlash counter */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
@@ -482,14 +515,23 @@ EXT unsigned int clksPerUSec;	/* clocks per usec */
 
 typedef struct s_homectl
 {
+ P_MOVECTL mov;
  int state;
  int prev;
+ int16_t clrActive;
+ int16_t setHomed;
+ int *status;
+ int *done;
  int findDist;
  int backoffDist;
  int slowDist;
+ uint16_t (*homeIsSet) (void);
+ uint16_t (*homeIsClr) (void);
+ void (*moveRel) (int pos, int cmd); /* move relative function */
 } T_HOMECTL, *P_HOMECTL;
 
 EXT T_HOMECTL xHomeCtl;
+EXT T_HOMECTL zHomeCtl;
 
 #define DEG_RAD (180.0 / 3.141592653589793)
 
@@ -708,8 +750,8 @@ void zInfo(char flag);
 void zMove(int pos, int cmd);
 void zMoveRel(int pos, int cmd);
 void zControl(void);
-void zFwd(void);
-void zRev(void);
+void zHomeAxis(void);
+void zHomeControl(void);
 
 void xInit(P_AXIS ax);
 void xReset(void);
@@ -743,6 +785,7 @@ void xHomeAxis(void);
 void xHomeControl(void);
 
 void axisCtl(void);
+void homeControl(P_HOMECTL home);
 
 void runInit(void);
 char queMoveCmd(uint32_t op, float val);
@@ -947,7 +990,7 @@ void stopCmd(void)
  xMoveCtl.stop = 1;
  zMoveCtl.stop = 1;
  cmdPause = 0;
- mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_HOME_ACTIVE);
+ mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE);
  xHomeCtl.state = H_IDLE;
 #if WIN32
  fflush(stdout);
@@ -1047,6 +1090,7 @@ void clearAll(void)
  clr(zMoveCtl);
  clr(xMoveCtl);
  clr(xHomeCtl);
+ clr(zHomeCtl);
 
  xRunoutFlag = 0;
  xRunoutSteps = 0;
@@ -1065,7 +1109,7 @@ void clearAll(void)
 
  cmdPause = 0;
  jogPause = 0;
- mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_HOME_ACTIVE | MV_MEASURE);
+ mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE | MV_MEASURE);
 
  currentPass = 0;
  totalPasses = 0;
@@ -1389,6 +1433,7 @@ void spindleSetup(int rpm)
  }
 }
 
+// __attribute__((optimize("O0")))
 void spindleInit(P_SPINDLE spa, int dist, int dir)
 {
  if (DBG_SETUP)
@@ -1414,8 +1459,9 @@ void spindleInit(P_SPINDLE spa, int dist, int dir)
   s->clocksStep = spa->clocksStep;
   s->stepsRev = spa->stepsRev;
   s->cFactor = spa->cFactor;
+  uint64_t tmp = (uint64_t) spa->cFactor;
+  s->cFactor2 = tmp * tmp;
   s->stepsCycle = spa->stepsCycle;
-
   s->accel = 1;			/* set acceleration flag */
   s->decel = 0;			/* clear deceleration flag */
   s->accelStep = s->initialStep; /* set initial spindle step */
@@ -1425,8 +1471,7 @@ void spindleInit(P_SPINDLE spa, int dist, int dir)
   int ctr = count - sp.lastCount; /* value to load in timer */
   int pre = 1;			/* initialize prescaler */
   if (DBG_SETUP)
-   printf("count %d lastCount %d ctr %d\n",
-	  count, s->lastCount, ctr);
+   printf("count %d lastCount %d ctr %d\n", count, s->lastCount, ctr);
   while (ctr > 65535)		/* while counter out of range */
   {
    ctr >>= 1;			/* divide counter by two */
@@ -2591,8 +2636,6 @@ void jogMpg2(P_MOVECTL mov)
  jog->emp++;			/* update pointer */
  if (jog->emp >= MAXJOG)	/* if at end of queue */
   jog->emp = 0;			/* reset to start */
- if (mov->mpgBackWait)		/* if waiting for backlash */
-  return;			/* ignore */
    
  char dir = val.dir;		/* get direction */
  unsigned int delta = val.delta; /* mask off time delta */
@@ -2652,45 +2695,56 @@ void jogMpg2(P_MOVECTL mov)
  }
  __enable_irq();		/* enable interrupts */
 
- if (dir != mov->dir)		/* if direction change */
+ if (mov->mpgBackWait == 0)	/* if not in backlash state */
  {
-  mov->dir = dir;		/* set direction */
-  int backlashSteps = mov->axis->backlashSteps; /* get backlash */
-  if (backlashSteps != 0)	/* if non zero */
+  if (dir != mov->dir)		/* if direction change */
   {
-   if (jogDebug)
-    printf("%c b %d\n", mov->axisName, backlashSteps);
-   dist = backlashSteps;	/* set distance */
-   isr->dir = 0;		/* set to zero for backlash */
-   mov->mpgBackWait = 1;	/* set to wait for backlash */
-   int ctr = moveInit(isr, mov->acMove, dir, backlashSteps); /* init move */
-   xHwEnable(ctr);		/* enable hardware */
-   mov->start();		/* start move */
-   return;			/* exit */
+   mov->dir = dir;		/* save direction */
+   if (dir > 0)			/* set direction hardware */
+    mov->dirFwd();
+   else
+    mov->dirRev();
+
+   int backlashSteps = mov->axis->backlashSteps; /* get backlash */
+   if (backlashSteps != 0)	/* if non zero */
+   {
+    if (jogDebug)
+     printf("%c b %d\n", mov->axisName, backlashSteps);
+    mov->mpgBackDist = backlashSteps; /* set distance */
+    mov->mpgBackWait = 1;	/* set to wait for backlash */
+    dir = 0;			/* set to zero for no position update */
+   }
+   isr->dir = dir;		/* set isr direction */
   }
-  isr->dir = dir;		/* set isr direction */
+  else				/* if no direction change */
+  {
+   isr->dir = dir;		/* set isr direction */
+  }
+
+  mov->expLoc += dist * dir;	/* update expected loc */
+
+  if (jogDebug)
+   printf("%c %2d %2d %3d %u\n",
+	  mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
+
+  isr->home = 0;		/* clear variables */
+  isr->useDro = 0;
+  isr->cFactor = 0;
+  isr->accel = 0;
+  isr->decel = 0;
+  isr->sync = 0;
+
+  isr->dist = dist;		/* set distance */
  }
- else				/* if no direction change */
-  isr->dir = dir;		/* set isr direction */
-
- mov->expLoc += dist * dir;	/* update expected loc */
-
- isr->home = 0;			/* clear variables */
- isr->useDro = 0;
- isr->cFactor = 0;
- isr->accel = 0;
- isr->decel = 0;
- isr->sync = 0;
-
- if (jogDebug)
-  printf("%c %2d %2d %3d %u\n",
-	 mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
-
- isr->dist = dist;		/* set distance */
- if (dir > 0)			/* set direction */
-  mov->dirFwd();
  else
-  mov->dirRev();
+ {
+  mov->mpgBackDist -= 1;	/* count of distance */
+  if (mov->mpgBackDist == 0)	/* if finished backlash */
+  {
+   mov->mpgBackWait = 0;	/* get out of backlash state */
+   isr->dir = mov->dir;		/* set direction */
+  }
+ }
 
  mov->hwEnable(ctr);		/* setup hardware */
  mov->start();			/* start */
@@ -2891,6 +2945,9 @@ void zTaperInit(P_ACCEL ac, char dir)
 void zMoveInit(P_ACCEL ac, char dir, int dist)
 {
  zReset();
+ P_MOVECTL mov = &zMoveCtl;
+ ac->useDro = (mov->cmd & DRO_POS) != 0; /* set use dro flag */
+ ac->droTarget = mov->droTarget;
  int ctr = moveInit(&zIsr, ac, dir, dist);
  zHwEnable(ctr);
 }
@@ -2951,6 +3008,18 @@ void zMoveRelCmd(void)
  if (zMoveCtl.state == ZIDLE)
  {
   int dist = lrint(zMoveDist * zAxis.stepsInch);
+  if ((zFlag & DRO_POS) != 0)
+  {
+   int droCounts = lrint(zMoveDist * zAxis.droCountsInch);
+   zMoveCtl.droTarget = zDroPos + droCounts;
+   if (DBG_P)
+   {
+    printf("zMoveRelCmd dist %7.4f steps %7d droCounts %7d\n",
+	   zMoveDist, dist, droCounts);
+    printf("droTarget %7d droPos %7d droCounts %7d\n",
+	   zMoveCtl.droTarget, zDroPos, zMoveCtl.droTarget - zDroPos);
+   }
+  }
   zMoveRel(dist, zFlag);
  }
 }
@@ -3247,6 +3316,54 @@ void syncMoveSetup(void)
   HAL_NVIC_DisableIRQ(spSyncIRQn); /* disable spindle sync interrupt */
 }
 
+void zMoveRel(int dist, int cmd)
+{
+ P_MOVECTL mov = &zMoveCtl;
+
+ if (DBG_MOVOP)
+ {
+  float stepsInch = zAxis.stepsInch;
+  printf("zMoveRel %2x l %7.4f d %7.4f\n",
+	 cmd, zLoc / stepsInch, dist / stepsInch);
+ }
+ mov->loc = zLoc;		/* save current location */
+ mov->expLoc = zLoc + dist;	/* calculate expected end location */
+ mov->cmd = cmd;		/* save command */
+ if (cfgDro)
+  dbgmsg(D_ZDRO, zDroPos);
+ dbgmsg(D_ZLOC, mov->loc);
+ dbgmsg(D_ZDST, dist);
+ if (dist != 0)			/* if distance non zero */
+ {
+  if (dist > 0)			/* if moving positive */
+  {
+   mov->dist = dist;		/* save distance */
+   mov->dirChange = (mov->dir != DIR_POS); /* dir chg */
+   mov->dir = DIR_POS;		/* set to move positive direction */
+   dirZFwd();			/* set to forward */
+  }
+  else
+  {
+   mov->dist = -dist;		/* make distance a positive number */
+   mov->dirChange = (mov->dir != DIR_NEG); /* dir chg */
+   mov->dir = DIR_NEG;		/* set move direction to negative */
+   dirZRev();			/* set to reverse */
+  }
+  if (mov->dirChange		/* if direction change */
+  &&  (zAxis.backlashSteps != 0)) /* and backlash present */
+  {
+   zMoveInit(&zMA, 0, zAxis.backlashSteps); /* setup backlash move */
+   zStart();			/* start move */
+   mov->state = ZWAITBKLS;	/* set to wait for backlash */
+  }
+  else				/* if no backlash */
+  {
+   mov->state = ZSTARTMOVE;	/* set to start move */
+   zControl();			/* and start move */
+  }
+ }
+}
+
 void zSynSetup(int feedType, float feed, float runoutDist, float runoutDepth)
 {
  if (DBG_SETUP)
@@ -3332,52 +3449,26 @@ void zMove(int pos, int cmd)
  zMoveRel(dist, cmd);
 }
 
-void zMoveRel(int dist, int cmd)
+void zMoveDro(int pos, int cmd)
 {
- P_MOVECTL mov = &zMoveCtl;
-
- if (DBG_MOVOP)
+ int droDist = pos - (zDroPos - zDroOffset);
+ /* dist = droDist * (stepsInch / countsInch) */
+ int dist = (2 * droDist * zAxis.stepFactor) / zAxis.droFactor;
+ dist = (dist + 1) >> 1;
+ int droTarget = pos + zDroOffset;
+ zMoveCtl.droTarget = droTarget;
+ if (DBG_QUE)
  {
-  float stepsInch = zAxis.stepsInch;
-  printf("zMoveRel %2x l %7.4f d %7.4f\n",
-	 cmd, zLoc / stepsInch, dist / stepsInch);
+  /* counts = inches * (counts / inch) */
+  printf("zMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f steps %d "
+	 "counts %d\n",
+	 cmd, ((float) pos) / zAxis.droCountsInch,
+	 ((float) (zDroPos - zDroOffset)) / zAxis.droCountsInch,
+	 ((float) droDist) / zAxis.droCountsInch, dist, droDist);
+  printf("droTarget %7d droPos %7d droCounts %7d\n",
+	 droTarget, zDroPos, droTarget - zDroPos);
  }
- mov->loc = zLoc;		/* save current location */
- mov->expLoc = zLoc + dist;	/* calculate expected end location */
- mov->cmd = cmd;		/* save command */
- if (cfgDro)
-  dbgmsg(D_ZDRO, zDroPos);
- dbgmsg(D_ZLOC, mov->loc);
- dbgmsg(D_ZDST, dist);
- if (dist != 0)			/* if distance non zero */
- {
-  if (dist > 0)			/* if moving positive */
-  {
-   mov->dist = dist;		/* save distance */
-   mov->dirChange = (mov->dir != DIR_POS); /* dir chg */
-   mov->dir = DIR_POS;		/* set to move positive direction */
-   dirZFwd();			/* set to forward */
-  }
-  else
-  {
-   mov->dist = -dist;		/* make distance a positive number */
-   mov->dirChange = (mov->dir != DIR_NEG); /* dir chg */
-   mov->dir = DIR_NEG;		/* set move direction to negative */
-   dirZRev();			/* set to reverse */
-  }
-  if (mov->dirChange		/* if direction change */
-  &&  (zAxis.backlashSteps != 0)) /* and backlash present */
-  {
-   zMoveInit(&zMA, 0, zAxis.backlashSteps); /* setup backlash move */
-   zStart();			/* start move */
-   mov->state = ZWAITBKLS;	/* set to wait for backlash */
-  }
-  else				/* if no backlash */
-  {
-   mov->state = ZSTARTMOVE;	/* set to start move */
-   zControl();			/* and start move */
-  }
- }
+ zMoveRel(dist, cmd);
 }
 
 void zControl(void)
@@ -3480,6 +3571,10 @@ void zControl(void)
 
   case CMD_JOG:
    zMoveInit(&zJA, mov->dir, mov->dist); /* setup move */
+   if ((cmd & FIND_HOME) != 0)
+    zIsr.home |= HOME_SET;
+   if ((cmd & CLEAR_HOME) != 0)
+    zIsr.home |= HOME_CLR;
    if ((cmd & FIND_PROBE) != 0)
     zIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
@@ -3503,6 +3598,10 @@ void zControl(void)
 
   case JOGSLOW:			/* slow jog to probe or find home */
    zMoveInit(&zSA, mov->dir, mov->dist); /* setup move */
+   if ((cmd & FIND_HOME) != 0)
+    zIsr.home |= HOME_SET;
+   if ((cmd & CLEAR_HOME) != 0)
+    zIsr.home |= HOME_CLR;
    if ((cmd & FIND_PROBE) != 0)
     zIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
@@ -3543,16 +3642,6 @@ void zControl(void)
  }
 }
 
-void zFwd(void)
-{
- dirZFwd();
-}
-
-void zRev(void)
-{
- dirZRev();
-}
-
 void xInit(P_AXIS ax)
 {
  ax->axis = 'x';
@@ -3563,6 +3652,37 @@ void xInit(P_AXIS ax)
 
  if (DBG_SETUP)
   printf("\nxInit stepsInch %d\n", ax->stepsInch);
+}
+
+void zHomeAxis(void)
+{
+ P_HOMECTL home = &zHomeCtl;
+
+ int dir = zHomeDir;
+ zHomeStatus = HOME_ACTIVE;
+ home->findDist = dir * (int) (zHomeDist * zAxis.stepsInch);
+ home->backoffDist = -dir * (int) (zHomeBackoffDist * zAxis.stepsInch);
+ home->slowDist = dir * (int) (1.25 * zHomeBackoffDist * zAxis.stepsInch);
+ home->clrActive = ~MV_ZHOME_ACTIVE;
+ home->setHomed = MV_ZHOME;
+  
+ mvStatus |= MV_ZHOME_ACTIVE;	/* set home active */
+ mvStatus &= ~MV_ZHOME;		/* set not homed */
+ home->state = H_CHECK_ONHOME;
+
+ P_ACCEL ac = &zSA;
+ ac->label = "zS";
+ ac->minSpeed = zHomeSpeed;
+ ac->maxSpeed = zHomeSpeed;
+ ac->accel = zAxis.accel;
+ ac->stepsInch = zAxis.stepsInch;
+
+ accelCalc(ac);
+}
+
+void zHomeControl(void)
+{
+ homeControl(&zHomeCtl);
 }
 
 void xReset(void)
@@ -4216,10 +4336,14 @@ void xControl(void)
 
   case CMD_JOG:			/* jog */
    xMoveInit(&xJA, mov->dir, mov->dist); /* setup move */
-   if ((cmd & XFIND_HOME) != 0)
+   if ((cmd & FIND_HOME) != 0)
     xIsr.home |= FIND_HOME;
-   if ((cmd & XCLEAR_HOME) != 0)
-    xIsr.home |= CLEAR_HOME;
+   if ((cmd & HOME_SET) != 0)
+    xIsr.home |= HOME_CLR;
+   if ((cmd & FIND_PROBE) != 0)
+    xIsr.home |= PROBE_SET;
+   if ((cmd & CLEAR_PROBE) != 0)
+    xIsr.home |= PROBE_CLR;
    mov->jog = 1;
    xStart();
    break;
@@ -4239,10 +4363,10 @@ void xControl(void)
 
   case JOGSLOW:			/* slow jog to probe or find home */
    xMoveInit(&xSA, mov->dir, mov->dist); /* setup move */
-   if ((cmd & XFIND_HOME) != 0)
-    xIsr.home |= FIND_HOME;
-   if ((cmd & XCLEAR_HOME) != 0)
-    xIsr.home |= CLEAR_HOME;
+   if ((cmd & FIND_HOME) != 0)
+    xIsr.home |= HOME_SET;
+   if ((cmd & CLEAR_HOME) != 0)
+    xIsr.home |= HOME_CLR;
    if ((cmd & FIND_PROBE) != 0)
     xIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
@@ -4335,16 +4459,23 @@ void xControl(void)
 void xHomeAxis(void)
 {
  P_HOMECTL home = &xHomeCtl;
+ home->mov = &xMoveCtl;
+ home->state = H_CHECK_ONHOME;
 
  int dir = xHomeDir;
  xHomeStatus = HOME_ACTIVE;
  home->findDist = dir * (int) (xHomeDist * xAxis.stepsInch);
  home->backoffDist = -dir * (int) (xHomeBackoffDist * xAxis.stepsInch);
  home->slowDist = dir * (int) (1.25 * xHomeBackoffDist * xAxis.stepsInch);
+ home->clrActive = ~MV_XHOME_ACTIVE;
+ home->setHomed = MV_XHOME;
   
- mvStatus |= MV_HOME_ACTIVE;	/* set home active */
+ mvStatus |= MV_XHOME_ACTIVE;	/* set home active */
  mvStatus &= ~MV_XHOME;		/* set not homed */
- home->state = H_CHECK_ONHOME;
+ home->status = &xHomeStatus;
+ home->done = &xHomeDone;
+ home->homeIsSet = xHomeIsSet;
+ home->homeIsClr = xHomeIsClr;
 
  P_ACCEL ac = &xSA;
  ac->label = "xS";
@@ -4358,8 +4489,11 @@ void xHomeAxis(void)
 
 void xHomeControl(void)
 {
- P_HOMECTL home = &xHomeCtl;
+ homeControl(&xHomeCtl);
+}
 
+void homeControl(P_HOMECTL home)
+ {
 #if DBGMSG
  if (home->state != home->prev)
  {
@@ -4367,6 +4501,7 @@ void xHomeControl(void)
   home->prev = home->state;
  }
 #endif
+ P_MOVECTL mov = home->mov;
 
  switch (home->state)
  {
@@ -4374,71 +4509,71 @@ void xHomeControl(void)
   break;
 
  case H_CHECK_ONHOME:		/* 0x01 check for home switch closed */
-  if (xHomeIsSet())		/* if home switch closed */
+  if (home->homeIsSet())	/* if home switch closed */
   {
-   xMoveRel(home->backoffDist, CMD_JOG); /* send backoff move */
+   mov->moveRel(home->backoffDist, CMD_JOG); /* send backoff move */
    home->state = H_BACKOFF_HOME; /* go to back state */
   }
   else				 /* if home switch open */
   {
-   xMoveRel(home->findDist, CMD_JOG | XFIND_HOME); /* find home switch */
+   mov->moveRel(home->findDist, CMD_JOG | FIND_HOME); /* find home switch */
    home->state = H_WAIT_FINDHOME; /* wait for home found */
   }
   break;
 
  case H_WAIT_FINDHOME:		/* 0x02 wait to find home switch */
-  if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
+  if (mov->state == XIDLE)	/* if opeartion complete */
   {
-   if (xHomeIsSet())		/* if home switch set */
+   if (home->homeIsSet())	  /* if home switch set */
     home->state = H_BACKOFF_HOME; /* advance to backoff state */
    else
    {				/* if did not find switch */
-    xHomeDone = 1;		/* indicate done */
-    xHomeStatus = HOME_FAIL;	/* set failure status */
+    *(home->done) = 1;		/* indicate done */
+    *(home->status) = HOME_FAIL; /* set failure status */
     home->state = H_IDLE;	/* return to idle state */
    }
   }
   break;
 
  case H_BACKOFF_HOME:		/* 0x03 backoff home switch */
-  if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
+  if (mov->state == XIDLE)	/* if opeartion complete */
   {
-   if (xHomeIsSet())		/* if home switch closed */
-    xMoveRel(home->backoffDist, CMD_JOG); /* send backoff move */
+   if (home->homeIsSet())		/* if home switch closed */
+    mov->moveRel(home->backoffDist, CMD_JOG); /* send backoff move */
    else
    {
-    xMoveRel(home->slowDist, JOGSLOW | XFIND_HOME); /* move back slowly */
+    mov->moveRel(home->slowDist, JOGSLOW | FIND_HOME); /* move back slowly */
     home->state = H_WAIT_SLOWFIND; /* advance to wait */
    }
   }
   break;
 
  case H_WAIT_BACKOFF:		/* 0x04 wait for backoff complete */
-  if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
+  if (mov->state == XIDLE)	/* if opeartion complete */
   {
-   if (xHomeIsClr())		/* if clear of switch */
+   if (home->homeIsClr())	/* if clear of switch */
    {
-    xMoveRel(home->slowDist, JOGSLOW | XFIND_HOME); /* move back slowly */
+    mov->moveRel(home->slowDist, JOGSLOW | FIND_HOME); /* move back slowly */
     home->state = H_WAIT_SLOWFIND; /* advance to wait */
    }
    else
    {				/* if did not find switch */
-    xHomeDone = 1;		/* indicate done */
-    xHomeStatus = HOME_FAIL;	/* set failure status */
+    *(home->done) = 1;		/* indicate done */
+    *(home->status) = HOME_FAIL; /* set failure status */
     home->state = H_IDLE;	/* return to idle state */
    }
   }
   break;
 
  case H_WAIT_SLOWFIND:		/* 0x05 wait to find switch */
-  if (xMoveCtl.state == XIDLE)	/* if opeartion complete */
+  if (mov->state == XIDLE)	/* if opeartion complete */
   {
    xHomeDone = 1;		/* set home done flag */
-   mvStatus &= ~MV_HOME_ACTIVE;	/* home complete */
+   mvStatus &= home->clrActive;	/* home complete */
    if (xHomeIsSet())		/* if successful */
    {
     xHomeStatus = HOME_SUCCESS;	/* set flag */
-    mvStatus |= MV_XHOME;	/* indicate homed */
+    mvStatus |= home->setHomed;	/* indicate homed */
     xLoc = 0;			/* set position to zero */
    }
    else				/* if failure */
@@ -4467,35 +4602,50 @@ void axisCtl(void)
  }
 
  P_MOVECTL mov;
-#if 0
- if (limitIsSet())		/* if limit is set */
+ if (limitsEnabled)		/* if limits enabled */
  {
-  mvStatus |= MV_LIMIT;		/* set at limit bit */
-  if (xIsr.dist)		/* if x isr active */
+  if (commonLimits)		/* if common limits */
   {
-   mov = &xMoveCtl;
-   if (mov->limitMove == 0)	/* if not a limit move */
+   if (limitIsSet())		/* if limit is set */
    {
-    if (mov->limitDir == 0)	/* if not at limit */
+    mvStatus |= MV_LIMIT;	/* set at limit bit */
+    if (xIsr.dist)		/* if x isr active */
     {
-     xIsrStop('7');		/* stop x isr */
-     mov->limitDir = xIsr.dir; /* save direction when limit tripped */
+     mov = &xMoveCtl;
+     if (mov->limitMove == 0)	/* if not a limit move */
+     {
+      if (mov->limitDir == 0)	/* if not at limit */
+      {
+       xIsrStop('7');		/* stop x isr */
+       mov->limitDir = xIsr.dir; /* save direction when limit tripped */
+      }
+     }
+    }
+    if (zIsr.dist)		/* if z isr active */
+    {
+     zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
+     zIsrStop('7');		/* stop z isr */
     }
    }
+   else				/* if limit clear */
+    mvStatus &= MV_LIMIT;	/* clear at limit bit */
   }
-  if (zIsr.dist)		/* if z isr active */
+  else				/* if inidvidual limits */
   {
-   zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
-   zIsrStop('7');		/* stop z isr */
+   if (zLimEna)			/* if z limits enabled */
+   {
+   }
+   if (xLimEna)			/* if x limits enabled */
+   {
+   }
   }
  }
- else				/* if limit clear */
-  mvStatus &= MV_LIMIT;		/* clear at limit bit */
-#endif
  
  mov = &zMoveCtl;
  if (mov->state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */
+ else if (zHomeCtl.state != H_IDLE) /* if home control not idle */
+  zHomeControl();		/* run home statue machine */
  else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
  {
   if (zIsr.done != 0)		/* if z done */
