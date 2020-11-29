@@ -1209,6 +1209,14 @@ void _read(void)
 {
 }
 
+void _kill()
+{
+}
+
+void _getpid()
+{
+}
+
 /* USER CODE END 4 */
 
 /**
