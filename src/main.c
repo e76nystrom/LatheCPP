@@ -1161,6 +1161,9 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void _kill(void);
+void _getpid(void);
+
 void _init(void)
 {
 }
@@ -1209,11 +1212,11 @@ void _read(void)
 {
 }
 
-void _kill()
+void _kill(void)
 {
 }
 
-void _getpid()
+void _getpid(void)
 {
 }
 
