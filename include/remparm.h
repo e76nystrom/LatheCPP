@@ -261,22 +261,31 @@ T_PARM remparm[] =
 
  PARM(currentOp),               /* 0x97 current operation */
 
-// limit override
+// global limits and home
 
  PARM(limitOverride),           /* 0x98 override limit switches */
  PARM(commonLimits),            /* 0x99 all limit switches on one pin */
  PARM(limitsEnabled),           /* 0x9a limits enabled */
  PARM(commonHome),              /* 0x9b all home switches on one pin */
+
+// z limits and home
+
  PARM(zLimEna),                 /* 0x9c z limit enable */
  PARM(zLimNegInv),              /* 0x9d z negative limit invert */
  PARM(zLimPosInv),              /* 0x9e z Positive limit Invert */
  PARM(zHomeEna),                /* 0x9f z home enable */
  PARM(zHomeInv),                /* 0xa0 z home invert */
+
+// x limits and home
+
  PARM(xLimEna),                 /* 0xa1 x limit enable */
  PARM(xLimNegInv),              /* 0xa2 x negative limit invert */
  PARM(xLimPosInv),              /* 0xa3 x Positive limit Invert */
  PARM(xHomeEna),                /* 0xa4 x home enable */
  PARM(xHomeInv),                /* 0xa5 x home invert */
+
+// e stop
+
  PARM(eStopEna),                /* 0xa6 enable estop */
  PARM(eStopInv),                /* 0xa7 invert estop siganl */
  PARM(maxParm),                 /* 0xa8 maximum parameter */

@@ -259,22 +259,31 @@
 
  EXT char currentOp;            /* 0x97 current operation */
 
-// limit override
+// global limits and home
 
  EXT char limitOverride;        /* 0x98 override limit switches */
  EXT char commonLimits;         /* 0x99 all limit switches on one pin */
  EXT char limitsEnabled;        /* 0x9a limits enabled */
  EXT char commonHome;           /* 0x9b all home switches on one pin */
+
+// z limits and home
+
  EXT char zLimEna;              /* 0x9c z limit enable */
  EXT char zLimNegInv;           /* 0x9d z negative limit invert */
  EXT char zLimPosInv;           /* 0x9e z Positive limit Invert */
  EXT char zHomeEna;             /* 0x9f z home enable */
  EXT char zHomeInv;             /* 0xa0 z home invert */
+
+// x limits and home
+
  EXT char xLimEna;              /* 0xa1 x limit enable */
  EXT char xLimNegInv;           /* 0xa2 x negative limit invert */
  EXT char xLimPosInv;           /* 0xa3 x Positive limit Invert */
  EXT char xHomeEna;             /* 0xa4 x home enable */
  EXT char xHomeInv;             /* 0xa5 x home invert */
+
+// e stop
+
  EXT char eStopEna;             /* 0xa6 enable estop */
  EXT char eStopInv;             /* 0xa7 invert estop siganl */
  EXT int16_t maxParm;           /* 0xa8 maximum parameter */

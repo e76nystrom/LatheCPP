@@ -261,22 +261,31 @@ enum PARM
 
  CURRENT_OP,                    /* 0x97 current operation */
 
-// limit override
+// global limits and home
 
  LIMIT_OVERRIDE,                /* 0x98 override limit switches */
  COMMON_LIMITS,                 /* 0x99 all limit switches on one pin */
  LIMITS_ENABLED,                /* 0x9a limits enabled */
  COMMON_HOME,                   /* 0x9b all home switches on one pin */
+
+// z limits and home
+
  Z_LIM_ENA,                     /* 0x9c z limit enable */
  Z_LIM_NEG_INV,                 /* 0x9d z negative limit invert */
  Z_LIM_POS_INV,                 /* 0x9e z Positive limit Invert */
  Z_HOME_ENA,                    /* 0x9f z home enable */
  Z_HOME_INV,                    /* 0xa0 z home invert */
+
+// x limits and home
+
  X_LIM_ENA,                     /* 0xa1 x limit enable */
  X_LIM_NEG_INV,                 /* 0xa2 x negative limit invert */
  X_LIM_POS_INV,                 /* 0xa3 x Positive limit Invert */
  X_HOME_ENA,                    /* 0xa4 x home enable */
  X_HOME_INV,                    /* 0xa5 x home invert */
+
+// e stop
+
  E_STOP_ENA,                    /* 0xa6 enable estop */
  E_STOP_INV,                    /* 0xa7 invert estop siganl */
  MAX_PARM,                      /* 0xa8 maximum parameter */

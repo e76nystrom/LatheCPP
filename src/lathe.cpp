@@ -464,9 +464,10 @@ typedef struct s_movectl
  char wait;			/* waiting for done fpga */
  char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
- char limitMove;		/* move off limits in progress */
  char mpgFlag;			/* mpg direction flag */
  char mpgBackWait;		/* mpg backlash wait */
+ char limitsEna;		/* limits enabled */
+ char limitMove;		/* move off limits in progress */
  unsigned int delayStart;	/* delay start time */
  unsigned int delayTimeout;	/* delay timeout in millis */
  int cmd;			/* move command */
@@ -2351,21 +2352,22 @@ void jogMove(P_MOVECTL mov, int dir)
 {
  if (mov->state == ZIDLE)	/* if not moving */
  {
-#if 0
-  if (mov->limitDir != 0)	/* if at a limit */
+  if (mov->limitsEna)		/* if limits enabled */
   {
-   if (limitOverride == 0)	/* if not overriding limits */
+   if (mov->limitDir != 0)	/* if at a limit */
    {
-    if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
-    ||  ((mov->limitDir < 0) && (dir < 0)))
+    if (limitOverride == 0)	/* if not overriding limits */
     {
-     printf("%c at limit\n", mov->axisName);
-     return;
+     if (((mov->limitDir > 0) && (dir > 0)) /* if same direction as limit */
+	 ||  ((mov->limitDir < 0) && (dir < 0)))
+     {
+      printf("%c at limit\n", mov->axisName);
+      return;
+     }
+     mov->limitMove = 1;		/* set moving off limit flag */
     }
-    mov->limitMove = 1;		/* set moving off limit flag */
    }
   }
-#endif  
   P_ACCEL ac = mov->acJog;	/* pointer to jog */
 #if 0
   float time = jogTimeInitial - ac->time; /* time after accel */
@@ -2510,17 +2512,20 @@ void jogMpg(P_MOVECTL mov)
   }
   dist = val.dir;
    
-  if (mov->limitDir != 0)	/* if at a limit */
+  if (mov->limitsEna)		/* if limits enabled */
   {
-   if (limitOverride == 0)	/* if not overriding limits */
+   if (mov->limitDir != 0)	/* if at a limit */
    {
-    if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-    ||  ((mov->limitDir < 0) && (dist < 0)))
+    if (limitOverride == 0)	/* if not overriding limits */
     {
-     printf("%c at limit\n", mov->axisName);
-     return;
+     if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+	 ||  ((mov->limitDir < 0) && (dist < 0)))
+     {
+      printf("%c at limit\n", mov->axisName);
+      return;
+     }
+     mov->limitMove = 1;		/* set moving off limit flag */
     }
-    mov->limitMove = 1;		/* set moving off limit flag */
    }
   }
 
@@ -3134,6 +3139,8 @@ void zMoveSetup(void)
 
  P_MOVECTL mov = &zMoveCtl;
  mov->axisName = 'z';
+ if (limitsEnabled)
+  mov->limitsEna = zLimEna;
  mov->mpgJogInc = &zMpgInc;
  mov->mpgJogMax = &zMpgMax;
  mov->mpgFlag = zMpgFlag;
@@ -4062,6 +4069,8 @@ void xMoveSetup(void)
 
  P_MOVECTL mov = &xMoveCtl;
  mov->axisName = 'x';
+ if (limitsEnabled)
+  mov->limitsEna = xLimEna;
  mov->mpgJogInc = &xMpgInc;
  mov->mpgJogMax = &xMpgMax;
  mov->mpgFlag = xMpgFlag;
@@ -4102,21 +4111,22 @@ void xMoveRel(int dist, int cmd)
 {
  P_MOVECTL mov = &xMoveCtl;
 
-#if 0
- if (mov->limitDir != 0)	/* if at a limit */
+ if (mov->limitsEna)		/* if limits enabled */
  {
-  if (limitOverride == 0)	/* if not overriding limits */
+  if (mov->limitDir != 0)	/* if at a limit */
   {
-   printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
-   if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-       ||  ((mov->limitDir < 0) && (dist < 0)))
+   if (limitOverride == 0)	/* if not overriding limits */
    {
-    printf("x at limit\n");
-    return;
+    printf("xMoveRel limitDir %d dist %d\n", mov->limitDir, dist);
+    if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
+    ||  ((mov->limitDir < 0) && (dist < 0)))
+    {
+     printf("x at limit\n");
+     return;
+    }
    }
   }
  }
-#endif
 
  int stepsInch = xAxis.stepsInch;
  if (DBG_MOVOP)
@@ -4608,7 +4618,7 @@ void axisCtl(void)
   {
    if (limitIsSet())		/* if limit is set */
    {
-    mvStatus |= MV_LIMIT;	/* set at limit bit */
+    mvStatus |= MV_XLIMIT;	/* set at limit bit */
     if (xIsr.dist)		/* if x isr active */
     {
      mov = &xMoveCtl;
@@ -4621,6 +4631,7 @@ void axisCtl(void)
       }
      }
     }
+    
     if (zIsr.dist)		/* if z isr active */
     {
      zMoveCtl.limitDir = zIsr.dir; /* save direction when limit tripped */
@@ -4628,13 +4639,29 @@ void axisCtl(void)
     }
    }
    else				/* if limit clear */
-    mvStatus &= MV_LIMIT;	/* clear at limit bit */
+    mvStatus &= MV_XLIMIT;	/* clear at limit bit */
   }
   else				/* if inidvidual limits */
   {
    if (zLimEna)			/* if z limits enabled */
    {
+    if (zPosLimIsSet() || zNegLimIsSet()) /* if at limit */
+    {
+     mov = &zMoveCtl;
+     mvStatus |= MV_ZLIMIT;	/* set at limit bit */
+     if (zIsr.dist)		/* if z isr active */
+     {
+      if (!mov->limitMove)	/* if not a limit move */
+      {
+       mov->limitDir = xIsr.dir; /* save direction of move */
+       zIsrStop('7');		/* stop movement */
+      }
+     }
+    }
+    else
+     mvStatus &= ~MV_ZLIMIT;	/* clear at limit bit */
    }
+
    if (xLimEna)			/* if x limits enabled */
    {
    }

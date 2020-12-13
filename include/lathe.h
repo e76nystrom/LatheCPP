@@ -417,9 +417,10 @@ typedef struct s_movectl
  char wait;			/* waiting for done fpga */
  char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
- char limitMove;		/* move off limits in progress */
  char mpgFlag;			/* mpg direction flag */
  char mpgBackWait;		/* mpg backlash wait */
+ char limitsEna;		/* limits enabled */
+ char limitMove;		/* move off limits in progress */
  unsigned int delayStart;	/* delay start time */
  unsigned int delayTimeout;	/* delay timeout in millis */
  int cmd;			/* move command */

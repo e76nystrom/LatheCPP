@@ -134,6 +134,68 @@ void lclcmd(int ch)
   newline();
   syncCalculate();
  }
+ else if (ch == '-')
+ {
+  int tmp = 0;
+  if (pin10IsSet())
+   tmp |= 0x00001;
+  if (pin11IsSet())
+   tmp |= 0x00002;
+  if (pin12IsSet())
+   tmp |= 0x00004;
+  if (pin13IsSet())
+   tmp |= 0x00008;
+  if (pin15IsSet())
+   tmp |= 0x00010;
+
+#if defined(PinA2_Pin)
+  if (pinA2IsSet())
+   tmp |= 0x00020;
+  if (pinA3IsSet())
+   tmp |= 0x00040;
+  if (pinA4IsSet())
+   tmp |= 0x00080;
+  if (pinA5IsSet())
+   tmp |= 0x00100;
+  if (pinA6IsSet())
+   tmp |= 0x00200;
+  if (pinA7IsSet())
+   tmp |= 0x00400;
+  if (pinA8IsSet())
+   tmp |= 0x00800;
+  if (pinA9IsSet())
+   tmp |= 0x01000;
+
+  if (pinA10IsSet())
+   tmp |= 0x02000;
+  if (pinA11IsSet())
+   tmp |= 0x04000;
+  if (pinA12IsSet())
+   tmp |= 0x08000;
+  if (pinA13IsSet())
+   tmp |= 0x10000;
+  if (pinA15IsSet())
+   tmp |= 0x20000;
+
+  printf("10 11 12 13 15  2  3  4  5  6  7  8  9 10 11 12 13 15\n");
+  printf("** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **\n");
+  int mask = 1;
+  for (int i = 0; i < 18; i++)
+  {
+   printf("%2d ", (mask & tmp) ? 1 : 0);
+   mask <<= 1;
+  }
+#else
+  printf("10 11 12 13 15\n");
+  printf("x+ ** x- pr y+\n");
+  int mask = 1;
+  for (int i = 0; i < 5; i++)
+  {
+   printf("%2d ", (mask & tmp) ? 1 : 0);
+   mask <<= 1;
+  }
+#endif	/* PinA2_Pin */
+ }
  else if (ch == 'o')
  {
   if (query(&getnum, "\npin: "))
