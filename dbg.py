@@ -48,7 +48,7 @@ pinList = \
   ("i", "pinA3", "PinA3", ""), \
   ("i", "pinA4", "PinA4", ""), \
   ("i", "pinA5", "PinA5", ""), \
-  ("i", "pinA6", "PinA5", ""), \
+  ("i", "pinA6", "PinA6", ""), \
   ("i", "pinA7", "PinA7", ""), \
   ("i", "pinA8", "PinA8", ""), \
   ("i", "pinA9", "PinA9", ""), \

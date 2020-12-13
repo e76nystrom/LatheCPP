@@ -136,6 +136,7 @@ void lclcmd(int ch)
  }
  else if (ch == '-')
  {
+  newline();
   int tmp = 0;
   if (pin10IsSet())
    tmp |= 0x00001;
@@ -178,7 +179,7 @@ void lclcmd(int ch)
    tmp |= 0x20000;
 
   printf("10 11 12 13 15  2  3  4  5  6  7  8  9 10 11 12 13 15\n");
-  printf("** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **\n");
+  printf("** ** ** ** ** ** ** ** ** z- zh z+ ** ** x- xh x+ **\n");
   int mask = 1;
   for (int i = 0; i < 18; i++)
   {

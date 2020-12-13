@@ -394,11 +394,11 @@ inline uint16_t pinA5IsSet() {return(0);}
 inline uint16_t pinA5IsClr() {return(0);}
 #endif
 
-#ifdef PinA5_Pin
+#ifdef PinA6_Pin
 #define pinA6_Pin
-inline uint16_t pinA6() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) != 0);}
-inline uint16_t pinA6IsSet() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) != 0);}
-inline uint16_t pinA6IsClr() {return((PinA5_GPIO_Port->IDR & PinA5_Pin) == 0);}
+inline uint16_t pinA6() {return((PinA6_GPIO_Port->IDR & PinA6_Pin) != 0);}
+inline uint16_t pinA6IsSet() {return((PinA6_GPIO_Port->IDR & PinA6_Pin) != 0);}
+inline uint16_t pinA6IsClr() {return((PinA6_GPIO_Port->IDR & PinA6_Pin) == 0);}
 #else
 inline uint16_t pinA6() {return(0);}
 inline uint16_t pinA6IsSet() {return(0);}
@@ -523,7 +523,7 @@ inline uint16_t xAHomeIsClr() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) == 0)
 #else
 inline uint16_t xAHome() {return(0);}
 inline uint16_t xAHomeIsSet() {return(0);}
-binline uint16_t xAHomeIsClr() {return(0);}
+inline uint16_t xAHomeIsClr() {return(0);}
 #endif
 
 #ifdef PinA2_Pin
