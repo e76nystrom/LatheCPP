@@ -4645,7 +4645,8 @@ void axisCtl(void)
   {
    if (zLimEna)			/* if z limits enabled */
    {
-    if (zPosLimIsSet() || zNegLimIsSet()) /* if at limit */
+    if ((zPosLimIsSet() != zLimPosInv)
+    ||  (zNegLimIsSet() != zLimNegInv)) /* if at limit */
     {
      mov = &zMoveCtl;
      mvStatus |= MV_ZLIMIT;	/* set at limit bit */
@@ -4664,6 +4665,22 @@ void axisCtl(void)
 
    if (xLimEna)			/* if x limits enabled */
    {
+    if ((xPosLimIsSet() != xLimPosInv)
+    ||  (xNegLimIsSet() != xLimNegInv)) /* if at limit */
+    {
+     mov = &xMoveCtl;
+     mvStatus |= MV_XLIMIT;	/* set at limit bit */
+     if (xIsr.dist)		/* if x isr active */
+     {
+      if (!mov->limitMove)	/* if not a limit move */
+      {
+       mov->limitDir = xIsr.dir; /* save direction of move */
+       xIsrStop('7');		/* stop movement */
+      }
+     }
+    }
+    else
+     mvStatus &= ~MV_ZLIMIT;	/* clear at limit bit */
    }
   }
  }
