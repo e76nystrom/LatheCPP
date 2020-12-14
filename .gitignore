@@ -6,9 +6,9 @@
 *.dat
 *.docx
 *.gif
+*.gpdsc
 *.gz
 *.html
-*.i*
 *.log
 *.logicsettings
 *.orig
