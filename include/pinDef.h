@@ -493,11 +493,11 @@ inline uint16_t pinA15IsSet() {return(0);}
 inline uint16_t pinA15IsClr() {return(0);}
 #endif
 
-#ifdef PinA11_Pin
+#ifdef PinA13_Pin
 #define xPosLim_Pin
-inline uint16_t xPosLim() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
-inline uint16_t xPosLimIsSet() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
-inline uint16_t xPosLimIsClr() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) == 0);}
+inline uint16_t xPosLim() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
+inline uint16_t xPosLimIsSet() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
+inline uint16_t xPosLimIsClr() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) == 0);}
 #else
 inline uint16_t xPosLim() {return(0);}
 inline uint16_t xPosLimIsSet() {return(0);}
@@ -505,58 +505,58 @@ inline uint16_t xPosLimIsClr() {return(0);}
 #endif
 
 #ifdef PinA12_Pin
-#define xNegLim_Pin
-inline uint16_t xNegLim() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
-inline uint16_t xNegLimIsSet() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
-inline uint16_t xNegLimIsClr() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) == 0);}
-#else
-inline uint16_t xNegLim() {return(0);}
-inline uint16_t xNegLimIsSet() {return(0);}
-inline uint16_t xNegLimIsClr() {return(0);}
-#endif
-
-#ifdef PinA13_Pin
 #define xAHome_Pin
-inline uint16_t xAHome() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
-inline uint16_t xAHomeIsSet() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) != 0);}
-inline uint16_t xAHomeIsClr() {return((PinA13_GPIO_Port->IDR & PinA13_Pin) == 0);}
+inline uint16_t xAHome() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
+inline uint16_t xAHomeIsSet() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) != 0);}
+inline uint16_t xAHomeIsClr() {return((PinA12_GPIO_Port->IDR & PinA12_Pin) == 0);}
 #else
 inline uint16_t xAHome() {return(0);}
 inline uint16_t xAHomeIsSet() {return(0);}
 inline uint16_t xAHomeIsClr() {return(0);}
 #endif
 
-#ifdef PinA2_Pin
+#ifdef PinA11_Pin
+#define xNegLim_Pin
+inline uint16_t xNegLim() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
+inline uint16_t xNegLimIsSet() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) != 0);}
+inline uint16_t xNegLimIsClr() {return((PinA11_GPIO_Port->IDR & PinA11_Pin) == 0);}
+#else
+inline uint16_t xNegLim() {return(0);}
+inline uint16_t xNegLimIsSet() {return(0);}
+inline uint16_t xNegLimIsClr() {return(0);}
+#endif
+
+#ifdef PinA8_Pin
 #define zPosLim_Pin
-inline uint16_t zPosLim() {return((PinA2_GPIO_Port->IDR & PinA2_Pin) != 0);}
-inline uint16_t zPosLimIsSet() {return((PinA2_GPIO_Port->IDR & PinA2_Pin) != 0);}
-inline uint16_t zPosLimIsClr() {return((PinA2_GPIO_Port->IDR & PinA2_Pin) == 0);}
+inline uint16_t zPosLim() {return((PinA8_GPIO_Port->IDR & PinA8_Pin) != 0);}
+inline uint16_t zPosLimIsSet() {return((PinA8_GPIO_Port->IDR & PinA8_Pin) != 0);}
+inline uint16_t zPosLimIsClr() {return((PinA8_GPIO_Port->IDR & PinA8_Pin) == 0);}
 #else
 inline uint16_t zPosLim() {return(0);}
 inline uint16_t zPosLimIsSet() {return(0);}
 inline uint16_t zPosLimIsClr() {return(0);}
 #endif
 
-#ifdef PinA3_Pin
-#define zNegLim_Pin
-inline uint16_t zNegLim() {return((PinA3_GPIO_Port->IDR & PinA3_Pin) != 0);}
-inline uint16_t zNegLimIsSet() {return((PinA3_GPIO_Port->IDR & PinA3_Pin) != 0);}
-inline uint16_t zNegLimIsClr() {return((PinA3_GPIO_Port->IDR & PinA3_Pin) == 0);}
-#else
-inline uint16_t zNegLim() {return(0);}
-inline uint16_t zNegLimIsSet() {return(0);}
-inline uint16_t zNegLimIsClr() {return(0);}
-#endif
-
-#ifdef PinA4_Pin
+#ifdef PinA7_Pin
 #define zAHome_Pin
-inline uint16_t zAHome() {return((PinA4_GPIO_Port->IDR & PinA4_Pin) != 0);}
-inline uint16_t zAHomeIsSet() {return((PinA4_GPIO_Port->IDR & PinA4_Pin) != 0);}
-inline uint16_t zAHomeIsClr() {return((PinA4_GPIO_Port->IDR & PinA4_Pin) == 0);}
+inline uint16_t zAHome() {return((PinA7_GPIO_Port->IDR & PinA7_Pin) != 0);}
+inline uint16_t zAHomeIsSet() {return((PinA7_GPIO_Port->IDR & PinA7_Pin) != 0);}
+inline uint16_t zAHomeIsClr() {return((PinA7_GPIO_Port->IDR & PinA7_Pin) == 0);}
 #else
 inline uint16_t zAHome() {return(0);}
 inline uint16_t zAHomeIsSet() {return(0);}
 inline uint16_t zAHomeIsClr() {return(0);}
+#endif
+
+#ifdef PinA6_Pin
+#define zNegLim_Pin
+inline uint16_t zNegLim() {return((PinA6_GPIO_Port->IDR & PinA6_Pin) != 0);}
+inline uint16_t zNegLimIsSet() {return((PinA6_GPIO_Port->IDR & PinA6_Pin) != 0);}
+inline uint16_t zNegLimIsClr() {return((PinA6_GPIO_Port->IDR & PinA6_Pin) == 0);}
+#else
+inline uint16_t zNegLim() {return(0);}
+inline uint16_t zNegLimIsSet() {return(0);}
+inline uint16_t zNegLimIsClr() {return(0);}
 #endif
 
 #ifdef PinA16_Pin

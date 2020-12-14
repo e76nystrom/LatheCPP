@@ -58,13 +58,13 @@ pinList = \
   ("i", "pinA13", "PinA13", ""), \
   ("i", "pinA15", "PinA15", ""), \
   
-  ("i", "xPosLim", "PinA11", ""), \
-  ("i", "xNegLim", "PinA12", ""), \
-  ("i", "xAHome",  "PinA13", ""), \
+  ("i", "xPosLim", "PinA13", ""), \
+  ("i", "xAHome",  "PinA12", ""), \
+  ("i", "xNegLim", "PinA11", ""), \
 
-  ("i", "zPosLim", "PinA2", ""), \
-  ("i", "zNegLim", "PinA3", ""), \
-  ("i", "zAHome",  "PinA4", ""), \
+  ("i", "zPosLim", "PinA8", ""), \
+  ("i", "zAHome",  "PinA7", ""), \
+  ("i", "zNegLim", "PinA6", ""), \
 
   ("o", "pinA16", "PinA16", ""), \
   ("o", "pinA17", "PinA17", ""), \
