@@ -10,11 +10,10 @@
 #include "stm32h7xx_hal.h"
 #endif
 
-#define ENUM_D_MESSAGE
 #include "lathe.h"
 
 #include "serialio.h"
-#include "latheI2C.h"
+#include "i2cx.h"
 #include "lcd.h"
 
 #ifdef EXT
@@ -43,6 +42,8 @@ EXT int xDist;
 
 #endif	// ->
 #ifdef __LCLCMD__
+
+extern const char *dMessageList[];
 
 void zCommand(void);
 void xCommand(void);

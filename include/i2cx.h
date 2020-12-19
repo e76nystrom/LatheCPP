@@ -1,13 +1,15 @@
 #if 1	// <-
 
+#if !defined(I2C_DEV)
+#define I2C_DEV I2C1
+#endif
+
 #if !defined(EXT)
 #define EXT extern
 #endif
 
-int i2c(void);
 void initI2c(void);
 void i2cWrite(uint8_t data);
-void i2cSendData(uint8_t *data, int size);
 
 void i2cPut(uint8_t ch);
 void i2cPutString(uint8_t *p, int size);
@@ -31,12 +33,13 @@ enum I2C_STATUS
  IS_TIMEOUT,			/* 2 timeout */
 };
 
-#define I2C_BUF_SIZE 128
+#define I2C_BUF_SIZE 256
 #define I2C_TIMEOUT 500U
 
 typedef struct
 {
  int state;
+ int lastState;
  int status;
  unsigned int startTime;
  unsigned int timeout;

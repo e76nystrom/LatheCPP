@@ -19,11 +19,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ENUM_M_STATES
-#define ENUM_M_COMMANDS
-#define ENUM_SEL_TURN
-#define ENUM_SEL_THREAD
-#define ENUM_OPERATIONS
+#define ENUM_Z_STATES    0
+#define ENUM_X_STATES    0
+#define ENUM_AXIS_STATES 0
+#define ENUM_M_STATES    0
+#define ENUM_M_COMMANDS  0
+#define ENUM_OPERATIONS  0
+#define ENUM_H_STATES    0
+#define ENUM_D_MESSAGE   0
+#define ENUM_EV_EVENTS   0
+#define ENUM_SEL_TURN    0
+#define ENUM_SEL_THREAD  0
 
 #include "main.h"
 #include "config.h"
@@ -62,7 +68,9 @@
 #define EXT extern
 #endif
 
-#ifdef STM32H7
+#define CYCLE_CTR
+#if defined(CYCLE_CTR)
+
 #define CPU_CYCLES 1
 #define DWT_CTRL_CycCntEna DWT_CTRL_CYCCNTENA_Msk
 inline void resetCnt()
@@ -85,13 +93,16 @@ inline unsigned int getCycles()
 {
  return DWT->CYCCNT;
 }
-#else
+
+#else  /* CYCLE_CTR */
+
 #define CPU_CYCLES 0
 inline void resetCnt() {}
 inline void startCnt() {}
 inline void stopCnt() {}
 inline unsigned int getCycles() {return(0);}
-#endif
+
+#endif	/* CYCLE_CTR */
 
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */

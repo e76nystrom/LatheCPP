@@ -19,7 +19,7 @@
 #include "xcontrol.h"
 #include "encoder.h"
 #if DBGMSG == 2
-extern char *dMessageList[];
+extern const char *dMessageList[];
 #endif
 
 #ifdef EXT

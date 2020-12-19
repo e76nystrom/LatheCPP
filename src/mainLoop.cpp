@@ -16,7 +16,7 @@
 #include "lclcmd.h"
 #include "lclcmdX.h"
 #include "remcmd.h"
-#include "latheI2C.h"
+#include "i2cx.h"
 #include "lcd.h"
 #include "latheSPI.h"
 #include "Xilinx.h"
