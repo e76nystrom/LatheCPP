@@ -9,6 +9,6 @@
 ./inc.py src/lclcmdx.cpp include/lclcmdx.h
 ./inc.py src/remcmd.cpp include/remcmd.h
 ./inc.py src/serialio.cpp include/serialio.h
-./inc.py src/spi.cpp include/latheSPI.h
+./inc.py src/spix.cpp include/spix.h
 ./inc.py src/xcontrol.cpp include/xcontrol.h
 ./inc.py src/zcontrol.cpp include/zcontrol.h

@@ -36,12 +36,16 @@
 #include "remvar.h"
 
 #include "serialio.h"
-#include "latheSPI.h"
+#include "spix.h"
 #include "lcd.h"
 
 #include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"
+
+#include "spi.h"
+#include "i2c.h"
+#include "tim.h"
 
 #ifdef EXT
 #undef EXT
@@ -840,6 +844,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
+void rccInfo(void);
 
 void testOutputs(int inputTest);
 void pinDisplay(void);
@@ -945,9 +950,6 @@ void delayUSec(unsigned short delay)
   }
  }
 }
-
-extern SPI_HandleTypeDef hspi2;
-extern I2C_HandleTypeDef hi2c1;
 
 #if 0
 extern uint32_t uwTick;
@@ -6779,18 +6781,57 @@ void usartInfo(USART_TypeDef *usart, const char *str)
 void i2cInfo(I2C_TypeDef *i2c, const char *str)
 {
  printf("i2c %x %s\n",(unsigned int) i2c, str);
-#if 0
- printf("CR1   %8x ",(unsigned int) i2c->CR1);
- printf("CR2   %8x\n",(unsigned int) i2c->CR2);
- printf("OAR1  %8x ",(unsigned int) i2c->OAR1);
- printf("OAR2  %8x\n",(unsigned int) i2c->OAR2);
- printf("SR1   %8x ",(unsigned int) i2c->SR1);
- printf("SR2   %8x\n",(unsigned int) i2c->SR2);
- printf("DR    %8x ",(unsigned int) i2c->DR);
- printf("CCR   %8x\n",(unsigned int) i2c->CCR);
- printf("TRISE %8x\n",(unsigned int) i2c->TRISE);
+#ifdef STM32F4
+ printf("CR1   %8x ",  (unsigned int) i2c->CR1);
+ printf("CR2   %8x\n", (unsigned int) i2c->CR2);
+ printf("OAR1  %8x ",  (unsigned int) i2c->OAR1);
+ printf("OAR2  %8x\n", (unsigned int) i2c->OAR2);
+ printf("SR1   %8x ",  (unsigned int) i2c->SR1);
+ printf("SR2   %8x\n", (unsigned int) i2c->SR2);
+ printf("DR    %8x ",  (unsigned int) i2c->DR);
+ printf("CCR   %8x\n", (unsigned int) i2c->CCR);
+ printf("TRISE %8x\n", (unsigned int) i2c->TRISE);
 #endif
  flushBuf();
+}
+
+void rccInfo(void)
+{
+ printf("rcc\n");
+#ifdef STM32F4
+ printf("CR         %8x ",  (unsigned int) RCC->CR);
+ printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
+
+ printf("CFGR       %8x ",  (unsigned int) RCC->CFGR);
+ printf("CIR        %8x\n", (unsigned int) RCC->CIR);
+
+ printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8x ",  (unsigned int) RCC->AHB2RSTR);
+ printf("AHB3RSTR   %8x\n", (unsigned int) RCC->AHB3RSTR);
+
+ printf("APB1RSTR   %8x ",  (unsigned int) RCC->APB1RSTR);
+ printf("APB2RSTR   %8x\n", (unsigned int) RCC->APB2RSTR);
+
+ printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB3ENR    %8x\n", (unsigned int) RCC->AHB1RSTR);
+
+ printf("APB1ENR    %8x ",  (unsigned int) RCC->APB1ENR);
+ printf("APB2ENR    %8x\n", (unsigned int) RCC->APB2ENR);
+
+ printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
+ printf("AHB3LPENR  %8x\n", (unsigned int) RCC->AHB3LPENR);
+
+ printf("APB1LPENR  %8x ",  (unsigned int) RCC->APB1LPENR);
+ printf("APB2LPENR  %8x\n", (unsigned int) RCC->APB2LPENR);
+
+ printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
+ printf("CSR        %8x\n", (unsigned int) RCC->CSR);
+
+ printf("SSCGR      %8x ",  (unsigned int) RCC->BDCR);
+ printf("PLLI2SCFGR %8x\n", (unsigned int) RCC->CSR);
+#endif
 }
 
 typedef struct
@@ -6831,14 +6872,6 @@ T_PORT_INPUT inputDef[] =
 #define OUTPUT_TEST (1 << 3)
 #define INPUT_PULLUP (1 << 4)
 #define INPUT_PULLDOWN (1 << 5)
-
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim5;
-extern TIM_HandleTypeDef htim8;
-extern TIM_HandleTypeDef htim12;
 
 void testOutputs(int flag)
 {

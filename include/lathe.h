@@ -787,6 +787,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
+void rccInfo(void);
 
 void testOutputs(int inputTest);
 void pinDisplay(void);

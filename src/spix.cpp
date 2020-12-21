@@ -20,7 +20,7 @@
 #endif
 
 #define EXT
-#include "latheSPI.h"
+#include "spix.h"
 //#endif
 
 #if defined(__SPI_INC__)	// <-

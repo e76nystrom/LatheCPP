@@ -119,6 +119,7 @@ __STATIC_INLINE void delayUSec(volatile uint32_t microseconds)
 
 void lcdInit(void)
 {
+ printf("lcdInit address %2x\n", (unsigned int) SLAVE_ADDRESS);
  startCnt();
  setBacklight(0);
 

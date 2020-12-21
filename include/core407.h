@@ -48,6 +48,9 @@
 #define spSyncISR(x) EXTI4_IRQHandler(x)
 #define spSyncIRQn EXTI4_IRQn
 
+#define I2C_DEV I2C1
+#define SLAVE_ADDRESS 0x3f
+
 #define ENC_TEST 0		/* encoder test */
 
 #define SPI 1

@@ -52,4 +52,8 @@ typedef struct
 
 EXT T_I2C_CTL i2cCtl;
 
+#if !defined(SLAVE_ADDRESS)
+#define SLAVE_ADDRESS 0x27 // the slave address (example)
+#endif	/* SLAVE_ADDRESS */
+
 #endif	// ->

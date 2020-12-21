@@ -15,7 +15,7 @@
 
 #include "lathe.h"
 
-#include "latheSPI.h"
+#include "spix.h"
 #include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"

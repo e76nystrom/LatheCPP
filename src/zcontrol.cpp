@@ -14,7 +14,7 @@
 
 #include "Xilinx.h"
 #include "remcmd.h"
-#include "latheSPI.h"
+#include "spix.h"
 #include "serialio.h"
 #include "latheX.h"
 

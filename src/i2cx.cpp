@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include <limits.h>
 
+#ifdef STM32F1
+#include "stm32f1xx_hal.h"
+#endif
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
 #endif
-
-#ifdef STM32F1
-#include "stm32f1xx_hal.h"
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
 #endif
 
 #include "main.h"
@@ -101,9 +103,14 @@ typedef struct
 
 EXT T_I2C_CTL i2cCtl;
 
+#if !defined(SLAVE_ADDRESS)
+#define SLAVE_ADDRESS 0x27 // the slave address (example)
+#endif	/* SLAVE_ADDRESS */
+
 #endif	// ->
 #ifdef __I2C__
 
+#if defined(STM32F1) || defined(STM32F4)
 void i2c_start(I2C_TypeDef* I2Cx, uint8_t address);
 
 inline void i2c_SendData(I2C_TypeDef* I2Cx, uint8_t data)
@@ -115,8 +122,6 @@ inline void i2c_stop(I2C_TypeDef* I2Cx)
 {
  I2Cx->CR1 |= I2C_CR1_STOP;
 }
-
-#define SLAVE_ADDRESS 0x27 // the slave address (example)
 
 void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
 {
@@ -146,8 +151,8 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
  I2Cx->DR = address;
  while (1)
  {
-  if ((I2C_DEV->SR1 == (I2C_SR1_ADDR | I2C_SR1_TXE))
-  &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
+  if ((I2Cx->SR1 == (I2C_SR1_ADDR | I2C_SR1_TXE))
+  &&  ((I2Cx->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
   {
    break;
   }
@@ -174,6 +179,10 @@ void i2cWrite(uint8_t data)
 
  i2c_stop(I2C_DEV);
 }
+#endif	/* STM32F1 || STM32F4 */
+
+#if defined(STM32H7)
+#endif	/* STM32H7 */
 
 void i2cPut(uint8_t ch)
 {
@@ -214,7 +223,6 @@ void i2cPutString(uint8_t *p, int size)
 void i2cSend(void)
 {
  P_I2C_CTL i2c = &i2cCtl;
- printf("i2cSend %d\n", i2c->count);
  i2c->timeout = I2C_TIMEOUT;
  i2c->startTime = millis();
  i2c->state = I_WAIT_START;
@@ -222,6 +230,7 @@ void i2cSend(void)
  i2c->lastState = I_IDLE;
 }
 
+#if defined(STM32F1) || defined(STM32F4)
 void i2cControl(void)
 {
  P_I2C_CTL i2c = &i2cCtl;
@@ -237,7 +246,8 @@ void i2cControl(void)
    flushBuf();
    printf("timeout\n");
    flushBuf();
-   I2C_DEV->CR1 |= I2C_CR1_STOP;
+   i2c_stop(I2C_DEV);
+//   I2C_DEV->CR1 |= I2C_CR1_STOP;
    i2c->emp = 0;
    i2c->fil = 0;
    i2c->count = 0;
@@ -323,5 +333,10 @@ void i2cControl(void)
   break;
  }
 }
+#endif	/* STM32F1 || STM32F4 */
+
+#if defined(STM32H7)
+
+#endif	/* STM32H7 */
 
 #endif

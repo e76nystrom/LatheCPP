@@ -14,7 +14,7 @@
 
 #include "Xilinx.h"
 #include "serialio.h"
-#include "latheSPI.h"
+#include "spix.h"
 #include "zcontrol.h"
 #include "xcontrol.h"
 #include "encoder.h"

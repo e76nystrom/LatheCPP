@@ -18,7 +18,7 @@
 #include "remcmd.h"
 #include "i2cx.h"
 #include "lcd.h"
-#include "latheSPI.h"
+#include "spix.h"
 #include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"

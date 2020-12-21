@@ -17,7 +17,7 @@
 #include "Xilinx.h"
 #if !defined(WIN32)
 #include "serialio.h"
-#include "latheSPI.h"
+#include "spix.h"
 #include "encoder.h"
 #endif
 

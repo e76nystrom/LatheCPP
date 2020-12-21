@@ -16,6 +16,8 @@
 #include "i2cx.h"
 #include "lcd.h"
 
+#include "i2c.h"
+
 #ifdef EXT
 #undef EXT
 #endif
@@ -477,34 +479,38 @@ void lclcmd(int ch)
    }
   }
  }
-#if 0
+#if 1
  else if (ch == 'J')
  {
-  printf("\n");
+  newline();
   I2C1->CR1 |= I2C_CR1_SWRST;
   I2C1->CR1 &= ~I2C_CR1_SWRST;
-  initI2c();
+  MX_I2C1_Init();
   i2cInfo(I2C1, "I2C1");
   printf("\n");
   gpioInfo(GPIOB);
  }
  else if (ch == 'K')
  {
-  putBufChar('\n');
-  I2C1->CR1 |= I2C_CR1_SWRST;
-  printf("\nresetting");
-  flushBuf();
-  I2C1->CR1 &= ~I2C_CR1_SWRST;
+  lcdInit();
  }
  #endif
  else if (ch == 'L')
  {
-  ch = query("\ninit: ");
-  putBufChar(ch);
   newline();
-  if (ch == 'y')
+  setBacklight(1);
+  setCursor(0, 0);
+  char buf[2];
+  buf[1] = 0;
+  for (int row = 0; row < 4; row++)
   {
-   lcdInit();
+   setCursorBuf(0, row);
+   buf[0] = '0' + row;
+   lcdString(buf);
+   lcdString(" Test");
+   i2cSend();
+   while (i2cCtl.state != I_IDLE)
+    i2cControl();
   }
  }
  else if (ch == 'O')
@@ -631,7 +637,11 @@ void lclcmd(int ch)
   if (val & 0x200000)
    usartInfo(REMPORT, "REM");
   if (val & 0x400000)
+  {
    i2cInfo(I2C1, "I2C1");
+   newline();
+   rccInfo();
+  }
  }
 
 #if DBGMSG

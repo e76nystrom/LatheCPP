@@ -23,6 +23,10 @@ const char *zStatesList[] =
  "ZDONE",                       /*  5 x05 clean up state */
 };
 
+#else
+
+extern const char *zStatesList[];
+
 #endif
 
 // x control states
@@ -48,6 +52,10 @@ const char *xStatesList[] =
  "XDELAY",                      /*  4 x04 wait for position to settle */
  "XDONE",                       /*  5 x05 clean up state */
 };
+
+#else
+
+extern const char *xStatesList[];
 
 #endif
 
@@ -76,6 +84,10 @@ const char *axisStatesList[] =
  "AXIS_DONE",                   /*  5 x05 clean up state */
  "AXIS_STATES",                 /*  6 x06 number of states */
 };
+
+#else
+
+extern const char *axisStatesList[];
 
 #endif
 
@@ -114,6 +126,10 @@ const char *mStatesList[] =
  "M_WAIT_SAFE_X",               /* 10 x0a wait for move to safe x to complete */
  "M_WAIT_SAFE_Z",               /* 11 x0b wait for move to safe z to complete */
 };
+
+#else
+
+extern const char *mStatesList[];
 
 #endif
 
@@ -183,6 +199,10 @@ const char *mCommandsList[] =
  "OP_DONE",                     /* 26 x1a operation done */
 };
 
+#else
+
+extern const char *mCommandsList[];
+
 #endif
 
 // move control operation
@@ -206,6 +226,10 @@ const char *operationsList[] =
  "OP_TAPER",                    /*  3 x03 taper */
  "OP_THREAD",                   /*  4 x04 thread */
 };
+
+#else
+
+extern const char *operationsList[];
 
 #endif
 
@@ -232,6 +256,10 @@ const char *hStatesList[] =
  "H_WAIT_BACKOFF",              /*  4 x04  */
  "H_WAIT_SLOWFIND",             /*  5 x05  */
 };
+
+#else
+
+extern const char *hStatesList[];
 
 #endif
 
@@ -319,6 +347,10 @@ const char *dMessageList[] =
  "D_MCMD",                      /* 35 x23 move command */
 };
 
+#else
+
+extern const char *dMessageList[];
+
 #endif
 
 // pylathe update events
@@ -345,6 +377,10 @@ const char *evEventsList[] =
  "EV_MAX",                      /*  5 x05 maximum event */
 };
 
+#else
+
+extern const char *evEventsList[];
+
 #endif
 
 // turning sync selector
@@ -370,6 +406,10 @@ const char *selTurnList[] =
  "SEL_TU_ESYN",                 /*  4 x04 Ext Syn */
  "SEL_TU_SYN",                  /*  5 x05 Sync */
 };
+
+#else
+
+extern const char *selTurnList[];
 
 #endif
 
@@ -398,5 +438,9 @@ const char *selThreadList[] =
  "SEL_TH_ESYN_RSYN",            /*  5 x05 Ext Syn, Runout Syn */
  "SEL_TH_SYN",                  /*  6 x06 Syn, Runout Syn */
 };
+
+#else
+
+extern const char *selThreadList[];
 
 #endif
