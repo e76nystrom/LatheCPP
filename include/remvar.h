@@ -4,7 +4,7 @@
 #define INCLUDE 1
 #define EXT extern
 
-#include "../src/remvar.cpp"
+#include "../lathe_src/remvar.cpp"
 #undef INCLUDE
 #undef EXT
 

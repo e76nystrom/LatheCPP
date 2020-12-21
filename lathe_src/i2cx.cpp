@@ -1,4 +1,4 @@
-#if !defined(INCLUDE)
+//#if !defined(INCLUDE)
 #define __I2C__
 #include <stdio.h>
 #include <limits.h>
@@ -47,7 +47,7 @@ unsigned int millis(void);
 
 #define EXT
 #include "i2cx.h"
-#endif	/* !defined(INCLUDE) */
+//#endif /* !defined(INCLUDE) */
 
 #if  defined(__I2C_INC__)	// <-
 
@@ -122,7 +122,29 @@ inline void i2c_stop(I2C_TypeDef* I2Cx)
 {
  I2Cx->CR1 |= I2C_CR1_STOP;
 }
+#endif
 
+#if defined(STM32H7)
+void i2c_start(I2C_TypeDef* I2Cx, uint8_t address, int size);
+
+inline void i2c_SendData(I2C_TypeDef* I2Cx, uint8_t data)
+{
+ I2Cx->TXDR = data;
+}
+
+inline void i2c_stop(I2C_TypeDef* I2Cx)
+{
+}
+
+inline void i2c_ResetCR2(I2C_TypeDef* I2Cx)
+{
+ I2Cx->Instance->CR2 &= ~((uint32_t)
+			  (I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES |
+			   I2C_CR2_RELOAD | I2C_CR2_RD_WRN)));
+}
+#endif	/* STM32H7 */
+
+#if defined(STM32F1) || defined(STM32F4)
 void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
 {
  unsigned int timeout = 100 * (HAL_RCC_GetHCLKFreq() / 1000000);
@@ -182,6 +204,42 @@ void i2cWrite(uint8_t data)
 #endif	/* STM32F1 || STM32F4 */
 
 #if defined(STM32H7)
+void i2c_start(I2C_TypeDef* I2Cx, uint8_t address, int size)
+{
+ unsigned int timeout = 100 * (HAL_RCC_GetHCLKFreq() / 1000000);
+ unsigned int start = getCycles();
+ while ((I2Cx->ISR & I2C_ISR_BUSY) != 0)
+ {
+  if ((getCycles() - start) > timeout)
+  {
+   printf("i2c_start busy timeout\n");
+   return;
+  }
+ }
+  
+ I2CX->CR2 = I2C_CR2_AUTOEND | (size << 16) | I2C_CR2_START | address;
+	  
+ while ((I2Cx->ISR & I2C_ISR_TXIS) == 0) /* wait for transmit done */
+ {
+  if ((getCycles() - start) > timeout)
+  {
+   printf("i2c_start master mode failed\n");
+   return;
+  }
+ }
+}
+
+void i2cWrite(uint8_t data)
+{
+ i2c_start(I2C_DEV, SLAVE_ADDRESS<<1, size);
+ 
+ i2c_SendData(I2C_DEV, data);
+
+ while ((I2Cx->ISR & I2C_ISR_TXIS) == 0) /* wait for transmit done */
+  ;
+
+ i2c_ResetCR2(I2Cx)
+}
 #endif	/* STM32H7 */
 
 void i2cPut(uint8_t ch)
@@ -339,4 +397,4 @@ void i2cControl(void)
 
 #endif	/* STM32H7 */
 
-#endif
+#endif	/* __I2C__ */
