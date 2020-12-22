@@ -37,14 +37,24 @@
 
 #define ENC_TEST 0		/* encoder test */
 
+#include "i2c.h"
+#define I2C_DEV I2C4
+#define I2C_NAME "I2C4"
+#define I2C_GPIO GPIOD
+#define SLAVE_ADDRESS 0x3f
+inline void mxI2CInit()
+{
+ MX_I2C4_Init();
+}
+
 #define SPI 1
 #define SPIn SPI3
-#define I2C 0
-#define I2Cn I2C1
+#define I2C 1
+#define I2Cn I2C4
 
 #define PR PR1
 #define SWIER SWIER1
 #define IMR IMR1
 #define IWDG IWDG1
 
-#endif	/* defined(NUCLEO746) */
+#endif	/* defined(NUCLEOH743) */

@@ -6793,20 +6793,20 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str)
  printf("TRISE    %8x\n", (unsigned int) i2c->TRISE);
 #endif
 #ifdef STM32H7
- printf("TIMINGR  %8x ",  (unsigned int) i2c->SR1);
- printf("TIMEOUTR %8x\n", (unsigned int) i2c->SR2);
- printf("ISR      %8x ",  (unsigned int) i2c->SR1);
- printf("ICR      %8x\n", (unsigned int) i2c->SR2);
- printf("PECR     %8x\n", (unsigned int) i2c->SR2);
- printf("RXDR     %8x ",  (unsigned int) i2c->SR1);
- printf("TXDR     %8x\n", (unsigned int) i2c->SR2);
+ printf("TIMINGR  %8x ",  (unsigned int) i2c->TIMINGR);
+ printf("TIMEOUTR %8x\n", (unsigned int) i2c->TIMEOUTR);
+ printf("ISR      %8x ",  (unsigned int) i2c->ISR);
+ printf("ICR      %8x\n", (unsigned int) i2c->ICR);
+ printf("PECR     %8x\n", (unsigned int) i2c->PECR);
+ printf("RXDR     %8x ",  (unsigned int) i2c->RXDR);
+ printf("TXDR     %8x\n", (unsigned int) i2c->TXDR);
 #endif
  flushBuf();
 }
 
 void rccInfo(void)
 {
- printf("rcc\n");
+ printf("RCC\n");
 #ifdef STM32F4
  printf("CR         %8x ",  (unsigned int) RCC->CR);
  printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
@@ -6842,77 +6842,77 @@ void rccInfo(void)
  printf("PLLI2SCFGR %8x\n", (unsigned int) RCC->CSR);
 #endif
 #ifdef STM32H7
- printf(" CR         %8x ",  (unsinged int) rcc->CR);         
- printf(" HSICFGR    %8x\n", (unsinged int) rcc->HSICFGR);    
+ printf("CR         %8x ",  (unsigned int) RCC->CR);
+ printf("HSICFGR    %8x\n", (unsigned int) RCC->HSICFGR);
 
- printf(" CRRCR      %8x ",  (unsinged int) rcc->CRRCR);      
- printf(" CSICFGR    %8x ",  (unsinged int) rcc->CSICFGR);    
- printf(" CFGR       %8x\n", (unsinged int) rcc->CFGR);       
+ printf("CRRCR      %8x ",  (unsigned int) RCC->CRRCR);
+ printf("CSICFGR    %8x ",  (unsigned int) RCC->CSICFGR);
+ printf("CFGR       %8x\n", (unsigned int) RCC->CFGR);
 
- printf(" D1CFGR     %8x ",  (unsinged int) rcc->D1CFGR);     
- printf(" D2CFGR     %8x ",  (unsinged int) rcc->D2CFGR);     
- printf(" D3CFGR     %8x\n", (unsinged int) rcc->D3CFGR);     
+ printf("D1CFGR     %8x ",  (unsigned int) RCC->D1CFGR);
+ printf("D2CFGR     %8x ",  (unsigned int) RCC->D2CFGR);
+ printf("D3CFGR     %8x\n", (unsigned int) RCC->D3CFGR);
 
- printf(" PLLCKSELR  %8x ",  (unsinged int) rcc->PLLCKSELR);  
- printf(" PLLCFGR    %8x\n", (unsinged int) rcc->PLLCFGR);    
+ printf("PLLCKSELR  %8x ",  (unsigned int) RCC->PLLCKSELR);
+ printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
 
- printf(" PLL1DIVR   %8x ",  (unsinged int) rcc->PLL1DIVR);   
- printf(" PLL1FRACR  %8x\n", (unsinged int) rcc->PLL1FRACR);  
+ printf("PLL1DIVR   %8x ",  (unsigned int) RCC->PLL1DIVR);
+ printf("PLL1FRACR  %8x\n", (unsigned int) RCC->PLL1FRACR);
 
- printf(" PLL2DIVR   %8x ",  (unsinged int) rcc->PLL2DIVR);   
- printf(" PLL2FRACR  %8x\n", (unsinged int) rcc->PLL2FRACR);  
+ printf("PLL2DIVR   %8x ",  (unsigned int) RCC->PLL2DIVR);
+ printf("PLL2FRACR  %8x\n", (unsigned int) RCC->PLL2FRACR);
 
- printf(" PLL3DIVR   %8x ",  (unsinged int) rcc->PLL3DIVR);   
- printf(" PLL3FRACR  %8x\n", (unsinged int) rcc->PLL3FRACR);  
+ printf("PLL3DIVR   %8x ",  (unsigned int) RCC->PLL3DIVR);
+ printf("PLL3FRACR  %8x\n", (unsigned int) RCC->PLL3FRACR);
 
- printf(" D1CCIPR    %8x ",  (unsinged int) rcc->D1CCIPR);   
- printf(" D2CCIP1R   %8x ",  (unsinged int) rcc->D2CCIP1R);  
- printf(" D2CCIP2R   %8x ",  (unsinged int) rcc->D2CCIP2R);  
- printf(" D3CCIPR    %8x\n", (unsinged int) rcc->D3CCIPR);   
+ printf("D1CCIPR    %8x ",  (unsigned int) RCC->D1CCIPR);
+ printf("D2CCIP1R   %8x ",  (unsigned int) RCC->D2CCIP1R);
+ printf("D2CCIP2R   %8x ",  (unsigned int) RCC->D2CCIP2R);
+ printf("D3CCIPR    %8x\n", (unsigned int) RCC->D3CCIPR);
 
- printf(" CIER       %8x ",  (unsinged int) rcc->CIER);      
- printf(" CIFR       %8x\n", (unsinged int) rcc->CIFR);      
+ printf("CIER       %8x ",  (unsigned int) RCC->CIER);
+ printf("CIFR       %8x\n", (unsigned int) RCC->CIFR);
 
- printf(" CICR       %8x ",  (unsinged int) rcc->CICR);      
- printf(" BDCR       %8x ",  (unsinged int) rcc->BDCR);      
- printf(" CSR        %8x\n", (unsinged int) rcc->CSR);       
+ printf("CICR       %8x ",  (unsigned int) RCC->CICR);
+ printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
+ printf("CSR        %8x\n", (unsigned int) RCC->CSR);
 
- printf(" AHB3RSTR   %8x ",  (unsinged int) rcc->AHB3RSTR);   
- printf(" AHB1RSTR   %8x ",  (unsinged int) rcc->AHB1RSTR);   
- printf(" AHB2RSTR   %8x\n", (unsinged int) rcc->AHB2RSTR);   
- printf(" AHB4RSTR   %8x ",  (unsinged int) rcc->AHB4RSTR);   
- printf(" APB3RSTR   %8x\n", (unsinged int) rcc->APB3RSTR);   
+ printf("AHB3RSTR   %8x ",  (unsigned int) RCC->AHB3RSTR);
+ printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8x\n", (unsigned int) RCC->AHB2RSTR);
+ printf("AHB4RSTR   %8x ",  (unsigned int) RCC->AHB4RSTR);
+ printf("APB3RSTR   %8x\n", (unsigned int) RCC->APB3RSTR);
 
- printf(" APB1LRSTR  %8x ",  (unsinged int) rcc->APB1LRSTR);  
- printf(" APB1HRSTR  %8x ",  (unsinged int) rcc->APB1HRSTR);  
- printf(" APB2RSTR   %8x ",  (unsinged int) rcc->APB2RSTR);   
- printf(" APB4RSTR   %8x\n", (unsinged int) rcc->APB4RSTR);   
+ printf("APB1LRSTR  %8x ",  (unsigned int) RCC->APB1LRSTR);
+ printf("APB1HRSTR  %8x ",  (unsigned int) RCC->APB1HRSTR);
+ printf("APB2RSTR   %8x ",  (unsigned int) RCC->APB2RSTR);
+ printf("APB4RSTR   %8x\n", (unsigned int) RCC->APB4RSTR);
 
- printf(" GCR        %8x ",  (unsinged int) rcc->GCR);        
- printf(" D3AMR      %8x ",  (unsinged int) rcc->D3AMR);      
- printf(" RSR        %8x\n", (unsinged int) rcc->RSR);        
+ printf("GCR        %8x ",  (unsigned int) RCC->GCR);
+ printf("D3AMR      %8x ",  (unsigned int) RCC->D3AMR);
+ printf("RSR        %8x\n", (unsigned int) RCC->RSR);
 
- printf(" AHB3ENR    %8x ",  (unsinged int) rcc->AHB3ENR);    
- printf(" AHB1ENR    %8x ",  (unsinged int) rcc->AHB1ENR);    
- printf(" AHB2ENR    %8x ",  (unsinged int) rcc->AHB2ENR);    
- printf(" AHB4ENR    %8x\n", (unsinged int) rcc->AHB4ENR);    
+ printf("AHB3ENR    %8x ",  (unsigned int) RCC->AHB3ENR);
+ printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1ENR);
+ printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB2ENR);
+ printf("AHB4ENR    %8x\n", (unsigned int) RCC->AHB4ENR);
 
- printf(" APB3ENR    %8x ",  (unsinged int) rcc->APB3ENR);    
- printf(" APB1LENR   %8x ",  (unsinged int) rcc->APB1LENR);   
- printf(" APB1HENR   %8x\n", (unsinged int) rcc->APB1HENR);   
- printf(" APB2ENR    %8x ",  (unsinged int) rcc->APB2ENR);    
- printf(" APB4ENR    %8x\n", (unsinged int) rcc->APB4ENR);    
+ printf("APB3ENR    %8x ",  (unsigned int) RCC->APB3ENR);
+ printf("APB1LENR   %8x ",  (unsigned int) RCC->APB1LENR);
+ printf("APB1HENR   %8x\n", (unsigned int) RCC->APB1HENR);
+ printf("APB2ENR    %8x ",  (unsigned int) RCC->APB2ENR);
+ printf("APB4ENR    %8x\n", (unsigned int) RCC->APB4ENR);
 
- printf(" AHB3LPENR  %8x ",  (unsinged int) rcc->AHB3LPENR);  
- printf(" AHB1LPENR  %8x ",  (unsinged int) rcc->AHB1LPENR);  
- printf(" AHB2LPENR  %8x ",  (unsinged int) rcc->AHB2LPENR);  
- printf(" AHB4LPENR  %8x ",  (unsinged int) rcc->AHB4LPENR);  
+ printf("AHB3LPENR  %8x ",  (unsigned int) RCC->AHB3LPENR);
+ printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
+ printf("AHB4LPENR  %8x ",  (unsigned int) RCC->AHB4LPENR);
 
- printf(" APB3LPENR  %8x ",  (unsinged int) rcc->APB3LPENR);  
- printf(" APB1LLPENR %8x ",  (unsinged int) rcc->APB1LLPENR); 
- printf(" APB1HLPENR %8x\n", (unsinged int) rcc->APB1HLPENR); 
- printf(" APB2LPENR  %8x ",  (unsinged int) rcc->APB2LPENR);
- printf(" APB4LPENR  %8x\n", (unsinged int) rcc->APB4LPENR);
+ printf("APB3LPENR  %8x ",  (unsigned int) RCC->APB3LPENR);
+ printf("APB1LLPENR %8x ",  (unsigned int) RCC->APB1LLPENR);
+ printf("APB1HLPENR %8x\n", (unsigned int) RCC->APB1HLPENR);
+ printf("APB2LPENR  %8x ",  (unsigned int) RCC->APB2LPENR);
+ printf("APB4LPENR  %8x\n", (unsigned int) RCC->APB4LPENR);
  #endif
 }
 

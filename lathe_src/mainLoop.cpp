@@ -298,7 +298,7 @@ extern UART_HandleTypeDef huart3;
 
 void dwtAccessEnable(unsigned ena)
 {
- uint32_t lsr = DWT->LSR;;
+ uint32_t lsr = DWT->LSR;
 
  printf("lsr %08x\n", (unsigned int) lsr);
 
@@ -412,12 +412,13 @@ int16_t mainLoop(void)
 #endif
 
  putstr1("start remcmd\n");
+ unsigned int sysClock = HAL_RCC_GetSysClockFreq();
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
  unsigned int FCY = HAL_RCC_GetPCLK2Freq() * 2;
  cfgFcy = FCY;
  clocksMin = (uint64_t) FCY * 60;
- printf("clock frequency %u FCY %u %x\n",
-	clockFreq, FCY, (unsigned int) &cfgFcy);
+ printf("sys clock %u clock frequency %u FCY %u %x\n",
+	sysClock, clockFreq, FCY, (unsigned int) &cfgFcy);
  printf("sysTick load %d\n", (int) SysTick->LOAD);
 
 #if 1

@@ -483,15 +483,14 @@ void lclcmd(int ch)
  else if (ch == 'J')
  {
   newline();
-  I2C1->CR1 |= I2C_CR1_SWRST;
-  I2C1->CR1 &= ~I2C_CR1_SWRST;
-  MX_I2C1_Init();
-  i2cInfo(I2C1, "I2C1");
+  mxI2CInit();
+  i2cInfo(I2C_DEV, I2C_NAME);
   printf("\n");
-  gpioInfo(GPIOB);
+  gpioInfo(I2C_GPIO);
  }
  else if (ch == 'K')
  {
+  newline();
   lcdInit();
  }
  #endif
@@ -638,7 +637,7 @@ void lclcmd(int ch)
    usartInfo(REMPORT, "REM");
   if (val & 0x400000)
   {
-   i2cInfo(I2C1, "I2C1");
+   i2cInfo(I2C_DEV, I2C_NAME);
    newline();
    rccInfo();
   }
