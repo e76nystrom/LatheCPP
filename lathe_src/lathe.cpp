@@ -6680,7 +6680,7 @@ void tmrInfo(TIM_TypeDef *tmr)
  printf("OR    %8x\n",(unsigned int) tmr->OR);
 #endif
 #if defined(STM32H7)
- newline()
+ newline();
 #endif
  flushBuf();
 }

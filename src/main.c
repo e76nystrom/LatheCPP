@@ -37,7 +37,6 @@
   ******************************************************************************
   */
 #include "stm32f4xx_hal.h"
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -50,9 +49,6 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-//#include "serialio.h"
-ssize_t _write (int fd, const char* buf, size_t nbyte);
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,14 +77,6 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
 void mainLoop(void);
-ssize_t _write (int fd, const char* buf, size_t nbyte);
-void _init(void);
-caddr_t _sbrk(int incr);
-void _close(void);
-int _fstat(void);
-int _isatty(void);
-void _lseek(void);
-void _read(void);
 
 /* USER CODE END PFP */
 
@@ -142,12 +130,6 @@ int main(void)
   MX_IWDG_Init();
   MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
-
-#if 0
-#define SLAVE_ADDRESS 0x27
-  uint8_t data[] = {0, 1, 2, 3, 4};
-  HAL_I2C_Master_Transmit(&hi2c1, SLAVE_ADDRESS, data, (uint16_t) sizeof(data), 100);
-#endif
 
   mainLoop();
 
@@ -210,65 +192,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-void _kill(void);
-void _getpid(void);
-
-void _init(void)
-{
-}
-
-caddr_t _sbrk(int incr)
-{
- extern char _end;		/* Defined by the linker */
- static char *heap_end;
- char *prev_heap_end;
- char *sp = (char *)&sp;
-
- if (heap_end == 0)
- {
-  heap_end = &_end;
- }
- prev_heap_end = heap_end;
- heap_end += incr;
- if (heap_end > sp)
- {
-  _write (1, "Heap and stack collision\n", 25);
-//  errno = ENOMEM;
-  return (caddr_t)-1;
- }
- return (caddr_t) prev_heap_end;
-}
-
-void _close(void)
-{
-}
-
-int _fstat(void)
-{
- return(0);
-}
-
-int _isatty(void)
-{
- return(1);
-}
-
-void _lseek(void)
-{
-}
-
-void _read(void)
-{
-}
-
-void _kill(void)
-{
-}
-
-void _getpid(void)
-{
-}
 
 /* USER CODE END 4 */
 
