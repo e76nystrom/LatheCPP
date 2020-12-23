@@ -630,7 +630,10 @@ void lclcmd(int ch)
   if (val & 0x200000)
    usartInfo(REMPORT, "REM");
   if (val & 0x400000)
+  {
    i2cInfo(I2C1, "I2C1");
+   rccInfo();
+  }
  }
 
 #if DBGMSG

@@ -829,6 +829,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
+void rccInfo(void);
 
 void testOutputs(int inputTest);
 void pinDisplay(void);
@@ -6717,13 +6718,13 @@ void extiInfo(void)
  }
 #endif
 #if defined(STM32H743xx_H)
- extiBit("RTSR1", EXTI->RTSR1);
- extiBit("FTSR1", EXTI->FTSR1);
+ extiBit("RTSR1",  EXTI->RTSR1);
+ extiBit("FTSR1",  EXTI->FTSR1);
  extiBit("SWIER1", EXTI->SWIER1);
  extiBit("D3PMR1", EXTI->D3PMR1);
- extiBit("IMR1", EXTI->IMR1);
- extiBit("EMR1", EXTI->EMR1);
- extiBit("PR1", EXTI->PR1);
+ extiBit("IMR1",   EXTI->IMR1);
+ extiBit("EMR1",   EXTI->EMR1);
+ extiBit("PR1",    EXTI->PR1);
 #endif
  printf("\n");
  flushBuf();
@@ -6731,38 +6732,77 @@ void extiInfo(void)
 
 void usartInfo(USART_TypeDef *usart, const char *str)
 {
- printf("usart %x %s\n",(unsigned int) usart, str);
+ printf("usart %x %s\n", (unsigned int) usart, str);
 #ifdef STM32F4
- printf("SR   %8x ",(unsigned int) usart->SR);
- printf("DR   %8x\n",(unsigned int) usart->DR);
+ printf("SR   %8x ",  (unsigned int) usart->SR);
+ printf("DR   %8x\n", (unsigned int) usart->DR);
 #endif
 #ifdef STM32F7
- printf("ISR  %8x ",(unsigned int) usart->ISR);
- printf("RDR  %8x\n",(unsigned int) usart->RDR);
+ printf("ISR  %8x ",  (unsigned int) usart->ISR);
+ printf("RDR  %8x\n", (unsigned int) usart->RDR);
 #endif
- printf("BRR  %8x ",(unsigned int) usart->BRR);
- printf("CR1  %8x\n",(unsigned int) usart->CR1);
- printf("CR2  %8x ",(unsigned int) usart->CR2);
- printf("CR3  %8x\n",(unsigned int) usart->CR3);
- printf("GTPR %8x\n",(unsigned int) usart->GTPR);
+ printf("BRR  %8x ",  (unsigned int) usart->BRR);
+ printf("CR1  %8x\n", (unsigned int) usart->CR1);
+ printf("CR2  %8x ",  (unsigned int) usart->CR2);
+ printf("CR3  %8x\n", (unsigned int) usart->CR3);
+ printf("GTPR %8x\n", (unsigned int) usart->GTPR);
  flushBuf();
 }
 
 void i2cInfo(I2C_TypeDef *i2c, const char *str)
 {
  printf("i2c %x %s\n",(unsigned int) i2c, str);
-#if 0
- printf("CR1   %8x ",(unsigned int) i2c->CR1);
- printf("CR2   %8x\n",(unsigned int) i2c->CR2);
- printf("OAR1  %8x ",(unsigned int) i2c->OAR1);
- printf("OAR2  %8x\n",(unsigned int) i2c->OAR2);
- printf("SR1   %8x ",(unsigned int) i2c->SR1);
- printf("SR2   %8x\n",(unsigned int) i2c->SR2);
- printf("DR    %8x ",(unsigned int) i2c->DR);
- printf("CCR   %8x\n",(unsigned int) i2c->CCR);
- printf("TRISE %8x\n",(unsigned int) i2c->TRISE);
+#ifdef STM32F4
+ printf("CR1   %8x ",  (unsigned int) i2c->CR1);
+ printf("CR2   %8x\n", (unsigned int) i2c->CR2);
+ printf("OAR1  %8x ",  (unsigned int) i2c->OAR1);
+ printf("OAR2  %8x\n", (unsigned int) i2c->OAR2);
+ printf("SR1   %8x ",  (unsigned int) i2c->SR1);
+ printf("SR2   %8x\n", (unsigned int) i2c->SR2);
+ printf("DR    %8x ",  (unsigned int) i2c->DR);
+ printf("CCR   %8x\n", (unsigned int) i2c->CCR);
+ printf("TRISE %8x\n", (unsigned int) i2c->TRISE);
 #endif
  flushBuf();
+}
+
+void rccInfo(void)
+{
+ printf("rcc\n");
+#ifdef STM32F4
+ printf("CR         %8x ",  (unsigned int) RCC->CR);
+ printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
+
+ printf("CFGR       %8x ",  (unsigned int) RCC->CFGR);
+ printf("CIR        %8x\n", (unsigned int) RCC->CIR);
+
+ printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8x ",  (unsigned int) RCC->AHB2RSTR);
+ printf("AHB3RSTR   %8x\n", (unsigned int) RCC->AHB3RSTR);
+
+ printf("APB1RSTR   %8x ",  (unsigned int) RCC->APB1RSTR);
+ printf("APB2RSTR   %8x\n", (unsigned int) RCC->APB2RSTR);
+
+ printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB3ENR    %8x\n", (unsigned int) RCC->AHB1RSTR);
+
+ printf("APB1ENR    %8x ",  (unsigned int) RCC->APB1ENR);
+ printf("APB2ENR    %8x\n", (unsigned int) RCC->APB2ENR);
+
+ printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
+ printf("AHB3LPENR  %8x\n", (unsigned int) RCC->AHB3LPENR);
+
+ printf("APB1LPENR  %8x ",  (unsigned int) RCC->APB1LPENR);
+ printf("APB2LPENR  %8x\n", (unsigned int) RCC->APB2LPENR);
+
+ printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
+ printf("CSR        %8x\n", (unsigned int) RCC->CSR);
+
+ printf("SSCGR      %8x ",  (unsigned int) RCC->BDCR);
+ printf("PLLI2SCFGR %8x\n", (unsigned int) RCC->CSR);
+#endif
 }
 
 typedef struct
