@@ -106,7 +106,7 @@ void lcdString(const char *str);
 uint8_t backLight;
 
 //#if defined(STM32MON)
-__STATIC_INLINE void delayUSecx(volatile uint32_t microseconds)
+__STATIC_INLINE void delayUSecX(volatile uint32_t microseconds)
 {
  uint32_t start = DWT->CYCCNT;
  microseconds *= (HAL_RCC_GetSysClockFreq() / 1000000);
@@ -129,50 +129,44 @@ void lcdInit(void)
  setBacklight(0);
 
  pulseEnable(LCD_FUNCTIONSET | LCD_8BITMODE);
- delayUSecx(4500);
+ delayUSecX(4500);
  pulseEnable(LCD_FUNCTIONSET | LCD_8BITMODE);
- delayUSecx(200);
+ delayUSecX(200);
  pulseEnable(LCD_FUNCTIONSET | LCD_8BITMODE);
- delayUSecx(200);
+ delayUSecX(200);
  pulseEnable(LCD_FUNCTIONSET);
- delayUSecx(200);
+ delayUSecX(200);
 
  command(LCD_FUNCTIONSET | LCD_4BITMODE | LCD_2LINE | LCDX_5x8DOTS);
- delayUSecx(200);
+ delayUSecX(200);
  command(LCD_DISPLAYCONTROL | LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF);
- delayUSecx(200);
+ delayUSecX(200);
  command(LCD_CLEARDISPLAY);
- delayUSecx(200);
+ delayUSecX(200);
  setBacklight(1);
  command(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT);
- delayUSecx(200);
+ delayUSecX(200);
 }
 
 void pulseEnable(uint8_t val)
 {
  // printf("pulseEnable %02x\n", val);
  uint8_t tmp = val | LCD_BACKLIGHT;
-#if defined(STM32F4)
- i2cWrite(tmp | En);
- i2cWrite(tmp & ~En);
-#endif
-#if defined(STM32H7)
  uint8_t buf[2];
  buf[0] = tmp | En;
  buf[1] = tmp & ~En;
  i2cWrite(buf, sizeof(buf));
  i2cWaitBusy();
-#endif
  }
 
 void command(uint8_t val)
 {
  // printf("command %02x\n", val);
-#if defined STM32F4
- pulseEnable(val & 0xf0);
- pulseEnable(val << 4);
-#endif
-#if defined(STM32H7)
+//#if defined STM32F4
+// pulseEnable(val & 0xf0);
+// pulseEnable(val << 4);
+//#endif
+//#if defined(STM32H7)
  uint8_t tmp;
  uint8_t buf[4];
  tmp = (val & 0xf0) | LCD_BACKLIGHT;
@@ -183,7 +177,7 @@ void command(uint8_t val)
  buf[3] = tmp & ~En;
  i2cWrite(buf, sizeof(buf));
  i2cWaitBusy();
-#endif
+//#endif
 }
 
 uint8_t *lcdWrite(uint8_t *buf, uint8_t data)

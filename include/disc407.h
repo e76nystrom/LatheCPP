@@ -55,7 +55,7 @@
 #define I2C_DEV I2C1
 #define I2C_NAME "I2C1"
 #define I2C_GPIO GPIOB
-#define SLAVE_ADDRESS 0x3f
+#define SLAVE_ADDRESS 0x27
 inline void mxI2CInit()
 {
  MX_I2C1_Init();

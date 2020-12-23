@@ -4,13 +4,10 @@
 #define EXT extern
 #endif
 
-void initI2c(void);
 #if defined(STM32F4)
 void i2cWrite(uint8_t);
 #endif
-#if defined(STM32H7)
 void i2cWrite(uint8_t *data, uint16_t size);
-#endif
 
 void i2cWaitBusy(void);
 void i2cPut(uint8_t ch);
@@ -54,9 +51,5 @@ typedef struct
 } T_I2C_CTL, *P_I2C_CTL;
 
 EXT T_I2C_CTL i2cCtl;
-
-//#if !defined(SLAVE_ADDRESS)
-//#define SLAVE_ADDRESS 0x27 // the slave address (example)
-//#endif	/* SLAVE_ADDRESS */
 
 #endif	// ->

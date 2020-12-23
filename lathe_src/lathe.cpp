@@ -6679,6 +6679,9 @@ void tmrInfo(TIM_TypeDef *tmr)
 #if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
  printf("OR    %8x\n",(unsigned int) tmr->OR);
 #endif
+#if defined(STM32H7)
+ newline()
+#endif
  flushBuf();
 }
 

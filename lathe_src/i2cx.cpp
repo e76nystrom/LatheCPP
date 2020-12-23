@@ -55,13 +55,10 @@ unsigned int millis(void);
 #define EXT extern
 #endif
 
-void initI2c(void);
 #if defined(STM32F4)
 void i2cWrite(uint8_t);
 #endif
-#if defined(STM32H7)
 void i2cWrite(uint8_t *data, uint16_t size);
-#endif
 
 void i2cWaitBusy(void);
 void i2cPut(uint8_t ch);
@@ -106,10 +103,6 @@ typedef struct
 
 EXT T_I2C_CTL i2cCtl;
 
-//#if !defined(SLAVE_ADDRESS)
-//#define SLAVE_ADDRESS 0x27 // the slave address (example)
-//#endif	/* SLAVE_ADDRESS */
-
 #endif	// ->
 #ifdef __I2C__
 
@@ -120,7 +113,7 @@ EXT T_I2C_CTL i2cCtl;
 I2C_TypeDef *i2cDev = I2C_DEV;
 
 #if defined(STM32F1) || defined(STM32F4)
-void i2c_start(I2C_TypeDef* I2Cx, uint8_t address);
+//void i2c_start(I2C_TypeDef* I2Cx, uint8_t address);
 
 inline void i2c_SendData(I2C_TypeDef* I2Cx, uint8_t data)
 {
@@ -174,6 +167,7 @@ inline bool i2cDataSent()
 #endif	/* STM32H7 */
 
 #if defined(STM32F1) || defined(STM32F4)
+#if 0
 void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
 {
  unsigned int timeout = 100 * (HAL_RCC_GetHCLKFreq() / 1000000);
@@ -230,6 +224,72 @@ void i2cWrite(uint8_t data)
 
  i2c_stop(I2C_DEV);
 }
+#endif
+
+void i2cWrite(uint8_t *data, uint16_t size)
+{
+ unsigned int timeout = 20;
+ unsigned int start = millis();
+ while ((I2C_DEV->SR2 & I2C_SR2_BUSY) != 0)
+ {
+  if ((millis() - start) > timeout)
+  {
+   printf("i2cWrite busy timeout\n");
+   return;
+  }
+ }
+  
+ I2C_DEV->CR1 |= I2C_CR1_START;
+	  
+ while ((I2C_DEV->SR1 & I2C_SR2_MSL) == 0) /* wait for master mode */
+ {
+  if ((millis() - start) > timeout)
+  {
+   printf("i2cWrite master mode timeout\n");
+   return;
+  }
+ }
+		
+
+ I2C_DEV->DR = SLAVE_ADDRESS<<1;
+
+ while (1)
+ {
+  if ((I2C_DEV->SR1 == (I2C_SR1_ADDR | I2C_SR1_TXE))
+  &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
+  {
+   break;
+  }
+  if ((millis() - start) > timeout)
+  {
+   printf("i2cWrite address timeout\n");
+   return;
+  }
+ }
+
+ while (size > 0U)
+ {
+  size -= 1;
+  i2c_SendData(I2C_DEV, *data++);
+
+  while (1)
+  {
+   if ((I2C_DEV->SR1 == (I2C_SR1_BTF | I2C_SR1_TXE))
+   &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
+   {
+    break;
+   }
+   if ((millis() - start) > timeout)
+   {
+    printf("i2cWrite data timeout\n");
+    return;
+   }
+  }
+ }
+
+ i2c_stop(I2C_DEV);
+}
+
 #endif	/* STM32F1 || STM32F4 */
 
 #if defined(STM32H7)
@@ -243,6 +303,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite BUSY timeout\n");
+   dbg4Clr();
    return;
   }
  }
@@ -258,6 +319,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
    if ((millis() - start) > timeout)
    {
     printf("i2cWrite TXIS %08x\n", (unsigned int) I2C_DEV->ISR);
+    dbg4Clr();
     return;
    }
   }
@@ -270,9 +332,11 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite STOPF %08x\n", (unsigned int) I2C_DEV->ISR);
+   dbg4Clr();
    return;
   }
  }
+
  
  i2c_ResetCR2(I2C_DEV);
 
@@ -291,7 +355,7 @@ void i2cWaitBusy(void)
    break;
   if ((millis() - start) > timeout)
   {
-   printf("i2cWrite BUSY timeout\n");
+   printf("i2cWait BUSY timeout\n");
    return;
   }
  }
