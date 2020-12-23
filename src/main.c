@@ -143,6 +143,12 @@ int main(void)
   MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
 
+#if 0
+#define SLAVE_ADDRESS 0x27
+  uint8_t data[] = {0, 1, 2, 3, 4};
+  HAL_I2C_Master_Transmit(&hi2c1, SLAVE_ADDRESS, data, (uint16_t) sizeof(data), 100);
+#endif
+
   mainLoop();
 
   /* USER CODE END 2 */
