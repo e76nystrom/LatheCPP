@@ -133,7 +133,10 @@ dbgList = \
  ("dbgZDone",   "", "z done"), \
 )
 
-dbgPins = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+dbgPins = ("0", "1", "2", "3", "4", "5", \
+           "6", "7", "8", "9", "10", "11", "12", \
+           "A0", "A1", "A2", "A3", "A4", "A5", "A6", \
+           "A7", "A8", "A9", "A10", "A11", "A12", "A13")
 
 dbgTrk = "1L1"
 
@@ -227,23 +230,27 @@ fWrite(f, "#define __DBG_H\n\n")
 
 for pin in dbgPins:
     if CPP:
-        fWrite(f, "constexpr auto DBG%d = 1;\n" % (pin))
+        fWrite(f, "constexpr auto DBG%s = 1;\n" % (pin))
     else:
-        fWrite(f, "#define DBG%d 1\n" % (pin))
+        fWrite(f, "#define DBG%s 1\n" % (pin))
 fWrite(f, "\n")
 
 for pin in dbgPins:
-    fWrite(f, "#ifdef Dbg%d_Pin\n" % (pin))
-    fWrite(f, "%s dbg%dIni()%s\n" % (dout, pin, empty))
-    fWrite(f, "%s dbg%dSet() %sDbg%d_GPIO_Port->BSRR = Dbg%d_Pin%s\n" % \
+    fWrite(f, "#ifdef Dbg%s_Pin\n" % (pin))
+    fWrite(f, "%s dbg%sIni()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%sSet() %sDbg%s_GPIO_Port->BSRR = Dbg%s_Pin%s\n" % \
             (dout, pin, op, pin, pin, cl))
-    fWrite(f, "%s dbg%dClr() %sDbg%d_GPIO_Port->BSRR = (Dbg%d_Pin << 16)%s\n" %\
+    fWrite(f, "%s dbg%sClr() %sDbg%s_GPIO_Port->BSRR = "\
+           "(Dbg%s_Pin << 16)%s\n" %\
             (dout, pin, op, pin, pin, cl))
     fWrite(f, "#else\n")
-    fWrite(f, "%s dbg%dIni()%s\n" % (dout, pin, empty))
-    fWrite(f, "%s dbg%dSet()%s\n" % (dout, pin, empty))
-    fWrite(f, "%s dbg%dClr()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%sIni()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%sSet()%s\n" % (dout, pin, empty))
+    fWrite(f, "%s dbg%sClr()%s\n" % (dout, pin, empty))
     fWrite(f, "#endif\n\n")
+    fWrite(f1, "#ifdef Dbg%s_Pin\n" % (pin))
+    fWrite(f1, " PIN(Dbg%s, Dbg%s),\n" % (pin, pin))
+    fWrite(f1, "#endif\n")
 
 for (name, pin, comment) in dbgList:
     fWrite(f, "/* %s */\n" % (comment))

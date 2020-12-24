@@ -15,7 +15,9 @@
 #define EXT extern
 #endif
 
-#ifdef STM32H7
+#define CYCLE_CTR
+#if defined(CYCLE_CTR)
+
 #define CPU_CYCLES 1
 #define DWT_CTRL_CycCntEna DWT_CTRL_CYCCNTENA_Msk
 inline void resetCnt()
@@ -38,13 +40,16 @@ inline unsigned int getCycles()
 {
  return DWT->CYCCNT;
 }
-#else
+
+#else  /* CYCLE_CTR */
+
 #define CPU_CYCLES 0
 inline void resetCnt() {}
 inline void startCnt() {}
 inline void stopCnt() {}
 inline unsigned int getCycles() {return(0);}
-#endif
+
+#endif	/* CYCLE_CTR */
 
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
@@ -782,6 +787,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
+void rccInfo(void);
 
 void testOutputs(int inputTest);
 void pinDisplay(void);

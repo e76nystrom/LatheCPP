@@ -48,6 +48,16 @@
 #define spSyncISR(x) EXTI4_IRQHandler(x)
 #define spSyncIRQn EXTI4_IRQn
 
+#include "i2c.h"
+#define I2C_DEV I2C1
+#define I2C_NAME "I2C1"
+#define I2C_GPIO GPIOB
+#define SLAVE_ADDRESS 0x3f
+inline void mxI2CInit()
+{
+ MX_I2C1_Init();
+}
+
 #define ENC_TEST 0		/* encoder test */
 
 #define SPI 1

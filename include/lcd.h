@@ -39,7 +39,7 @@
 #define LCD_2LINE 0x08
 #define LCD_1LINE 0x00
 #define LCD_5x10DOTS 0x04
-#define LCD_5x8DOTS 0x00
+#define LCDX_5x8DOTS 0x00
 
 // flags for backlight control
 #define LCD_BACKLIGHT 0x08
@@ -50,13 +50,14 @@
 #define Rs 0b00000001 // Register select bit
 
 void lcdInit(void);
+void command(uint8_t val);
+void pulseEnable(uint8_t val);
+
 uint8_t *lcdWrite(uint8_t *buf, uint8_t data);
-void lcd_write(uint8_t data);
+void lcdWrite(uint8_t data);
 void setBacklight(int val);
 void setCursor(uint8_t col, uint8_t row);
-void command(uint8_t val);
-void lcdString(char *str);
-void data(uint8_t val);
-void pulseEnable(uint8_t val);
+void setCursorBuf(uint8_t col, uint8_t row);
+void lcdString(const char *str);
 
 #endif	// ->

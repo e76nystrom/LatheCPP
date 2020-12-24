@@ -19,23 +19,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ENUM_M_STATES
-#define ENUM_M_COMMANDS
-#define ENUM_SEL_TURN
-#define ENUM_SEL_THREAD
-#define ENUM_OPERATIONS
+#define ENUM_Z_STATES    0
+#define ENUM_X_STATES    0
+#define ENUM_AXIS_STATES 0
+#define ENUM_M_STATES    0
+#define ENUM_M_COMMANDS  0
+#define ENUM_OPERATIONS  0
+#define ENUM_H_STATES    0
+#define ENUM_D_MESSAGE   0
+#define ENUM_EV_EVENTS   0
+#define ENUM_SEL_TURN    0
+#define ENUM_SEL_THREAD  0
 
 #include "main.h"
 #include "config.h"
 #include "remvar.h"
 
 #include "serialio.h"
-#include "latheSPI.h"
+#include "spix.h"
 #include "lcd.h"
 
 #include "Xilinx.h"
 #include "zcontrol.h"
 #include "xcontrol.h"
+
+#include "spi.h"
+#include "i2c.h"
+#include "tim.h"
 
 #ifdef EXT
 #undef EXT
@@ -62,7 +72,9 @@
 #define EXT extern
 #endif
 
-#ifdef STM32H7
+#define CYCLE_CTR
+#if defined(CYCLE_CTR)
+
 #define CPU_CYCLES 1
 #define DWT_CTRL_CycCntEna DWT_CTRL_CYCCNTENA_Msk
 inline void resetCnt()
@@ -85,13 +97,16 @@ inline unsigned int getCycles()
 {
  return DWT->CYCCNT;
 }
-#else
+
+#else  /* CYCLE_CTR */
+
 #define CPU_CYCLES 0
 inline void resetCnt() {}
 inline void startCnt() {}
 inline void stopCnt() {}
 inline unsigned int getCycles() {return(0);}
-#endif
+
+#endif	/* CYCLE_CTR */
 
 #define DBG_CMP 1		/* debug capture timer */
 #define DBG_CMP_TIME 1		/* debug capture interrupt timing */
@@ -829,6 +844,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
+void rccInfo(void);
 
 void testOutputs(int inputTest);
 void pinDisplay(void);
@@ -934,9 +950,6 @@ void delayUSec(unsigned short delay)
   }
  }
 }
-
-extern SPI_HandleTypeDef hspi2;
-extern I2C_HandleTypeDef hi2c1;
 
 #if 0
 extern uint32_t uwTick;
@@ -6666,6 +6679,9 @@ void tmrInfo(TIM_TypeDef *tmr)
 #if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
  printf("OR    %8x\n",(unsigned int) tmr->OR);
 #endif
+#if defined(STM32H7)
+ newline();
+#endif
  flushBuf();
 }
 
@@ -6768,18 +6784,139 @@ void usartInfo(USART_TypeDef *usart, const char *str)
 void i2cInfo(I2C_TypeDef *i2c, const char *str)
 {
  printf("i2c %x %s\n",(unsigned int) i2c, str);
-#if 0
- printf("CR1   %8x ",(unsigned int) i2c->CR1);
- printf("CR2   %8x\n",(unsigned int) i2c->CR2);
- printf("OAR1  %8x ",(unsigned int) i2c->OAR1);
- printf("OAR2  %8x\n",(unsigned int) i2c->OAR2);
- printf("SR1   %8x ",(unsigned int) i2c->SR1);
- printf("SR2   %8x\n",(unsigned int) i2c->SR2);
- printf("DR    %8x ",(unsigned int) i2c->DR);
- printf("CCR   %8x\n",(unsigned int) i2c->CCR);
- printf("TRISE %8x\n",(unsigned int) i2c->TRISE);
+ printf("CR1      %8x ",  (unsigned int) i2c->CR1);
+ printf("CR2      %8x\n", (unsigned int) i2c->CR2);
+ printf("OAR1     %8x ",  (unsigned int) i2c->OAR1);
+ printf("OAR2     %8x\n", (unsigned int) i2c->OAR2);
+#ifdef STM32F4
+ printf("SR1      %8x ",  (unsigned int) i2c->SR1);
+ printf("SR2      %8x\n", (unsigned int) i2c->SR2);
+ printf("DR       %8x ",  (unsigned int) i2c->DR);
+ printf("CCR      %8x\n", (unsigned int) i2c->CCR);
+ printf("TRISE    %8x\n", (unsigned int) i2c->TRISE);
+#endif
+#ifdef STM32H7
+ printf("TIMINGR  %8x ",  (unsigned int) i2c->TIMINGR);
+ printf("TIMEOUTR %8x\n", (unsigned int) i2c->TIMEOUTR);
+ printf("ISR      %8x ",  (unsigned int) i2c->ISR);
+ printf("ICR      %8x\n", (unsigned int) i2c->ICR);
+ printf("PECR     %8x\n", (unsigned int) i2c->PECR);
+ printf("RXDR     %8x ",  (unsigned int) i2c->RXDR);
+ printf("TXDR     %8x\n", (unsigned int) i2c->TXDR);
 #endif
  flushBuf();
+}
+
+void rccInfo(void)
+{
+ printf("RCC\n");
+#ifdef STM32F4
+ printf("CR         %8x ",  (unsigned int) RCC->CR);
+ printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
+
+ printf("CFGR       %8x ",  (unsigned int) RCC->CFGR);
+ printf("CIR        %8x\n", (unsigned int) RCC->CIR);
+
+ printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8x ",  (unsigned int) RCC->AHB2RSTR);
+ printf("AHB3RSTR   %8x\n", (unsigned int) RCC->AHB3RSTR);
+
+ printf("APB1RSTR   %8x ",  (unsigned int) RCC->APB1RSTR);
+ printf("APB2RSTR   %8x\n", (unsigned int) RCC->APB2RSTR);
+
+ printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB3ENR    %8x\n", (unsigned int) RCC->AHB1RSTR);
+
+ printf("APB1ENR    %8x ",  (unsigned int) RCC->APB1ENR);
+ printf("APB2ENR    %8x\n", (unsigned int) RCC->APB2ENR);
+
+ printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
+ printf("AHB3LPENR  %8x\n", (unsigned int) RCC->AHB3LPENR);
+
+ printf("APB1LPENR  %8x ",  (unsigned int) RCC->APB1LPENR);
+ printf("APB2LPENR  %8x\n", (unsigned int) RCC->APB2LPENR);
+
+ printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
+ printf("CSR        %8x\n", (unsigned int) RCC->CSR);
+
+ printf("SSCGR      %8x ",  (unsigned int) RCC->BDCR);
+ printf("PLLI2SCFGR %8x\n", (unsigned int) RCC->CSR);
+#endif
+#ifdef STM32H7
+ printf("CR         %8x ",  (unsigned int) RCC->CR);
+ printf("HSICFGR    %8x\n", (unsigned int) RCC->HSICFGR);
+
+ printf("CRRCR      %8x ",  (unsigned int) RCC->CRRCR);
+ printf("CSICFGR    %8x ",  (unsigned int) RCC->CSICFGR);
+ printf("CFGR       %8x\n", (unsigned int) RCC->CFGR);
+
+ printf("D1CFGR     %8x ",  (unsigned int) RCC->D1CFGR);
+ printf("D2CFGR     %8x ",  (unsigned int) RCC->D2CFGR);
+ printf("D3CFGR     %8x\n", (unsigned int) RCC->D3CFGR);
+
+ printf("PLLCKSELR  %8x ",  (unsigned int) RCC->PLLCKSELR);
+ printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
+
+ printf("PLL1DIVR   %8x ",  (unsigned int) RCC->PLL1DIVR);
+ printf("PLL1FRACR  %8x\n", (unsigned int) RCC->PLL1FRACR);
+
+ printf("PLL2DIVR   %8x ",  (unsigned int) RCC->PLL2DIVR);
+ printf("PLL2FRACR  %8x\n", (unsigned int) RCC->PLL2FRACR);
+
+ printf("PLL3DIVR   %8x ",  (unsigned int) RCC->PLL3DIVR);
+ printf("PLL3FRACR  %8x\n", (unsigned int) RCC->PLL3FRACR);
+
+ printf("D1CCIPR    %8x ",  (unsigned int) RCC->D1CCIPR);
+ printf("D2CCIP1R   %8x ",  (unsigned int) RCC->D2CCIP1R);
+ printf("D2CCIP2R   %8x ",  (unsigned int) RCC->D2CCIP2R);
+ printf("D3CCIPR    %8x\n", (unsigned int) RCC->D3CCIPR);
+
+ printf("CIER       %8x ",  (unsigned int) RCC->CIER);
+ printf("CIFR       %8x\n", (unsigned int) RCC->CIFR);
+
+ printf("CICR       %8x ",  (unsigned int) RCC->CICR);
+ printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
+ printf("CSR        %8x\n", (unsigned int) RCC->CSR);
+
+ printf("AHB3RSTR   %8x ",  (unsigned int) RCC->AHB3RSTR);
+ printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8x\n", (unsigned int) RCC->AHB2RSTR);
+ printf("AHB4RSTR   %8x ",  (unsigned int) RCC->AHB4RSTR);
+ printf("APB3RSTR   %8x\n", (unsigned int) RCC->APB3RSTR);
+
+ printf("APB1LRSTR  %8x ",  (unsigned int) RCC->APB1LRSTR);
+ printf("APB1HRSTR  %8x ",  (unsigned int) RCC->APB1HRSTR);
+ printf("APB2RSTR   %8x ",  (unsigned int) RCC->APB2RSTR);
+ printf("APB4RSTR   %8x\n", (unsigned int) RCC->APB4RSTR);
+
+ printf("GCR        %8x ",  (unsigned int) RCC->GCR);
+ printf("D3AMR      %8x ",  (unsigned int) RCC->D3AMR);
+ printf("RSR        %8x\n", (unsigned int) RCC->RSR);
+
+ printf("AHB3ENR    %8x ",  (unsigned int) RCC->AHB3ENR);
+ printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1ENR);
+ printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB2ENR);
+ printf("AHB4ENR    %8x\n", (unsigned int) RCC->AHB4ENR);
+
+ printf("APB3ENR    %8x ",  (unsigned int) RCC->APB3ENR);
+ printf("APB1LENR   %8x ",  (unsigned int) RCC->APB1LENR);
+ printf("APB1HENR   %8x\n", (unsigned int) RCC->APB1HENR);
+ printf("APB2ENR    %8x ",  (unsigned int) RCC->APB2ENR);
+ printf("APB4ENR    %8x\n", (unsigned int) RCC->APB4ENR);
+
+ printf("AHB3LPENR  %8x ",  (unsigned int) RCC->AHB3LPENR);
+ printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
+ printf("AHB4LPENR  %8x ",  (unsigned int) RCC->AHB4LPENR);
+
+ printf("APB3LPENR  %8x ",  (unsigned int) RCC->APB3LPENR);
+ printf("APB1LLPENR %8x ",  (unsigned int) RCC->APB1LLPENR);
+ printf("APB1HLPENR %8x\n", (unsigned int) RCC->APB1HLPENR);
+ printf("APB2LPENR  %8x ",  (unsigned int) RCC->APB2LPENR);
+ printf("APB4LPENR  %8x\n", (unsigned int) RCC->APB4LPENR);
+ #endif
 }
 
 typedef struct
@@ -6820,14 +6957,6 @@ T_PORT_INPUT inputDef[] =
 #define OUTPUT_TEST (1 << 3)
 #define INPUT_PULLUP (1 << 4)
 #define INPUT_PULLDOWN (1 << 5)
-
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim5;
-extern TIM_HandleTypeDef htim8;
-extern TIM_HandleTypeDef htim12;
 
 void testOutputs(int flag)
 {

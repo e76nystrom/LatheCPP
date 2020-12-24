@@ -15,6 +15,20 @@ constexpr auto DBG9 = 1;
 constexpr auto DBG10 = 1;
 constexpr auto DBG11 = 1;
 constexpr auto DBG12 = 1;
+constexpr auto DBGA0 = 1;
+constexpr auto DBGA1 = 1;
+constexpr auto DBGA2 = 1;
+constexpr auto DBGA3 = 1;
+constexpr auto DBGA4 = 1;
+constexpr auto DBGA5 = 1;
+constexpr auto DBGA6 = 1;
+constexpr auto DBGA7 = 1;
+constexpr auto DBGA8 = 1;
+constexpr auto DBGA9 = 1;
+constexpr auto DBGA10 = 1;
+constexpr auto DBGA11 = 1;
+constexpr auto DBGA12 = 1;
+constexpr auto DBGA13 = 1;
 
 #ifdef Dbg0_Pin
 inline void dbg0Ini() {}
@@ -144,6 +158,146 @@ inline void dbg12Clr() {Dbg12_GPIO_Port->BSRR = (Dbg12_Pin << 16);}
 inline void dbg12Ini() {}
 inline void dbg12Set() {}
 inline void dbg12Clr() {}
+#endif
+
+#ifdef DbgA0_Pin
+inline void dbgA0Ini() {}
+inline void dbgA0Set() {DbgA0_GPIO_Port->BSRR = DbgA0_Pin;}
+inline void dbgA0Clr() {DbgA0_GPIO_Port->BSRR = (DbgA0_Pin << 16);}
+#else
+inline void dbgA0Ini() {}
+inline void dbgA0Set() {}
+inline void dbgA0Clr() {}
+#endif
+
+#ifdef DbgA1_Pin
+inline void dbgA1Ini() {}
+inline void dbgA1Set() {DbgA1_GPIO_Port->BSRR = DbgA1_Pin;}
+inline void dbgA1Clr() {DbgA1_GPIO_Port->BSRR = (DbgA1_Pin << 16);}
+#else
+inline void dbgA1Ini() {}
+inline void dbgA1Set() {}
+inline void dbgA1Clr() {}
+#endif
+
+#ifdef DbgA2_Pin
+inline void dbgA2Ini() {}
+inline void dbgA2Set() {DbgA2_GPIO_Port->BSRR = DbgA2_Pin;}
+inline void dbgA2Clr() {DbgA2_GPIO_Port->BSRR = (DbgA2_Pin << 16);}
+#else
+inline void dbgA2Ini() {}
+inline void dbgA2Set() {}
+inline void dbgA2Clr() {}
+#endif
+
+#ifdef DbgA3_Pin
+inline void dbgA3Ini() {}
+inline void dbgA3Set() {DbgA3_GPIO_Port->BSRR = DbgA3_Pin;}
+inline void dbgA3Clr() {DbgA3_GPIO_Port->BSRR = (DbgA3_Pin << 16);}
+#else
+inline void dbgA3Ini() {}
+inline void dbgA3Set() {}
+inline void dbgA3Clr() {}
+#endif
+
+#ifdef DbgA4_Pin
+inline void dbgA4Ini() {}
+inline void dbgA4Set() {DbgA4_GPIO_Port->BSRR = DbgA4_Pin;}
+inline void dbgA4Clr() {DbgA4_GPIO_Port->BSRR = (DbgA4_Pin << 16);}
+#else
+inline void dbgA4Ini() {}
+inline void dbgA4Set() {}
+inline void dbgA4Clr() {}
+#endif
+
+#ifdef DbgA5_Pin
+inline void dbgA5Ini() {}
+inline void dbgA5Set() {DbgA5_GPIO_Port->BSRR = DbgA5_Pin;}
+inline void dbgA5Clr() {DbgA5_GPIO_Port->BSRR = (DbgA5_Pin << 16);}
+#else
+inline void dbgA5Ini() {}
+inline void dbgA5Set() {}
+inline void dbgA5Clr() {}
+#endif
+
+#ifdef DbgA6_Pin
+inline void dbgA6Ini() {}
+inline void dbgA6Set() {DbgA6_GPIO_Port->BSRR = DbgA6_Pin;}
+inline void dbgA6Clr() {DbgA6_GPIO_Port->BSRR = (DbgA6_Pin << 16);}
+#else
+inline void dbgA6Ini() {}
+inline void dbgA6Set() {}
+inline void dbgA6Clr() {}
+#endif
+
+#ifdef DbgA7_Pin
+inline void dbgA7Ini() {}
+inline void dbgA7Set() {DbgA7_GPIO_Port->BSRR = DbgA7_Pin;}
+inline void dbgA7Clr() {DbgA7_GPIO_Port->BSRR = (DbgA7_Pin << 16);}
+#else
+inline void dbgA7Ini() {}
+inline void dbgA7Set() {}
+inline void dbgA7Clr() {}
+#endif
+
+#ifdef DbgA8_Pin
+inline void dbgA8Ini() {}
+inline void dbgA8Set() {DbgA8_GPIO_Port->BSRR = DbgA8_Pin;}
+inline void dbgA8Clr() {DbgA8_GPIO_Port->BSRR = (DbgA8_Pin << 16);}
+#else
+inline void dbgA8Ini() {}
+inline void dbgA8Set() {}
+inline void dbgA8Clr() {}
+#endif
+
+#ifdef DbgA9_Pin
+inline void dbgA9Ini() {}
+inline void dbgA9Set() {DbgA9_GPIO_Port->BSRR = DbgA9_Pin;}
+inline void dbgA9Clr() {DbgA9_GPIO_Port->BSRR = (DbgA9_Pin << 16);}
+#else
+inline void dbgA9Ini() {}
+inline void dbgA9Set() {}
+inline void dbgA9Clr() {}
+#endif
+
+#ifdef DbgA10_Pin
+inline void dbgA10Ini() {}
+inline void dbgA10Set() {DbgA10_GPIO_Port->BSRR = DbgA10_Pin;}
+inline void dbgA10Clr() {DbgA10_GPIO_Port->BSRR = (DbgA10_Pin << 16);}
+#else
+inline void dbgA10Ini() {}
+inline void dbgA10Set() {}
+inline void dbgA10Clr() {}
+#endif
+
+#ifdef DbgA11_Pin
+inline void dbgA11Ini() {}
+inline void dbgA11Set() {DbgA11_GPIO_Port->BSRR = DbgA11_Pin;}
+inline void dbgA11Clr() {DbgA11_GPIO_Port->BSRR = (DbgA11_Pin << 16);}
+#else
+inline void dbgA11Ini() {}
+inline void dbgA11Set() {}
+inline void dbgA11Clr() {}
+#endif
+
+#ifdef DbgA12_Pin
+inline void dbgA12Ini() {}
+inline void dbgA12Set() {DbgA12_GPIO_Port->BSRR = DbgA12_Pin;}
+inline void dbgA12Clr() {DbgA12_GPIO_Port->BSRR = (DbgA12_Pin << 16);}
+#else
+inline void dbgA12Ini() {}
+inline void dbgA12Set() {}
+inline void dbgA12Clr() {}
+#endif
+
+#ifdef DbgA13_Pin
+inline void dbgA13Ini() {}
+inline void dbgA13Set() {DbgA13_GPIO_Port->BSRR = DbgA13_Pin;}
+inline void dbgA13Clr() {DbgA13_GPIO_Port->BSRR = (DbgA13_Pin << 16);}
+#else
+inline void dbgA13Ini() {}
+inline void dbgA13Set() {}
+inline void dbgA13Clr() {}
 #endif
 
 /* spindle isr time */
