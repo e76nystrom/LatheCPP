@@ -37,3 +37,5 @@ src/test.cpp
 timer.sh
 TrueStudio/
 /stm32f407xx.h
+
+lathe-new.cpp.lst
