@@ -4367,6 +4367,7 @@ void xControl(void)
     xIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
     xIsr.home |= PROBE_CLR;
+   printf("xIsr.home %x\n", xIsr.home);
    mov->jog = 1;
    xStart();
    break;
@@ -4520,6 +4521,7 @@ void homeControl(P_HOMECTL home)
 #if DBGMSG
  if (home->state != home->prev)
  {
+  printf("home state %d prev %d\n", home->state, home->prev);
   dbgmsg(D_HST, home->state);
   home->prev = home->state;
  }
@@ -4545,7 +4547,7 @@ void homeControl(P_HOMECTL home)
   break;
 
  case H_WAIT_FINDHOME:		/* 0x02 wait to find home switch */
-  if (mov->state == XIDLE)	/* if opeartion complete */
+  if (mov->state == XIDLE)	/* if operation complete */
   {
    if (home->homeIsSet())	  /* if home switch set */
     home->state = H_BACKOFF_HOME; /* advance to backoff state */
@@ -4717,9 +4719,11 @@ void axisCtl(void)
  mov = &zMoveCtl;
  if (mov->state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */
- else if (zHomeCtl.state != H_IDLE) /* if home control not idle */
+
+ if (zHomeCtl.state != H_IDLE)	/* if home control not idle */
   zHomeControl();		/* run home statue machine */
- else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
+
+ if (mov->mpgBackWait)		/* if waiting for mpg backlash */
  {
   if (zIsr.done != 0)		/* if z done */
   {
@@ -4735,9 +4739,11 @@ void axisCtl(void)
  mov = &xMoveCtl;
  if (mov->state != XIDLE)	/* if x axis active */
   xControl();			/* run x axis state machine */
- else if (xHomeCtl.state != H_IDLE) /* if home control not idle */
+
+ if (xHomeCtl.state != H_IDLE)	/* if home control not idle */
   xHomeControl();		/* run home statue machine */
- else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
+
+ if (mov->mpgBackWait)		/* if waiting for mpg backlash */
  {
   if (xIsr.done != 0)		/* if x done */
   {
