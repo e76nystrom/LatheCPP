@@ -2519,7 +2519,7 @@ void jogMpg(P_MOVECTL mov)
     if (limitOverride == 0)	/* if not overriding limits */
     {
      if (((mov->limitDir > 0) && (dist > 0)) /* if same direction as limit */
-	 ||  ((mov->limitDir < 0) && (dist < 0)))
+     ||  ((mov->limitDir < 0) && (dist < 0)))
      {
       printf("%c at limit\n", mov->axisName);
       return;
@@ -4645,42 +4645,58 @@ void axisCtl(void)
   {
    if (zLimEna)			/* if z limits enabled */
    {
-    if ((zPosLimIsSet() != zLimPosInv)
-    ||  (zNegLimIsSet() != zLimNegInv)) /* if at limit */
+    int dir = 0;
+    if (zPosLimIsSet() != zLimPosInv)
+     dir = DIR_POS;
+    else if (zNegLimIsSet() != zLimNegInv) /* if at limit */
+     dir = DIR_NEG;
+    if (dir != 0)		/* if at limit */
     {
      mov = &zMoveCtl;
-     mvStatus |= MV_ZLIMIT;	/* set at limit bit */
-     if (zIsr.dist)		/* if z isr active */
+     if ((mov->limitDir == 0)	/* if not at limits */
+     ||  (zIsr.dir == dir))	/* or trying to move further to limit */
      {
-      if (!mov->limitMove)	/* if not a limit move */
+      mov->limitDir = dir;	/* set direction where limit occured */
+      mvStatus |= MV_ZLIMIT;	/* set at limit bit */
+      if (zIsr.dist != 0)	/* if moving */
       {
-       mov->limitDir = xIsr.dir; /* save direction of move */
        zIsrStop('7');		/* stop movement */
       }
      }
     }
     else
+    {
+     zMoveCtl.limitDir = 0;	/* clear limit */
      mvStatus &= ~MV_ZLIMIT;	/* clear at limit bit */
+    }
    }
 
    if (xLimEna)			/* if x limits enabled */
    {
-    if ((xPosLimIsSet() != xLimPosInv)
-    ||  (xNegLimIsSet() != xLimNegInv)) /* if at limit */
+    int dir = 0;
+    if (xPosLimIsSet() != xLimPosInv)
+     dir = DIR_POS;
+    else if (xNegLimIsSet() != xLimNegInv) /* if at limit */
+     dir = DIR_NEG;
+    if (dir != 0)		/* if at limit */
     {
      mov = &xMoveCtl;
-     mvStatus |= MV_XLIMIT;	/* set at limit bit */
-     if (xIsr.dist)		/* if x isr active */
+     if ((mov->limitDir == 0)	/* if not at limits */
+     ||  (xIsr.dir == dir))	/* or trying to move further to limit */
      {
-      if (!mov->limitMove)	/* if not a limit move */
+      mov->limitDir = dir;	/* set direction where limit occured */
+      mvStatus |= MV_XLIMIT;	/* set at limit bit */
+      if (xIsr.dist != 0)	/* if moving */
       {
-       mov->limitDir = xIsr.dir; /* save direction of move */
        xIsrStop('7');		/* stop movement */
       }
      }
     }
     else
-     mvStatus &= ~MV_ZLIMIT;	/* clear at limit bit */
+    {
+     xMoveCtl.limitDir = 0;	/* clear limit */
+     mvStatus &= ~MV_XLIMIT;	/* clear at limit bit */
+    }
    }
   }
  }
