@@ -34,7 +34,7 @@ xt - x axis stopped tapering
 xD - x axis stopped normal operation
 xa - x axis acceleration done
 xd - x axis deceleration done stopping
-x0 - x axis not in sync mod update feed rate
+x0 - x axis not in sync mode update feed rate
  */
 
 /* position encoder isr */

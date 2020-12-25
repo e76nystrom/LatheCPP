@@ -12,6 +12,9 @@
 #ifdef STM32H7
 #include "stm32h7xx_hal.h"
 #endif
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#endif
 
 #include "main.h"
 
@@ -137,7 +140,7 @@ inline bool i2cDataSent()
 }
 #endif	/* STM32F1 || STM32F4 */
 
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
 inline void i2c_SendData(I2C_TypeDef* I2Cx, uint8_t data)
 {
  I2Cx->TXDR = data;
@@ -292,7 +295,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
 
 #endif	/* STM32F1 || STM32F4 */
 
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
 void i2cWrite(uint8_t *data, uint16_t size)
 {
  dbg4Set();
@@ -423,7 +426,7 @@ void i2cControl(void)
 	  i2c->state, i2c->count,
 	  (unsigned int) I2C_DEV->SR2, (unsigned int) I2C_DEV->SR1);
 #endif
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
   printf("state %d count %3d isr %08x*\n", i2c->state, i2c->count,
 	 (unsigned int) I2C_DEV->ISR);
 #endif
@@ -451,7 +454,7 @@ void i2cControl(void)
   printf("state %d count %d sr2 %08x sr1 %08x\n", i2c->state, i2c->count,
 	 (unsigned int) I2C_DEV->SR2, (unsigned int) I2C_DEV->SR1);
 #endif
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
   printf("state %d count %d isr %08x*\n", i2c->state, i2c->count,
 	 (unsigned int) I2C_DEV->ISR);
 #endif
@@ -471,7 +474,7 @@ void i2cControl(void)
    I2C_DEV->CR1 |= I2C_CR1_START;
    i2c->state = I_START;
 #endif
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
    I2C_DEV->CR2 = (I2C_CR2_AUTOEND | (i2c->count << I2C_CR2_NBYTES_Pos) |
 		   I2C_CR2_START | (SLAVE_ADDRESS<<1));
    i2c->state = I_WAIT_DATA;
@@ -510,7 +513,7 @@ void i2cControl(void)
 #if defined(STM32F4)
    I2C_DEV->DR = i2c->buffer[emp++];
 #endif
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
    I2C_DEV->TXDR = i2c->buffer[emp++];
 #endif
    if (emp >= I2C_BUF_SIZE)
@@ -520,7 +523,7 @@ void i2cControl(void)
 #if defined(STM32F4)
    i2c->state = I_WAIT_DATA;
 #endif
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
    if (i2c->count == 0)
     i2c->state = I_WAIT_STOP;
    else
@@ -548,7 +551,7 @@ void i2cControl(void)
   break;
 
  case I_WAIT_STOP:		/* 0x06 wait for stop */
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32F7)
   if ((I2C_DEV->ISR & I2C_ISR_STOPF) != 0) /* it stopped */
   {
    i2c_ResetCR2(I2C_DEV);
