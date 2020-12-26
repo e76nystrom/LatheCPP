@@ -141,6 +141,8 @@ void lclcmd(int ch)
  {
   newline();
   int tmp = 0;
+  int tmpSet = 0;
+  int tmpClr = 0;
   if (pin10IsSet())
    tmp |= 0x00001;
   if (pin11IsSet())
@@ -161,23 +163,54 @@ void lclcmd(int ch)
    tmp |= 0x00080;
   if (pinA5IsSet())
    tmp |= 0x00100;
+
   if (pinA6IsSet())
    tmp |= 0x00200;
+  if (zNegLimIsSet())
+   tmpSet |= 0x00200;
+  if (zNegLimIsClr())
+   tmpClr |= 0x00200;
+
   if (pinA7IsSet())
    tmp |= 0x00400;
+  if (zAHomeIsSet())
+   tmpSet |= 0x00400;
+  if (zAHomeIsClr())
+   tmpClr |= 0x00400;
+
   if (pinA8IsSet())
    tmp |= 0x00800;
+  if (zPosLimIsSet())
+   tmpSet |= 0x00800;
+  if (zPosLimIsClr())
+   tmpClr |= 0x00800;
+
   if (pinA9IsSet())
    tmp |= 0x01000;
-
   if (pinA10IsSet())
    tmp |= 0x02000;
+
   if (pinA11IsSet())
    tmp |= 0x04000;
+  if (zPosLimIsSet())
+   tmpSet |= 0x04000;
+  if (zPosLimIsClr())
+   tmpClr |= 0x04000;
+
   if (pinA12IsSet())
    tmp |= 0x08000;
+  if (xAHomeIsSet())
+   tmpSet |= 0x08000;
+  if (xAHomeIsClr())
+   tmpClr |= 0x08000;
+
   if (pinA13IsSet())
    tmp |= 0x10000;
+  if (xPosLimIsSet())
+   tmpSet |= 0x010000;
+  if (xPosLimIsClr())
+   tmpClr |= 0x010000;
+
   if (pinA15IsSet())
    tmp |= 0x20000;
 
@@ -189,6 +222,21 @@ void lclcmd(int ch)
    printf("%2d ", (mask & tmp) ? 1 : 0);
    mask <<= 1;
   }
+  printf("\n");
+  mask = 1;
+  for (int i = 0; i < 18; i++)
+  {
+   printf("%2d ", (mask & tmpSet) ? 1 : 0);
+   mask <<= 1;
+  }
+  printf("\n");
+  mask = 1;
+  for (int i = 0; i < 18; i++)
+  {
+   printf("%2d ", (mask & tmpClr) ? 1 : 0);
+   mask <<= 1;
+  }
+  printf("\n");
 #else
   printf("10 11 12 13 15\n");
   printf("x+ ** x- pr y+\n");
