@@ -143,7 +143,7 @@ extern "C" void encoderISR(void)
      if (zIsr.decel)		/* if decelerating */
      {
       zIsr.accelStep = 0;	/* end deceleration */
-      zIsr.curCount = xIsr.finalCtr;
+      zIsr.curCount = zIsr.finalCtr;
       zTmrMax(zIsr.curCount);
      }
     }
@@ -822,18 +822,18 @@ extern "C" void zTmrISR(void)
    }
   }
 
-  if (zIsr.home & FIND_HOME)	/* if looking for home */
+  if (zIsr.home & HOME_SET)	/* if looking for home */
   {
-   if (xHomeIsSet())		/* if home found */
+   if (zAHomeIsSet())		/* if home found */
    {
     zIsr.doneHome = 1;		/* indicate homing done */
     zIsrStop('2');		/* stop movement */
    }
   }
 
-  if (zIsr.home & CLEAR_HOME)	/* if moving off home */
+  if (zIsr.home & HOME_CLR)	/* if moving off home */
   {
-   if (xHomeClr())		/* if home moved off home */
+   if (zAHomeIsClr())		/* if home moved off home */
    {
     zIsr.doneHome = 1;		/* indicate homing done */
     zIsrStop('3');		/* stop movement */
@@ -1062,18 +1062,18 @@ extern "C" void xTmrISR(void)
    }
   }
 
-  if (xIsr.home & FIND_HOME)	/* if looking for home */
+  if (xIsr.home & HOME_SET)	/* if looking for home */
   {
-   if (xHomeIsSet())		/* if home found */
+   if (xAHomeIsSet())		/* if home found */
    {
     xIsr.doneHome = 1;		/* indicate homing done */
     xIsrStop('2');		/* stop movement */
    }
   }
 
-  if (xIsr.home & CLEAR_HOME)	/* if moving off home */
+  if (xIsr.home & HOME_CLR)	/* if moving off home */
   {
-   if (xHomeClr())		/* if home moved off home */
+   if (xAHomeIsClr())		/* if home moved off home */
    {
     xIsr.doneHome = 1;		/* indicate homing done */
     xIsrStop('3');		/* stop movement */

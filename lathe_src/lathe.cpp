@@ -3113,6 +3113,9 @@ void zSetup(void)
 			axis->ratio) / axis->pitch);
  axis->stepsInch = stepsInch;
  axis->backlashSteps = lrint(axis->backlash * axis->stepsInch);
+ axis->droCountsInch = zDroCountInch;
+ axis->stepFactor = zStepFactor;
+ axis->droFactor = zDroFactor;
 
  zIsr.axis = 'z';
 
@@ -3642,6 +3645,25 @@ void zControl(void)
 
  case ZDONE:			/* 0x04 done state */
  default:			/* all others */
+  if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
+  {
+   /* xLoc = droPos * (stepsInch / countsInch) */
+   int zTmp = ((2 * (zDroPos - zDroOffset) * zAxis.stepFactor) /
+	       zAxis.droFactor);
+   zTmp = (zTmp + 1) >> 1;	/* round */
+   zLoc = zTmp + zHomeOffset;
+   if (DBG_P)
+    printf("DRO_UPD droPos %7.4f zPos %7.4f zLoc %6d\n",
+	   (2.0 * (float) (zDroPos - zDroOffset)) / zAxis.droCountsInch,
+	   (2.0 * (float) (zLoc - zHomeOffset)) / zAxis.stepsInch,
+	   zLoc);
+  }
+  if (limitIsClr())
+  {
+   mov->limitDir = 0;		/* clear limit flags */
+   mov->limitMove = 0;
+  }
+
   zIsr.done = 0;		/* clear done flag */
   mov->cmd = 0;			/* clear command */
   mov->loc = zLoc;		/* save it */
@@ -3677,6 +3699,8 @@ void xInit(P_AXIS ax)
 void zHomeAxis(void)
 {
  P_HOMECTL home = &zHomeCtl;
+ home->mov = &zMoveCtl;
+ home->state = H_CHECK_ONHOME;
 
  int dir = zHomeDir;
  zHomeStatus = HOME_ACTIVE;
@@ -3688,7 +3712,10 @@ void zHomeAxis(void)
   
  mvStatus |= MV_ZHOME_ACTIVE;	/* set home active */
  mvStatus &= ~MV_ZHOME;		/* set not homed */
- home->state = H_CHECK_ONHOME;
+ home->status = &zHomeStatus;
+ home->done = &zHomeDone;
+ home->homeIsSet = zAHomeIsSet;
+ home->homeIsClr = zAHomeIsClr;
 
  P_ACCEL ac = &zSA;
  ac->label = "zS";
@@ -4359,14 +4386,16 @@ void xControl(void)
 
   case CMD_JOG:			/* jog */
    xMoveInit(&xJA, mov->dir, mov->dist); /* setup move */
+   xIsr.home = 0;
    if ((cmd & FIND_HOME) != 0)
-    xIsr.home |= FIND_HOME;
+    xIsr.home |= HOME_SET;
    if ((cmd & HOME_SET) != 0)
     xIsr.home |= HOME_CLR;
    if ((cmd & FIND_PROBE) != 0)
     xIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
     xIsr.home |= PROBE_CLR;
+   printf("x jog cmd %02x home %02x\n", cmd, xIsr.home);
    mov->jog = 1;
    xStart();
    break;
@@ -4386,6 +4415,7 @@ void xControl(void)
 
   case JOGSLOW:			/* slow jog to probe or find home */
    xMoveInit(&xSA, mov->dir, mov->dist); /* setup move */
+   xIsr.home = 0;
    if ((cmd & FIND_HOME) != 0)
     xIsr.home |= HOME_SET;
    if ((cmd & CLEAR_HOME) != 0)
@@ -4394,6 +4424,7 @@ void xControl(void)
     xIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
     xIsr.home |= PROBE_CLR;
+   printf("x jogslow cmd %02x home %02x\n", cmd, xIsr.home);
    mov->jog = 1;
    xStart();
    break;
@@ -4497,8 +4528,8 @@ void xHomeAxis(void)
  mvStatus &= ~MV_XHOME;		/* set not homed */
  home->status = &xHomeStatus;
  home->done = &xHomeDone;
- home->homeIsSet = xHomeIsSet;
- home->homeIsClr = xHomeIsClr;
+ home->homeIsSet = xAHomeIsSet;
+ home->homeIsClr = xAHomeIsClr;
 
  P_ACCEL ac = &xSA;
  ac->label = "xS";
@@ -4520,6 +4551,7 @@ void homeControl(P_HOMECTL home)
 #if DBGMSG
  if (home->state != home->prev)
  {
+  printf("home state %d prev %d\n", home->state, home->prev);
   dbgmsg(D_HST, home->state);
   home->prev = home->state;
  }
@@ -4545,7 +4577,7 @@ void homeControl(P_HOMECTL home)
   break;
 
  case H_WAIT_FINDHOME:		/* 0x02 wait to find home switch */
-  if (mov->state == XIDLE)	/* if opeartion complete */
+  if (mov->state == XIDLE)	/* if operation complete */
   {
    if (home->homeIsSet())	  /* if home switch set */
     home->state = H_BACKOFF_HOME; /* advance to backoff state */
@@ -4593,15 +4625,15 @@ void homeControl(P_HOMECTL home)
   {
    xHomeDone = 1;		/* set home done flag */
    mvStatus &= home->clrActive;	/* home complete */
-   if (xHomeIsSet())		/* if successful */
+   if (home->homeIsSet())	/* if successful */
    {
-    xHomeStatus = HOME_SUCCESS;	/* set flag */
+    *(home->status) = HOME_SUCCESS; /* set flag */
     mvStatus |= home->setHomed;	/* indicate homed */
     xLoc = 0;			/* set position to zero */
    }
    else				/* if failure */
    {
-    xHomeStatus = HOME_FAIL;	/* set flag */
+    *(home->status) = HOME_FAIL; /* set flag */
    }
    home->state = H_IDLE;	/* back to idle state */
   }
@@ -4717,9 +4749,11 @@ void axisCtl(void)
  mov = &zMoveCtl;
  if (mov->state != ZIDLE)	/* if z axis active */
   zControl();			/* run z axis state machine */
- else if (zHomeCtl.state != H_IDLE) /* if home control not idle */
+
+ if (zHomeCtl.state != H_IDLE)	/* if home control not idle */
   zHomeControl();		/* run home statue machine */
- else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
+
+ if (mov->mpgBackWait)		/* if waiting for mpg backlash */
  {
   if (zIsr.done != 0)		/* if z done */
   {
@@ -4735,9 +4769,11 @@ void axisCtl(void)
  mov = &xMoveCtl;
  if (mov->state != XIDLE)	/* if x axis active */
   xControl();			/* run x axis state machine */
- else if (xHomeCtl.state != H_IDLE) /* if home control not idle */
+
+ if (xHomeCtl.state != H_IDLE)	/* if home control not idle */
   xHomeControl();		/* run home statue machine */
- else if (mov->mpgBackWait)	/* if waiting for mpg backlash */
+
+ if (mov->mpgBackWait)		/* if waiting for mpg backlash */
  {
   if (xIsr.done != 0)		/* if x done */
   {
@@ -4868,11 +4904,36 @@ void procMove(void)
    switch (cmd->cmd)
    {
    case MOVE_Z:
+#if 0
     val = lrint(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
     if (cfgFpga == 0)
      zMove(val, cmd->flag);
     else
      zMoveX(val, cmd->flag);
+#else
+    val = cmd->iVal + mv->zHomeOffset;
+    dbgmsg(D_ZMOV, val);
+    if (!cfgDro			/* if dro not confugred */
+    ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
+    {
+     if (cfgFpga == 0)
+     {
+      /*
+	printf("zMove z %7.4f zHomeOffset %7.4f val %d zLoc %d %7.4f\n",
+	cmd->val, mv->zHomeOffset, val,
+	zLoc, (float) zLoc / zAxis.stepsInch);
+      */
+      zMove(val, cmd->flag);
+     }
+     else
+      zMoveX(val, cmd->flag);
+    }
+    else			/* if using dro for position */
+    {
+     zMoveDro(cmd->iVal, cmd->flag);
+    }
+    
+#endif
     mv->state = M_WAIT_Z;
     break;
 
