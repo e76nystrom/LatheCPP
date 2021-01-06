@@ -314,7 +314,7 @@ void remcmd(void)
 
  case CMD_SPSETUP:
  {
-  spindleSetup(0);
+  spindleSetup(spMaxRpm);
  }
  break;
 

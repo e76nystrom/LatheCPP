@@ -222,16 +222,6 @@ inline void pin1Clr() {}
 inline uint16_t pin1() {return(0);}
 #endif
 
-#ifdef Pin1_Pin
-inline void spRunSet() {Pin1_GPIO_Port->BSRR = Pin1_Pin;}
-inline void spRunClr() {Pin1_GPIO_Port->BSRR = (Pin1_Pin << 16);}
-inline uint16_t spRunRead() {return((Pin1_GPIO_Port->ODR & Pin1_Pin) != 0);}
-#else
-inline void spRunSet() {}
-inline void spRunClr() {}
-inline uint16_t spRun() {return(0);}
-#endif
-
 #ifdef Pin14_Pin
 inline void pin14Set() {Pin14_GPIO_Port->BSRR = Pin14_Pin;}
 inline void pin14Clr() {Pin14_GPIO_Port->BSRR = (Pin14_Pin << 16);}
@@ -622,34 +612,34 @@ inline uint16_t zFlagXIsSet() {return(0);}
 inline uint16_t zFlagXIsClr() {return(0);}
 #endif
 
-#ifdef Pin1_Pin
-inline void aSet() {Pin1_GPIO_Port->BSRR = Pin1_Pin;}
-inline void aClr() {Pin1_GPIO_Port->BSRR = (Pin1_Pin << 16);}
-inline uint16_t aRead() {return((Pin1_GPIO_Port->ODR & Pin1_Pin) != 0);}
+#ifdef Pin14_Pin
+inline void spFwdSet() {Pin14_GPIO_Port->BSRR = Pin14_Pin;}
+inline void spFwdClr() {Pin14_GPIO_Port->BSRR = (Pin14_Pin << 16);}
+inline uint16_t spFwdRead() {return((Pin14_GPIO_Port->ODR & Pin14_Pin) != 0);}
 #else
-inline void aSet() {}
-inline void aClr() {}
-inline uint16_t a() {return(0);}
+inline void spFwdSet() {}
+inline void spFwdClr() {}
+inline uint16_t spFwd() {return(0);}
 #endif
 
-#ifdef Pin14_Pin
-inline void bSet() {Pin14_GPIO_Port->BSRR = Pin14_Pin;}
-inline void bClr() {Pin14_GPIO_Port->BSRR = (Pin14_Pin << 16);}
-inline uint16_t bRead() {return((Pin14_GPIO_Port->ODR & Pin14_Pin) != 0);}
+#ifdef Pin1_Pin
+inline void spRevSet() {Pin1_GPIO_Port->BSRR = Pin1_Pin;}
+inline void spRevClr() {Pin1_GPIO_Port->BSRR = (Pin1_Pin << 16);}
+inline uint16_t spRevRead() {return((Pin1_GPIO_Port->ODR & Pin1_Pin) != 0);}
 #else
-inline void bSet() {}
-inline void bClr() {}
-inline uint16_t b() {return(0);}
+inline void spRevSet() {}
+inline void spRevClr() {}
+inline uint16_t spRev() {return(0);}
 #endif
 
 #ifdef Pin17_Pin
-inline void syncSet() {Pin17_GPIO_Port->BSRR = Pin17_Pin;}
-inline void syncClr() {Pin17_GPIO_Port->BSRR = (Pin17_Pin << 16);}
-inline uint16_t syncRead() {return((Pin17_GPIO_Port->ODR & Pin17_Pin) != 0);}
+inline void chgPumpSet() {Pin17_GPIO_Port->BSRR = Pin17_Pin;}
+inline void chgPumpClr() {Pin17_GPIO_Port->BSRR = (Pin17_Pin << 16);}
+inline uint16_t chgPumpRead() {return((Pin17_GPIO_Port->ODR & Pin17_Pin) != 0);}
 #else
-inline void syncSet() {}
-inline void syncClr() {}
-inline uint16_t sync() {return(0);}
+inline void chgPumpSet() {}
+inline void chgPumpClr() {}
+inline uint16_t chgPump() {return(0);}
 #endif
 
 #ifdef Led1_Pin

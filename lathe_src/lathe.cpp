@@ -417,7 +417,7 @@ EXT unsigned int wdUpdateTime;	/* watchdog update time */
 EXT unsigned int wdTimeout;	/* watchdog timeout */
 EXT int wdState;		/* watchdog state */
 
-#define WD_INTERVAL 50		/* interval between watchdog pulses */
+#define WD_INTERVAL 8		/* interval between watchdog pulses */
 #define WD_PULSE 2		/* watchdog pulse width */
 
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
@@ -970,13 +970,13 @@ void wdUpdate(void)
   wdUpdateTime = curTime;
   if (wdState)
   {
-   pin17Clr();
+   chgPumpClr();
    wdState = 0;
    wdTimeout =  WD_INTERVAL;
   }
   else
   {
-   pin17Set();
+   chgPumpSet();
    wdState = 1;
    wdTimeout = WD_PULSE;
   }
@@ -1550,9 +1550,9 @@ void spindleStart()
 
   if (cfgSwitch)		/* if spindle switched */
   {
-   spRunSet();			/* turn on spindle */
+   spFwdSet();			/* turn on spindle */
    if (DBG_SETUP)
-    printf("spRun %d\n", spRunRead());
+    printf("spFwd %d\n", spFwdRead());
   }
 
   if (cfgVarSpeed)		/* if var speed */
@@ -1945,7 +1945,8 @@ void spindleStop(void)
  {
   if (cfgSwitch)		/* if switched spindle */
   {
-   spRunClr();
+   spFwdClr();
+   spRevClr();
   }
   if (cfgVarSpeed)		/* if variable speed */
   {
