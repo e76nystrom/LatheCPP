@@ -38,8 +38,8 @@
 #define remoteISR(x) USART6_IRQHandler(x)
 #define REMOTE_IRQn USART6_IRQn
 
-#define indexISR(x) EXTI1_IRQHandler(x)
-#define indexIRQn EXTI1_IRQn
+#define indexISR(x) EXTI2_IRQHandler(x)
+#define indexIRQn EXTI2_IRQn
 
 #define encISR(x) EXTI0_IRQHandler(x)
 #define encIRQn EXTI0_IRQn
