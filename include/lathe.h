@@ -360,7 +360,7 @@ EXT unsigned int wdUpdateTime;	/* watchdog update time */
 EXT unsigned int wdTimeout;	/* watchdog timeout */
 EXT int wdState;		/* watchdog state */
 
-#define WD_INTERVAL 50		/* interval between watchdog pulses */
+#define WD_INTERVAL 8		/* interval between watchdog pulses */
 #define WD_PULSE 2		/* watchdog pulse width */
 
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */

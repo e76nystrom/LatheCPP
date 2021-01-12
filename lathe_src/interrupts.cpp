@@ -408,7 +408,7 @@ extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void)
 
 extern "C" void indexISR(void)
 {
- EXTI->PR = Index_Pin;		/* clear index interrupt */
+ EXTI->PR = INDEX_PIN;		/* clear index interrupt */
  
  static T_INDEX_COUNTER indexTmp;
 
@@ -495,6 +495,7 @@ extern "C" void spindleTmrISR(void)
   }
  }
 
+#if 0
  if constexpr (SP_ENC)
  {
   switch (encState)             /* select on state */
@@ -515,6 +516,7 @@ extern "C" void spindleTmrISR(void)
   encState += 1;                /* update state */
   encState &= 0x3;              /* mas in range */
  }
+#endif
  
  char index;
  if (spTestIndex)		/* if testing index pulse */

@@ -29,7 +29,6 @@ pinList = \
   ("o", "dir5", "Dir5", ""), \
   
   ("o", "pin1", "Pin1", ""), \
-  ("o", "spRun", "Pin1", ""), \
   ("o", "pin14", "Pin14", ""), \
   ("o", "pin16", "Pin16", ""), \
   ("o", "pin17", "Pin17", ""), \
@@ -75,9 +74,10 @@ pinList = \
   ("i", "xFlagX", "XFlag", ""), \
   ("i", "zFlagX", "ZFlag", ""), \
 
-  ("o", "a", "Pin1", ""), \
-  ("o", "b", "Pin14", ""), \
-  ("o", "sync", "Pin17", ""), \
+  ("o", "spFwd", "Pin14", ""), \
+  ("o", "spRev", "Pin1", ""), \
+  ("o", "chgPump", "Pin17", ""), \
+
   ("o", "led1", "Led1", ""), \
   ("o", "led2", "Led2", ""), \
   ("o", "led3", "Led3", ""), \

@@ -141,8 +141,6 @@ void lclcmd(int ch)
  {
   newline();
   int tmp = 0;
-  int tmpSet = 0;
-  int tmpClr = 0;
   if (pin10IsSet())
    tmp |= 0x00001;
   if (pin11IsSet())
@@ -155,6 +153,8 @@ void lclcmd(int ch)
    tmp |= 0x00010;
 
 #if defined(PinA2_Pin)
+  int tmpSet = 0;
+  int tmpClr = 0;
   if (pinA2IsSet())
    tmp |= 0x00020;
   if (pinA3IsSet())
