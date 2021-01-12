@@ -5452,6 +5452,10 @@ void procMove(void)
        }	/* if not stopping spindle */
       }		/* if speed stable */
      }		/* if valid index period */
+     else if (mv->spindleCmd == STOP_SPINDLE) /* if stopping spindle */
+     {
+      mv->state = M_IDLE;	/* return to idle state */
+     }
      lastIndexPeriod = indexPeriod; /* set new last period */
     }
    }
