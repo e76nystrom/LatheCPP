@@ -381,23 +381,27 @@ void i2cPut(uint8_t ch)
 void i2cPutString(uint8_t *p, int size)
 {
  P_I2C_CTL i2c = &i2cCtl;
- int fill = i2c->fil;		/* temp copy of fill pointer */
- uint8_t *dst = &i2c->buffer[fill]; /* get pointer to data buffer */
- while (i2c->count < I2C_BUF_SIZE) /* if room */
+ if ((i2c->count + size) < I2C_BUF_SIZE) /* if string fits in buffer */
  {
-  --size;			/* count of size */
-  if (size < 0)			/* if done */
-   break;			/* exit */
-  i2c->count++;			/* update count */
-  *dst++ = *p++;		/* put character in buffer */
-  fill++;			/* update index */
-  if (fill >= I2C_BUF_SIZE)	/* if past end of buffer */
+  int fill = i2c->fil;		/* temp copy of fill pointer */
+  uint8_t *dst = &i2c->buffer[fill]; /* get pointer to data buffer */
+  // while (i2c->count < I2C_BUF_SIZE) /* if room */
+  while (1)
   {
-   dst = i2c->buffer;		/* reset pointer */
-   fill = 0;			/* reset to zero */
+   --size;			/* count of size */
+   if (size < 0)		/* if done */
+    break;			/* exit */
+   i2c->count++;		/* update count */
+   *dst++ = *p++;		/* put character in buffer */
+   fill++;			/* update index */
+   if (fill >= I2C_BUF_SIZE)	/* if past end of buffer */
+   {
+    dst = i2c->buffer;		/* reset pointer */
+    fill = 0;			/* reset to zero */
+   }
   }
+  i2c->fil = fill;		/* save index */
  }
- i2c->fil = fill;		/* save index */
 }
 
 void i2cSend(void)

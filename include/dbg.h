@@ -526,6 +526,28 @@ inline void dbgXDoneClr() {}
 inline uint16_t dbgXDoneRead() {return(0);}
 #endif
 
+/* x move using dro */
+#ifdef Dbg7_Pin
+inline void dbgXUpdDroSet() {Dbg7_GPIO_Port->BSRR = Dbg7_Pin;}
+inline void dbgXUpdDroClr() {Dbg7_GPIO_Port->BSRR = (Dbg7_Pin << 16);}
+inline uint16_t dbgXUpdDroRead() {return((Dbg7_GPIO_Port->IDR & Dbg7_Pin) != 0);}
+#else
+inline void dbgXUpdDroSet() {}
+inline void dbgXUpdDroClr() {}
+inline uint16_t dbgXUpdDroRead() {return(0);}
+#endif
+
+/* x dro final */
+#ifdef Dbg8_Pin
+inline void dbgXFinalDroSet() {Dbg8_GPIO_Port->BSRR = Dbg8_Pin;}
+inline void dbgXFinalDroClr() {Dbg8_GPIO_Port->BSRR = (Dbg8_Pin << 16);}
+inline uint16_t dbgXFinalDroRead() {return((Dbg8_GPIO_Port->IDR & Dbg8_Pin) != 0);}
+#else
+inline void dbgXFinalDroSet() {}
+inline void dbgXFinalDroClr() {}
+inline uint16_t dbgXFinalDroRead() {return(0);}
+#endif
+
 /* z dro isr */
 inline void dbgZDroSet() {}
 inline void dbgZDroClr() {}

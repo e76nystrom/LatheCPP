@@ -906,6 +906,11 @@ typedef union
  };
 } MPG_VAL;
 
+inline int xDroLoc()
+{
+ return(xDroPos - xDroOffset);
+}
+
 #include "main.h"
 #include "pinDef.h"
 #include "timers.h"
@@ -3267,7 +3272,7 @@ void syncMoveSetup(void)
    break;
   }
  }
- else
+ else				/* if threading */
  {
   char flag = runCtl.threadFlags;
   runoutActive = (flag & TH_RUNOUT) != 0;
@@ -3319,6 +3324,8 @@ void syncMoveSetup(void)
     break;
    }
   }
+  if (zSyncInit != 0)		/* if threading */
+   zSyncInit |= SYNC_ACTIVE_THREAD; /* set flag for isr */
  }
  
  encoderDirect = ((zSyncInit | xSyncInit) & SYNC_ACTIVE_ENC) != 0;
@@ -3327,7 +3334,7 @@ void syncMoveSetup(void)
   printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
 	 zSyncInit, xSyncInit, encoderDirect);
   printf("active %d encActive %d synIntActive %d "
-	 "synExtAcitve %d runoutActive %d\n",
+	 "synExtAcitve %d runoutActive %d\n\n",
 	 active, encActive, synIntActive, synExtActive, runoutActive);
  }
 
@@ -4170,14 +4177,15 @@ void xMoveRel(int dist, int cmd)
  }
 
  int stepsInch = xAxis.stepsInch;
+ mov->loc = xLoc;		/* save current location */
+ mov->expLoc = xLoc + dist;	/* save expected location */
  if (DBG_MOVOP)
  {
   float xTmp = (float) (xLoc - runCtl.xHomeOffset) / stepsInch;
-  printf("xMoveRel cmd %03x l %7.4f d %7.4f diam %7.4f\n",
-	 cmd, xTmp, (float) dist / stepsInch, 2.0 * xTmp);
+  float xExp = (float) (mov->expLoc - runCtl.xHomeOffset) / stepsInch;
+  printf("xMoveRel cmd %03x l %7.4f d %7.4f %d diam %7.4f expLoc %7.4f\n",
+	 cmd, xTmp, ((float) dist) / stepsInch, dist, 2.0 * xTmp, xExp);
  }
- mov->loc = xLoc;		/* save current location */
- mov->expLoc = xLoc + dist;	/* save expected location */
  mov->cmd = cmd;		/* save command */
  if (cfgDro)
   dbgmsg(D_XDRO, xDroPos);
@@ -4271,7 +4279,8 @@ void xMove(int pos, int cmd)
 
 void xMoveDro(int pos, int cmd)
 {
- int droDist = pos - (xDroPos - xDroOffset);
+ dbgXFinalDroSet();
+ int droDist = pos - xDroLoc();
  /* dist = droDist * (stepsInch / countsInch) */
  int dist = (2 * droDist * xAxis.stepFactor) / xAxis.droFactor;
  dist = (dist + 1) >> 1;
@@ -4283,11 +4292,13 @@ void xMoveDro(int pos, int cmd)
   printf("xMoveDro cmd %03x pos %7.4f droPos %7.4f dist %7.4f steps %d "
 	 "counts %d\n",
 	 cmd, ((float) pos) / xAxis.droCountsInch,
-	 ((float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
+	 ((float) xDroLoc()) / xAxis.droCountsInch,
 	 ((float) droDist) / xAxis.droCountsInch, dist, droDist);
-  printf("droTarget %7d droPos %7d droCounts %7d\n",
-	 droTarget, xDroPos, droTarget - xDroPos);
+  printf("droFinalDist %5d droTarget %7d droPos %7d droCounts %7d\n",
+	 xDroFinalDist, droTarget, xDroPos, droTarget - xDroPos);
  }
+ dbgXFinalDroClr();
+ dbgXUpdDroSet();
  xMoveRel(dist, cmd);
 }
 
@@ -4470,18 +4481,22 @@ void xControl(void)
 
  case XDONE:			/* 0x05 done state */
  default:			/* all others */
-  if (mov->cmd & DRO_UPD)	/* fix x loc if used dro for position */
+  if (mov->cmd & DRO_UPD)	/* fix x loc if using dro for position */
   {
+   dbgmsg(D_XDRO, xDroPos);
+   dbgmsg(D_XLOC, xLoc);
+   dbgXUpdDroClr();
    /* xLoc = droPos * (stepsInch / countsInch) */
-   int xTmp = ((2 * (xDroPos - xDroOffset) * xAxis.stepFactor) /
-	       xAxis.droFactor);
-   xTmp = (xTmp + 1) >> 1;	/* round */
-   xLoc = xTmp + xHomeOffset;
+   int xTmp = ((2 * xDroLoc() * xAxis.stepFactor) / xAxis.droFactor);
+   xTmp = ((xTmp + 1) >> 1) + xHomeOffset; /* round and add offset */
+   int xErr = xTmp - xLoc;
+   dbgmsg(D_XERR, xErr);
+   xLoc = xTmp;
    if (DBG_P)
-    printf("DRO_UPD droPos %7.4f xPos %7.4f xLoc %6d\n",
-	   (2.0 * (float) (xDroPos - xDroOffset)) / xAxis.droCountsInch,
+    printf("DRO_UPD droPos %7.4f xPos %7.4f xErr %7.4f xLoc %6d\n",
+	   (2.0 * (float) xDroLoc()) / xAxis.droCountsInch,
 	   (2.0 * (float) (xLoc - xHomeOffset)) / xAxis.stepsInch,
-	   xLoc);
+	   (2.0 * (float) xErr / xAxis.stepsInch), xLoc);
   }
   if (limitIsClr())
   {
@@ -5137,7 +5152,7 @@ void procMove(void)
    {
     int iVal = cmd->iVal;
     mv->pass = iVal;
-    int passNum = iVal * 0xff;
+    int passNum = iVal & 0xff;
 
     if (DBG_QUE)
      printf("pass %2d flag %d\n", passNum, iVal >> 8);

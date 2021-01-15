@@ -97,3 +97,9 @@
 #ifdef Dbg5_Pin
  PIN(dbgXDone, Dbg5),
 #endif
+#ifdef Dbg7_Pin
+ PIN(dbgXUpdDro, Dbg7),
+#endif
+#ifdef Dbg8_Pin
+ PIN(dbgXFinalDro, Dbg8),
+#endif

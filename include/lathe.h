@@ -849,6 +849,11 @@ typedef union
  };
 } MPG_VAL;
 
+inline int xDroLoc()
+{
+ return(xDroPos - xDroOffset);
+}
+
 #include "main.h"
 #include "pinDef.h"
 #include "timers.h"

@@ -194,6 +194,7 @@ extern "C" void encoderISR(void)
    {
     if (dist > 0)		/* if not done */
     {
+     dbgXFinalDroSet();
      if (xIsr.decel)		/* if decelerating */
      {
       xIsr.accelStep = 0;	/* end deceleration */
@@ -203,7 +204,9 @@ extern "C" void encoderISR(void)
     }
     else			/* if done */
     {
+     dbgXFinalDroClr();
      xIsrStop('0');		/* stop isr */
+     xIsr.useDro = 0;		/* disable use of dro */
     }
    }
   }
@@ -451,6 +454,11 @@ extern "C" void indexISR(void)
    xIsr.syncStart = 0;		/* clear start flag */
    dbgmsg(D_XEST, spEncCount);	/* encoder count at start */
   }
+ }
+
+ if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
+ {
+  dbgmsg(D_ZIDX, zDroPos);	/* save dro position */
  }
  
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
@@ -771,6 +779,7 @@ void zIsrStop(char ch)
  zIsr.sync = 0;			/* clear sync flag */
  zIsr.dist = 0;			/* clear distance */
  putBufCharIsr(ch);
+
  if (zIsr.active)		/* if synchcronized move */
  {
   zIsr.active = 0;		/* clear active flag */
@@ -779,14 +788,15 @@ void zIsrStop(char ch)
   else				/* *ok* spindle encoder */
   {
    dbgZOutClr();
-   dbgmsg(D_ZEDN, spEncCount);	/* send spindle encoder count */
-   if (zIsr.encoderDirect == 0)	/* *ok* using encodder directly */
+   if (zIsr.encoderDirect != 0)	/* *ok* using encodder directly */
    {
+    dbgmsg(D_ZEDN, spEncCount);	/* send spindle encoder count */
     dbgmsg(D_ZX, zIsr.x);
     dbgmsg(D_ZY, zIsr.y);
    }
   }
  }
+
  if (zIsr.taper & TAPER_SLAVE)	/* if tapering */
  {
   zIsr.lastRemCount = zIsr.remCount; /* save remainder count */

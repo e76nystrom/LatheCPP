@@ -279,30 +279,33 @@ enum D_MESSAGE
  D_XDRO,                        /*  9 x09 x dro location */
  D_XPDRO,                       /* 10 x0a x pass dro location */
  D_XEXP,                        /* 11 x0b x expected location */
- D_XWT,                         /* 12 x0c x wait */
- D_XDN,                         /* 13 x0d x done */
- D_XEST,                        /* 14 x0e x spindle encoder start count */
- D_XEDN,                        /* 15 x0f x spindle encoder done count */
- D_XX,                          /* 16 x10 x  */
- D_XY,                          /* 17 x11 x  */
- D_ZMOV,                        /* 18 x12 z move location */
- D_ZLOC,                        /* 19 x13 z location */
- D_ZDST,                        /* 20 x14 z distance */
- D_ZSTP,                        /* 21 x15 z steps */
- D_ZST,                         /* 22 x16 z state */
- D_ZBSTP,                       /* 23 x17 z backlash steps */
- D_ZDRO,                        /* 24 x18 z dro location */
- D_ZPDRO,                       /* 25 x19 z pass dro location */
- D_ZEXP,                        /* 26 x1a z expected location */
- D_ZWT,                         /* 27 x1b z wait */
- D_ZDN,                         /* 28 x1c z done */
- D_ZEST,                        /* 29 x1d z spindle encoder start count */
- D_ZEDN,                        /* 30 x1e Z spindle encoder done count */
- D_ZX,                          /* 31 x1f z  */
- D_ZY,                          /* 32 x20 z  */
- D_HST,                         /* 33 x21 home state */
- D_MSTA,                        /* 34 x22 move state */
- D_MCMD,                        /* 35 x23 move command */
+ D_XERR,                        /* 12 x0c x error with respect to dro */
+ D_XWT,                         /* 13 x0d x wait */
+ D_XDN,                         /* 14 x0e x done */
+ D_XEST,                        /* 15 x0f x spindle encoder start count */
+ D_XEDN,                        /* 16 x10 x spindle encoder done count */
+ D_XX,                          /* 17 x11 x  */
+ D_XY,                          /* 18 x12 x  */
+ D_ZMOV,                        /* 19 x13 z move location */
+ D_ZLOC,                        /* 20 x14 z location */
+ D_ZDST,                        /* 21 x15 z distance */
+ D_ZSTP,                        /* 22 x16 z steps */
+ D_ZST,                         /* 23 x17 z state */
+ D_ZBSTP,                       /* 24 x18 z backlash steps */
+ D_ZDRO,                        /* 25 x19 z dro location */
+ D_ZPDRO,                       /* 26 x1a z pass dro location */
+ D_ZEXP,                        /* 27 x1b z expected location */
+ D_ZERR,                        /* 28 x1c z error with respect to dro */
+ D_ZWT,                         /* 29 x1d z wait */
+ D_ZDN,                         /* 30 x1e z done */
+ D_ZEST,                        /* 31 x1f z spindle encoder start count */
+ D_ZEDN,                        /* 32 x20 Z spindle encoder done count */
+ D_ZX,                          /* 33 x21 z  */
+ D_ZY,                          /* 34 x22 z  */
+ D_ZIDX,                        /* 35 x23 z dro at index pulse  */
+ D_HST,                         /* 36 x24 home state */
+ D_MSTA,                        /* 37 x25 move state */
+ D_MCMD,                        /* 38 x26 move command */
 };
 
 #ifdef ENUM_D_MESSAGE
@@ -321,30 +324,33 @@ const char *dMessageList[] =
  "D_XDRO",                      /*  9 x09 x dro location */
  "D_XPDRO",                     /* 10 x0a x pass dro location */
  "D_XEXP",                      /* 11 x0b x expected location */
- "D_XWT",                       /* 12 x0c x wait */
- "D_XDN",                       /* 13 x0d x done */
- "D_XEST",                      /* 14 x0e x spindle encoder start count */
- "D_XEDN",                      /* 15 x0f x spindle encoder done count */
- "D_XX",                        /* 16 x10 x  */
- "D_XY",                        /* 17 x11 x  */
- "D_ZMOV",                      /* 18 x12 z move location */
- "D_ZLOC",                      /* 19 x13 z location */
- "D_ZDST",                      /* 20 x14 z distance */
- "D_ZSTP",                      /* 21 x15 z steps */
- "D_ZST",                       /* 22 x16 z state */
- "D_ZBSTP",                     /* 23 x17 z backlash steps */
- "D_ZDRO",                      /* 24 x18 z dro location */
- "D_ZPDRO",                     /* 25 x19 z pass dro location */
- "D_ZEXP",                      /* 26 x1a z expected location */
- "D_ZWT",                       /* 27 x1b z wait */
- "D_ZDN",                       /* 28 x1c z done */
- "D_ZEST",                      /* 29 x1d z spindle encoder start count */
- "D_ZEDN",                      /* 30 x1e Z spindle encoder done count */
- "D_ZX",                        /* 31 x1f z  */
- "D_ZY",                        /* 32 x20 z  */
- "D_HST",                       /* 33 x21 home state */
- "D_MSTA",                      /* 34 x22 move state */
- "D_MCMD",                      /* 35 x23 move command */
+ "D_XERR",                      /* 12 x0c x error with respect to dro */
+ "D_XWT",                       /* 13 x0d x wait */
+ "D_XDN",                       /* 14 x0e x done */
+ "D_XEST",                      /* 15 x0f x spindle encoder start count */
+ "D_XEDN",                      /* 16 x10 x spindle encoder done count */
+ "D_XX",                        /* 17 x11 x  */
+ "D_XY",                        /* 18 x12 x  */
+ "D_ZMOV",                      /* 19 x13 z move location */
+ "D_ZLOC",                      /* 20 x14 z location */
+ "D_ZDST",                      /* 21 x15 z distance */
+ "D_ZSTP",                      /* 22 x16 z steps */
+ "D_ZST",                       /* 23 x17 z state */
+ "D_ZBSTP",                     /* 24 x18 z backlash steps */
+ "D_ZDRO",                      /* 25 x19 z dro location */
+ "D_ZPDRO",                     /* 26 x1a z pass dro location */
+ "D_ZEXP",                      /* 27 x1b z expected location */
+ "D_ZERR",                      /* 28 x1c z error with respect to dro */
+ "D_ZWT",                       /* 29 x1d z wait */
+ "D_ZDN",                       /* 30 x1e z done */
+ "D_ZEST",                      /* 31 x1f z spindle encoder start count */
+ "D_ZEDN",                      /* 32 x20 Z spindle encoder done count */
+ "D_ZX",                        /* 33 x21 z  */
+ "D_ZY",                        /* 34 x22 z  */
+ "D_ZIDX",                      /* 35 x23 z dro at index pulse  */
+ "D_HST",                       /* 36 x24 home state */
+ "D_MSTA",                      /* 37 x25 move state */
+ "D_MCMD",                      /* 38 x26 move command */
 };
 
 #else

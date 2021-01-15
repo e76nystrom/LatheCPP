@@ -109,6 +109,7 @@
 #define SYNC_ACTIVE_ENC (1 << 2) /* 0x04 active for encoder */
 #define SYNC_ACTIVE_STEP (1 << 3) /* 0x08 active for stepper */
 #define SYNC_ACTIVE_TAPER (1 << 4) /* 0x10 active for taper */
+#define SYNC_ACTIVE_THREAD (1 << 5) /* 0x20 active for threading */
 
 // encoder direct flags
 

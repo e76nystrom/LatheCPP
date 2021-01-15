@@ -128,10 +128,13 @@ dbgList = \
  ("dbgXDro",    "3", "x dro isr"), \
  ("dbgXStop",   "4", "x stop"), \
  ("dbgXDone",   "5", "x done"), \
+ ("dbgXUpdDro", "7", "x move using dro"), \
+ ("dbgXFinalDro","8", "x dro final"), \
  ("dbgZDro",    "", "z dro isr"), \
  ("dbgZStop",   "", "z stop"), \
  ("dbgZDone",   "", "z done"), \
 )
+#("","",""), \
 
 dbgPins = ("0", "1", "2", "3", "4", "5", \
            "6", "7", "8", "9", "10", "11", "12", \
