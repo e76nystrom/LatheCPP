@@ -582,8 +582,9 @@ void pinDisplay(void)
   char t1[6];
   char t2[40];
   sprintf(t1, "%s %d", connector, j);
-  printf("%-9s %-5s %-4s %s\n",
+  printf("%-14s %-5s %-4s %s\n",
 	 pin->name, t0, t1, gpioStr(t2, sizeof(t2), &val));
+  flushBuf();
   pin++;
  }
 }
