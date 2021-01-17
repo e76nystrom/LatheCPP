@@ -147,7 +147,7 @@ T_PARM remparm[] =
 
 // z dro
 
- PARM(zDroPos),                 /* 0x5a z dro location */
+ PARM(zDroLoc),                 /* 0x5a z dro location */
  PARM(zDroOffset),              /* 0x5b z dro to zero */
  PARM(zDroCountInch),           /* 0x5c z dro scale */
  PARM(zDroFactor),              /* 0x5d x dro counts inch factored */
@@ -158,7 +158,7 @@ T_PARM remparm[] =
 
 // x dro
 
- PARM(xDroPos),                 /* 0x62 x dro location */
+ PARM(xDroLoc),                 /* 0x62 x dro location */
  PARM(xDroOffset),              /* 0x63 x dro to zero */
  PARM(xDroCountInch),           /* 0x64 x dro scale */
  PARM(xDroFactor),              /* 0x65 x dro counts inch factored */

@@ -464,7 +464,7 @@ void remcmd(void)
   }
 
   sprintf(buf, "%d %d %d %d",
-	  runCtl.pass, zDroPos, xDroPos, mvStatus);
+	  runCtl.pass, zDroLoc, xDroLoc, mvStatus);
   putstrrem(buf);
  }
  break;

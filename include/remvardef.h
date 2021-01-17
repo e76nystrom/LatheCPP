@@ -145,7 +145,7 @@
 
 // z dro
 
- EXT int zDroPos;               /* 0x5a z dro location */
+ EXT int zDroLoc;               /* 0x5a z dro location */
  EXT int zDroOffset;            /* 0x5b z dro to zero */
  EXT int zDroCountInch;         /* 0x5c z dro scale */
  EXT int zDroFactor;            /* 0x5d x dro counts inch factored */
@@ -156,7 +156,7 @@
 
 // x dro
 
- EXT int xDroPos;               /* 0x62 x dro location */
+ EXT int xDroLoc;               /* 0x62 x dro location */
  EXT int xDroOffset;            /* 0x63 x dro to zero */
  EXT int xDroCountInch;         /* 0x64 x dro scale */
  EXT int xDroFactor;            /* 0x65 x dro counts inch factored */

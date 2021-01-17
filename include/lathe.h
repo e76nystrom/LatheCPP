@@ -465,6 +465,8 @@ typedef struct s_movectl
  void (*hwEnable) (int ctr);	/* hardware enable */
  void (*start) (void);		/* axis start */
  void (*pulse) (void);		/* axis pulse */
+ int *locPtr;			/* pointer to location */
+ int *droLocPtr;		/* pointer to dro location */
 } T_MOVECTL, *P_MOVECTL;
 
 EXT T_MOVECTL zMoveCtl;
@@ -849,9 +851,9 @@ typedef union
  };
 } MPG_VAL;
 
-inline int xDroLoc()
+inline int xDro()
 {
- return(xDroPos - xDroOffset);
+ return(xDroLoc - xDroOffset);
 }
 
 #include "main.h"

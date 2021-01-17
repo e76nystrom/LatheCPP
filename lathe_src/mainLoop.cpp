@@ -662,8 +662,8 @@ void lcdDisplay(void)
     case 2:
      if (cfgDro)
       sprintf(buf, "Z %8.4f X %7.4f",
-	      ((float) (zDroPos - zDroOffset)) / zDroCountInch,
-	      ((float) xDroLoc()) / xDroCountInch);
+	      ((float) (zDroLoc - zDroOffset)) / zDroCountInch,
+	      ((float) xDro()) / xDroCountInch);
      lcdRow = 3;
      break;
 

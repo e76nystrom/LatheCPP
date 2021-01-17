@@ -147,7 +147,7 @@ enum PARM
 
 // z dro
 
- Z_DRO_POS,                     /* 0x5a z dro location */
+ Z_DRO_LOC,                     /* 0x5a z dro location */
  Z_DRO_OFFSET,                  /* 0x5b z dro to zero */
  Z_DRO_COUNT_INCH,              /* 0x5c z dro scale */
  Z_DRO_FACTOR,                  /* 0x5d x dro counts inch factored */
@@ -158,7 +158,7 @@ enum PARM
 
 // x dro
 
- X_DRO_POS,                     /* 0x62 x dro location */
+ X_DRO_LOC,                     /* 0x62 x dro location */
  X_DRO_OFFSET,                  /* 0x63 x dro to zero */
  X_DRO_COUNT_INCH,              /* 0x64 x dro scale */
  X_DRO_FACTOR,                  /* 0x65 x dro counts inch factored */

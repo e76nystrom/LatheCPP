@@ -123,18 +123,18 @@ extern "C" void encoderISR(void)
   zDecode.w = tmp.w;
   if (zDroInvert)		/* if dro motion inverted */
    val = -val;			/* change direction */
-  zDroPos += val;		/* update position */
+  zDroLoc += val;		/* update position */
 
   if (zIsr.useDro)		/* if using dro for move */
   {
    int dist;
    if (zIsr.dir > 0)		/* if direction positive */
    {
-    dist = zIsr.droTarget - zDroPos;
+    dist = zIsr.droTarget - zDroLoc;
    }
    else				/* if direction negative */
    {
-    dist =  zDroPos - zIsr.droTarget;
+    dist =  zDroLoc - zIsr.droTarget;
    }
    if (dist < zDroFinalDist)	/* if close to end */
    {
@@ -177,18 +177,18 @@ extern "C" void encoderISR(void)
   xDecode.w = tmp.w;
   if (xDroInvert)		/* if dro motion inverted */
    val = -val;			/* change direction */
-  xDroPos += val;		/* update position */
+  xDroLoc += val;		/* update position */
 
   if (xIsr.useDro)		/* if using dro for move */
   {
    int dist;
    if (xIsr.dir > 0)		/* if direction positive */
    {
-    dist = xIsr.droTarget - xDroPos;
+    dist = xIsr.droTarget - xDroLoc;
    }
    else				/* if direction negative */
    {
-    dist =  xDroPos - xIsr.droTarget;
+    dist =  xDroLoc - xIsr.droTarget;
    }
    if (dist < xDroFinalDist)	/* if close to end */
    {
@@ -458,7 +458,7 @@ extern "C" void indexISR(void)
 
  if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
  {
-  dbgmsg(D_ZIDX, zDroPos);	/* save dro position */
+  dbgmsg(D_ZIDX, zDroLoc);	/* save dro position */
  }
  
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
@@ -809,7 +809,7 @@ void zIsrStop(char ch)
  zIsr.taper = 0;		/* clear taper flag */
  zIsr.done = 1;			/* indicate done */
  if (cfgDro)
-  dbgmsg(D_ZDRO, zDroPos);
+  dbgmsg(D_ZDRO, zDroLoc);
  dbgmsg(D_ZLOC, zLoc);
  dbgZAccelClr();
 }
@@ -1045,7 +1045,7 @@ void xIsrStop(char ch)
  xIsr.stopPos = sp.pos;
  
  if (cfgDro)
-  dbgmsg(D_XDRO, xDroPos);
+  dbgmsg(D_XDRO, xDroLoc);
  dbgmsg(D_XLOC, xLoc);
  dbgXAccelClr();
  dbgXStopClr();
