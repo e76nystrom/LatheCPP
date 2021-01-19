@@ -191,164 +191,118 @@ void remcmd(void)
   break;
 
  case ZSTOP:
- {
   zStop();
- }
  break;
 
  case ZSETLOC:
- {
   zLocCmd();
- }
  break;
 
- case ZHOMEAXIS:
- {
-  if (zMoveCtl.state == ZIDLE)
-   zHomeAxis();
- }
+ case ZHOMEFWD:
+  homeAxis(&zHomeCtl, HOME_FWD);
+ break;
+
+ case ZHOMEREV:
+  homeAxis(&zHomeCtl, HOME_REV);
  break;
 
  case XMOVEABS:
- {
   xMoveAbsCmd();
- }
  break;
 
  case XMOVEREL:
- {
   xMoveRelCmd();
- }
  break;
 
  case XJMOV:
- {
   xJogCmd();
- }
  break;
 
  case XJSPEED:
- {
   xJogSpeedCmd();
- }
  break;
 
  case XSTOP:
- {
   xStop();
- }
  break;
 
  case XSETLOC:
- {
   xLocCmd();
- }
  break;
 
- case XHOMEAXIS:
- {
-  if (xMoveCtl.state == XIDLE)
-   xHomeAxis();
- }
+ case XHOMEFWD:
+  homeAxis(&xHomeCtl, HOME_FWD);
+ break;
+ 
+ case XHOMEREV:
+  homeAxis(&xHomeCtl, HOME_REV);
  break;
 
  case SPINDLE_START:
- {
   spindleStart();
- }
  break;
 
  case SPINDLE_JOG:
- {
   spindleJog();
- }
  break;
 
  case SPINDLE_JOG_SPEED:
- {
   spindleJogSpeed();
- }
  break;
 
  case SPINDLE_STOP:
- {
   spindleStop();
- }
  break;
 
  case CMD_PAUSE:
- {
   pauseCmd();
- }
  break;
 
  case CMD_RESUME:
- {
   resumeCmd();
- }
  break;
 
  case CMD_STOP:
- {
   stopCmd();
- }
  break;
 
  case CMD_MEASURE:
- {
   measureCmd();
- }
  break;
 
  case CMD_CLEAR:
- {
   clearCmd();
- }
  break;
 
  case CMD_SETUP:
- {
   setup();
- }
  break;
 
  case CMD_SPSETUP:
- {
   spindleSetup(spMaxRpm);
- }
  break;
 
  case CMD_SYNCSETUP:
- {
   syncMoveSetup();
- }
  break;
 
  case CMD_ZSETUP:
- {
   zSetup();
- }
  break;
 
 #if 0
  case CMD_ZTAPERSETUP:
- {
   zTaperSetup();
- }
  break;
 #endif
 
  case CMD_XSETUP:
- {
   xSetup();
- }
  break;
 
 #if 0
  case CMD_XTAPERSETUP:
- {
   xTaperSetup();
- }
  break;
 #endif
 
@@ -364,9 +318,7 @@ void remcmd(void)
  break;
 
  case LOADVAL:			/* load a local parameter */
- {
   loadVal();
- }
  break;
 
  case LOADMULTI:		/* load multiple parameters */
@@ -470,9 +422,7 @@ void remcmd(void)
  break;
 
  case CLEARQUE:			/* clear move que */
- {
   runInit();
- }
  break;
 
  case QUEMOVE:			/* que move operation */
@@ -547,23 +497,17 @@ void remcmd(void)
  break;
 
  case CLRDBG:
- {
   clrDbgBuf();
- }
  break;
 #endif
 
 #if ENCODER
  case ENCSTART:
- {
   encStart(true);
- }
  break;
 
  case ENCSTOP:
- {
   encStop();
- }
  break;
 #endif
  }

@@ -109,7 +109,7 @@ int tmp(int x)
 
 void axisCtlX(void)
 {
- if (zMoveCtl.state != ZIDLE)	/* if z axis active */
+ if (zMoveCtl.state != AXIS_IDLE)	/* if z axis active */
  {
   read1(XRDZLOC);		/* read z location */
   zLoc = readval.i;
@@ -136,7 +136,7 @@ void axisCtlX(void)
   zControlX();			/* run z axis state machine */
  }
 
- if (xMoveCtl.state != XIDLE)	/* if x axis active */
+ if (xMoveCtl.state != AXIS_IDLE) /* if x axis active */
  {
   read1(XRDXLOC);		/* read x location */
   xLoc = readval.i;

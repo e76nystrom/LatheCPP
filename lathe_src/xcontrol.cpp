@@ -53,7 +53,7 @@ void xLoad(P_ACCEL ac)
 void xJMoveX(int dir)
 {
  P_MOVECTL mov = &xMoveCtl;
- if (mov->state == XIDLE)	/* if not moving */
+ if (mov->state == AXIS_IDLE)	/* if not moving */
  {
   P_ACCEL ac = &xJA;		/* pointer to jog */
   float time = jogTimeInitial - ac->timeX; /* time after accel */
@@ -66,9 +66,9 @@ void xJMoveX(int dir)
   mov->maxDist = (int) (jogTimeMax * ac->stepsSecX); /* save maximum */
   printf("xJMove dist %5d xLoc %5d inc %5d max %5d\n",  
 	 d, xLoc, mov->jogInc, mov->maxDist);
-  xMoveRelX(d, CMD_JOG);		/* start movement */
+  xMoveRelX(d, CMD_JOG);	/* start movement */
  }
- else if (mov->state == XWAITBKLS) /* if waiting for backlash */
+ else if (mov->state == AXIS_WAIT_BACKLASH) /* if waiting for backlash */
  {
  }
  else				/* if moving */
@@ -95,7 +95,7 @@ void xMoveRelX(long dist, char cmd)
 {
  P_MOVECTL mov = &xMoveCtl;
 
- if (mov->state != XIDLE)	/* if not in idle state */
+ if (mov->state != AXIS_IDLE)	/* if not in idle state */
   return;			/* exit now */
 
  if (DBGMSG)
@@ -106,17 +106,19 @@ void xMoveRelX(long dist, char cmd)
   mov->dist = dist;		/* save move distance */
   if (mov->dist > 0)		/* if moving positive */
   {
-   mov->state = (mov->dir == DIR_NEG) ?  XWAITBKLS : XSTARTMOVE; /* dir chg ? */
+   mov->state = ((mov->dir == DIR_NEG) ?
+		 AXIS_WAIT_BACKLASH : AXIS_START_MOVE); /* dir chg ? */
    mov->dir = DIR_POS;		/* set to move positive direction */
   }
   else
   {
    mov->dist = -mov->dist;	/* make distance a positive number */
-   mov->state = (mov->dir == DIR_POS) ?  XWAITBKLS : XSTARTMOVE; /* dir chg ? */
+   mov->state = ((mov->dir == DIR_POS) ?
+		 AXIS_WAIT_BACKLASH : AXIS_START_MOVE); /* dir chg ? */
    mov->dir = DIR_NEG;		/* set move direction to negative */
   }
 
-  if (mov->state == XWAITBKLS)	/* if backlash move needed */
+  if (mov->state == AXIS_WAIT_BACKLASH)	/* if backlash move needed */
   {
    mov->wait = 1;		/* set wait flag */
    xLoad(&xMA);			/* load move parameters */
@@ -138,7 +140,7 @@ void xControlX(void)
 {
  P_MOVECTL mov = &xMoveCtl;
  if (mov->stop)			/* if stop */
-  mov->state = XDONE;		/* clean up in done state */
+  mov->state = AXIS_DONE;	/* clean up in done state */
 
  if (DBGMSG)
  {
@@ -151,27 +153,27 @@ void xControlX(void)
 
  switch(mov->state)		/* dispatch on state */
  {
- case XIDLE:			/* 0x00 idle state */
+ case AXIS_IDLE:		/* 0x00 idle state */
   break;
 
- case XWAITBKLS:		/* 0x01 wait for backlash move to complete */
+ case AXIS_WAIT_BACKLASH:	/* 0x01 wait for backlash move to complete */
  {
   if (mov->done)		/* if done */
   {
    mov->done = 0;		/* clear done flag */
    mov->wait = 0;		/* clear wait flag */
-   mov->state = XSTARTMOVE;	/* advance to move state */
+   mov->state = AXIS_START_MOVE; /* advance to move state */
   }
  }
  break;
 
- case XSTARTMOVE:		/* 0x02 start an x move */
+ case AXIS_START_MOVE:		/* 0x02 start an x move */
  {
   mov->ctlreg = XSTART;		/* initialize control reg */
   char ch = mov->cmd & CMD_MSK;	/* get type of move */
   if (ch == CMD_SYN)		/* if synchronized move */
   {
-   xLoad(&xTA);		/* load turn parameters */
+   xLoad(&xTA);			/* load turn parameters */
    mov->ctlreg |= XSRC_SYN;	/* set sync flags */
   }
   else				/* if not synchronized */
@@ -183,7 +185,7 @@ void xControlX(void)
    else				/* else */
     xLoad(&xTA);		/* load turn parameters */
   }
-  if (mov->dir == DIR_POS)		/* if moving positive */
+  if (mov->dir == DIR_POS)	/* if moving positive */
    mov->ctlreg |= XDIR_POS;	/* set direction flag */
   LOAD(XLDXDIST,  mov->dist);	/* set distance to move */
   LOAD(XLDXCTL,  mov->ctlreg);	/* start move */
@@ -191,21 +193,21 @@ void xControlX(void)
   if ((readval.i & S_X_START) == 0)
    printf("x start not set\n");
   mov->wait = 1;		/* set wait flag */
-  mov->state = XWAITMOVE;	/* wait for move to complete */
+  mov->state = AXIS_WAIT_MOVE;	/* wait for move to complete */
  }
  break;
 
- case XWAITMOVE:		/* 0x03 wait for an x move to complete */
+ case AXIS_WAIT_MOVE:		/* 0x03 wait for an x move to complete */
  {
   if (mov->done)		/* if done */
   {
    mov->wait = 0;		/* clear wait flag */
-   mov->state = XDONE;		/* clean up everything */
+   mov->state = AXIS_DONE;	/* clean up everything */
   }
  }
  break;
 
- case XDONE:			/* 0x04 done state */
+ case AXIS_DONE:		/* 0x04 done state */
  default:			/* all others */
  {
   LOAD(XLDXCTL,  0);		/* stop move */
@@ -222,7 +224,7 @@ void xControlX(void)
   }
   if (DBGMSG)
    dbgmsg(D_XLOC,  mov->loc);
-  mov->state = XIDLE;		/* set state to idle */
+  mov->state = AXIS_IDLE;	/* set state to idle */
   if (DBGMSG)
    dbgmsg(D_XST,  mov->state);
  }

@@ -1,64 +1,4 @@
 
-// z control states
-
-enum Z_STATES
-{
- ZIDLE,                         /*  0 x00 idle */
- ZWAITBKLS,                     /*  1 x01 wait for backlash move complete */
- ZSTARTMOVE,                    /*  2 x02 start z move */
- ZWAITMOVE,                     /*  3 x03 wait for move complete */
- ZDELAY,                        /*  4 x04 wait for position to settle */
- ZDONE,                         /*  5 x05 clean up state */
-};
-
-#ifdef ENUM_Z_STATES
-
-const char *zStatesList[] = 
-{
- "ZIDLE",                       /*  0 x00 idle */
- "ZWAITBKLS",                   /*  1 x01 wait for backlash move complete */
- "ZSTARTMOVE",                  /*  2 x02 start z move */
- "ZWAITMOVE",                   /*  3 x03 wait for move complete */
- "ZDELAY",                      /*  4 x04 wait for position to settle */
- "ZDONE",                       /*  5 x05 clean up state */
-};
-
-#else
-
-extern const char *zStatesList[];
-
-#endif
-
-// x control states
-
-enum X_STATES
-{
- XIDLE,                         /*  0 x00 idle */
- XWAITBKLS,                     /*  1 x01 wait for backlash move complete */
- XSTARTMOVE,                    /*  2 x02 start x move */
- XWAITMOVE,                     /*  3 x03 wait for move complete */
- XDELAY,                        /*  4 x04 wait for position to settle */
- XDONE,                         /*  5 x05 clean up state */
-};
-
-#ifdef ENUM_X_STATES
-
-const char *xStatesList[] = 
-{
- "XIDLE",                       /*  0 x00 idle */
- "XWAITBKLS",                   /*  1 x01 wait for backlash move complete */
- "XSTARTMOVE",                  /*  2 x02 start x move */
- "XWAITMOVE",                   /*  3 x03 wait for move complete */
- "XDELAY",                      /*  4 x04 wait for position to settle */
- "XDONE",                       /*  5 x05 clean up state */
-};
-
-#else
-
-extern const char *xStatesList[];
-
-#endif
-
 // axis control states
 
 enum AXIS_STATES
@@ -238,11 +178,10 @@ extern const char *operationsList[];
 enum H_STATES
 {
  H_IDLE,                        /*  0 x00 idle state */
- H_CHECK_ONHOME,                /*  1 x01  */
- H_WAIT_FINDHOME,               /*  2 x02  */
- H_BACKOFF_HOME,                /*  3 x03  */
- H_WAIT_BACKOFF,                /*  4 x04  */
- H_WAIT_SLOWFIND,               /*  5 x05  */
+ H_HOME,                        /*  1 x01 found home switch */
+ H_OFF_HOME,                    /*  2 x02 off home switch */
+ H_BACKOFF,                     /*  3 x03 backoff dist from switch */
+ H_SLOW,                        /*  4 x04 found home slowly */
 };
 
 #ifdef ENUM_H_STATES
@@ -250,11 +189,10 @@ enum H_STATES
 const char *hStatesList[] = 
 {
  "H_IDLE",                      /*  0 x00 idle state */
- "H_CHECK_ONHOME",              /*  1 x01  */
- "H_WAIT_FINDHOME",             /*  2 x02  */
- "H_BACKOFF_HOME",              /*  3 x03  */
- "H_WAIT_BACKOFF",              /*  4 x04  */
- "H_WAIT_SLOWFIND",             /*  5 x05  */
+ "H_HOME",                      /*  1 x01 found home switch */
+ "H_OFF_HOME",                  /*  2 x02 off home switch */
+ "H_BACKOFF",                   /*  3 x03 backoff dist from switch */
+ "H_SLOW",                      /*  4 x04 found home slowly */
 };
 
 #else

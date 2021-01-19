@@ -484,6 +484,19 @@ int16_t mainLoop(void)
      printf("remcmd timeout expired\n");
     }
 
+    if (eStopIsSet())		/* if emergency stop */
+    {
+     if ((mvStatus & MV_ESTOP) != 0) /* if flag not set */
+     {
+      mvStatus |= MV_ESTOP;	/* set estop flag */
+      clearCmd();		/* stop everything */
+     }
+    }
+    else			/* if estop input clear */
+    {
+     mvStatus &= ~MV_ESTOP;	/* clear estop flag */
+    }
+
     procMove();			/* process move command */
 
     if (cfgFpga == 0)

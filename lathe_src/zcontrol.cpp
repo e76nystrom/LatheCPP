@@ -53,7 +53,7 @@ void zLoad(P_ACCEL ac)
 void zJMoveX(int dir)
 {
  P_MOVECTL mov = &zMoveCtl;
- if (mov->state == ZIDLE)	/* if not moving */
+ if (mov->state == AXIS_IDLE)	/* if not moving */
  {
   P_ACCEL ac = &zJA;		/* pointer to jog */
   float time = jogTimeInitial - ac->timeX; /* time after accel */
@@ -68,7 +68,7 @@ void zJMoveX(int dir)
 	 d, zLoc, mov->jogInc, mov->maxDist);
   zMoveRelX(d, CMD_JOG);	/* start movement */
  }
- else if (mov->state == ZWAITBKLS) /* if waiting for backlash */
+ else if (mov->state == AXIS_WAIT_BACKLASH) /* if waiting for backlash */
  {
  }
  else				/* if moving */
@@ -95,7 +95,7 @@ void zMoveRelX(int32_t dist, char cmd)
 {
  P_MOVECTL mov = &zMoveCtl;
 
- if (mov->state != ZIDLE)	/* if not in idle state */
+ if (mov->state != AXIS_IDLE)	/* if not in idle state */
   return;			/* exit now */
 
  mov->cmd = cmd;		/* save command */
@@ -104,17 +104,17 @@ void zMoveRelX(int32_t dist, char cmd)
   if (dist > 0)			/* if moving positive */
   {
    mov->dist = dist;		/* update distance */
-   mov->state = (mov->dir == DIR_NEG) ?  ZWAITBKLS : ZSTARTMOVE; /* dir chg ? */
+   mov->state = (mov->dir == DIR_NEG) ?  AXIS_WAIT_BACKLASH : AXIS_START_MOVE; /* dir chg ? */
    mov->dir = DIR_POS;		/* set to move positive direction */
   }
   else
   {
    mov->dist = -dist;		/* make distance a positive number */
-   mov->state = (mov->dir == DIR_POS) ?  ZWAITBKLS : ZSTARTMOVE; /* dir chg ? */
+   mov->state = (mov->dir == DIR_POS) ?  AXIS_WAIT_BACKLASH : AXIS_START_MOVE; /* dir chg ? */
    mov->dir = DIR_NEG;		/* set move direction to negative */
   }
 
-  if (mov->state == ZWAITBKLS)	/* if backlash move needed */
+  if (mov->state == AXIS_WAIT_BACKLASH)	/* if backlash move needed */
   {
    mov->wait = 1;		/* set wait flag */
    zLoad(&zMA);		/* load move parameters */
@@ -137,7 +137,7 @@ void zControlX(void)
  P_MOVECTL mov = &zMoveCtl;
 
  if (mov->stop)			/* if stop */
-  mov->state = ZDONE;		/* clean up in done state */
+  mov->state = AXIS_DONE;	/* clean up in done state */
 
  if (DBGMSG)
  {
@@ -150,21 +150,21 @@ void zControlX(void)
 
  switch(mov->state)		/* dispatch on state */
  {
- case ZIDLE:			/* 0 idle state */
+ case AXIS_IDLE:		/* 0 idle state */
   break;
 
- case ZWAITBKLS:		/* 1 wait for backlash move to complete */
+ case AXIS_WAIT_BACKLASH:	/* 1 wait for backlash move to complete */
  {
   if (mov->done)		/* if done */
   {
    mov->done = 0;		/* clear done flag */
    mov->wait = 0;		/* clear wait flag */
-   mov->state = ZSTARTMOVE;	/* advance to start move state */
+   mov->state = AXIS_START_MOVE; /* advance to start move state */
   }
  }
  break;
 
- case ZSTARTMOVE:		/* 2 start a z move */
+ case AXIS_START_MOVE:		/* 2 start a z move */
  {
   mov->ctlreg = ZSTART;		/* initialize control reg */
   char ch = mov->cmd & CMD_MSK;	/* get type of move */
@@ -184,7 +184,7 @@ void zControlX(void)
    else				/* else */
     zLoad(&zTA);		/* load turn parameters */
   }
-  if (mov->dir == DIR_POS)		/* if moving positive */
+  if (mov->dir == DIR_POS)	/* if moving positive */
    mov->ctlreg |= ZDIR_POS;	/* set direction flag */
   LOAD(XLDZDIST, mov->dist);	/* set distance to move */
   LOAD(XLDZCTL, mov->ctlreg);	/* start move */
@@ -192,21 +192,21 @@ void zControlX(void)
   if ((readval.i & S_Z_START) == 0)
    printf("z start not set\n");
   mov->wait = 1;		/* set wait flag */
-  mov->state = ZWAITMOVE;	/* wait for move to complete */
+  mov->state = AXIS_WAIT_MOVE;	/* wait for move to complete */
  }
  break;
 
- case ZWAITMOVE:		/* 3 wait for a z move to complete */
+ case AXIS_WAIT_MOVE:		/* 3 wait for a z move to complete */
  {
   if (mov->done)		/* if done */
   {
    mov->wait = 0;		/* clear wait flag */
-   mov->state = ZDONE;		/* clean up everything */
+   mov->state = AXIS_DONE;	/* clean up everything */
   }
  }
  break;
 
- case ZDONE:			/* 4 done state */
+ case AXIS_DONE:		/* 4 done state */
  default:			/* all others */
  {
   LOAD(XLDZCTL, 0);		/* stop move */
@@ -223,7 +223,7 @@ void zControlX(void)
   }
   if (DBGMSG)
    dbgmsg(D_ZLOC, mov->loc);
-  mov->state = ZIDLE;		/* set state to idle */
+  mov->state = AXIS_IDLE;	/* set state to idle */
   if (DBGMSG)
    dbgmsg(D_ZST, mov->state);
  }

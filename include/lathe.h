@@ -479,11 +479,13 @@ typedef struct s_homectl
  P_MOVECTL mov;
  int state;
  int prev;
+ int16_t setActive;
  int16_t clrActive;
  int16_t setHomed;
+ int16_t clrHomed;
  int *status;
- int *done;
  int findDist;
+ int findDistRev;
  int backoffDist;
  int slowDist;
  uint16_t (*homeIsSet) (void);
@@ -711,8 +713,7 @@ void zInfo(char flag);
 void zMove(int pos, int cmd);
 void zMoveRel(int pos, int cmd);
 void zControl(void);
-void zHomeAxis(void);
-void zHomeControl(void);
+void zHomeSetup(void);
 
 void xInit(P_AXIS ax);
 void xReset(void);
@@ -742,10 +743,10 @@ void xMove(int pos, int cmd);
 void xMoveDro(int pos, int cmd);
 void xMoveRel(int pos, int cmd);
 void xControl(void);
-void xHomeAxis(void);
-void xHomeControl(void);
+void xHomeSetup(void);
 
 void axisCtl(void);
+void homeAxis(P_HOMECTL home, int homeCmd);
 void homeControl(P_HOMECTL home);
 
 void runInit(void);

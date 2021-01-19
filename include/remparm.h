@@ -129,52 +129,52 @@ T_PARM remparm[] =
 
  PARM(zHomeSpeed),              /* 0x4f z final homing speed */
  PARM(zHomeDist),               /* 0x50 z max homing distance */
- PARM(zHomeBackoffDist),        /* 0x51 z home backoff dist */
- PARM(zHomeDir),                /* 0x52 z homing direction */
+ PARM(zHomeDistRev),            /* 0x51 z max reverse homing distance */
+ PARM(zHomeDistBackoff),        /* 0x52 z home backoff dist */
+ PARM(zHomeDir),                /* 0x53 z homing direction */
 
 // x home parameters
 
- PARM(xHomeSpeed),              /* 0x53 x final homing speed */
- PARM(xHomeDist),               /* 0x54 x max homing distance */
- PARM(xHomeBackoffDist),        /* 0x55 x home backoff dist */
- PARM(xHomeDir),                /* 0x56 x homing direction */
+ PARM(xHomeSpeed),              /* 0x54 x final homing speed */
+ PARM(xHomeDist),               /* 0x55 x max homing distance */
+ PARM(xHomeDistRev),            /* 0x56 x max reverse homing distance */
+ PARM(xHomeDistBackoff),        /* 0x57 x home backoff dist */
+ PARM(xHomeDir),                /* 0x58 x homing direction */
 
 // x home test parameters
 
- PARM(xHomeLoc),                /* 0x57 x home test location */
- PARM(xHomeStart),              /* 0x58 x start of home signal */
- PARM(xHomeEnd),                /* 0x59 x end of home signal */
+ PARM(xHomeLoc),                /* 0x59 x home test location */
+ PARM(xHomeStart),              /* 0x5a x start of home signal */
+ PARM(xHomeEnd),                /* 0x5b x end of home signal */
 
 // z dro
 
- PARM(zDroLoc),                 /* 0x5a z dro location */
- PARM(zDroOffset),              /* 0x5b z dro to zero */
- PARM(zDroCountInch),           /* 0x5c z dro scale */
- PARM(zDroFactor),              /* 0x5d x dro counts inch factored */
- PARM(zDroInvert),              /* 0x5e z dro invert */
- PARM(zUseDro),                 /* 0x5f z use dro for position */
- PARM(zDoneDelay),              /* 0x60 z done to read dro delay */
- PARM(zDroFinalDist),           /* 0x61 z final approach distance */
+ PARM(zDroLoc),                 /* 0x5c z dro location */
+ PARM(zDroOffset),              /* 0x5d z dro to zero */
+ PARM(zDroCountInch),           /* 0x5e z dro scale */
+ PARM(zDroFactor),              /* 0x5f x dro counts inch factored */
+ PARM(zDroInvert),              /* 0x60 z dro invert */
+ PARM(zUseDro),                 /* 0x61 z use dro for position */
+ PARM(zDoneDelay),              /* 0x62 z done to read dro delay */
+ PARM(zDroFinalDist),           /* 0x63 z final approach distance */
 
 // x dro
 
- PARM(xDroLoc),                 /* 0x62 x dro location */
- PARM(xDroOffset),              /* 0x63 x dro to zero */
- PARM(xDroCountInch),           /* 0x64 x dro scale */
- PARM(xDroFactor),              /* 0x65 x dro counts inch factored */
- PARM(xDroInvert),              /* 0x66 x dro invert */
- PARM(xUseDro),                 /* 0x67 x use dro for position */
- PARM(xDoneDelay),              /* 0x68 x done to read dro delay */
- PARM(xDroFinalDist),           /* 0x69 x final approach distance */
+ PARM(xDroLoc),                 /* 0x64 x dro location */
+ PARM(xDroOffset),              /* 0x65 x dro to zero */
+ PARM(xDroCountInch),           /* 0x66 x dro scale */
+ PARM(xDroFactor),              /* 0x67 x dro counts inch factored */
+ PARM(xDroInvert),              /* 0x68 x dro invert */
+ PARM(xUseDro),                 /* 0x69 x use dro for position */
+ PARM(xDoneDelay),              /* 0x6a x done to read dro delay */
+ PARM(xDroFinalDist),           /* 0x6b x final approach distance */
 
 // x home or probe status
 
- PARM(xHomeDone),               /* 0x6a x home done */
- PARM(xHomeStatus),             /* 0x6b x home status */
+ PARM(xHomeStatus),             /* 0x6c x home status */
 
 // Z home or probe status
 
- PARM(zHomeDone),               /* 0x6c z home done */
  PARM(zHomeStatus),             /* 0x6d z home status */
 
 // probe configuration

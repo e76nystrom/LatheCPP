@@ -127,52 +127,52 @@
 
  EXT float zHomeSpeed;          /* 0x4f z final homing speed */
  EXT float zHomeDist;           /* 0x50 z max homing distance */
- EXT float zHomeBackoffDist;    /* 0x51 z home backoff dist */
- EXT int zHomeDir;              /* 0x52 z homing direction */
+ EXT float zHomeDistRev;        /* 0x51 z max reverse homing distance */
+ EXT float zHomeDistBackoff;    /* 0x52 z home backoff dist */
+ EXT int zHomeDir;              /* 0x53 z homing direction */
 
 // x home parameters
 
- EXT float xHomeSpeed;          /* 0x53 x final homing speed */
- EXT float xHomeDist;           /* 0x54 x max homing distance */
- EXT float xHomeBackoffDist;    /* 0x55 x home backoff dist */
- EXT int xHomeDir;              /* 0x56 x homing direction */
+ EXT float xHomeSpeed;          /* 0x54 x final homing speed */
+ EXT float xHomeDist;           /* 0x55 x max homing distance */
+ EXT float xHomeDistRev;        /* 0x56 x max reverse homing distance */
+ EXT float xHomeDistBackoff;    /* 0x57 x home backoff dist */
+ EXT int xHomeDir;              /* 0x58 x homing direction */
 
 // x home test parameters
 
- EXT int xHomeLoc;              /* 0x57 x home test location */
- EXT int xHomeStart;            /* 0x58 x start of home signal */
- EXT int xHomeEnd;              /* 0x59 x end of home signal */
+ EXT int xHomeLoc;              /* 0x59 x home test location */
+ EXT int xHomeStart;            /* 0x5a x start of home signal */
+ EXT int xHomeEnd;              /* 0x5b x end of home signal */
 
 // z dro
 
- EXT int zDroLoc;               /* 0x5a z dro location */
- EXT int zDroOffset;            /* 0x5b z dro to zero */
- EXT int zDroCountInch;         /* 0x5c z dro scale */
- EXT int zDroFactor;            /* 0x5d x dro counts inch factored */
- EXT int zDroInvert;            /* 0x5e z dro invert */
- EXT char zUseDro;              /* 0x5f z use dro for position */
- EXT int zDoneDelay;            /* 0x60 z done to read dro delay */
- EXT int zDroFinalDist;         /* 0x61 z final approach distance */
+ EXT int zDroLoc;               /* 0x5c z dro location */
+ EXT int zDroOffset;            /* 0x5d z dro to zero */
+ EXT int zDroCountInch;         /* 0x5e z dro scale */
+ EXT int zDroFactor;            /* 0x5f x dro counts inch factored */
+ EXT int zDroInvert;            /* 0x60 z dro invert */
+ EXT char zUseDro;              /* 0x61 z use dro for position */
+ EXT int zDoneDelay;            /* 0x62 z done to read dro delay */
+ EXT int zDroFinalDist;         /* 0x63 z final approach distance */
 
 // x dro
 
- EXT int xDroLoc;               /* 0x62 x dro location */
- EXT int xDroOffset;            /* 0x63 x dro to zero */
- EXT int xDroCountInch;         /* 0x64 x dro scale */
- EXT int xDroFactor;            /* 0x65 x dro counts inch factored */
- EXT int xDroInvert;            /* 0x66 x dro invert */
- EXT char xUseDro;              /* 0x67 x use dro for position */
- EXT int xDoneDelay;            /* 0x68 x done to read dro delay */
- EXT int xDroFinalDist;         /* 0x69 x final approach distance */
+ EXT int xDroLoc;               /* 0x64 x dro location */
+ EXT int xDroOffset;            /* 0x65 x dro to zero */
+ EXT int xDroCountInch;         /* 0x66 x dro scale */
+ EXT int xDroFactor;            /* 0x67 x dro counts inch factored */
+ EXT int xDroInvert;            /* 0x68 x dro invert */
+ EXT char xUseDro;              /* 0x69 x use dro for position */
+ EXT int xDoneDelay;            /* 0x6a x done to read dro delay */
+ EXT int xDroFinalDist;         /* 0x6b x final approach distance */
 
 // x home or probe status
 
- EXT int xHomeDone;             /* 0x6a x home done */
- EXT int xHomeStatus;           /* 0x6b x home status */
+ EXT int xHomeStatus;           /* 0x6c x home status */
 
 // Z home or probe status
 
- EXT int zHomeDone;             /* 0x6c z home done */
  EXT int zHomeStatus;           /* 0x6d z home status */
 
 // probe configuration

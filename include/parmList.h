@@ -129,52 +129,52 @@ enum PARM
 
  Z_HOME_SPEED,                  /* 0x4f z final homing speed */
  Z_HOME_DIST,                   /* 0x50 z max homing distance */
- Z_HOME_BACKOFF_DIST,           /* 0x51 z home backoff dist */
- Z_HOME_DIR,                    /* 0x52 z homing direction */
+ Z_HOME_DIST_REV,               /* 0x51 z max reverse homing distance */
+ Z_HOME_DIST_BACKOFF,           /* 0x52 z home backoff dist */
+ Z_HOME_DIR,                    /* 0x53 z homing direction */
 
 // x home parameters
 
- X_HOME_SPEED,                  /* 0x53 x final homing speed */
- X_HOME_DIST,                   /* 0x54 x max homing distance */
- X_HOME_BACKOFF_DIST,           /* 0x55 x home backoff dist */
- X_HOME_DIR,                    /* 0x56 x homing direction */
+ X_HOME_SPEED,                  /* 0x54 x final homing speed */
+ X_HOME_DIST,                   /* 0x55 x max homing distance */
+ X_HOME_DIST_REV,               /* 0x56 x max reverse homing distance */
+ X_HOME_DIST_BACKOFF,           /* 0x57 x home backoff dist */
+ X_HOME_DIR,                    /* 0x58 x homing direction */
 
 // x home test parameters
 
- X_HOME_LOC,                    /* 0x57 x home test location */
- X_HOME_START,                  /* 0x58 x start of home signal */
- X_HOME_END,                    /* 0x59 x end of home signal */
+ X_HOME_LOC,                    /* 0x59 x home test location */
+ X_HOME_START,                  /* 0x5a x start of home signal */
+ X_HOME_END,                    /* 0x5b x end of home signal */
 
 // z dro
 
- Z_DRO_LOC,                     /* 0x5a z dro location */
- Z_DRO_OFFSET,                  /* 0x5b z dro to zero */
- Z_DRO_COUNT_INCH,              /* 0x5c z dro scale */
- Z_DRO_FACTOR,                  /* 0x5d x dro counts inch factored */
- Z_DRO_INVERT,                  /* 0x5e z dro invert */
- Z_USE_DRO,                     /* 0x5f z use dro for position */
- Z_DONE_DELAY,                  /* 0x60 z done to read dro delay */
- Z_DRO_FINAL_DIST,              /* 0x61 z final approach distance */
+ Z_DRO_LOC,                     /* 0x5c z dro location */
+ Z_DRO_OFFSET,                  /* 0x5d z dro to zero */
+ Z_DRO_COUNT_INCH,              /* 0x5e z dro scale */
+ Z_DRO_FACTOR,                  /* 0x5f x dro counts inch factored */
+ Z_DRO_INVERT,                  /* 0x60 z dro invert */
+ Z_USE_DRO,                     /* 0x61 z use dro for position */
+ Z_DONE_DELAY,                  /* 0x62 z done to read dro delay */
+ Z_DRO_FINAL_DIST,              /* 0x63 z final approach distance */
 
 // x dro
 
- X_DRO_LOC,                     /* 0x62 x dro location */
- X_DRO_OFFSET,                  /* 0x63 x dro to zero */
- X_DRO_COUNT_INCH,              /* 0x64 x dro scale */
- X_DRO_FACTOR,                  /* 0x65 x dro counts inch factored */
- X_DRO_INVERT,                  /* 0x66 x dro invert */
- X_USE_DRO,                     /* 0x67 x use dro for position */
- X_DONE_DELAY,                  /* 0x68 x done to read dro delay */
- X_DRO_FINAL_DIST,              /* 0x69 x final approach distance */
+ X_DRO_LOC,                     /* 0x64 x dro location */
+ X_DRO_OFFSET,                  /* 0x65 x dro to zero */
+ X_DRO_COUNT_INCH,              /* 0x66 x dro scale */
+ X_DRO_FACTOR,                  /* 0x67 x dro counts inch factored */
+ X_DRO_INVERT,                  /* 0x68 x dro invert */
+ X_USE_DRO,                     /* 0x69 x use dro for position */
+ X_DONE_DELAY,                  /* 0x6a x done to read dro delay */
+ X_DRO_FINAL_DIST,              /* 0x6b x final approach distance */
 
 // x home or probe status
 
- X_HOME_DONE,                   /* 0x6a x home done */
- X_HOME_STATUS,                 /* 0x6b x home status */
+ X_HOME_STATUS,                 /* 0x6c x home status */
 
 // Z home or probe status
 
- Z_HOME_DONE,                   /* 0x6c z home done */
  Z_HOME_STATUS,                 /* 0x6d z home status */
 
 // probe configuration

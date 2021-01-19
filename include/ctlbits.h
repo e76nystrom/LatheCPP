@@ -57,6 +57,11 @@
 #define PROBE_SET    (1 << 2)    /* 0x04  */
 #define PROBE_CLR    (1 << 3)    /* 0x08  */
 
+// home direction
+
+#define HOME_FWD     0           /* 0x00  */
+#define HOME_REV     1           /* 0x01  */
+
 // home status
 
 #define HOME_ACTIVE  0           /* 0x00  */
@@ -81,6 +86,7 @@
 #define MV_ZHOME_ACTIVE (1 << 8) /* 0x100 z home active */
 #define MV_ZHOME     (1 << 9)    /* 0x200 z home success */
 #define MV_MEASURE   (1 << 10)   /* 0x400 pause for measurement */
+#define MV_ESTOP     (1 << 11)   /* 0x800 estop */
 
 // pause flags
 
