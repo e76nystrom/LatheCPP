@@ -40,6 +40,7 @@
 
 #define indexISR(x) EXTI0_IRQHandler(x)
 #define indexIRQn EXTI0_IRQn
+#define INDEX_PIN Index_Pin
 
 #define encISR(x) EXTI1_IRQHandler(x)
 #define encIRQn EXTI1_IRQn
