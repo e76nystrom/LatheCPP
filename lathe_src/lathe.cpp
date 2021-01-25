@@ -695,6 +695,7 @@ void wdUpdate(void);
 void pauseCmd(void);
 void resumeCmd(void);
 void stopCmd(void);
+void doneCmd(void);
 void measureCmd(void);
 void clearCmd(void);
 
@@ -1012,12 +1013,18 @@ void stopCmd(void)
  xMoveCtl.stop = 1;
  zMoveCtl.stop = 1;
  cmdPause = 0;
- mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE);
+ mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_DONE |
+	       MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE);
  xHomeCtl.state = H_IDLE;
  zHomeCtl.state = H_IDLE;
 #if WIN32
  fflush(stdout);
 #endif
+}
+
+void doneCmd(void)
+{
+ mvStatus &= ~MV_DONE;
 }
 
 void measureCmd(void)
@@ -1132,7 +1139,8 @@ void clearAll(void)
 
  cmdPause = 0;
  jogPause = 0;
- mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE | MV_MEASURE);
+ mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_DONE |
+	       MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE | MV_MEASURE);
 
  currentPass = 0;
  totalPasses = 0;
@@ -5360,6 +5368,7 @@ void procMove(void)
     if (cmd->iVal == PARM_START)
     {
      mv->start = uwTick;
+     mvStatus &= ~MV_DONE;
      mvStatus |= MV_ACTIVE;
      jogPause = DISABLE_JOG;
     }
@@ -5367,6 +5376,7 @@ void procMove(void)
     {
      mv->start = 0;
      mvStatus &= ~MV_ACTIVE;
+     mvStatus |= MV_DONE;
      jogPause = 0;
      if (capTmrEnable || encoderDirect)
      {

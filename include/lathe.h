@@ -638,6 +638,7 @@ void wdUpdate(void);
 void pauseCmd(void);
 void resumeCmd(void);
 void stopCmd(void);
+void doneCmd(void);
 void measureCmd(void);
 void clearCmd(void);
 

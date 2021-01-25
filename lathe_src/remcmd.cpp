@@ -266,6 +266,10 @@ void remcmd(void)
   stopCmd();
  break;
 
+ case CMD_DONE:
+  doneCmd();
+ break;
+
  case CMD_MEASURE:
   measureCmd();
  break;

@@ -35,46 +35,47 @@ enum COMMANDS
  CMD_PAUSE,                     /* 0x14 pause current operation */
  CMD_RESUME,                    /* 0x15 resume current operation */
  CMD_STOP,                      /* 0x16 stop current operation */
- CMD_MEASURE,                   /* 0x17 stop at end of current pass */
+ CMD_DONE,                      /* 0x17 done current operation */
+ CMD_MEASURE,                   /* 0x18 stop at end of current pass */
 
 // setup operations
 
- CMD_CLEAR,                     /* 0x18 clear all tables */
- CMD_SETUP,                     /* 0x19 setup everything */
- CMD_SPSETUP,                   /* 0x1a setup spindle */
- CMD_SYNCSETUP,                 /* 0x1b setup z and x axis synchronization */
- CMD_ZSETUP,                    /* 0x1c setup z axis */
- CMD_ZSYNSETUP,                 /* 0x1d setup z axis sync */
- CMD_XSETUP,                    /* 0x1e setup x axis */
- CMD_XSYNSETUP,                 /* 0x1f setup z axis sync */
+ CMD_CLEAR,                     /* 0x19 clear all tables */
+ CMD_SETUP,                     /* 0x1a setup everything */
+ CMD_SPSETUP,                   /* 0x1b setup spindle */
+ CMD_SYNCSETUP,                 /* 0x1c setup z and x axis synchronization */
+ CMD_ZSETUP,                    /* 0x1d setup z axis */
+ CMD_ZSYNSETUP,                 /* 0x1e setup z axis sync */
+ CMD_XSETUP,                    /* 0x1f setup x axis */
+ CMD_XSYNSETUP,                 /* 0x20 setup z axis sync */
 
 // state information
 
- READSTAT,                      /* 0x20 read status */
- READISTATE,                    /* 0x21 read states of state machines */
+ READSTAT,                      /* 0x21 read status */
+ READISTATE,                    /* 0x22 read states of state machines */
 
 // load processor and xilinx parameters
 
- LOADVAL,                       /* 0x22 load parameters */
- LOADMULTI,                     /* 0x23 load multiple parameters */
- READVAL,                       /* 0x24 read parameters */
- LOADXREG,                      /* 0x25 load xilinx registers */
- READXREG,                      /* 0x26 read xilinx registers */
+ LOADVAL,                       /* 0x23 load parameters */
+ LOADMULTI,                     /* 0x24 load multiple parameters */
+ READVAL,                       /* 0x25 read parameters */
+ LOADXREG,                      /* 0x26 load xilinx registers */
+ READXREG,                      /* 0x27 read xilinx registers */
 
 // move command operations
 
- CLEARQUE,                      /* 0x27 clear move que */
- QUEMOVE,                       /* 0x28 que move command */
- MOVEQUESTATUS,                 /* 0x29 read move queue status */
+ CLEARQUE,                      /* 0x28 clear move que */
+ QUEMOVE,                       /* 0x29 que move command */
+ MOVEQUESTATUS,                 /* 0x2a read move queue status */
 
 // location and debug info
 
- READALL,                       /* 0x2a read all status info */
- READDBG,                       /* 0x2b read debug message */
- CLRDBG,                        /* 0x2c clear debug message buffer */
+ READALL,                       /* 0x2b read all status info */
+ READDBG,                       /* 0x2c read debug message */
+ CLRDBG,                        /* 0x2d clear debug message buffer */
 
 // encoder commands
 
- ENCSTART,                      /* 0x2d encoder start */
- ENCSTOP,                       /* 0x2e encoder stop */
+ ENCSTART,                      /* 0x2e encoder start */
+ ENCSTOP,                       /* 0x2f encoder stop */
 };
