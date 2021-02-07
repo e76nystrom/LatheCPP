@@ -3717,7 +3717,6 @@ void zHomeSetup(void)
  P_HOMECTL home = &zHomeCtl;
  home->mov = &zMoveCtl;
  home->status = &zHomeStatus;
- //home->done = &zHomeDone;
  home->homeIsSet = zAHomeIsSet;
  home->homeIsClr = zAHomeIsClr;
 
@@ -4593,6 +4592,12 @@ void homeAxis(P_HOMECTL home, int homeCmd)
     flag = CMD_JOG | CLEAR_HOME;
     home->state = H_OFF_HOME; /* move off home switch */
    }
+  }
+  if (DBG_SETUP)
+  {
+   P_AXIS = mov-axis;
+   printf("homeAxis %c dist %7.4f flag %02x\n", axis->axis,
+	  ((float) dist) / axis->stepsInch, flag);
   }
   mov->moveRel(dist, flag);
   mvStatus &= home->clrHomed;	/* set not homed */
