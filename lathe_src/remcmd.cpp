@@ -242,16 +242,20 @@ void remcmd(void)
   spindleStart();
  break;
 
+ case SPINDLE_STOP:
+  spindleStop();
+ break;
+
+ case SPINDLE_UPDATE:
+  spindleUpdate();
+ break;
+
  case SPINDLE_JOG:
   spindleJog();
  break;
 
  case SPINDLE_JOG_SPEED:
   spindleJogSpeed();
- break;
-
- case SPINDLE_STOP:
-  spindleStop();
  break;
 
  case CMD_PAUSE:

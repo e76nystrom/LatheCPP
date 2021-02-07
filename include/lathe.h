@@ -651,12 +651,14 @@ void spIsrStop(void);
 void clearAll(void);
 void setup(void);
 
+void setSpindleSpeed(int rpm);	/* set spindle speed */
 void spindleSetup(int rpm);
 void spindleInit(P_SPINDLE spa, int dist, int dir); /* init spindle */
 void spindleStart(void);	/* start spindle */
+void spindleStop(void);		/* stop spindle */
+void spindleUpdate(void);	/* update spindle speed */
 void spindleJog(void);		/* spindle jog */
 void spindleJogSpeed(void);	/* spindle jog at speed */
-void spindleStop(void);		/* stop spindle */
 float stepTime(float cFactor, int step);
 void spindleAccelCalc(P_SPINDLE sp); /* calculate spindle acceleration */
 void spindleSpeedCalc(float finalRPM);

@@ -708,12 +708,14 @@ void spIsrStop(void);
 void clearAll(void);
 void setup(void);
 
+void setSpindleSpeed(int rpm);	/* set spindle speed */
 void spindleSetup(int rpm);
 void spindleInit(P_SPINDLE spa, int dist, int dir); /* init spindle */
 void spindleStart(void);	/* start spindle */
+void spindleStop(void);		/* stop spindle */
+void spindleUpdate(void);	/* update spindle speed */
 void spindleJog(void);		/* spindle jog */
 void spindleJogSpeed(void);	/* spindle jog at speed */
-void spindleStop(void);		/* stop spindle */
 float stepTime(float cFactor, int step);
 void spindleAccelCalc(P_SPINDLE sp); /* calculate spindle acceleration */
 void spindleSpeedCalc(float finalRPM);
@@ -1307,6 +1309,43 @@ void allStop(void)
  dbg10Clr();
 }
 
+void setSpindleSpeed(int rpm)
+{
+ if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
+ { 
+  constexpr int MAX_COUNT = 65536;
+
+  int cnt = cfgFcy / pwmFreq;
+  int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
+  cnt /= preScale;
+  int pwmTmrVal = cnt;
+  cnt -= 1;
+    
+  int pwm = (rpm * pwmTmrVal) / maxSpeed;
+
+  if (DBG_SETUP)
+  {
+   printf("pwmFreq %d preScale %d cnt %d\n", pwmFreq, preScale, pwmTmrVal);
+   printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
+  }
+
+  pwmTmrInit();
+  pwmTmrScl(preScale - 1);
+  pwmTmrCntClr();
+  pwmTmrSet(cnt);
+  pwmTmrStart();
+  pwmTmrCCR(pwm - 1);
+  pwmTmrPWMMode();
+ }
+ else			/* if pwm and idx timers the same */
+ {
+  int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
+    
+  pwmTmrCCR(pwm - 1);
+  pwmTmrPWMMode();
+ }
+}
+
 void spindleSetup(int rpm)
 {
  if (DBG_SETUP)
@@ -1314,67 +1353,16 @@ void spindleSetup(int rpm)
   printf("\nspindleSetup %d\n", rpm);
  }
 
+ spRpm = rpm;			/* save rpm */
  if (cfgVarSpeed)		/* spindle driven with variable speed motor */
  {
-  if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
-  { 
-   constexpr int MAX_COUNT = 65536;
-
-   int cnt = cfgFcy / pwmFreq;
-   int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
-   cnt /= preScale;
-   int pwmTmrVal = cnt;
-   cnt -= 1;
-    
-   int pwm = (rpm * pwmTmrVal) / maxSpeed;
-
-   if (DBG_SETUP)
-   {
-    printf("pwmFreq %d preScale %d cnt %d\n", pwmFreq, preScale, pwmTmrVal);
-    printf("rpm %d maxSpeed %d pwm %d\n", rpm, maxSpeed, pwm);
-   }
-
-   pwmTmrInit();
-   pwmTmrScl(preScale - 1);
-   pwmTmrCntClr();
-   pwmTmrSet(cnt);
-   pwmTmrStart();
-   pwmTmrCCR(pwm - 1);
-   pwmTmrPWMMode();
-  }
-  else			/* if pwm and idx timers the same */
-  {
-   int pwm = (uint16_t) ((rpm * indexTmrCount) / maxSpeed);
-    
-   pwmTmrCCR(pwm - 1);
-   pwmTmrPWMMode();
-  }
+  setSpindleSpeed(rpm);		/* set spindle speed */
  }
    
  if (sp.active == 0)		/* if spindle not active */
  {
   P_SPINDLE spa = &spA;
   GPIO_InitTypeDef gpio;
-
-#ifdef Index_Pin
-  if (spTestIndex)		/* if testing index pulse */
-  {
-   gpio.Pin = Index_Pin;
-   gpio.Mode = GPIO_MODE_INPUT;	/* configure as input */
-   gpio.Pull = GPIO_NOPULL;
-   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
-  }
-  else				/* if normal operation */
-  {
-   gpio.Pin = Index_Pin;
-   gpio.Mode = GPIO_MODE_IT_RISING; /* configure for interrupt */
-   gpio.Pull = GPIO_NOPULL;
-   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
-  }
-
-  HAL_NVIC_EnableIRQ(indexIRQn); /* enable index 2 interrupt */
-  EXTI->PR = Index_Pin;
-#endif
 
 #ifdef Index_Pin
   if (spTestIndex)		/* if testing index pulse */
@@ -1575,6 +1563,53 @@ void spindleStart()
   if (cfgVarSpeed)		/* if var speed */
   {
    pwmTmrPWMEna();		/* start pwm */
+  }
+ }
+}
+
+void spindleUpdate(void)
+{
+ if (DBG_SETUP)
+  printf("\nspindle update\n");
+
+ if (stepperDrive)		/* if stepper drive */
+ {
+ }
+ else				/* if not stepper drive */
+ {
+  if (cfgVarSpeed)		/* if variable speed */
+  {
+   setSpindleSpeed(spRpm);	/* set spindle speed */
+  }
+ }
+}
+
+void spindleStop(void)
+{
+ if (DBG_SETUP)
+  printf("\nspindle stop\n");
+
+ if (stepperDrive)
+ {
+  sp.accel = 0;			/* clear acceleration flag */
+  sp.decel = 1;			/* set deceleration flag to stop */
+  dbgSpStopSet();
+  syncStop();
+ }
+ else
+ {
+  if (cfgSwitch)		/* if switched spindle */
+  {
+   spFwdClr();
+   spRevClr();
+  }
+  if (cfgVarSpeed)		/* if variable speed */
+  {
+   if constexpr (PWM_TIMER != USEC_TIMER)
+   { 
+    pwmTmrStop();		/* stop timer */
+   }
+   pwmTmrPWMDis();		/* disable pwm */
   }
  }
 }
@@ -1944,36 +1979,6 @@ void spindleSpeedCalc(float finalRPM)
  if (DBG_P)
   printf("initialStep %d accelStep %d finalStep %d\n",
 	 s->initialStep, s->accelStep, s->finalStep);
-}
-
-void spindleStop(void)
-{
- if (DBG_SETUP)
-  printf("\nspindle stop\n");
-
- if (stepperDrive)
- {
-  sp.accel = 0;			/* clear acceleration flag */
-  sp.decel = 1;			/* set deceleration flag to stop */
-  dbgSpStopSet();
-  syncStop();
- }
- else
- {
-  if (cfgSwitch)		/* if switched spindle */
-  {
-   spFwdClr();
-   spRevClr();
-  }
-  if (cfgVarSpeed)		/* if variable speed */
-  {
-   if constexpr (PWM_TIMER != USEC_TIMER)
-   { 
-    pwmTmrStop();		/* stop timer */
-   }
-   pwmTmrPWMDis();		/* disable pwm */
-  }
- }
 }
 
 float stepTime(float cFactor, int step)
