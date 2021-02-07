@@ -4608,7 +4608,7 @@ void homeAxis(P_HOMECTL home, int homeCmd)
   }
   if (DBG_SETUP)
   {
-   P_AXIS = mov-axis;
+   P_AXIS axis = mov->axis;
    printf("homeAxis %c dist %7.4f flag %02x\n", axis->axis,
 	  ((float) dist) / axis->stepsInch, flag);
   }
