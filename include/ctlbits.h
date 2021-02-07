@@ -79,14 +79,15 @@
 #define MV_READ_X    (1 << 1)    /* 0x02 pause x may change */
 #define MV_READ_Z    (1 << 2)    /* 0x04 pause z may change */
 #define MV_ACTIVE    (1 << 3)    /* 0x08 movement active */
-#define MV_XLIMIT    (1 << 4)    /* 0x10 at limit switch */
-#define MV_ZLIMIT    (1 << 5)    /* 0x20 at limit switch */
-#define MV_XHOME_ACTIVE (1 << 6) /* 0x40 x home active */
-#define MV_XHOME     (1 << 7)    /* 0x80 x home success */
-#define MV_ZHOME_ACTIVE (1 << 8) /* 0x100 z home active */
-#define MV_ZHOME     (1 << 9)    /* 0x200 z home success */
-#define MV_MEASURE   (1 << 10)   /* 0x400 pause for measurement */
-#define MV_ESTOP     (1 << 11)   /* 0x800 estop */
+#define MV_DONE      (1 << 4)    /* 0x10 movement active */
+#define MV_XLIMIT    (1 << 5)    /* 0x20 at limit switch */
+#define MV_ZLIMIT    (1 << 6)    /* 0x40 at limit switch */
+#define MV_XHOME_ACTIVE (1 << 7) /* 0x80 x home active */
+#define MV_XHOME     (1 << 8)    /* 0x100 x home success */
+#define MV_ZHOME_ACTIVE (1 << 9) /* 0x200 z home active */
+#define MV_ZHOME     (1 << 10)   /* 0x400 z home success */
+#define MV_MEASURE   (1 << 11)   /* 0x800 pause for measurement */
+#define MV_ESTOP     (1 << 12)   /* 0x1000 estop */
 
 // pause flags
 
