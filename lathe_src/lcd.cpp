@@ -25,18 +25,29 @@
 #include "lcd.h"
 #undef EXT
 
-#if defined(STM32MON)
+#if defined(ARDUINO_ARCH_STM32)
 
 #undef EXT
 #define EXT extern
 #include "current.h"
 
-#else  /* STM32MON */
+#define SLAVE_ADDRESS 0x3f
+#include "cyclectr.h"
+
+#else  /* ARDUINO_ARCH_STM32 */
+
+#if defined(STM32MON)
+
+#define SLAVE_ADDRESS 0x3f
+#include "cyclectr.h"
+
+#else
 
 #include "lathe.h"
 
 #endif	/* STM32MON */
-//#endif
+
+#endif	/* ARDUINO_ARCH_STM32 */
 
 #if defined(__LCD_INC__)	// <-
 

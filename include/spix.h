@@ -4,6 +4,10 @@
 #define EXT extern
 #endif
 
+#if defined(STM32MON) || defined(ARDUINO)
+#define SPIn SPI2
+#endif	/* ARDUINO */
+
 typedef union
 {
  char  ub[2];			/* char array */
@@ -17,14 +21,14 @@ typedef union
 } byte_long;
 
 #if 1
-#define LOAD(a,b) load(a, (int32_t) b)
+#define LOAD(a, b) load(a, (int32_t) b)
 #else
-#define LOAD(a,b) load(a, (byte_long) ((int32_t) b))
+#define LOAD(a, b) load(a, (byte_long) ((int32_t) b))
 #endif
 
 #ifdef __cplusplus
-inline void spisel(void);
-inline void spirel(void);
+void spisel(void);
+void spirel(void);
 #endif
 
 #if 1
@@ -32,29 +36,30 @@ void load(char addr, int32_t val);
 #else
 void load(char addr, byte_long val);
 #endif
+
 void loadb(char addr, char val);
+
+#if defined(STM32MON) || defined(ARDUINO)
+char readb(char addr);
+int read16(char addr);
+int read24(char addr);
+#else
 void read1(char addr);
 void read(char addr);
+#endif
+
 unsigned char spisend(unsigned char);
 unsigned char spiread(void);
 
+#if defined(STM32MON) || defined(ARDUINO)
+#else
 EXT byte_long readval;
+#endif
+
 EXT int16_t spiw0;
 EXT int16_t spiw1;
 
 #ifdef __cplusplus
-
-inline void spisel()
-{
- SPIn->CR1 |= SPI_CR1_SPE;
- SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
-}
-
-inline void spirel()
-{
-  SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
-  SPIn->CR1 &= ~SPI_CR1_SPE;
-}
 
 #else
 
