@@ -11,6 +11,7 @@
 #endif
 
 #include "lathe.h"
+#include "stm32Info.h"
 
 #include "Xilinx.h"
 #include "serialio.h"

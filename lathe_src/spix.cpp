@@ -142,6 +142,7 @@ void spirel(void)
 #endif
 // while ((SPIn->SR & SPI_SR_RXNE) == 0) /* wait for receive done */
 //  ;
+#if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
  while ((SPIn->SR & SPI_SR_TXE) == 0) /* wait for transmit done */
   ;
  while ((SPIn->SR & SPI_SR_BSY) != 0) /* wait for not busy */
@@ -149,6 +150,11 @@ void spirel(void)
   if ((SPIn->SR & SPI_SR_RXNE) != 0)
    spiRelTmp = SPIn->DR;
  }
+#endif
+#if defined(STM32H7)
+ while ((SPIn->SR & SPI_SR_EOT) == 0) /* wait for end of transfer*/
+  ;
+#endif
 #if defined(CYCLE_CTR)
  //uint32_t t = getCycles() - start;
 #endif

@@ -10,5 +10,6 @@
 ./inc.py lathe_src/remcmd.cpp include/remcmd.h
 ./inc.py lathe_src/serialio.cpp include/serialio.h
 ./inc.py lathe_src/spix.cpp include/spix.h
+./inc.py lathe_src/stm32Info.cpp include/stm32Info.h
 ./inc.py lathe_src/xcontrol.cpp include/xcontrol.h
 ./inc.py lathe_src/zcontrol.cpp include/zcontrol.h

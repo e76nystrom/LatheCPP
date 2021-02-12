@@ -11,6 +11,7 @@
 
 #include "main.h"
 #include "lathe.h"
+#include "stm32Info.h"
 
 #include "serialio.h"
 #include "lclcmd.h"

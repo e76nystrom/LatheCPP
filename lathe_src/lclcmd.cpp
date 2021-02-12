@@ -23,6 +23,7 @@
 #endif
 
 #define EXT
+#include "stm32Info.h"
 #include "lclcmd.h"
 //#endif
 
@@ -51,7 +52,7 @@ void zCommand(void);
 void xCommand(void);
 void pinDisplay(void);
 
-uint32_t lastFlags;
+//uint32_t lastFlags;
 
 #if 0
 void readreg(char addr, char *str)
@@ -580,6 +581,7 @@ void lclcmd(int ch)
    lastCount = count;
   }
  }
+#if 0
  else if (ch == 'Q')		/* print peripheral info */
  {
   if (query(&getnum, " flag [0x%x]: ", lastFlags) == 0)
@@ -690,9 +692,13 @@ void lclcmd(int ch)
    rccInfo();
   }
  }
+#else
+ else if (ch == 'Q')
+  info();
+#endif
 
 #if DBGMSG
- if (ch == 'D')			/* dump dbg buffer */
+ else if (ch == 'D')		/* dump dbg buffer */
  {
   newline();
   int empty = dbgemp;

@@ -53,6 +53,7 @@
 
 #define EXT
 #include "lathe.h"
+#include "stm32Info.h"
 //#endif
 
 #if defined(__LATHE_INC__)		// <-
@@ -657,6 +658,7 @@ EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
 EXT int lcdRow;
 EXT int lcdActive;
 
+#if 0
 typedef struct
 {
  union
@@ -672,6 +674,7 @@ typedef struct
   };
  };
 } T_PIN_NAME;
+#endif
 
 #if DBGTRK
 
@@ -843,6 +846,7 @@ void TIM8_Init(void);
 
 void enaDbgPins(int flag);
 
+#if 0
 T_PIN_NAME pinName(char *buf, GPIO_TypeDef *port, int pin);
 char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo);
 void gpioInfo(GPIO_TypeDef *gpio);
@@ -851,6 +855,7 @@ void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
 void rccInfo(void);
+#endif
 
 void testOutputs(int inputTest);
 void pinDisplay(void);
@@ -6562,6 +6567,8 @@ void enaDbgPins(int flag)
 
 #endif
 
+#if 0
+
 typedef struct
 {
  GPIO_TypeDef *port;
@@ -7056,6 +7063,8 @@ void rccInfo(void)
  printf("APB4LPENR  %8x\n", (unsigned int) RCC->APB4LPENR);
  #endif
 }
+
+#endif
 
 typedef struct
 {
