@@ -600,24 +600,6 @@ EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
 EXT int lcdRow;
 EXT int lcdActive;
 
-#if 0
-typedef struct
-{
- union
- {
-  struct
-  {
-   char port;
-   char num;
-  };
-  struct
-  {
-   uint16_t pinName;
-  };
- };
-} T_PIN_NAME;
-#endif
-
 #if DBGTRK
 
 #define TRKBUFSIZE (4*64)
