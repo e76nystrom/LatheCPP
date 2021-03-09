@@ -29,7 +29,7 @@
 
 #undef EXT
 #define EXT extern
-#include "current.h"
+#include "monitorSTM32.h"
 
 #define SLAVE_ADDRESS 0x3f
 #include "cyclectr.h"
@@ -41,7 +41,7 @@
 #define SLAVE_ADDRESS 0x3f
 #include "cyclectr.h"
 
-#else
+#else  /* STM32MON */
 
 #include "lathe.h"
 

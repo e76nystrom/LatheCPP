@@ -57,13 +57,18 @@ void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
 void rccInfo(void);
+void pwrInfo(void);
 void adcInfo(ADC_TypeDef *adc, char n);
+void bkpInfo(void);
+void afioInfo(void);
+void rtcInfo(void);
 #if defined(STM32F1)
 void dmaInfo(DMA_TypeDef *dma);
 void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n);
 #endif
 
 void info(void);
+void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
 
 #endif	// ->
 #ifdef __STM32INFO__
@@ -430,7 +435,7 @@ void tmrInfo(TIM_TypeDef *tmr)
 #if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
  printf("OR    %8x\n",(unsigned int) tmr->OR);
 #endif
-#if defined(STM32H7)
+#if defined(STM32F1) ||  defined(STM32H7)
  newline();
 #endif
  flushBuf();
@@ -891,6 +896,13 @@ void rtcInfo(void)
 #endif
 }
 
+void pwrInfo(void)
+{
+ printf("PWR %x\n", (unsigned int) PWR);
+ printf("CR        %8x ",  (unsigned int) PWR->CR);
+ printf("CSR       %8x\n", (unsigned int) PWR->CSR);
+}
+
 #if defined(ARDUINO_ARCH_STM32)
 
 extern unsigned char getNum();
@@ -920,7 +932,7 @@ void info()
  {
   lastFlags = val;
  }
- printf("\n");
+ newline();
  flushBuf();
  if (val & 0x01)
   tmrInfo(TIM1);
@@ -1026,6 +1038,30 @@ void info()
  if (val & 0x400000)
   i2cInfo(I2C1, "I2C1");
 #endif
+
+ if (val & 0x800000)
+ {
+  adcInfo(ADC1, '1');
+  newline();
+  adcInfo(ADC2, '2');
+ }
+ if (val & 0x1000000)
+ {
+  rtcInfo();
+ }
+ if (val & 0x2000000)
+ {
+  pwrInfo();
+  newline();
+  bkpInfo();
+  newline();
+  afioInfo();
+ }
+}
+
+void bitState(const char *s, volatile uint32_t *p, uint32_t mask)
+{
+ printf("%s %c\n", s, ((*p & mask) == 0) ? '0' : '1');
 }
 
 #endif	/* __STM32INFO */

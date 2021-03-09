@@ -28,7 +28,6 @@
 
 #if defined(STM32MON)
 
-#include "current.h"
 unsigned int millis(void);
 #define SLAVE_ADDRESS 0x3f
 
@@ -90,7 +89,7 @@ enum I2C_STATUS
 };
 
 #define I2C_BUF_SIZE 256
-#define I2C_TIMEOUT 500U
+#define I2CX_TIMEOUT 500U
 
 typedef struct
 {
@@ -408,7 +407,7 @@ void i2cPutString(uint8_t *p, int size)
 void i2cSend(void)
 {
  P_I2C_CTL i2c = &i2cCtl;
- i2c->timeout = I2C_TIMEOUT;
+ i2c->timeout = I2CX_TIMEOUT;
  i2c->startTime = millis();
  i2c->state = I_WAIT_START;
  i2c->status = IS_BUSY;

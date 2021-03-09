@@ -34,7 +34,7 @@ enum I2C_STATUS
 };
 
 #define I2C_BUF_SIZE 256
-#define I2C_TIMEOUT 500U
+#define I2CX_TIMEOUT 500U
 
 typedef struct
 {
