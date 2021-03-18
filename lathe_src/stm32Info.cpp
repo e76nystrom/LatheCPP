@@ -22,8 +22,8 @@
 #if defined(ARDUINO_ARCH_STM32)
 #include "monitorSTM32.h"
 #define flushBuf flush
+#define newline newLine
 #else
-#include "config.h"
 #include "serialio.h"
 #define getNum getnum
 #endif	/* ARDUINO_ARCH_AVR */
@@ -69,6 +69,10 @@ void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n);
 
 void info(void);
 void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
+
+#if defined(ARDUINO_ARCH_STM32)
+char query(unsigned char (*get)(), const char *format, ...);
+#endif	/* ARDUINO_ARCH_STM32 */
 
 #endif	// ->
 #ifdef __STM32INFO__
