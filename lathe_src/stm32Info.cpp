@@ -24,6 +24,7 @@
 #define flushBuf flush
 #define newline newLine
 #else
+#include "config.h"
 #include "serialio.h"
 #define getNum getnum
 #endif	/* ARDUINO_ARCH_AVR */
