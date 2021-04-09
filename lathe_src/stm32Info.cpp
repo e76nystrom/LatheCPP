@@ -904,8 +904,21 @@ void rtcInfo(void)
 void pwrInfo(void)
 {
  printf("PWR %x\n", (unsigned int) PWR);
+#if defined(STM32F1) || defined(STM32F4)
  printf("CR        %8x ",  (unsigned int) PWR->CR);
  printf("CSR       %8x\n", (unsigned int) PWR->CSR);
+#endif /* STM32F1 || STM32F4 */
+#if defined(STM32H7)
+ printf("CR1        %8x ",  (unsigned int) PWR->CR1);
+ printf("CSR1       %8x\n", (unsigned int) PWR->CSR1);
+ printf("CR2        %8x ",  (unsigned int) PWR->CR2);
+ printf("CR3        %8x\n", (unsigned int) PWR->CR3);
+ printf("CPUCR2     %8x ",  (unsigned int) PWR->CPUCR);
+ printf("D3CR       %8x\n", (unsigned int) PWR->D3CR);
+ printf("WKUPCR     %8x ",  (unsigned int) PWR->WKUPCR);
+ printf("WKUPFR     %8x\n", (unsigned int) PWR->WKUPFR);
+ printf("WKUPEPR    %8x\n", (unsigned int) PWR->WKUPEPR);
+#endif /* STM32F7 */
 }
 
 #if defined(ARDUINO_ARCH_STM32)

@@ -122,3 +122,21 @@
 
 #define Z_ENCODER_DIRECT (1 << 0) /* 0x01 z sync directly from encoder */
 #define X_ENCODER_DIRECT (1 << 1) /* 0x02 x sync directly from encoder */
+
+// point by point movement commands
+
+#define PCMD_INCX_HLDZ_S1 (0 << 0) /* 0x00 step x hold z then step 1 */
+#define PCMD_INCX_HLDZ_SN (1 << 0) /* 0x01 step x hold z 1 then step z */
+#define PCMD_HLDX_S1_INCZ (2 << 0) /* 0x02 step x hold z then step 1 */
+#define PCMD_HLDX_SN_INCZ (3 << 0) /* 0x03 hold x 1 then step x increment z */
+#define PCMD_INCX2_INCZ (4 << 0) /* 0x04 step x 2 step z */
+#define PCMD_SPARE_0 (5 << 0)    /* 0x05 spare 0 */
+#define PCMD_SPARE_1 (6 << 0)    /* 0x06 spare 1 */
+#define PCMD_SET_DIR (7 << 0)    /* 0x07 set direction */
+#define PCMD_X_NEG   (1 << 0)    /* 0x01 mov x negative */
+#define PCMD_Z_NEG   (1 << 1)    /* 0x02 mov z negative */
+#define PCMD_DIR_FLAG (1 << 2)   /* 0x04 direction flag */
+#define PCMD_CMD_MASK (7 << 0)   /* 0x07 command mask */
+#define PCMD_RPT_SHIFT (3)       /* 0x03 repeat mask */
+#define PCMD_RPT_SHORT (32)      /* 0x20 repeat short */
+#define PCMD_RPT_MASK (0x1f << PCMD_RPT_SHIFT) /* 0xf8 repeat shift */
