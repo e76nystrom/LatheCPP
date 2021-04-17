@@ -6,21 +6,21 @@ T_PARM remparm[] =
  PARM(spSteps),                 /* 0x00 spindle motor steps */
  PARM(spMicro),                 /* 0x01 spindle micro steps */
  PARM(spMinRpm),                /* 0x02 spindle minimum rpm */
- PARM(spMaxRpm),                /* 0x03 spindle maxmum rpm */
+ PARM(spMaxRpm),                /* 0x03 spindle maximum rpm */
  PARM(spRpm),                   /* 0x04 spindle rpm */
  PARM(spAccelTime),             /* 0x05 spindle accel time */
  PARM(spAccel),                 /* 0x06 spindle accel rpm/sec^2 */
  PARM(spJogMinRpm),             /* 0x07 spindle jog minimum rpm */
- PARM(spJogMaxRpm),             /* 0x08 spindle jog maxmum rpm */
+ PARM(spJogMaxRpm),             /* 0x08 spindle jog maximum rpm */
  PARM(spJogRpm),                /* 0x09 spindle jog rpm */
  PARM(spJogAccelTime),          /* 0x0a spindle jog accel time */
- PARM(spJogTimeInitial),        /* 0x0b spindle jog time initial */
+ PARM(spJogTimeInitial),        /* 0x0b spindle jog time initl */
  PARM(spJogTimeInc),            /* 0x0c spindle jog time increment */
  PARM(spJogTimeMax),            /* 0x0d spindle jog timemax */
  PARM(spJogDir),                /* 0x0e spindle direction */
  PARM(spDirFlag),               /* 0x0f spindle invert direction */
  PARM(spTestIndex),             /* 0x10 generate test index pulse */
- PARM(spTestEncoder),           /* 0x11 generate encoder test pulse */
+ PARM(spTestEncoder),           /* 0x11 generate enc test pulse */
 
 // z axis parameters
 
@@ -130,7 +130,7 @@ T_PARM remparm[] =
 
  PARM(zHomeSpeed),              /* 0x50 z final homing speed */
  PARM(zHomeDist),               /* 0x51 z max homing distance */
- PARM(zHomeDistRev),            /* 0x52 z max reverse homing distance */
+ PARM(zHomeDistRev),            /* 0x52 z max rev homing distance */
  PARM(zHomeDistBackoff),        /* 0x53 z home backoff dist */
  PARM(zHomeDir),                /* 0x54 z homing direction */
 
@@ -138,7 +138,7 @@ T_PARM remparm[] =
 
  PARM(xHomeSpeed),              /* 0x55 x final homing speed */
  PARM(xHomeDist),               /* 0x56 x max homing distance */
- PARM(xHomeDistRev),            /* 0x57 x max reverse homing distance */
+ PARM(xHomeDistRev),            /* 0x57 x max rev homing distance */
  PARM(xHomeDistBackoff),        /* 0x58 x home backoff dist */
  PARM(xHomeDir),                /* 0x59 x homing direction */
 
@@ -187,11 +187,11 @@ T_PARM remparm[] =
 // configuration
 
  PARM(stepperDrive),            /* 0x72 stepper driven spindle */
- PARM(motorTest),               /* 0x73 use stepper drive to test motor */
- PARM(spindleEncoder),          /* 0x74 motor drive with spindle encoder */
+ PARM(motorTest),               /* 0x73 use stepper to test motor */
+ PARM(spindleEncoder),          /* 0x74 motor with spindle enc */
  PARM(spindleSyncBoard),        /* 0x75 spindle sync board */
- PARM(turnSync),                /* 0x76 synchronization type for turning */
- PARM(threadSync),              /* 0x77 synchronization type for threading */
+ PARM(turnSync),                /* 0x76 sync type for turning */
+ PARM(threadSync),              /* 0x77 sync type for threading */
  PARM(capTmrEnable),            /* 0x78 enable capture timer */
  PARM(cfgFpga),                 /* 0x79 using fpga */
  PARM(cfgMpg),                  /* 0x7a manual pulse generator */
@@ -207,7 +207,7 @@ T_PARM remparm[] =
 
 // encoder counts per revolution
 
- PARM(encPerRev),               /* 0x81 spindle encoder counts per revolution */
+ PARM(encPerRev),               /* 0x81 spindle enc counts per rev */
 
 // test encoder setup variables
 
@@ -233,7 +233,7 @@ T_PARM remparm[] =
 
 // xilinx configuration register
 
- PARM(xCfgReg),                 /* 0x8c xilinx configuration register */
+ PARM(xCfgReg),                 /* 0x8c xilinx cfg register */
 
 // sync parameters
 
@@ -245,7 +245,7 @@ T_PARM remparm[] =
 
  PARM(thZStart),                /* 0x90 threading z start */
  PARM(thXStart),                /* 0x91 threading x start */
- PARM(tanThreadAngle),          /* 0x92 tangent of threading angle */
+ PARM(tanThreadAngle),          /* 0x92 tan of threading angle */
  PARM(xFeed),                   /* 0x93 x feed */
  PARM(runoutDistance),          /* 0x94 runout distance */
  PARM(runoutDepth),             /* 0x95 runout depth */
@@ -257,8 +257,8 @@ T_PARM remparm[] =
 // motor and speed control
 
  PARM(pwmFreq),                 /* 0x97 spindle speed pwm frequency */
- PARM(minSpeed),                /* 0x98 minimum speed for current range */
- PARM(maxSpeed),                /* 0x99 maximum speed for current range */
+ PARM(minSpeed),                /* 0x98 min speed for current range */
+ PARM(maxSpeed),                /* 0x99 max speed for current range */
 
 // current operation
 
@@ -267,9 +267,9 @@ T_PARM remparm[] =
 // global limits and home
 
  PARM(limitOverride),           /* 0x9b override limit switches */
- PARM(commonLimits),            /* 0x9c all limit switches on one pin */
+ PARM(commonLimits),            /* 0x9c all limit switches one pin */
  PARM(limitsEnabled),           /* 0x9d limits enabled */
- PARM(commonHome),              /* 0x9e all home switches on one pin */
+ PARM(commonHome),              /* 0x9e all home switches one pin */
 
 // z limits and home
 
@@ -291,5 +291,19 @@ T_PARM remparm[] =
 
  PARM(eStopEna),                /* 0xa9 enable estop */
  PARM(eStopInv),                /* 0xaa invert estop siganl */
- PARM(maxParm),                 /* 0xab maximum parameter */
+
+// command pause
+
+ PARM(cmdPaused),               /* 0xab move commands paused */
+
+// arc parameters
+
+ PARM(arcRadius),               /* 0xac arc radius */
+ PARM(arcXCenter),              /* 0xad arc x center */
+ PARM(arcZCenter),              /* 0xae arc z center */
+ PARM(arcXStart),               /* 0xaf arc x start */
+ PARM(arcZStart),               /* 0xb0 arc z start */
+ PARM(arcXEnd),                 /* 0xb1 arc x center */
+ PARM(arcZEnd),                 /* 0xb2 arc z center */
+ PARM(maxParm),                 /* 0xb3 maximum parameter */
 };

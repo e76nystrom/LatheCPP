@@ -1,5 +1,6 @@
 #!/bin/bash
 
+./inc.py lathe_src/arc.cpp include/arc.h
 ./inc.py lathe_src/encoder.cpp include/encoder.h
 ./inc.py lathe_src/i2cx.cpp include/i2cx.h
 ./inc.py lathe_src/lathe.cpp include/lathe.h

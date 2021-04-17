@@ -31,6 +31,7 @@ char getx(void);
 unsigned char gethex(void);
 char getstr(char *buf, int bufLen);
 unsigned char getnum(void);
+unsigned char getnumAll(void);
 unsigned char getfloat(void);
 
 char query(const char *format, ...);

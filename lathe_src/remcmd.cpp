@@ -12,6 +12,7 @@
 #endif
 #endif
 
+#include "remstruct.h"
 #include "lathe.h"
 
 #include "Xilinx.h"
@@ -125,6 +126,29 @@ void loadVal(void)
  gethexrem();			/* read the parameter number */
  int parm = valRem;		/* save it */
 
+#if 1
+ if (parm < MAX_PARM)		/* if in range */
+ {
+  T_DATA_UNION parmVal;
+  int type = getnumrem();	/* get the value */
+  if (type == INT_VAL)		/* if integer */
+  {
+#if DBG_LOAD
+   int size = remparm[parm].size; /* value size */
+   printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) valRem);
+#endif
+   parmVal.t_int = valRem;
+  }
+  else if (type == FLOAT_VAL)	/* if floating value */
+  {
+   parmVal.t_float = fValRem;
+#if DBG_LOAD
+   printf("w parm %2x     val %8.4f\n", parm, fValRem);
+#endif
+  }
+  setRemVar(parm, parmVal);
+ }
+#else
  if (parm < MAX_PARM)		/* if in range */
  {
   P_PARM valptr = &remparm[parm]; /* pointer to parameter info */
@@ -132,7 +156,7 @@ void loadVal(void)
   int size = valptr->size;	/* value size */
 
   int type = getnumrem();	/* get the value */
-  if (type == 1)		/* if integer */
+  if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
    printf("w %2x %d (%08x) =  %8x\n",
@@ -151,7 +175,7 @@ void loadVal(void)
     *(int16_t *) p = valRem;	/* save the value */
    }
   }
-  else if (type == 2)		/* if floating value */
+  else if (type == FLOAT_VAL)	/* if floating value */
   {
 #if DBG_LOAD
    printf("w %2x f (%08x) =  %8.4f\n", parm, (unsigned) p, fValRem);
@@ -159,12 +183,12 @@ void loadVal(void)
    *(float *) p = fValRem;	/* save as a float */
   }
  }
+#endif
 }
 
 void remcmd(void)
 {
- P_PARM valptr;
- int parm;
+  int parm;
 
  remcmdUpdateTime = millis();
  remcmdTimeout = REMCMD_TIMEOUT;
@@ -287,7 +311,7 @@ void remcmd(void)
  break;
 
  case CMD_SPSETUP:
-  spindleSetup(spMaxRpm);
+  spindleSetup(rVar.spMaxRpm);
  break;
 
  case CMD_SYNCSETUP:
@@ -342,6 +366,15 @@ void remcmd(void)
  {
   gethexrem();			/* save the parameter number */
   parm = valRem;		/* save it */
+#if 1
+  T_DATA_UNION parmVal;
+  parmVal.t_int = 0;
+  getRemVar(parm, &parmVal);
+  int size = remparm[parm].size;
+  printf("r p %2x s %d v %8x\n", 
+	 (unsigned int) parm, size, parmVal.t_unsigned_int);
+  sndhexrem((unsigned char *) &parmVal.t_char, size); /* send the response */
+#else
   valptr = &remparm[parm];	/* pointer to parameters */
   if (DBG_LOAD)
   {
@@ -361,10 +394,11 @@ void remcmd(void)
    {
     tmp = *(int16_t *) p;
    }
-   printf("r %2x %d (%08x) =  %8x\n", 
+   printf("r %2x %d (%08x) = %8x\n", 
 	  (unsigned int) parm, size, (unsigned int) p, tmp);
   }
   sndhexrem((unsigned char *) valptr->p, valptr->size); /* send the response */
+#endif
  }
  break;
 
@@ -393,7 +427,7 @@ void remcmd(void)
 //  if (zAxis.stepsInch != 0)
 //  {
   // sprintf(buf, "%0.4f ", ((float) zLoc) / zAxis.stepsInch);
-  sprintf(buf, "%d ", zLoc);
+  sprintf(buf, "%d ", rVar.zLoc);
   putstrrem(buf);
 //  }
 //  else
@@ -402,17 +436,17 @@ void remcmd(void)
 //  if (xAxis.stepsInch != 0)
 //  {
   // sprintf(buf, "%0.4f ", ((float) xLoc) / xAxis.stepsInch);
-  sprintf(buf, "%d ", xLoc);
+  sprintf(buf, "%d ", rVar.xLoc);
   putstrrem(buf);
 //  }
 //  else
 //   putstrrem("# ");
 
-  if (cfgFpga == 0)		/* processor control */
+  if (rVar.cfgFpga == 0)		/* processor control */
   {
-   if (indexPeriod != 0)
+   if (rVar.indexPeriod != 0)
    {
-    sprintf(buf, "%1.0f ", ((float) indexFreq / (uint32_t) indexPeriod) * 60);
+    sprintf(buf, "%1.0f ", ((float) indexFreq / (uint32_t) rVar.indexPeriod) * 60);
     putstrrem(buf);
    }
    else
@@ -424,7 +458,7 @@ void remcmd(void)
   }
 
   sprintf(buf, "%d %d %d %d",
-	  runCtl.pass, zDroLoc, xDroLoc, mvStatus);
+	  runCtl.pass, rVar.zDroLoc, rVar.xDroLoc, rVar.mvStatus);
   putstrrem(buf);
  }
  break;
@@ -440,7 +474,7 @@ void remcmd(void)
   char rtn = getnumrem();	/* read parameter */
   if (rtn != NO_VAL)		/* if valid number */
   {
-   if (setupDone)		/* if setup complete */
+   if (rVar.setupDone)		/* if setup complete */
    {
     if (rtn == FLOAT_VAL)	/* if floating */
      queMoveCmd(parm, fValRem);	/* que command */

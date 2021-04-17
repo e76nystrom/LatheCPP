@@ -63,7 +63,8 @@ inline void dirZFwd() {Dir1_GPIO_Port->BSRR = zAxis.dirFwd;}
 inline void dirZRev() {Dir1_GPIO_Port->BSRR = zAxis.dirRev;}
 inline void dirXFwd() {Dir2_GPIO_Port->BSRR = xAxis.dirFwd;}
 inline void dirXRev() {Dir2_GPIO_Port->BSRR = xAxis.dirRev;}
-inline uint32_t CALC_STEP_WIDTH(uint32_t x) {return((cfgFcy * x) / 1000000l);}
+inline uint32_t CALC_STEP_WIDTH(uint32_t x)
+{return((rVar.cfgFcy * x) / 1000000l);}
 
 /* zTmr timer 2 pwm 3 */
 

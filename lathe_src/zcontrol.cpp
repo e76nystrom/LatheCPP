@@ -56,16 +56,16 @@ void zJMoveX(int dir)
  if (mov->state == AXIS_IDLE)	/* if not moving */
  {
   P_ACCEL ac = &zJA;		/* pointer to jog */
-  float time = jogTimeInitial - ac->timeX; /* time after accel */
+  float time = rVar.jogTimeInitial - ac->timeX; /* time after accel */
   int d = ac->stepsX + (int) (ac->stepsSecX * time); /* initial steps */
   mov->iniDist = d;		/* save initial distance */
   if (dir < 0)			/* if direction negative */
    d = -d;			/* set to negative */
   mov->stop = 0;		/* clear stop flag */
-  mov->jogInc = (int) (jogTimeInc * ac->stepsSecX); /* save increment */
-  mov->maxDist = (int) (jogTimeMax * ac->stepsSecX); /* save maximum */
+  mov->jogInc = (int) (rVar.jogTimeInc * ac->stepsSecX); /* save increment */
+  mov->maxDist = (int) (rVar.jogTimeMax * ac->stepsSecX); /* save maximum */
   printf("zJMove dist %5d zLoc %5d inc %5d max %5d\n", 
-	 d, zLoc, mov->jogInc, mov->maxDist);
+	 d, rVar.zLoc, mov->jogInc, mov->maxDist);
   zMoveRelX(d, CMD_JOG);	/* start movement */
  }
  else if (mov->state == AXIS_WAIT_BACKLASH) /* if waiting for backlash */

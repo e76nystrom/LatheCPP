@@ -254,9 +254,9 @@ typedef struct s_zxisr
  char encoderDirect;		/* use encoder directly */
  char useDro;			/* use dro for move */
 
- char syncInit;			/* initialized for sync operation */
- char syncStart;		/* waiting for start */
- char active;			/* axis active */
+ int16_t syncInit;		/* initialized for sync operation */
+ int16_t syncStart;		/* waiting for start */
+ int16_t active;		/* axis active */
 
  /* control variables */
  float cFactor;			/* acceleration factor */
@@ -327,25 +327,26 @@ EXT int xRunoutSteps;		/* x runout steps */
 
 EXT T_ZXISR zIsr;		/* z isr variables */
 
-EXT char zSyncInit;		/* z sync init */
+EXT int16_t zSyncInit;		/* z sync init */
 
 EXT T_ACCEL xTA;		/* x threading accel */
 EXT T_ACCEL xPA;		/* x taper accel */
 EXT T_ACCEL xRA;		/* x runout accel */
-EXT T_ACCEL xMA;		/* x move accel */
+EXT T_ACCEL xMA;		/* x move aiccel */
 EXT T_ACCEL xJA;		/* x jog accel */
 EXT T_ACCEL xJSA;		/* x jog speed accel */
 EXT T_ACCEL xSA;		/* x slow jog accel */
 
 EXT T_ZXISR xIsr;		/* x isr variables */
 
-EXT char xSyncInit;		/* x sync init */
+EXT int16_t xSyncInit;		/* x sync init */
 
 #define Z_ACTIVE 1		/* z axis active */
 #define X_ACTIVE 2		/* x axis active */
 
 EXT char runoutActive;		/* runout active */
 EXT char active;		/* axis driven by spindle */
+EXT char stepActive;		/* stepper active */
 EXT char encActive;		/* encoder active */
 EXT char synIntActive;		/* sync internal active */
 EXT char synExtActive;		/* sync external active */
@@ -683,6 +684,8 @@ void zTurnInit(P_ACCEL ac, char dir, int dist);
 void zTaperInit(P_ACCEL ac, char dir);
 void zMoveInit(P_ACCEL ac, char dir, int dist);
 void zStart(void);
+void zPulseSetup(void);
+void zPulseTrig(void);
 void zPulse(void);
 void zStartSlave(void);
 
@@ -712,6 +715,8 @@ void xSyncRunoutInit(void);
 void xEncRunoutInit(void);
 void xMoveInit(P_ACCEL ac, char dir, int dist);
 void xStart(void);
+void xPulseSetup(void);
+void xPulseTrig(void);
 void xPulse(void);
 void xStartSlave(void);
 
@@ -843,7 +848,7 @@ typedef union
 
 inline int xDro()
 {
- return(xDroLoc - xDroOffset);
+ return(rVar.xDroLoc - rVar.xDroOffset);
 }
 
 #include "main.h"

@@ -47,6 +47,7 @@ enum M_STATES
  M_WAIT_MEASURE,                /*  9 x09 wait for measurement to complete */
  M_WAIT_SAFE_X,                 /* 10 x0a wait for move to safe x to complete */
  M_WAIT_SAFE_Z,                 /* 11 x0b wait for move to safe z to complete */
+ M_WAIT_ARC,                    /* 12 x0c wait for arc move to complete */
 };
 
 #ifdef ENUM_M_STATES
@@ -65,6 +66,7 @@ const char *mStatesList[] =
  "M_WAIT_MEASURE",              /*  9 x09 wait for measurement to complete */
  "M_WAIT_SAFE_X",               /* 10 x0a wait for move to safe x to complete */
  "M_WAIT_SAFE_Z",               /* 11 x0b wait for move to safe z to complete */
+ "M_WAIT_ARC",                  /* 12 x0c wait for arc move to complete */
 };
 
 #else
@@ -103,7 +105,9 @@ enum M_COMMANDS
  PROBE_X,                       /* 23 x17 probe in x direction */
  SAVE_Z_DRO,                    /* 24 x18 save z dro reading */
  SAVE_X_DRO,                    /* 25 x19 save x dro reading */
- OP_DONE,                       /* 26 x1a operation done */
+ QUE_PARM,                      /* 26 x1a save parameter in queue */
+ MOVE_ARC,                      /* 27 x1b move in an arc */
+ OP_DONE,                       /* 28 x1c operation done */
 };
 
 #ifdef ENUM_M_COMMANDS
@@ -136,7 +140,9 @@ const char *mCommandsList[] =
  "PROBE_X",                     /* 23 x17 probe in x direction */
  "SAVE_Z_DRO",                  /* 24 x18 save z dro reading */
  "SAVE_X_DRO",                  /* 25 x19 save x dro reading */
- "OP_DONE",                     /* 26 x1a operation done */
+ "QUE_PARM",                    /* 26 x1a save parameter in queue */
+ "MOVE_ARC",                    /* 27 x1b move in an arc */
+ "OP_DONE",                     /* 28 x1c operation done */
 };
 
 #else
@@ -154,6 +160,7 @@ enum OPERATIONS
  OP_CUTOFF,                     /*  2 x02 cutoff */
  OP_TAPER,                      /*  3 x03 taper */
  OP_THREAD,                     /*  4 x04 thread */
+ OP_ARC,                        /*  5 x05 arc */
 };
 
 #ifdef ENUM_OPERATIONS
@@ -165,6 +172,7 @@ const char *operationsList[] =
  "OP_CUTOFF",                   /*  2 x02 cutoff */
  "OP_TAPER",                    /*  3 x03 taper */
  "OP_THREAD",                   /*  4 x04 thread */
+ "OP_ARC",                      /*  5 x05 arc */
 };
 
 #else

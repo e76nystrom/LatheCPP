@@ -18,6 +18,9 @@
 
 #include "i2c.h"
 
+#define NO_REM_MACROS
+#include "remStruct.h"
+
 #ifdef EXT
 #undef EXT
 #endif
@@ -40,7 +43,7 @@ EXT float tpi;
 EXT float zTaperDist;
 EXT float taper;
 EXT int zDist;
-extern int zFlag;
+//extern int zFlag;
 EXT int xDist;
 
 #endif	// ->
@@ -117,15 +120,42 @@ void lclcmd(int ch)
  {
   initCharBuf();
  }
+ else if (ch == 'C')
+ {
+  if (query(&getnum, "\nparameter: "))
+  {
+   int parm = val;
+   ch = query(&getnumAll, "value: ");
+   T_DATA_UNION parmVal;
+   if (ch == INT_VAL)
+   {
+    parmVal.t_int = val;
+    setRemVar(parm, parmVal);
+    parmVal.t_unsigned_int = 0xffffffff;
+    getRemVar(parm, &parmVal);
+    printf("parm %d val %d parmVal %08x\n",
+	   parm, (int) val, parmVal.t_unsigned_int);
+   }
+   else if (ch == FLOAT_VAL)
+   {
+    parmVal.t_float = fVal;
+    setRemVar(parm, parmVal);
+    parmVal.t_unsigned_int = 0xffffffff;
+    getRemVar(parm, &parmVal);
+    printf("parm %d fVal %7.3f parmVal %7.3f\n",
+	   parm, fVal, parmVal.t_float);
+   }
+  }
+ }
  else if (ch == 'j')		/* jog debug */
  {
   newline();
-  printf("jog debug %d: ",  jogDebug);
+  printf("jog debug %d: ",  rVar.jogDebug);
   flushBuf();
   if (getnum())
   {
    if (val != 0)
-    jogDebug = val;
+    rVar.jogDebug = val;
   }
  }
  else if (ch == 1)
@@ -282,20 +312,20 @@ void lclcmd(int ch)
  {
   newline();
   syncStop();
-  if (query(&getnum, "encoder cycle %d: ",  lSyncCycle))
+  if (query(&getnum, "encoder cycle %d: ",  rVar.lSyncCycle))
   {
    if (val != 0)
-    lSyncCycle = val;
+    rVar.lSyncCycle = val;
   }
-  if (query(&getnum, "output %d: ", lSyncOutput))
+  if (query(&getnum, "output %d: ", rVar.lSyncOutput))
   {
    if (val != 0)
-    lSyncOutput = val;
+    rVar.lSyncOutput = val;
   }
-  if (query(&getnum, "prescaler %d: ", lSyncPrescaler))
+  if (query(&getnum, "prescaler %d: ", rVar.lSyncPrescaler))
   {
    if (val != 0)
-    lSyncPrescaler = val;
+    rVar.lSyncPrescaler = val;
   }
   syncStart();
  }
@@ -364,11 +394,11 @@ void lclcmd(int ch)
  }
  else if (ch == '`')
  {
-  spJogRpm = 3.1;
-  printf("\nspeed [%0.1f]: ", spJogRpm);
+  rVar.spJogRpm = 3.1;
+  printf("\nspeed [%0.1f]: ", rVar.spJogRpm);
   flushBuf();
   if (getfloat())
-   spJogRpm = fVal;
+   rVar.spJogRpm = fVal;
 
   unsigned int delay = 250;
   if (query(&getnum, "delay [%u]: ", delay))
@@ -563,7 +593,7 @@ void lclcmd(int ch)
  }
  else if (ch == 'O')
  {
-  zSynSetup(runCtl.feedType, runCtl.zFeed, runoutDistance, runoutDepth);
+  zSynSetup(runCtl.feedType, runCtl.zFeed, rVar.runoutDistance, rVar.runoutDepth);
   unsigned int step;
   int count;
   int curCount;
@@ -603,7 +633,7 @@ void lclcmd(int ch)
    if (empty >= MAXDBGMSG)
     empty = 0;
   }
-  printf("z %d x %d\n", zLoc, xLoc);
+  printf("z %d x %d\n", rVar.zLoc, rVar.xLoc);
  }
  else if (ch == 'E')		/* clear debug buffer */
  {
@@ -662,6 +692,7 @@ void lclcmd(int ch)
    }
   }
  }
+#if 0
  else if (ch == 'p')
  {
   putBufChar(' ');
@@ -670,6 +701,7 @@ void lclcmd(int ch)
    print = val;
   }
  }
+#endif
  else if (ch == 'x')
  {
   putBufChar(' ');
@@ -915,22 +947,22 @@ void lclcmd(int ch)
 	 xIsr.clockSum, xIsr.lastRemCount);
 
   printf("zLoc %6d %7.4f zHomeOffset %7.4f %7.4f\n",
-	 zLoc, (float) zLoc / zAxis.stepsInch,
-	 ((float) zHomeOffset) / zAxis.stepsInch,
+	 rVar.zLoc, (float) rVar.zLoc / zAxis.stepsInch,
+	 ((float) rVar.zHomeOffset) / zAxis.stepsInch,
 	 ((float) runCtl.zHomeOffset) / zAxis.stepsInch);
-  if (cfgDro)
+  if (rVar.cfgDro)
    printf("zDro %6d %7.4f  zDroOffset %7.4f\n",
-	  zDroLoc, ((float) zDroLoc) / zDroCountInch,
-	  ((float) zDroOffset) / zDroCountInch);
+	  rVar.zDroLoc, ((float) rVar.zDroLoc) / rVar.zDroCountInch,
+	  ((float) rVar.zDroOffset) / rVar.zDroCountInch);
 
   printf("xLoc %6d %7.4f xHomeOffset %7.4f %7.4f\n",
-	 xLoc, (float) xLoc / xAxis.stepsInch,
-	 ((float) xHomeOffset) / xAxis.stepsInch,
+	 rVar.xLoc, (float) rVar.xLoc / xAxis.stepsInch,
+	 ((float) rVar.xHomeOffset) / xAxis.stepsInch,
 	 ((float) runCtl.xHomeOffset) / xAxis.stepsInch);
-  if (cfgDro)
+  if (rVar.cfgDro)
    printf("xDro %6d %7.4f  xDroOffset %7.4f\n",
-	  xDroLoc, ((float) xDroLoc) / xDroCountInch,
-	  ((float) xDroOffset) / xDroCountInch);
+	  rVar.xDroLoc, ((float) rVar.xDroLoc) / rVar.xDroCountInch,
+	  ((float) rVar.xDroOffset) / rVar.xDroCountInch);
   fflush(stdout);
  }
 }
@@ -1033,13 +1065,13 @@ void zCommand(void)
     zDist = val;
    newline();
 
-   if (zFlag == 0)
-    zFlag = CMD_MOV;
-   if (query(&getnum, "flag [%d] ", zFlag))
-    zFlag = val;
+   if (rVar.zFlag == 0)
+    rVar.zFlag = CMD_MOV;
+   if (query(&getnum, "flag [%d] ", rVar.zFlag))
+    rVar.zFlag = val;
    newline();
 
-   zMoveRel(zDist, zFlag);
+   zMoveRel(zDist, rVar.zFlag);
    break;
   }
   else if (ch == ' ')

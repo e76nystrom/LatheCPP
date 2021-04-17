@@ -6,21 +6,21 @@ enum PARM
  SP_STEPS,                      /* 0x00 spindle motor steps */
  SP_MICRO,                      /* 0x01 spindle micro steps */
  SP_MIN_RPM,                    /* 0x02 spindle minimum rpm */
- SP_MAX_RPM,                    /* 0x03 spindle maxmum rpm */
+ SP_MAX_RPM,                    /* 0x03 spindle maximum rpm */
  SP_RPM,                        /* 0x04 spindle rpm */
  SP_ACCEL_TIME,                 /* 0x05 spindle accel time */
  SP_ACCEL,                      /* 0x06 spindle accel rpm/sec^2 */
  SP_JOG_MIN_RPM,                /* 0x07 spindle jog minimum rpm */
- SP_JOG_MAX_RPM,                /* 0x08 spindle jog maxmum rpm */
+ SP_JOG_MAX_RPM,                /* 0x08 spindle jog maximum rpm */
  SP_JOG_RPM,                    /* 0x09 spindle jog rpm */
  SP_JOG_ACCEL_TIME,             /* 0x0a spindle jog accel time */
- SP_JOG_TIME_INITIAL,           /* 0x0b spindle jog time initial */
+ SP_JOG_TIME_INITIAL,           /* 0x0b spindle jog time initl */
  SP_JOG_TIME_INC,               /* 0x0c spindle jog time increment */
  SP_JOG_TIME_MAX,               /* 0x0d spindle jog timemax */
  SP_JOG_DIR,                    /* 0x0e spindle direction */
  SP_DIR_FLAG,                   /* 0x0f spindle invert direction */
  SP_TEST_INDEX,                 /* 0x10 generate test index pulse */
- SP_TEST_ENCODER,               /* 0x11 generate encoder test pulse */
+ SP_TEST_ENCODER,               /* 0x11 generate enc test pulse */
 
 // z axis parameters
 
@@ -130,7 +130,7 @@ enum PARM
 
  Z_HOME_SPEED,                  /* 0x50 z final homing speed */
  Z_HOME_DIST,                   /* 0x51 z max homing distance */
- Z_HOME_DIST_REV,               /* 0x52 z max reverse homing distance */
+ Z_HOME_DIST_REV,               /* 0x52 z max rev homing distance */
  Z_HOME_DIST_BACKOFF,           /* 0x53 z home backoff dist */
  Z_HOME_DIR,                    /* 0x54 z homing direction */
 
@@ -138,7 +138,7 @@ enum PARM
 
  X_HOME_SPEED,                  /* 0x55 x final homing speed */
  X_HOME_DIST,                   /* 0x56 x max homing distance */
- X_HOME_DIST_REV,               /* 0x57 x max reverse homing distance */
+ X_HOME_DIST_REV,               /* 0x57 x max rev homing distance */
  X_HOME_DIST_BACKOFF,           /* 0x58 x home backoff dist */
  X_HOME_DIR,                    /* 0x59 x homing direction */
 
@@ -187,11 +187,11 @@ enum PARM
 // configuration
 
  STEPPER_DRIVE,                 /* 0x72 stepper driven spindle */
- MOTOR_TEST,                    /* 0x73 use stepper drive to test motor */
- SPINDLE_ENCODER,               /* 0x74 motor drive with spindle encoder */
+ MOTOR_TEST,                    /* 0x73 use stepper to test motor */
+ SPINDLE_ENCODER,               /* 0x74 motor with spindle enc */
  SPINDLE_SYNC_BOARD,            /* 0x75 spindle sync board */
- TURN_SYNC,                     /* 0x76 synchronization type for turning */
- THREAD_SYNC,                   /* 0x77 synchronization type for threading */
+ TURN_SYNC,                     /* 0x76 sync type for turning */
+ THREAD_SYNC,                   /* 0x77 sync type for threading */
  CAP_TMR_ENABLE,                /* 0x78 enable capture timer */
  CFG_FPGA,                      /* 0x79 using fpga */
  CFG_MPG,                       /* 0x7a manual pulse generator */
@@ -207,7 +207,7 @@ enum PARM
 
 // encoder counts per revolution
 
- ENC_PER_REV,                   /* 0x81 spindle encoder counts per revolution */
+ ENC_PER_REV,                   /* 0x81 spindle enc counts per rev */
 
 // test encoder setup variables
 
@@ -233,7 +233,7 @@ enum PARM
 
 // xilinx configuration register
 
- X_CFG_REG,                     /* 0x8c xilinx configuration register */
+ X_CFG_REG,                     /* 0x8c xilinx cfg register */
 
 // sync parameters
 
@@ -245,7 +245,7 @@ enum PARM
 
  TH_Z_START,                    /* 0x90 threading z start */
  TH_X_START,                    /* 0x91 threading x start */
- TAN_THREAD_ANGLE,              /* 0x92 tangent of threading angle */
+ TAN_THREAD_ANGLE,              /* 0x92 tan of threading angle */
  X_FEED,                        /* 0x93 x feed */
  RUNOUT_DISTANCE,               /* 0x94 runout distance */
  RUNOUT_DEPTH,                  /* 0x95 runout depth */
@@ -257,8 +257,8 @@ enum PARM
 // motor and speed control
 
  PWM_FREQ,                      /* 0x97 spindle speed pwm frequency */
- MIN_SPEED,                     /* 0x98 minimum speed for current range */
- MAX_SPEED,                     /* 0x99 maximum speed for current range */
+ MIN_SPEED,                     /* 0x98 min speed for current range */
+ MAX_SPEED,                     /* 0x99 max speed for current range */
 
 // current operation
 
@@ -267,9 +267,9 @@ enum PARM
 // global limits and home
 
  LIMIT_OVERRIDE,                /* 0x9b override limit switches */
- COMMON_LIMITS,                 /* 0x9c all limit switches on one pin */
+ COMMON_LIMITS,                 /* 0x9c all limit switches one pin */
  LIMITS_ENABLED,                /* 0x9d limits enabled */
- COMMON_HOME,                   /* 0x9e all home switches on one pin */
+ COMMON_HOME,                   /* 0x9e all home switches one pin */
 
 // z limits and home
 
@@ -291,5 +291,19 @@ enum PARM
 
  E_STOP_ENA,                    /* 0xa9 enable estop */
  E_STOP_INV,                    /* 0xaa invert estop siganl */
- MAX_PARM,                      /* 0xab maximum parameter */
+
+// command pause
+
+ CMD_PAUSED,                    /* 0xab move commands paused */
+
+// arc parameters
+
+ ARC_RADIUS,                    /* 0xac arc radius */
+ ARC_X_CENTER,                  /* 0xad arc x center */
+ ARC_Z_CENTER,                  /* 0xae arc z center */
+ ARC_X_START,                   /* 0xaf arc x start */
+ ARC_Z_START,                   /* 0xb0 arc z start */
+ ARC_X_END,                     /* 0xb1 arc x center */
+ ARC_Z_END,                     /* 0xb2 arc z center */
+ MAX_PARM,                      /* 0xb3 maximum parameter */
 };

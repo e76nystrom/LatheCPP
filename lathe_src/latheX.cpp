@@ -94,9 +94,6 @@ void xMoveRel(int32_t dist, char cmd){}
 void encStart(int tEna){}
 void encStop(){}
 
-char cmdPause;
-T_MOVEQUE moveQue;
-
 #endif	/* WIN32 */
 
 #define MAX_SCALE 12
@@ -112,7 +109,7 @@ void axisCtlX(void)
  if (zMoveCtl.state != AXIS_IDLE)	/* if z axis active */
  {
   read1(XRDZLOC);		/* read z location */
-  zLoc = readval.i;
+  rVar.zLoc = readval.i;
   read1(XRDSR);		/* read status register */
   if (zMoveCtl.wait)		/* if wait flag set */
   {
@@ -128,7 +125,7 @@ void axisCtlX(void)
   ||  (zFlagX()))		/* if z done flag from xilinx set */
   {
    if (DBGMSG)
-    dbgmsg(D_ZDN, zLoc);
+    dbgmsg(D_ZDN, rVar.zLoc);
    printf("z done\n");
    LOAD(XLDZCTL, 0);		/* clear z control register */
    zMoveCtl.done = 1;		/* signal done */
@@ -139,7 +136,7 @@ void axisCtlX(void)
  if (xMoveCtl.state != AXIS_IDLE) /* if x axis active */
  {
   read1(XRDXLOC);		/* read x location */
-  xLoc = readval.i;
+  rVar.xLoc = readval.i;
   read1(XRDSR);		/* read status register */
   if (xMoveCtl.wait)		/* if wait flag set */
   {
@@ -156,7 +153,7 @@ void axisCtlX(void)
   {
    printf("x done\n");
    if (DBGMSG)
-    dbgmsg(D_XDN, xLoc);
+    dbgmsg(D_XDN, rVar.xLoc);
    LOAD(XLDXCTL, 0);		/* clear x control register */
    xMoveCtl.done = 1;		/* set done flag */
   }
@@ -219,7 +216,7 @@ void spindleSetupX(int rpm)
 {
  if (DBG_SETUP)
   printf("\nspindle setup rpm %d\n", rpm);
- LOAD(XLDCFG, xCfgReg);
+ LOAD(XLDCFG, rVar.xCfgReg);
 #if WIN32
  fflush(stdout);
 #endif
@@ -236,12 +233,12 @@ void zSetupX(void)
 
  if (DBG_SETUP)
   printf("\nz axis setup\n");
- axis->pitch = zPitch;
- axis->ratio = zRatio;
- axis->microSteps = zMicro;
- axis->motorSteps = zMotor;
- axis->accel = zAccel;
- axis->backlash = zBacklash;
+ axis->pitch = rVar.zPitch;
+ axis->ratio = rVar.zRatio;
+ axis->microSteps = rVar.zMicro;
+ axis->motorSteps = rVar.zMotor;
+ axis->accel = rVar.zAccel;
+ axis->backlash = rVar.zBacklash;
 
  axis->stepsInch = lrint((axis->microSteps * axis->motorSteps * 
 			  axis->ratio) / axis->pitch);
@@ -259,8 +256,8 @@ void zMoveSetupX(void)
 
  P_ACCEL ac = &zMA;
 
- ac->minFeed = zMoveMin;
- ac->maxFeed = zMoveMax;
+ ac->minFeed = rVar.zMoveMin;
+ ac->maxFeed = rVar.zMoveMax;
  ac->accel = zAxis.accel;
  ac->stepsInch = zAxis.stepsInch;
 
@@ -270,8 +267,8 @@ void zMoveSetupX(void)
 
  ac = &zJA;
 
- ac->minFeed = zJogMin;
- ac->maxFeed = zJogMax;
+ ac->minFeed = rVar.zJogMin;
+ ac->maxFeed = rVar.zJogMax;
  ac->accel = zAxis.accel;
  ac->stepsInch = zAxis.stepsInch;
 
@@ -303,7 +300,7 @@ void zSynSetupX(int feedType, float feed)
   threadMetricX(ac, feed);
   break;
  }
- turnAccelX(ac, zAccel);
+ turnAccelX(ac, rVar.zAccel);
 #if WIN32
  fflush(stdout);
 #endif
@@ -324,12 +321,12 @@ void xSetupX(void)
 
  if (DBG_SETUP)
   printf("\nX axis setup\n");
- axis->pitch = xPitch;
- axis->ratio = xRatio;
- axis->microSteps = xMicro;
- axis->motorSteps = xMotor;
- axis->accel = xAccel;
- axis->backlash = xBacklash;
+ axis->pitch = rVar.xPitch;
+ axis->ratio = rVar.xRatio;
+ axis->microSteps = rVar.xMicro;
+ axis->motorSteps = rVar.xMotor;
+ axis->accel = rVar.xAccel;
+ axis->backlash = rVar.xBacklash;
 
  axis->stepsInch = lrint((axis->microSteps * axis->motorSteps * 
 			  axis->ratio) / axis->pitch);
@@ -345,8 +342,8 @@ void xMoveSetupX(void)
 {
  P_ACCEL ac = &xMA;
 
- ac->minFeed = xMoveMin;
- ac->maxFeed = xMoveMax;
+ ac->minFeed = rVar.xMoveMin;
+ ac->maxFeed = rVar.xMoveMax;
  ac->accel = xAxis.accel;
  ac->stepsInch = xAxis.stepsInch;
 
@@ -356,8 +353,8 @@ void xMoveSetupX(void)
 
  ac = &xJA;
 
- ac->minFeed = xJogMin;
- ac->maxFeed = xJogMax;
+ ac->minFeed = rVar.xJogMin;
+ ac->maxFeed = rVar.xJogMax;
  ac->accel = xAxis.accel;
  ac->stepsInch = xAxis.stepsInch;
 
@@ -389,7 +386,7 @@ void xSynSetupX(int feedType, float feed)
   threadMetricX(ac, feed);
   break;
  }
- turnAccelX(ac, xAccel);
+ turnAccelX(ac, rVar.xAccel);
 #if WIN32
  fflush(stdout);
 #endif
@@ -404,9 +401,9 @@ void xTaperSetupX(void)
 void accelCalcX(P_ACCEL ac)
 {
  int stepsSecMax = (int) ((ac->maxFeed / 60.0) * ac->stepsInch);
- ac->clockFreq = stepsSecMax * freqMult;
- ac->clocksPerInch = ac->stepsInch * freqMult;
- ac->freqDivider = (fpgaFrequency / ac->clockFreq) - 1;
+ ac->clockFreq = stepsSecMax * rVar.freqMult;
+ ac->clocksPerInch = ac->stepsInch * rVar.freqMult;
+ ac->freqDivider = (rVar.fpgaFrequency / ac->clockFreq) - 1;
  if (DBG_SETUP)
   printf("freqGenMax %d freqDivider %d\n", ac->clockFreq, ac->freqDivider);
 
@@ -440,9 +437,9 @@ void turnAccelX(P_ACCEL ac, float accel)
 {
  if (DBG_SETUP)
   printf("\nturnAccel %3.1f\n", accel);
- ac->maxFeed = rpm * ac->pitch;
- ac->clocksPerInch = (int) (encPerRev / ac->pitch);
- ac->clockFreq = (int) ((rpm * encPerRev) / 60.0);
+ ac->maxFeed = rVar.rpm * ac->pitch;
+ ac->clocksPerInch = (int) (rVar.encPerRev / ac->pitch);
+ ac->clockFreq = (int) ((rVar.rpm * rVar.encPerRev) / 60.0);
  if (ac->maxFeed < ac->minFeed)	/* if below minimum */
  {
   ac->intAccel = 0;

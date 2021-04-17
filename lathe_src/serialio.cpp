@@ -67,6 +67,7 @@ char getx(void);
 unsigned char gethex(void);
 char getstr(char *buf, int bufLen);
 unsigned char getnum(void);
+unsigned char getnumAll(void);
 unsigned char getfloat(void);
 
 char query(const char *format, ...);
@@ -673,6 +674,36 @@ unsigned char getfloat(void)
   return(1);
  }
  return(0);
+}
+
+unsigned char getnumAll(void)
+{
+ char chbuf[MAXDIG];		/* input digit buffer */
+ 
+ char len = getstr(chbuf, sizeof(chbuf));
+ if (len != 0)
+ {
+  char *p = chbuf;
+  int i;
+  for (i = 0; i < len; i++)
+  {
+   char ch = *p++;
+   if (ch == '.')
+   {
+    fVal = atof(chbuf);
+    return(FLOAT_VAL);
+   }
+   if ((ch == 'x') || (ch == 'X'))
+   {
+    char *endptr;
+    val = strtol(p, &endptr, 16);
+    return(INT_VAL);
+   }
+  }
+  val = atoi(chbuf);
+  return(INT_VAL);
+ }
+ return(NO_VAL);
 }
 
 char query(const char *format, ...)
@@ -1324,7 +1355,7 @@ int pollBufChar(void)
  if (WD_ENA)
   IWDG->KR = 0xAAAA;		/* update hardware watchdog */
 
- if (setupDone)
+ if (rVar.setupDone)
   wdUpdate();
 
  if (dbgTxEmpty() != 0)

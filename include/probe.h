@@ -10,9 +10,9 @@
 #define clrProbeDist()
 #define updProbeDist()
 #else
-#define probeSet() (probeDist == 0)
-#define probeClr() (probeDist > 0)
-#define setProbeDist(val) probeDist = val >= 0 ? val : -val
-#define clrProbeDist() probeDist = 0
-#define updProbeDist() if (probeDist > 0) --probeDist
+#define probeSet() (rVar.probeDist == 0)
+#define probeClr() (rVar.probeDist > 0)
+#define setProbeDist(val) rVar.probeDist = val >= 0 ? val : -val
+#define clrProbeDist() rVar.probeDist = 0
+#define updProbeDist() if (rVar.probeDist > 0) --rVar.probeDist
 #endif

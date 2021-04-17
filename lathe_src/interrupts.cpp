@@ -11,6 +11,7 @@
 #include "lathe.h"
 
 #define EXT extern
+#include "arc.h"
 #include "serialio.h"
 
 /*
@@ -121,22 +122,22 @@ extern "C" void encoderISR(void)
 
   int val = decoder[tmp.w];	/* look up direction */
   zDecode.w = tmp.w;
-  if (zDroInvert)		/* if dro motion inverted */
+  if (rVar.zDroInvert)		/* if dro motion inverted */
    val = -val;			/* change direction */
-  zDroLoc += val;		/* update position */
+  rVar.zDroLoc += val;		/* update position */
 
   if (zIsr.useDro)		/* if using dro for move */
   {
    int dist;
    if (zIsr.dir > 0)		/* if direction positive */
    {
-    dist = zIsr.droTarget - zDroLoc;
+    dist = zIsr.droTarget - rVar.zDroLoc;
    }
    else				/* if direction negative */
    {
-    dist =  zDroLoc - zIsr.droTarget;
+    dist =  rVar.zDroLoc - zIsr.droTarget;
    }
-   if (dist < zDroFinalDist)	/* if close to end */
+   if (dist < rVar.zDroFinalDist) /* if close to end */
    {
     if (dist > 0)		/* if not done */
     {
@@ -175,22 +176,22 @@ extern "C" void encoderISR(void)
 
   int val = decoder[tmp.w];	/* look up direction */
   xDecode.w = tmp.w;
-  if (xDroInvert)		/* if dro motion inverted */
+  if (rVar.xDroInvert)		/* if dro motion inverted */
    val = -val;			/* change direction */
-  xDroLoc += val;		/* update position */
+  rVar.xDroLoc += val;		/* update position */
 
   if (xIsr.useDro)		/* if using dro for move */
   {
    int dist;
    if (xIsr.dir > 0)		/* if direction positive */
    {
-    dist = xIsr.droTarget - xDroLoc;
+    dist = xIsr.droTarget - rVar.xDroLoc;
    }
    else				/* if direction negative */
    {
-    dist =  xDroLoc - xIsr.droTarget;
+    dist =  rVar.xDroLoc - xIsr.droTarget;
    }
-   if (dist < xDroFinalDist)	/* if close to end */
+   if (dist < rVar.xDroFinalDist) /* if close to end */
    {
     if (dist > 0)		/* if not done */
     {
@@ -232,7 +233,7 @@ extern "C" void jogISR(void)
   if (jogB1())			/* if encoder b */
    tmp.b3 = 1;			/* save in decode word */
 
-  if (jogDebug)			/* debugging */
+  if (rVar.jogDebug)		/* debugging */
   {
    char c = tmp.w & 0xf;
    if (c <= 9)
@@ -299,7 +300,7 @@ extern "C" void jogISR(void)
    dbgTrk1W((((decoder[tmp.w] & 0xf) << 4) | (tmp.w & 0xf)));
   }
   
-  if (jogDebug)			/* debugging */
+  if (rVar.jogDebug)		/* debugging */
   {
    char c = tmp.w & 0xf;
    if (c <= 9)
@@ -421,7 +422,7 @@ extern "C" void indexISR(void)
  indexTmrStart();		/* restart counter */
  if (indexStart != 0)		/* if not the first index interrupt */
  {
-  indexPeriod = indexTmp.period - indexStart; /* save to period */
+  rVar.indexPeriod = indexTmp.period - indexStart; /* save to period */
  }
  indexStart = indexTmp.period;	/* set start for next period */
 
@@ -430,16 +431,16 @@ extern "C" void indexISR(void)
 
  if constexpr (DBGTRK1L0)	/* if debug tracking index period */
  {
-  uint32_t tmp = (uint32_t) indexPeriod;
+  uint32_t tmp = (uint32_t) rVar.indexPeriod;
   tmp /= 10;
   tmp = indexTrkFreq / tmp;
   dbgTrk1L(tmp);
  }
  indexUpdateTime = millis();	/* set update time */
  indexTimeout = INDEX_TIMEOUT;	/* and timeout */
- revCounter++;			/* increment revolution counter */
+ rVar.revCounter++;		/* increment revolution counter */
 
- if (spindleEncoder)		/* *ok* if using spindle encoder */
+ if (rVar.spindleEncoder)	/* *ok* if using spindle encoder */
  {
   if (zIsr.syncStart)		/* if z axis waiting for sync start */
   {
@@ -458,7 +459,7 @@ extern "C" void indexISR(void)
 
  if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
  {
-  dbgmsg(D_ZIDX, zDroLoc);	/* save dro position */
+  dbgmsg(D_ZIDX, rVar.zDroLoc);	/* save dro position */
  }
  
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
@@ -473,7 +474,7 @@ void spIsrStop(void)
  spindleTmrStop();		/* stop timer */
  spindleTmrClrIE();		/* disable interrupt */
  sp.decel = 0;			/* clear flag */
- indexPeriod = 0;		/* set to period of zero */
+ rVar.indexPeriod = 0;		/* set to period of zero */
  sp.active = 0;			/* indicate spindle stopped */
  putBufCharIsr('s');
 }
@@ -527,9 +528,9 @@ extern "C" void spindleTmrISR(void)
 #endif
  
  char index;
- if (spTestIndex)		/* if testing index pulse */
+ if (rVar.spTestIndex)		/* if testing index pulse */
  {
-  if (spTestEncoder)		/* if testing encoder */
+  if (rVar.spTestEncoder)	/* if testing encoder */
   {
    EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
   }
@@ -783,7 +784,7 @@ void zIsrStop(char ch)
  if (zIsr.active)		/* if synchcronized move */
  {
   zIsr.active = 0;		/* clear active flag */
-  if (spindleEncoder == 0)	/* *ok* if stepper drive */
+  if (rVar.spindleEncoder == 0)	/* *ok* if stepper drive */
    dbgmsg(D_ZEDN, sp.intCount);	/* send spindle interrupt count */
   else				/* *ok* spindle encoder */
   {
@@ -808,9 +809,9 @@ void zIsrStop(char ch)
  
  zIsr.taper = 0;		/* clear taper flag */
  zIsr.done = 1;			/* indicate done */
- if (cfgDro)
-  dbgmsg(D_ZDRO, zDroLoc);
- dbgmsg(D_ZLOC, zLoc);
+ if (rVar.cfgDro)
+  dbgmsg(D_ZDRO, rVar.zDroLoc);
+ dbgmsg(D_ZLOC, rVar.zLoc);
  dbgZAccelClr();
 }
 
@@ -819,80 +820,83 @@ extern "C" void zTmrISR(void)
  dbgZIsrSet();
  zTmrClrIF();			/* clear interrupt flag */
 
- zLoc += zIsr.dir;		/* update position */
- zIsr.steps++;			/* count a step moved */
-
- if (zIsr.home)			/* 1*+ if homing operation */
+ if (!arcData.active)		/* if arc move active */
  {
-  updProbeDist();		/* update probe testing distance */
-  if (zIsr.home & PROBE_SET)	/* if probing */
-  {
-   if (probeSet())		/* if probe set */
-   {
-    zIsr.doneHome = 1;		/* indicate probe done */
-    zIsrStop('1');		/* stop movement */
-   }
-  }
+  rVar.zLoc += zIsr.dir;	/* update position */
+  zIsr.steps++;			/* count a step moved */
 
-  if (zIsr.home & HOME_SET)	/* if looking for home */
+  if (zIsr.home)		/* 1*+ if homing operation */
   {
-   if (zAHomeIsSet())		/* if home found */
+   updProbeDist();		/* update probe testing distance */
+   if (zIsr.home & PROBE_SET)	/* if probing */
    {
-    zIsr.doneHome = 1;		/* indicate homing done */
-    zIsrStop('2');		/* stop movement */
-   }
-  }
-
-  if (zIsr.home & HOME_CLR)	/* if moving off home */
-  {
-   if (zAHomeIsClr())		/* if home moved off home */
-   {
-    zIsr.doneHome = 1;		/* indicate homing done */
-    zIsrStop('3');		/* stop movement */
-   }
-  }
- }
-
- if (zIsr.dist != 0)		/* 2*+ if distance set */
- {
-  --zIsr.dist;			/* decrement distance */
-  if (zIsr.dist == 0)		/* if done */
-  {
-   if (!zIsr.useDro)		/* if not using dro */
-   {
-    zIsrStop('4');		/* stop isr */
-   }
-  }
-  else				/* if not done */
-  {
-   if (zRunoutFlag
-   &&  (zIsr.dist <= zRunoutStart)) /* if time to start runout */
-   {
-    if (spindleEncoder == 0)	/* *ok* if not using encoder */
+    if (probeSet())		/* if probe set */
     {
-     xRunoutInit();		/* int x runout */
-     xStartSlave();		/* start x as a slave */
-     putBufStrIsr("R0");
+     zIsr.doneHome = 1;		/* indicate probe done */
+     zIsrStop('1');		/* stop movement */
     }
-    else			/* *chk* if using encoder */
-    {
-     xIsr.active = xSyncInit;	/* set active flag to proper mode */
-     putBufStrIsr("R1");
-    }
-    zRunoutFlag = 0;		/* clear flag */
-    dbgRunoutSet();
    }
+
+   if (zIsr.home & HOME_SET)	/* if looking for home */
+   {
+    if (zAHomeIsSet())		/* if home found */
+    {
+     zIsr.doneHome = 1;		/* indicate homing done */
+     zIsrStop('2');		/* stop movement */
+    }
+   }
+
+   if (zIsr.home & HOME_CLR)	/* if moving off home */
+   {
+    if (zAHomeIsClr())		/* if home moved off home */
+    {
+     zIsr.doneHome = 1;		/* indicate homing done */
+     zIsrStop('3');		/* stop movement */
+    }
+   }
+  }
+ 
+  if (zIsr.dist != 0)		/* 2*+ if distance set */
+  {
+   --zIsr.dist;			/* decrement distance */
+   if (zIsr.dist == 0)		/* if done */
+   {
+    if (!zIsr.useDro)		/* if not using dro */
+    {
+     zIsrStop('4');		/* stop isr */
+    }
+   }
+   else				/* if not done */
+   {
+    if (zRunoutFlag
+    &&  (zIsr.dist <= zRunoutStart)) /* if time to start runout */
+    {
+     if (rVar.spindleEncoder == 0) /* *ok* if not using encoder */
+     {
+      xRunoutInit();		/* int x runout */
+      xStartSlave();		/* start x as a slave */
+      putBufStrIsr("R0");
+     }
+     else			/* *chk* if using encoder */
+     {
+      xIsr.active = xSyncInit;	/* set active flag to proper mode */
+      putBufStrIsr("R1");
+     }
+     zRunoutFlag = 0;		/* clear flag */
+     dbgRunoutSet();
+    }
   
-   if ((zIsr.cFactor != 0)	/* if acceleration enabled */
-   &&  (zIsr.decel == 0)	/* and not decelerating */
-   &&  (zIsr.dist <= (zIsr.accelStep - zIsr.initialStep))) /* time to decel */
-   {
-    zIsr.accel = 0;		/* stop acceleration */
-    zIsr.decel = 1;		/* start deceleration */
-    dbgZAccelSet();
-   }
-  } /* if not done */
- } /* if distance set */
+    if ((zIsr.cFactor != 0)	/* if acceleration enabled */
+    &&  (zIsr.decel == 0)	/* and not decelerating */
+    &&  (zIsr.dist <= (zIsr.accelStep - zIsr.initialStep))) /* time to decel */
+    {
+     zIsr.accel = 0;		/* stop acceleration */
+     zIsr.decel = 1;		/* start deceleration */
+     dbgZAccelSet();
+    }
+   } /* if not done */
+  } /* if distance set */
+ } /* if not in arc mode */
  
  if (zIsr.accel)		/* 3*+ if accelerating */
  {
@@ -981,18 +985,18 @@ extern "C" void zTmrISR(void)
    if (updateFeed)		/* if time to update feed */
    {
     updateFeed = 0;		/* clear flag */
-    if (indexPeriod != 0)	/* if period valid */
+    if (rVar.indexPeriod != 0)	/* if period valid */
     {
-     zIsr.clocksStep = indexPeriod / zIsr.stepsCycle; /* update speed */
+     zIsr.clocksStep = rVar.indexPeriod / zIsr.stepsCycle; /* update speed */
      zTmrMax(zIsr.clocksStep);	/* set interrupt timer */
      if constexpr (DBGTRK2L3)
      {
-      dbgTrk2L(zIsr.clocksStep, indexPeriod);
+      dbgTrk2L(zIsr.clocksStep, rVar.indexPeriod);
      }
     }
-   }
-  }
- }
+   } /* update feed */
+  } /* sync mode */
+ } /* tracking state */
  dbgZIsrClr();
 }
 
@@ -1010,7 +1014,7 @@ void xIsrStop(char ch)
  if (xIsr.active)		/* if synchrinized move */
  {
   xIsr.active = 0;		/* clear active flag */
-  if (spindleEncoder == 0)	/* *ok* if no encoder */
+  if (rVar.spindleEncoder == 0)	/* *ok* if no encoder */
    dbgmsg(D_XEDN, sp.intCount);	/* send spindle interrupt count */
   else				/* *ok* */
   {
@@ -1031,7 +1035,7 @@ void xIsrStop(char ch)
   {
    dbgRunoutClr();
    dbgmsg(D_XSTP, xIsr.steps);
-   dbgmsg(D_ZLOC, zLoc);
+   dbgmsg(D_ZLOC, rVar.zLoc);
   }
   dbgXTaperClr();
   putBufStrIsr("xt");
@@ -1044,9 +1048,9 @@ void xIsrStop(char ch)
  xIsr.stopRev = sp.rev;
  xIsr.stopPos = sp.pos;
  
- if (cfgDro)
-  dbgmsg(D_XDRO, xDroLoc);
- dbgmsg(D_XLOC, xLoc);
+ if (rVar.cfgDro)
+  dbgmsg(D_XDRO, rVar.xDroLoc);
+ dbgmsg(D_XLOC, rVar.xLoc);
  dbgXAccelClr();
  dbgXStopClr();
  dbgXDoneSet();
@@ -1058,58 +1062,61 @@ extern "C" void xTmrISR(void)
  dbgXRemClr();
  xTmrClrIF();			/* clear interrupt flag */
 
- xLoc += xIsr.dir;		/* update position */
- xIsr.steps++;			/* count a step moved */
- xUpdHomeLoc();			/* update home testing location */
-
- if (xIsr.home)			/* 1*+ if homing operation */
+ if (!arcData.active)		/* if arc move active */
  {
-  updProbeDist();		/* update probe testing distance */
-  if (xIsr.home & PROBE_SET)	/* if probing */
+  rVar.xLoc += xIsr.dir;	/* update position */
+  xIsr.steps++;			/* count a step moved */
+  xUpdHomeLoc();		/* update home testing location */
+
+  if (xIsr.home)		/* 1*+ if homing operation */
   {
-   if (probeSet())		/* if probe set */
+   updProbeDist();		/* update probe testing distance */
+   if (xIsr.home & PROBE_SET)	/* if probing */
    {
-    xIsr.doneHome = 1;		/* indicate probe done */
-    xIsrStop('1');		/* stop movement */
+    if (probeSet())		/* if probe set */
+    {
+     xIsr.doneHome = 1;		/* indicate probe done */
+     xIsrStop('1');		/* stop movement */
+    }
+   }
+
+   if (xIsr.home & HOME_SET)	/* if looking for home */
+   {
+    if (xAHomeIsSet())		/* if home found */
+    {
+     xIsr.doneHome = 1;		/* indicate homing done */
+     xIsrStop('2');		/* stop movement */
+    }
+   }
+
+   if (xIsr.home & HOME_CLR)	/* if moving off home */
+   {
+    if (xAHomeIsClr())		/* if home moved off home */
+    {
+     xIsr.doneHome = 1;		/* indicate homing done */
+     xIsrStop('3');		/* stop movement */
+    }
    }
   }
 
-  if (xIsr.home & HOME_SET)	/* if looking for home */
+  if (xIsr.dist != 0)		/* 2*+ if distance set */
   {
-   if (xAHomeIsSet())		/* if home found */
+   --xIsr.dist;			/* decrement distance */
+   if (xIsr.dist == 0)		/* 2.1*+ if done */
    {
-    xIsr.doneHome = 1;		/* indicate homing done */
-    xIsrStop('2');		/* stop movement */
+    if (!xIsr.useDro)		/* if not using dro */
+    {
+     xIsrStop('4');		/* stop isr */
+    }
    }
-  }
-
-  if (xIsr.home & HOME_CLR)	/* if moving off home */
-  {
-   if (xAHomeIsClr())		/* if home moved off home */
+   else if ((xIsr.cFactor != 0)	/* 2.2*+ if acceleration enabled */
+	&&  (xIsr.decel == 0)	/* and not decelerating */
+	&&  (xIsr.dist <= (xIsr.accelStep - xIsr.initialStep))) /* decel time */
    {
-    xIsr.doneHome = 1;		/* indicate homing done */
-    xIsrStop('3');		/* stop movement */
+    xIsr.accel = 0;		/* stop acceleration */
+    xIsr.decel = 1;		/* start deceleration */
+    dbgXAccelSet();
    }
-  }
- }
-
- if (xIsr.dist != 0)		/* 2*+ if distance set */
- {
-  --xIsr.dist;			/* decrement distance */
-  if (xIsr.dist == 0)		/* 2.1*+ if done */
-  {
-   if (!xIsr.useDro)		/* if not using dro */
-   {
-    xIsrStop('4');		/* stop isr */
-   }
-  }
-  else if ((xIsr.cFactor != 0)	/* 2.2*+ if acceleration enabled */
-       &&  (xIsr.decel == 0)	/* and not decelerating */
-       &&  (xIsr.dist <= (xIsr.accelStep - xIsr.initialStep))) /* decel time */
-  {
-   xIsr.accel = 0;		/* stop acceleration */
-   xIsr.decel = 1;		/* start deceleration */
-   dbgXAccelSet();
   }
  }
   
@@ -1188,7 +1195,7 @@ extern "C" void xTmrISR(void)
    updateFeed = 0;		/* clear flag */
    if (xIsr.stepsCycle != 0)
    {
-    xIsr.clocksStep = indexPeriod / xIsr.stepsCycle;
+    xIsr.clocksStep = rVar.indexPeriod / xIsr.stepsCycle;
     xTmrMax(xIsr.clocksStep);	/* set interrupt timer */
    }
    else
@@ -1229,6 +1236,11 @@ extern "C" void encISR(void)
 {
  EXTI->PR = encIRQ_Bit;
 
+ if ((zIsr.active & ARC_ACTIVE_ENC) != 0) /* if arc active */
+ {
+  arcStep();
+ }
+
  if ((zIsr.active & SYNC_ACTIVE_ENC) != 0) /* if z axis active */
  {
   zCheckStep();			/* check for z axis step */
@@ -1265,7 +1277,7 @@ extern "C" void cmpTmrISR(void)
    encISR();
   }
 
-  if (capTmrEnable)		/* if capture timer enabled */
+  if (rVar.capTmrEnable)	/* if capture timer enabled */
   {
    delta = captureVal - cmpTmr.lastEnc; /* time since last pulse */
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */

@@ -125,7 +125,7 @@ void lclcmdX(int ch)
      break;
    }
   }
-  printf("z %d x %d\n", zLoc, xLoc);
+  printf("z %d x %d\n", rVar.zLoc, rVar.xLoc);
  }
  else if (ch == 'E')		/* clear debug buffer */
  {
@@ -280,6 +280,7 @@ void lclcmdX(int ch)
    }
   }
  }
+#if 0
  else if (ch == 'p')		/* set print flag */
  {
   putx(' ');
@@ -288,6 +289,7 @@ void lclcmdX(int ch)
    print = val;
   }
  }
+#endif
  else if (ch == 'r')		/* reset */
  {
   LOAD(XLDZCTL,0);

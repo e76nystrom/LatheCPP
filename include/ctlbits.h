@@ -111,12 +111,17 @@
 
 // isr active flags
 
+#define ARC_SHIFT    6           /* 0x06 shift for arc syn */
 #define SYNC_ACTIVE_EXT (1 << 0) /* 0x01 active for sync board */
 #define SYNC_ACTIVE_TMR (1 << 1) /* 0x02 active for internal timer */
 #define SYNC_ACTIVE_ENC (1 << 2) /* 0x04 active for encoder */
 #define SYNC_ACTIVE_STEP (1 << 3) /* 0x08 active for stepper */
 #define SYNC_ACTIVE_TAPER (1 << 4) /* 0x10 active for taper */
 #define SYNC_ACTIVE_THREAD (1 << 5) /* 0x20 active for threading */
+#define ARC_ACTIVE_EXT (SYNC_ACTIVE_EXT << ARC_SHIFT) /* 0x40 arc sync board */
+#define ARC_ACTIVE_TMR (SYNC_ACTIVE_TMR << ARC_SHIFT) /* 0x80 arc int tmr */
+#define ARC_ACTIVE_ENC (SYNC_ACTIVE_ENC << ARC_SHIFT) /* 0x100 arc encoder */
+#define ARC_ACTIVE_STEP (SYNC_ACTIVE_STEP << ARC_SHIFT) /* 0x200 arc stepper */
 
 // encoder direct flags
 

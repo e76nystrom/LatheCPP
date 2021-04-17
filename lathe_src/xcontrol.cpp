@@ -56,16 +56,16 @@ void xJMoveX(int dir)
  if (mov->state == AXIS_IDLE)	/* if not moving */
  {
   P_ACCEL ac = &xJA;		/* pointer to jog */
-  float time = jogTimeInitial - ac->timeX; /* time after accel */
+  float time = rVar.jogTimeInitial - ac->timeX; /* time after accel */
   int d = ac->stepsX + (int) (ac->stepsSecX * time); /* initial steps */
   mov->iniDist = d;		/* save initial distance */
   if (dir < 0)			/* if direction negative */
    d = -d;			/* set to negative */
   mov->stop = 0;		/* clear stop flag */
-  mov->jogInc = (int) (jogTimeInc * ac->stepsSecX); /* save increment */
-  mov->maxDist = (int) (jogTimeMax * ac->stepsSecX); /* save maximum */
+  mov->jogInc = (int) (rVar.jogTimeInc * ac->stepsSecX); /* save increment */
+  mov->maxDist = (int) (rVar.jogTimeMax * ac->stepsSecX); /* save maximum */
   printf("xJMove dist %5d xLoc %5d inc %5d max %5d\n",  
-	 d, xLoc, mov->jogInc, mov->maxDist);
+	 d, rVar.xLoc, mov->jogInc, mov->maxDist);
   xMoveRelX(d, CMD_JOG);	/* start movement */
  }
  else if (mov->state == AXIS_WAIT_BACKLASH) /* if waiting for backlash */

@@ -186,11 +186,11 @@ void spirel(void)
 
 void load(char addr, int32_t val)
 {
- if (print & 8)
-  printf("load %x %x\n", (unsigned int) addr, (unsigned int) val);
- // char buf[8];
- // sprintf(buf, "lx %02x", addr);
- // dbgmsg(buf, val);
+// if (print & 8)
+//  printf("load %x %x\n", (unsigned int) addr, (unsigned int) val);
+//  char buf[8];
+//  sprintf(buf, "lx %02x", addr);
+//  dbgmsg(buf, val);
  spisel();
  spisend(addr);
  byte_long tmp;
@@ -241,9 +241,9 @@ void load(char addr, byte_long val)
 
 void loadb(char addr, char val)
 {
- if (print & 8)
-  printf("load %02x %02x\n",
-	 (unsigned int) addr, (unsigned int) val);
+// if (print & 8)
+//  printf("load %02x %02x\n",
+//  (unsigned int) addr, (unsigned int) val);
  spisel();
  spisend(addr);
  spisend(val);
@@ -314,9 +314,9 @@ void read1(char addr)
 #endif
 
  spirel();			/* and release */
- if (print & 8)
-  printf("read %x %x\n",
-	 (unsigned int) addr, (unsigned int) readval.i);
+// if (print & 8)
+//  printf("read %x %x\n",
+//	 (unsigned int) addr, (unsigned int) readval.i);
 }
 
 void read(char addr)
@@ -333,9 +333,9 @@ void read(char addr)
  readval.b[1] = spiread();
  readval.b[0] = spiread();
  spirel();			/* and release */
- if (print & 8)
-  printf("read %x %x\n",
-	 (unsigned int) addr, (unsigned int) readval.i);
+// if (print & 8)
+//  printf("read %x %x\n",
+//	 (unsigned int) addr, (unsigned int) readval.i);
 }
 
 #endif

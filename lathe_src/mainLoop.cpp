@@ -416,10 +416,10 @@ int16_t mainLoop(void)
  unsigned int sysClock = HAL_RCC_GetSysClockFreq();
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
  unsigned int FCY = HAL_RCC_GetPCLK2Freq() * 2;
- cfgFcy = FCY;
+ rVar.cfgFcy = FCY;
  clocksMin = (uint64_t) FCY * 60;
  printf("sys clock %u clock frequency %u FCY %u %x\n",
-	sysClock, clockFreq, FCY, (unsigned int) &cfgFcy);
+	sysClock, clockFreq, FCY, (unsigned int) &rVar.cfgFcy);
  printf("sysTick load %d\n", (int) SysTick->LOAD);
 
 #if 1
@@ -473,7 +473,7 @@ int16_t mainLoop(void)
    }
 #endif
 
-   if (setupDone)		/* setup complete */
+   if (rVar.setupDone)		/* setup complete */
    {
     if ((millis() - remcmdUpdateTime) > remcmdTimeout) /* if timed out */
     {
@@ -487,20 +487,20 @@ int16_t mainLoop(void)
 
     if (eStopIsSet())		/* if emergency stop */
     {
-     if ((mvStatus & MV_ESTOP) != 0) /* if flag not set */
+     if ((rVar.mvStatus & MV_ESTOP) != 0) /* if flag not set */
      {
-      mvStatus |= MV_ESTOP;	/* set estop flag */
+      rVar.mvStatus |= MV_ESTOP;	/* set estop flag */
       clearCmd();		/* stop everything */
      }
     }
     else			/* if estop input clear */
     {
-     mvStatus &= ~MV_ESTOP;	/* clear estop flag */
+     rVar.mvStatus &= ~MV_ESTOP;	/* clear estop flag */
     }
 
     procMove();			/* process move command */
 
-    if (cfgFpga == 0)
+    if (rVar.cfgFpga == 0)
      axisCtl();			/* poll processor axis control routines */
     else
      axisCtlX();		/* poll xilinx axis control routines */
@@ -548,7 +548,7 @@ int16_t mainLoop(void)
   }
 
   flushBuf();
-  if (cfgFpga == 0)
+  if (rVar.cfgFpga == 0)
    lclcmd(ch);			/* local commands */
   else
    lclcmdX(ch);
@@ -655,18 +655,18 @@ void lcdDisplay(void)
     {
     case 0:
      sprintf(buf, "Z %8.4f X %7.4f",
-	     ((float) (zLoc - zHomeOffset)) / zAxis.stepsInch,
-	     ((float) (xLoc - xHomeOffset)) / xAxis.stepsInch);
+	     ((float) (rVar.zLoc - rVar.zHomeOffset)) / zAxis.stepsInch,
+	     ((float) (rVar.xLoc - rVar.xHomeOffset)) / xAxis.stepsInch);
      lcdRow = 1;
      break;
 
     case 1:
     {
-     char h = xHomeStatus == HOME_SUCCESS ? 'H' : ' ';
-     char p = cmdPause ? 'P' : ' ';
+     char h = rVar.xHomeStatus == HOME_SUCCESS ? 'H' : ' ';
+     char p = rVar.cmdPaused ? 'P' : ' ';
      sprintf(buf, "%c%c         D %7.4f", h, p,
-	     2.0 * fabsf(((float) (xLoc - xHomeOffset)) / xAxis.stepsInch));
-     if (cfgDro)
+	     2.0 * fabsf(((float) (rVar.xLoc - rVar.xHomeOffset)) / xAxis.stepsInch));
+     if (rVar.cfgDro)
       lcdRow = 2;
      else
       lcdRow = 3;
@@ -674,18 +674,18 @@ void lcdDisplay(void)
      break;
 
     case 2:
-     if (cfgDro)
+     if (rVar.cfgDro)
       sprintf(buf, "Z %8.4f X %7.4f",
-	      ((float) (zDroLoc - zDroOffset)) / zDroCountInch,
-	      ((float) xDro()) / xDroCountInch);
+	      ((float) (rVar.zDroLoc - rVar.zDroOffset)) / rVar.zDroCountInch,
+	      ((float) xDro()) / rVar.xDroCountInch);
      lcdRow = 3;
      break;
 
     case 3:
     {
      int rpm;
-     if (indexPeriod != 0)
-      rpm = (int) (((float) cfgFcy / indexPeriod) * 60 + 0.5);
+     if (rVar.indexPeriod != 0)
+      rpm = (int) (((float) rVar.cfgFcy / rVar.indexPeriod) * 60 + 0.5);
      else
       rpm = 0;
      char spring = ' ';
@@ -697,8 +697,8 @@ void lcdDisplay(void)
        spring = (springInfo & 0xff) + '0';
      }
      sprintf(buf, "RPM %3hu Pass %2hhu/%2hhu %c",
-	     (uint16_t) rpm, (unsigned char) currentPass,
-	     (unsigned char) totalPasses, spring);
+	     (uint16_t) rpm, (unsigned char) rVar.currentPass,
+	     (unsigned char) rVar.totalPasses, spring);
     }
     lcdRow = 0;
     break;

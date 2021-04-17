@@ -11,7 +11,7 @@ EXT float tpi;
 EXT float zTaperDist;
 EXT float taper;
 EXT int zDist;
-extern int zFlag;
+//extern int zFlag;
 EXT int xDist;
 
 #endif	// ->

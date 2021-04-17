@@ -4,21 +4,21 @@
  EXT int16_t spSteps;           /* 0x00 spindle motor steps */
  EXT int16_t spMicro;           /* 0x01 spindle micro steps */
  EXT float spMinRpm;            /* 0x02 spindle minimum rpm */
- EXT float spMaxRpm;            /* 0x03 spindle maxmum rpm */
+ EXT float spMaxRpm;            /* 0x03 spindle maximum rpm */
  EXT float spRpm;               /* 0x04 spindle rpm */
  EXT float spAccelTime;         /* 0x05 spindle accel time */
  EXT float spAccel;             /* 0x06 spindle accel rpm/sec^2 */
  EXT float spJogMinRpm;         /* 0x07 spindle jog minimum rpm */
- EXT float spJogMaxRpm;         /* 0x08 spindle jog maxmum rpm */
+ EXT float spJogMaxRpm;         /* 0x08 spindle jog maximum rpm */
  EXT float spJogRpm;            /* 0x09 spindle jog rpm */
  EXT float spJogAccelTime;      /* 0x0a spindle jog accel time */
- EXT float spJogTimeInitial;    /* 0x0b spindle jog time initial */
+ EXT float spJogTimeInitial;    /* 0x0b spindle jog time initl */
  EXT float spJogTimeInc;        /* 0x0c spindle jog time increment */
  EXT float spJogTimeMax;        /* 0x0d spindle jog timemax */
  EXT char spJogDir;             /* 0x0e spindle direction */
  EXT char spDirFlag;            /* 0x0f spindle invert direction */
  EXT char spTestIndex;          /* 0x10 generate test index pulse */
- EXT char spTestEncoder;        /* 0x11 generate encoder test pulse */
+ EXT char spTestEncoder;        /* 0x11 generate enc test pulse */
 
 // z axis parameters
 
@@ -128,7 +128,7 @@
 
  EXT float zHomeSpeed;          /* 0x50 z final homing speed */
  EXT float zHomeDist;           /* 0x51 z max homing distance */
- EXT float zHomeDistRev;        /* 0x52 z max reverse homing distance */
+ EXT float zHomeDistRev;        /* 0x52 z max rev homing distance */
  EXT float zHomeDistBackoff;    /* 0x53 z home backoff dist */
  EXT int zHomeDir;              /* 0x54 z homing direction */
 
@@ -136,7 +136,7 @@
 
  EXT float xHomeSpeed;          /* 0x55 x final homing speed */
  EXT float xHomeDist;           /* 0x56 x max homing distance */
- EXT float xHomeDistRev;        /* 0x57 x max reverse homing distance */
+ EXT float xHomeDistRev;        /* 0x57 x max rev homing distance */
  EXT float xHomeDistBackoff;    /* 0x58 x home backoff dist */
  EXT int xHomeDir;              /* 0x59 x homing direction */
 
@@ -185,11 +185,11 @@
 // configuration
 
  EXT char stepperDrive;         /* 0x72 stepper driven spindle */
- EXT char motorTest;            /* 0x73 use stepper drive to test motor */
- EXT char spindleEncoder;       /* 0x74 motor drive with spindle encoder */
+ EXT char motorTest;            /* 0x73 use stepper to test motor */
+ EXT char spindleEncoder;       /* 0x74 motor with spindle enc */
  EXT char spindleSyncBoard;     /* 0x75 spindle sync board */
- EXT char turnSync;             /* 0x76 synchronization type for turning */
- EXT char threadSync;           /* 0x77 synchronization type for threading */
+ EXT char turnSync;             /* 0x76 sync type for turning */
+ EXT char threadSync;           /* 0x77 sync type for threading */
  EXT char capTmrEnable;         /* 0x78 enable capture timer */
  EXT char cfgFpga;              /* 0x79 using fpga */
  EXT char cfgMpg;               /* 0x7a manual pulse generator */
@@ -205,7 +205,7 @@
 
 // encoder counts per revolution
 
- EXT uint16_t encPerRev;        /* 0x81 spindle encoder counts per revolution */
+ EXT uint16_t encPerRev;        /* 0x81 spindle enc counts per rev */
 
 // test encoder setup variables
 
@@ -231,7 +231,7 @@
 
 // xilinx configuration register
 
- EXT int16_t xCfgReg;           /* 0x8c xilinx configuration register */
+ EXT int16_t xCfgReg;           /* 0x8c xilinx cfg register */
 
 // sync parameters
 
@@ -243,7 +243,7 @@
 
  EXT int32_t thZStart;          /* 0x90 threading z start */
  EXT int32_t thXStart;          /* 0x91 threading x start */
- EXT float tanThreadAngle;      /* 0x92 tangent of threading angle */
+ EXT float tanThreadAngle;      /* 0x92 tan of threading angle */
  EXT int16_t xFeed;             /* 0x93 x feed */
  EXT float runoutDistance;      /* 0x94 runout distance */
  EXT float runoutDepth;         /* 0x95 runout depth */
@@ -255,8 +255,8 @@
 // motor and speed control
 
  EXT int16_t pwmFreq;           /* 0x97 spindle speed pwm frequency */
- EXT int16_t minSpeed;          /* 0x98 minimum speed for current range */
- EXT int16_t maxSpeed;          /* 0x99 maximum speed for current range */
+ EXT int16_t minSpeed;          /* 0x98 min speed for current range */
+ EXT int16_t maxSpeed;          /* 0x99 max speed for current range */
 
 // current operation
 
@@ -265,9 +265,9 @@
 // global limits and home
 
  EXT char limitOverride;        /* 0x9b override limit switches */
- EXT char commonLimits;         /* 0x9c all limit switches on one pin */
+ EXT char commonLimits;         /* 0x9c all limit switches one pin */
  EXT char limitsEnabled;        /* 0x9d limits enabled */
- EXT char commonHome;           /* 0x9e all home switches on one pin */
+ EXT char commonHome;           /* 0x9e all home switches one pin */
 
 // z limits and home
 
@@ -289,4 +289,18 @@
 
  EXT char eStopEna;             /* 0xa9 enable estop */
  EXT char eStopInv;             /* 0xaa invert estop siganl */
- EXT int16_t maxParm;           /* 0xab maximum parameter */
+
+// command pause
+
+ EXT char cmdPaused;            /* 0xab move commands paused */
+
+// arc parameters
+
+ EXT float arcRadius;           /* 0xac arc radius */
+ EXT int arcXCenter;            /* 0xad arc x center */
+ EXT int arcZCenter;            /* 0xae arc z center */
+ EXT int arcXStart;             /* 0xaf arc x start */
+ EXT int arcZStart;             /* 0xb0 arc z start */
+ EXT int arcXEnd;               /* 0xb1 arc x center */
+ EXT int arcZEnd;               /* 0xb2 arc z center */
+ EXT int16_t maxParm;           /* 0xb3 maximum parameter */
