@@ -396,3 +396,27 @@ const char *selThreadList[] =
 extern const char *selThreadList[];
 
 #endif
+
+// arc config selector
+
+enum SEL_ARC_TYPE
+{
+ SEL_ARC_END,                   /*  0 x00 End */
+ SEL_ARC_CORNER,                /*  1 x01 Corner */
+ SEL_ARC_BALL,                  /*  2 x02 Ball */
+};
+
+#ifdef ENUM_SEL_ARC_TYPE
+
+const char *selArcTypeList[] = 
+{
+ "SEL_ARC_END",                 /*  0 x00 End */
+ "SEL_ARC_CORNER",              /*  1 x01 Corner */
+ "SEL_ARC_BALL",                /*  2 x02 Ball */
+};
+
+#else
+
+extern const char *selArcTypeList[];
+
+#endif

@@ -1,7 +1,12 @@
 #define __ARC__
 #if defined(STM32F4)
 #include "stm32f4xx_hal.h"
+#define LATHE_CPP
 #endif	/* STM32F4 */
+#ifdef STM32H7
+#include "stm32h7xx_hal.h"
+#define LATHE_CPP
+#endif
 
 #define _USE_MATH_DEFINES
 
@@ -13,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(STM32F4)
+#if defined(LATHE_CPP)
 
 #define EXT extern
 #include "config.h"
@@ -38,6 +43,7 @@ inline void updZLoc(int dir)
 
 #define ARC_DEBUG 0
 #define TEST 0
+#define STM_DEBUG 0
 
 #else
 
@@ -50,16 +56,21 @@ inline void updZLoc(int dir)
 
 inline void updXLoc(int dir) {}
 inline void updZLoc(int dir) {}
-inline void xTmrPWMENA() {}
 inline void xTmrPWMDis() {}
+inline void dbgArcStepSet() {}
+inline void dbgArcStepClr() {}
+inline void dbgArcUpdSet() {}
+inline void dbgArcUpdClr() {}
 
 #define ARC_DEBUG 1
 #define TEST 1
+#define STM_DEBUG 0
+
 #if ARC_DEBUG
 FILE *f;
 #endif
 
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
 
 #if defined(__ARC_INC__)		// <-
 
@@ -152,7 +163,7 @@ int octantEnd(int x, int z);
 #endif	// ->
 #if defined(__ARC__)
 
-#if defined(STM32F4)
+#if defined(LATHE_CPP)
 const char *fmtDelta(int delta, char *buf, size_t bufSize)
 {
  if (delta == INT_MAX)
@@ -326,10 +337,10 @@ void updOctant(int octant)
 	 octant, arc->inXDir, arc->inZDir, cmd);
 #endif
 
-#if defined(STM32F4)
+#if defined(LATHE_CPP)
  printf("\noctant %d inxDir %d inZDir %d cmd %2x\n",
 	 octant, arc->inXDir, arc->inZDir, cmd);
-#endif /* STM32F4 */
+#endif /* LATHE_CPP */
 }
 
 void arcQue(unsigned char cmd, unsigned char rpt)
@@ -358,7 +369,7 @@ void arcInit(float radius)
  P_ARC_DATA arc = &arcData;
  arc->count = 0;
 
-#if defined(STM32F4)
+#if defined(LATHE_CPP)
  arc->xStepsInch = xAxis.stepsInch;
  arc->zStepsInch = zAxis.stepsInch;
 
@@ -371,7 +382,7 @@ void arcInit(float radius)
  arc->p1.x = rVar.arcXEnd - arc->center.x;
  arc->p1.z = rVar.arcZEnd - arc->center.z;
   
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
 
  arc->qCount = 0;
  arc->emp = arc->arcBuf;
@@ -394,14 +405,14 @@ void arcInit(float radius)
 
  fprintf(f, "xSteps45 %d zSteps45 %d\n", arc->xStep45, arc->zStep45);
 #endif
-#if defined(STM32F4) 
+#if defined(LATHE_CPP) 
  printf("radius %6.3f xRadius %5d xRaidusSqrd %10d\n"
 	 "zRadius %5d zRaidusSqrd %10d\n",
 	 radius, arc->xRadius, arc->xRadiusSqrd,
 	 arc->zRadius, arc->zRadiusSqrd);
 
  printf("xSteps45 %d zSteps45 %d\n", arc->xStep45, arc->zStep45);
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
 
  arc->octStart = octantStart(arc->p0.x, arc->p0.z);
  arc->octEnd = octantEnd(arc->p1.x, arc->p1.z);
@@ -412,11 +423,11 @@ void arcInit(float radius)
 	 arc->p1.z, arc->octEnd);
 #endif
 
-#if defined(STM32F4) 
+#if defined(LATHE_CPP) 
  printf("p0 (%5d, %5d) o %d p1 (%5d %5d) o %d\n",
 	 arc->p0.x, arc->p0.z, arc->octStart, arc->p1.x,
 	 arc->p1.z, arc->octEnd);
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
 
  int octant = arc->octStart;
 
@@ -494,6 +505,7 @@ void arcInit(float radius)
 
 bool arcStep(void)
 {
+ dbgArcStepSet();
  P_ARC_DATA arc = &arcData;
 
  int cmd = arc->cmd;
@@ -506,13 +518,14 @@ bool arcStep(void)
    if (arc->done)
    {
     arc->active = false;
-#if defined(STM32F4)
+#if defined(LATHE_CPP)
     zIsr.active = 0;
     xIsr.active = 0;
     zTmrStop();
     xTmrStop();
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
    }
+   dbgArcStepClr();
    return(false);
   }
 
@@ -577,8 +590,8 @@ bool arcStep(void)
    updXLoc(arc->xDir);
    arc->xPos += arc->xDir;
   }
-  else
-   xTmrPWMDis();
+//  else
+//   xTmrPWMDis();
   break;
   
  case PCMD_HLDX_SN_INCZ:	/* 3 */
@@ -590,8 +603,8 @@ bool arcStep(void)
    updXLoc(arc->xDir);
    arc->xPos += arc->xDir;
   }
-  else
-   xTmrPWMDis();
+//  else
+//   xTmrPWMDis();
   break;
 
  case PCMD_INCX2_INCZ:		/* 4 */
@@ -603,19 +616,21 @@ bool arcStep(void)
    updXLoc(arc->xDir);
    arc->xPos += arc->xDir;
   }
-  else
-   xTmrPWMDis();
+//  else
+//   xTmrPWMDis();
   break;
 
  case PCMD_SET_DIR:		/* 7 */
   arc->xDir = (rpt & PCMD_X_NEG) == 0 ? 1 : -1;
   arc->zDir = (rpt & PCMD_Z_NEG) == 0 ? 1 : -1;
   arc->rpt = 0;
+  dbgArcStepClr();
   return(true);
   break;
  }
  arc->rpt = rpt;
  arc->steps += 1;
+ dbgArcStepClr();
  return(true);
 }
 
@@ -647,7 +662,7 @@ void arcTest(int xChange, int zChange, int cmd, int rpt)
  fprintf(f, "x %5d z %5d%c", h->stepX, h->stepZ, err);
 #endif
 
- char buf[8];
+ char buf[16];
  fprintf(f, "delta %4d %4s xChg %3d zChg %3d rpt %3d cmd %d %2x\n",
 	 arc->delta, fmtDelta(arc->lastDelta, buf, sizeof(buf)),
 	 xChange, zChange, rpt, cmd & PCMD_CMD_MASK, cmd);
@@ -677,7 +692,7 @@ void arcTest(int xChange, int zChange, int cmd, int rpt)
 }
 #endif
 
-#if defined(STM32F4)
+#if defined(LATHE_CPP)
 void arcPrint(int xChange, int zChange, int cmd, int rpt)
 { 
  P_ARC_DATA arc = &arcData;
@@ -686,48 +701,77 @@ void arcPrint(int xChange, int zChange, int cmd, int rpt)
 
  printf("%3d %5d x %5d z %5d ",
 	arc->qCount, arc->count, arc->cmdX, arc->cmdZ);
- char buf[8];
+ char buf[16];
  printf("delta %4d %4s xChg %3d zChg %3d rpt %3d cmd %d %2x\n",
 	arc->delta, fmtDelta(arc->lastDelta, buf, sizeof(buf)),
 	xChange, zChange, rpt, cmd & PCMD_CMD_MASK, cmd);
  flushBuf();
 }
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
+
+inline bool endCheck0(P_ARC_DATA arc)
+{
+ if (arc->endCheck)
+ {
+  if (arc->inXDir > 0)
+  {
+   if (arc->xNext > arc->xEnd)
+   {
+    arc->done = true;
+    return(true);
+   }
+  }
+  else
+  {
+   if (arc->xNext < arc->xEnd)
+   {
+    arc->done = true;
+    return(true);
+   }
+  }
+ }
+ return(false);
+}
+
+inline bool endCheck1(P_ARC_DATA arc)
+{
+ if (arc->endCheck)
+ {
+  if (arc->inZDir < 0)
+  {
+   if (arc->zNext < arc->zEnd)
+   {
+    arc->done = true;
+    return(true);
+   }
+  }
+  else
+  {
+   if (arc->zNext > arc->zEnd)
+   {
+    arc->done = true;
+    return(true);
+   }
+  }
+ }
+ return(false);
+}
 
 void arcUpdate()
 {
-#if defined(STM32F4)
- flushBuf();
-#endif	/* STM32F4 */
  P_ARC_DATA arc = &arcData;
  while (true)
  {
   if (arc->qCount >= (ARC_BUF_SIZE - 2))
    break;
+  dbgArcUpdSet();
   int x;
   int z;
   int delta;
   if (arc->lessThan45)
   {
-   if (arc->endCheck)
-   {
-    if (arc->inXDir > 0)
-    {
-     if (arc->xNext > arc->xEnd)
-     {
-      arc->done = true;
-      break;
-     }
-    }
-    else
-    {
-     if (arc->xNext < arc->xEnd)
-     {
-      arc->done = true;
-      break;
-     }
-    }
-   }
+   if (endCheck0(arc))
+    break;
    arc->zLast = arc->z;
    x = arc->xNext;
    arc->x = x;
@@ -742,25 +786,8 @@ void arcUpdate()
   }
   else
   {
-   if (arc->endCheck)
-   {
-    if (arc->inZDir < 0)
-    {
-     if (arc->zNext < arc->zEnd)
-     {
-      arc->done = true;
-      break;
-     }
-    }
-    else
-    {
-     if (arc->zNext > arc->zEnd)
-     {
-      arc->done = true;
-      break;
-     }
-    }
-   }
+   if (endCheck1(arc))
+    break;
    arc->xLast = arc->x;
    z = arc->zNext;
    arc->z = z;
@@ -821,9 +848,9 @@ void arcUpdate()
 #if ARC_DEBUG
    arcTest(xChange, zChange, cmd, rpt);
 #endif
-#if defined(STM32F4)
-//   arcPrint(xChange, zChange, cmd, rpt);
-#endif	/* STM32F4 */
+#if STM_DEBUG
+   arcPrint(xChange, zChange, cmd, rpt);
+#endif	/* STM_DEBUG */
  
    arc->count += 1;
 
@@ -878,9 +905,10 @@ void arcUpdate()
   saveHistory(x, z, arc->delta, arc->lastDelta);
 #endif
  }
+ dbgArcUpdClr();
 }
 
-#if !defined(STM32F4)
+#if !defined(LATHE_CPP)
 
 float radians(float a)
 {
@@ -983,6 +1011,6 @@ int main(int argc, char *argv[])
  fclose(f);
 }
 
-#endif	/* STM32F4 */
+#endif	/* LATHE_CPP */
 
 #endif	/* __ARC__ */

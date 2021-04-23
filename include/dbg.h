@@ -494,59 +494,29 @@ inline void dbgAxisCtlClr() {}
 inline uint16_t dbgAxisCtlRead() {return(0);}
 
 /* x dro isr */
-#ifdef Dbg3_Pin
-inline void dbgXDroSet() {Dbg3_GPIO_Port->BSRR = Dbg3_Pin;}
-inline void dbgXDroClr() {Dbg3_GPIO_Port->BSRR = (Dbg3_Pin << 16);}
-inline uint16_t dbgXDroRead() {return((Dbg3_GPIO_Port->IDR & Dbg3_Pin) != 0);}
-#else
 inline void dbgXDroSet() {}
 inline void dbgXDroClr() {}
 inline uint16_t dbgXDroRead() {return(0);}
-#endif
 
 /* x stop */
-#ifdef Dbg4_Pin
-inline void dbgXStopSet() {Dbg4_GPIO_Port->BSRR = Dbg4_Pin;}
-inline void dbgXStopClr() {Dbg4_GPIO_Port->BSRR = (Dbg4_Pin << 16);}
-inline uint16_t dbgXStopRead() {return((Dbg4_GPIO_Port->IDR & Dbg4_Pin) != 0);}
-#else
 inline void dbgXStopSet() {}
 inline void dbgXStopClr() {}
 inline uint16_t dbgXStopRead() {return(0);}
-#endif
 
 /* x done */
-#ifdef Dbg5_Pin
-inline void dbgXDoneSet() {Dbg5_GPIO_Port->BSRR = Dbg5_Pin;}
-inline void dbgXDoneClr() {Dbg5_GPIO_Port->BSRR = (Dbg5_Pin << 16);}
-inline uint16_t dbgXDoneRead() {return((Dbg5_GPIO_Port->IDR & Dbg5_Pin) != 0);}
-#else
 inline void dbgXDoneSet() {}
 inline void dbgXDoneClr() {}
 inline uint16_t dbgXDoneRead() {return(0);}
-#endif
 
 /* x move using dro */
-#ifdef Dbg7_Pin
-inline void dbgXUpdDroSet() {Dbg7_GPIO_Port->BSRR = Dbg7_Pin;}
-inline void dbgXUpdDroClr() {Dbg7_GPIO_Port->BSRR = (Dbg7_Pin << 16);}
-inline uint16_t dbgXUpdDroRead() {return((Dbg7_GPIO_Port->IDR & Dbg7_Pin) != 0);}
-#else
 inline void dbgXUpdDroSet() {}
 inline void dbgXUpdDroClr() {}
 inline uint16_t dbgXUpdDroRead() {return(0);}
-#endif
 
 /* x dro final */
-#ifdef Dbg8_Pin
-inline void dbgXFinalDroSet() {Dbg8_GPIO_Port->BSRR = Dbg8_Pin;}
-inline void dbgXFinalDroClr() {Dbg8_GPIO_Port->BSRR = (Dbg8_Pin << 16);}
-inline uint16_t dbgXFinalDroRead() {return((Dbg8_GPIO_Port->IDR & Dbg8_Pin) != 0);}
-#else
 inline void dbgXFinalDroSet() {}
 inline void dbgXFinalDroClr() {}
 inline uint16_t dbgXFinalDroRead() {return(0);}
-#endif
 
 /* z dro isr */
 inline void dbgZDroSet() {}
@@ -562,6 +532,50 @@ inline uint16_t dbgZStopRead() {return(0);}
 inline void dbgZDoneSet() {}
 inline void dbgZDoneClr() {}
 inline uint16_t dbgZDoneRead() {return(0);}
+
+/* arc update */
+#ifdef Dbg3_Pin
+inline void dbgArcUpdSet() {Dbg3_GPIO_Port->BSRR = Dbg3_Pin;}
+inline void dbgArcUpdClr() {Dbg3_GPIO_Port->BSRR = (Dbg3_Pin << 16);}
+inline uint16_t dbgArcUpdRead() {return((Dbg3_GPIO_Port->IDR & Dbg3_Pin) != 0);}
+#else
+inline void dbgArcUpdSet() {}
+inline void dbgArcUpdClr() {}
+inline uint16_t dbgArcUpdRead() {return(0);}
+#endif
+
+/* arc step */
+#ifdef Dbg4_Pin
+inline void dbgArcStepSet() {Dbg4_GPIO_Port->BSRR = Dbg4_Pin;}
+inline void dbgArcStepClr() {Dbg4_GPIO_Port->BSRR = (Dbg4_Pin << 16);}
+inline uint16_t dbgArcStepRead() {return((Dbg4_GPIO_Port->IDR & Dbg4_Pin) != 0);}
+#else
+inline void dbgArcStepSet() {}
+inline void dbgArcStepClr() {}
+inline uint16_t dbgArcStepRead() {return(0);}
+#endif
+
+/* encoder isr */
+#ifdef Dbg5_Pin
+inline void dbgEncIsrSet() {Dbg5_GPIO_Port->BSRR = Dbg5_Pin;}
+inline void dbgEncIsrClr() {Dbg5_GPIO_Port->BSRR = (Dbg5_Pin << 16);}
+inline uint16_t dbgEncIsrRead() {return((Dbg5_GPIO_Port->IDR & Dbg5_Pin) != 0);}
+#else
+inline void dbgEncIsrSet() {}
+inline void dbgEncIsrClr() {}
+inline uint16_t dbgEncIsrRead() {return(0);}
+#endif
+
+/* remote command */
+#ifdef Dbg6_Pin
+inline void dbgRemCmdSet() {Dbg6_GPIO_Port->BSRR = Dbg6_Pin;}
+inline void dbgRemCmdClr() {Dbg6_GPIO_Port->BSRR = (Dbg6_Pin << 16);}
+inline uint16_t dbgRemCmdRead() {return((Dbg6_GPIO_Port->IDR & Dbg6_Pin) != 0);}
+#else
+inline void dbgRemCmdSet() {}
+inline void dbgRemCmdClr() {}
+inline uint16_t dbgRemCmdRead() {return(0);}
+#endif
 
 #endif /* __DBG_H */
 #endif /* __STM32F4xx_HAL_H */

@@ -124,17 +124,25 @@ dbgList = \
  ("dbgJogMPG1", "", "jog moving all cases"), \
  ("dbgJogMPG2", "", "jog moving isr done start again"), \
  ("dbgJogMPG3", "", "jog moving add to current distance"), \
+
  ("dbgAxisCtl", "", "axis control"), \
- ("dbgXDro",    "3", "x dro isr"), \
- ("dbgXStop",   "4", "x stop"), \
- ("dbgXDone",   "5", "x done"), \
- ("dbgXUpdDro", "7", "x move using dro"), \
- ("dbgXFinalDro","8", "x dro final"), \
+
+ ("dbgXDro",    "", "x dro isr"), \
+ ("dbgXStop",   "", "x stop"), \
+ ("dbgXDone",   "", "x done"), \
+ ("dbgXUpdDro", "", "x move using dro"), \
+ ("dbgXFinalDro","", "x dro final"), \
+
  ("dbgZDro",    "", "z dro isr"), \
  ("dbgZStop",   "", "z stop"), \
  ("dbgZDone",   "", "z done"), \
-)
-#("","",""), \
+
+ ("dbgArcUpd",  "3", "arc update"), \
+ ("dbgArcStep", "4", "arc step"), \
+ ("dbgEncIsr",  "5", "encoder isr"), \
+ ("dbgRemCmd",  "6", "remote command"), \
+ )
+ #("","",""), \
 
 dbgPins = ("0", "1", "2", "3", "4", "5", \
            "6", "7", "8", "9", "10", "11", "12", \

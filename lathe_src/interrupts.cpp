@@ -1235,7 +1235,7 @@ extern "C" void spSyncISR(void)
 extern "C" void encISR(void)
 {
  EXTI->PR = encIRQ_Bit;
-
+ dbgEncIsrSet();
  if ((zIsr.active & ARC_ACTIVE_ENC) != 0) /* if arc active */
  {
   arcStep();
@@ -1250,6 +1250,7 @@ extern "C" void encISR(void)
  {
   xCheckStep();			/* check for x axis step */
  }
+ dbgEncIsrClr();
 }
 
 #define toggle(cond, set, clr)			\
@@ -1281,12 +1282,12 @@ extern "C" void cmpTmrISR(void)
   {
    delta = captureVal - cmpTmr.lastEnc; /* time since last pulse */
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */
-   cmpTmr.encPulse -= 1;		/* count off a pulse */
+   cmpTmr.encPulse -= 1;	/* count off a pulse */
 
    uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycleclocks */
    uint16_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
    cycleClocks -= *p;		/* subtract old value */
-   cycleClocks += delta;		/* add in new value */
+   cycleClocks += delta;	/* add in new value */
    *p = delta;			/* save new value */
 
    cmpTmr.cycleClocks = cycleClocks; /* update clocks in a cycle */

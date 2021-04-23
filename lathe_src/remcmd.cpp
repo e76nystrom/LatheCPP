@@ -188,7 +188,8 @@ void loadVal(void)
 
 void remcmd(void)
 {
-  int parm;
+ dbgRemCmdSet();
+ int parm;
 
  remcmdUpdateTime = millis();
  remcmdTimeout = REMCMD_TIMEOUT;
@@ -446,7 +447,8 @@ void remcmd(void)
   {
    if (rVar.indexPeriod != 0)
    {
-    sprintf(buf, "%1.0f ", ((float) indexFreq / (uint32_t) rVar.indexPeriod) * 60);
+    sprintf(buf, "%1.0f ",
+	    ((float) indexFreq / (uint32_t) rVar.indexPeriod) * 60);
     putstrrem(buf);
    }
    else
@@ -478,7 +480,7 @@ void remcmd(void)
    {
     if (rtn == FLOAT_VAL)	/* if floating */
      queMoveCmd(parm, fValRem);	/* que command */
-    else				/* if integer */
+    else			/* if integer */
      queIntCmd(parm, valRem);	/* que command */
    }
   }
@@ -570,8 +572,9 @@ void remcmd(void)
  }
 #endif
 
- flushBuf();
+// flushBuf();
  putrem('*');
+ dbgRemCmdClr();
 }
 
 #endif

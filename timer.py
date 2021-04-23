@@ -51,7 +51,8 @@ macros = \
  (None, "dirZRev",    None, None, "Dir1_GPIO_Port->BSRR = zAxis.dirRev"),
  (None, "dirXFwd",    None, None, "Dir2_GPIO_Port->BSRR = xAxis.dirFwd"),
  (None, "dirXRev",    None, None, "Dir2_GPIO_Port->BSRR = xAxis.dirRev"),
- ("uint32_t", "CALC_STEP_WIDTH", "uint32_t", "x", "(cfgFcy * x) / 1000000l"),
+ ("uint32_t", "CALC_STEP_WIDTH", "uint32_t", "x", \
+  "(rVar.cfgFcy * x) / 1000000l"),
 )
 
 regList = \
@@ -249,7 +250,8 @@ def main(cfg, path):
     global name, tmr, argType, pwm, isr, slave
 
     f = open("../" + path + "/inc/timers.h", "wb")
-    fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
+    fWrite(f, "#if defined(__STM32F4xx_HAL_H) || "\
+           "defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
     fWrite(f, "#if !defined(__TIMERS_H)\n")
     fWrite(f, "#define __TIMERS_H\n\n")
 
@@ -308,8 +310,10 @@ def main(cfg, path):
             fWrite(f, " pwm %d" % (pwm))
         fWrite(f, " */\n\n")
 
-        fWrite(f, "#define %s %s\n" % (name.upper().replace("TMR", "_TIMER"), tmr))
-        fWrite(f, "#define %s %s\n\n" % (name.upper().replace("TMR", "_TMR"), timer))
+        fWrite(f, "#define %s %s\n" % \
+               (name.upper().replace("TMR", "_TIMER"), tmr))
+        fWrite(f, "#define %s %s\n\n" % \
+               (name.upper().replace("TMR", "_TMR"), timer))
 
         if isr != None and len(isr) != 0:
             fWrite(f, "#define %sISR(x) %s_IRQHandler(x)\n\n" % (name, isr))
@@ -343,7 +347,8 @@ def main(cfg, path):
                                 body += "TIM_SMCR_TS_0 | "
                             body += "\\\n"
                             body += "\tTIM_SMCR_SMS_2 | TIM_SMCR_SMS_1)"
-                            fWrite(f, "/* timer %d trigger %d */\n\n" % (spindleTmr, i))
+                            fWrite(f, "/* timer %d trigger %d */\n\n" % \
+                                   (spindleTmr, i))
                             makeFunc(timer, "SlvEna", None, body)
                             body = timer + "->SMCR = 0"
                             makeFunc(timer, "SlvDis", None, body)
@@ -548,7 +553,8 @@ nuch743 = \
 
 def triggers():
     global slaveTrig
-    if proc == "STM32F407" or proc == "STM32F446" or proc == "STM32F746" or proc == "STM32H743":
+    if (proc == "STM32F407" or proc == "STM32F446" or \
+        proc == "STM32F746" or proc == "STM32H743"):
         slaveTrig = \
         (\
         (2, (1, 8, 3, 4)),
@@ -581,7 +587,8 @@ def setConfig(cfg):
       TmrCfg("xTmr", step2, "uint32_t", step2Pwm, "TIM5", True),
       TmrCfg("step3Tmr", step3, "uint16_t", step3Pwm, step3Isr, None),
       TmrCfg("step4Tmr", step4, "uint16_t", step4Pwm, step4Isr, None),
-      TmrCfg("spindleTmr", spindleTmr, "uint16_t", spindlePwm, spindleIsr, None),
+      TmrCfg("spindleTmr", spindleTmr, "uint16_t", spindlePwm, \
+             spindleIsr, None),
       TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, pwmTmrIsr, None),
       TmrCfg("usecTmr", usecTmr, "uint16_t", 0, usecTmrIsr, None),
       TmrCfg("indexTmr", indexTmr, "uint16_t", 0, indexTmrIsr, None),

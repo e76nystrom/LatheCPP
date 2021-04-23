@@ -489,13 +489,13 @@ int16_t mainLoop(void)
     {
      if ((rVar.mvStatus & MV_ESTOP) != 0) /* if flag not set */
      {
-      rVar.mvStatus |= MV_ESTOP;	/* set estop flag */
+      rVar.mvStatus |= MV_ESTOP; /* set estop flag */
       clearCmd();		/* stop everything */
      }
     }
     else			/* if estop input clear */
     {
-     rVar.mvStatus &= ~MV_ESTOP;	/* clear estop flag */
+     rVar.mvStatus &= ~MV_ESTOP; /* clear estop flag */
     }
 
     procMove();			/* process move command */
@@ -665,7 +665,8 @@ void lcdDisplay(void)
      char h = rVar.xHomeStatus == HOME_SUCCESS ? 'H' : ' ';
      char p = rVar.cmdPaused ? 'P' : ' ';
      sprintf(buf, "%c%c         D %7.4f", h, p,
-	     2.0 * fabsf(((float) (rVar.xLoc - rVar.xHomeOffset)) / xAxis.stepsInch));
+	     2.0 * fabsf(((float) (rVar.xLoc - rVar.xHomeOffset)) /
+			 xAxis.stepsInch));
      if (rVar.cfgDro)
       lcdRow = 2;
      else
