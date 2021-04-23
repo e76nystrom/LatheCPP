@@ -666,7 +666,7 @@ unsigned char getnum(void)
 unsigned char getfloat(void)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
- 
+
  char len = getstr(chbuf, sizeof(chbuf));
  if (len != 0)
  {
@@ -679,7 +679,7 @@ unsigned char getfloat(void)
 unsigned char getnumAll(void)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
- 
+
  char len = getstr(chbuf, sizeof(chbuf));
  if (len != 0)
  {
@@ -943,7 +943,7 @@ char gethex1(void)
 unsigned char getnum1(void)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
- 
+
  char len = getstr1(chbuf, sizeof(chbuf));
  if (len != 0)
  {
@@ -1207,7 +1207,7 @@ char getstrRem(char *buf, int bufLen)
 unsigned char getnumRem(void)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
- 
+
  char len = getstrRem(chbuf, sizeof(chbuf));
  if (len != 0)
  {
@@ -1318,7 +1318,7 @@ void putBufChar(char ch)
   __enable_irq();
   charOverflow++;
  }
- 
+
  pollBufChar();
 }
 
@@ -1373,7 +1373,7 @@ int pollBufChar(void)
     else
      lineStart = 0;
     break;
-    
+
    case 2:
     if (isrCount > 0)
     {
@@ -1577,7 +1577,7 @@ ssize_t _write(int fd  __attribute__((unused)), const char* buf, size_t nbyte)
 #define STDIN   0
 #define STDOUT  1
 #define STDERR  2
- 
+
 int __attribute__((__weak__, __section__(".libc")))
 write (int handle, const char *buffer, int len)
 {

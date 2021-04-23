@@ -258,7 +258,7 @@ void remcmd(void)
  case XHOMEFWD:
   homeAxis(&xHomeCtl, HOME_FWD);
  break;
- 
+
  case XHOMEREV:
   homeAxis(&xHomeCtl, HOME_REV);
  break;
@@ -372,7 +372,7 @@ void remcmd(void)
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
   int size = remparm[parm].size;
-  printf("r p %2x s %d v %8x\n", 
+  printf("r p %2x s %d v %8x\n",
 	 (unsigned int) parm, size, parmVal.t_unsigned_int);
   sndhexrem((unsigned char *) &parmVal.t_char, size); /* send the response */
 #else
@@ -395,7 +395,7 @@ void remcmd(void)
    {
     tmp = *(int16_t *) p;
    }
-   printf("r %2x %d (%08x) = %8x\n", 
+   printf("r %2x %d (%08x) = %8x\n",
 	  (unsigned int) parm, size, (unsigned int) p, tmp);
   }
   sndhexrem((unsigned char *) valptr->p, valptr->size); /* send the response */

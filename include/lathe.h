@@ -22,7 +22,7 @@
 #define DWT_CTRL_CycCntEna DWT_CTRL_CYCCNTENA_Msk
 inline void resetCnt()
 {
- DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter    
+ DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter
  DWT->CYCCNT = 0;		// reset the counter
 }
 
@@ -33,7 +33,7 @@ inline void startCnt()
 
 inline void stopCnt()
 {
- DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter    
+ DWT->CTRL &= ~DWT_CTRL_CycCntEna; // disable the counter
 }
 
 inline unsigned int getCycles()
@@ -74,7 +74,7 @@ typedef struct s_spindle
  float accel;			/* spindle acceleration */
  int dirFwd;			/* forward bit */
  int dirRev;			/* reverse bit */
- 
+
  /* calculated values */
  int clocksRev;			/* clocks per revolution */
  float stepsSec;		/* steps per second */
@@ -376,7 +376,7 @@ typedef struct
  uint32_t intCount;		/* internal counts */
  uint32_t cycleCount;		/* encoder cycle counter */
  int missedStart;		/* start flag missed */
- 
+
  unsigned int encCycLen;	/* encoder cycle length */
  int encPulse;			/* encoder pulse number */
  uint16_t lastEnc;		/* last encoder capture */

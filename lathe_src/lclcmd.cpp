@@ -352,7 +352,7 @@ void lclcmd(int ch)
 
    if (query(&getnum, "invert "))
     invert = val != 0;
-  
+
    int set = (((reg & mask) != 0) ^ invert);
    int clr = (((reg & mask) == 0) ^ invert);
 
@@ -1042,7 +1042,7 @@ void zCommand(void)
    fflush(stdout);
    if (getfloat())
     taper = fVal;
-    
+
    taperCalc(&zTA, &xPA, taper);
    xTaperInit(&xPA, 1);
   }

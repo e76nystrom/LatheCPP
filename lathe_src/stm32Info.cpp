@@ -86,7 +86,7 @@ typedef struct
  char name;
 } T_GPIO, *P_GPIO;
 
-T_GPIO gpio[] = 
+T_GPIO gpio[] =
 {
  {GPIOA, 'A'},
  {GPIOB, 'B'},
@@ -94,7 +94,7 @@ T_GPIO gpio[] =
 #ifdef GPIOD
  {GPIOD, 'D'},
 #endif
-#ifdef GPIOE 
+#ifdef GPIOE
  {GPIOE, 'E'},
 #endif
 #ifdef GPIOF
@@ -228,7 +228,7 @@ void gpioInfo(GPIO_TypeDef *gpio)
   printf(" %2d", i);
 
  int val;
- 
+
 #if defined(STM32F3) || defined(STM32F4)
  printf("\nmoder    ");
  val = gpio->MODER;
@@ -270,7 +270,7 @@ void gpioInfo(GPIO_TypeDef *gpio)
  for (i = 0; i < 8; i++)
   printf(" %2d", (val >> ((4 * i) + 2)) & 0x3);
 #endif	/* STM32F1 */
- 
+
  printf("\nidr      ");
  val = gpio->IDR;
  for (i = 0; i < 16; i++)
@@ -1005,7 +1005,7 @@ void info()
   tmrInfo(TIM16);
 #endif
  }
-  
+
  if (val & 0x200)
  {
 #ifdef TIM11
@@ -1015,7 +1015,7 @@ void info()
   tmrInfo(TIM17);
 #endif
  }
-  
+
 #ifdef TIM12
  if (val & 0x400)
   tmrInfo(TIM12);

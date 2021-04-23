@@ -184,9 +184,9 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
    return;
   }
  }
-  
+
  I2Cx->CR1 |= I2C_CR1_START;
-	  
+
  while ((I2Cx->SR1 & I2C_SR2_MSL) == 0) /* wait for master mode */
  {
   if ((getCycles() - start) > timeout)
@@ -195,7 +195,7 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
    return;
   }
  }
-		
+
  address &= ~I2C_OAR1_ADD0;
  I2Cx->DR = address;
  while (1)
@@ -211,7 +211,7 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
 void i2cWrite(uint8_t data)
 {
  i2c_start(I2C_DEV, SLAVE_ADDRESS<<1);
- 
+
  i2c_SendData(I2C_DEV, data);
 
  // wait for I2C1 EV8_2 --> byte has been transmitted
@@ -242,9 +242,9 @@ void i2cWrite(uint8_t *data, uint16_t size)
    return;
   }
  }
-  
+
  I2C_DEV->CR1 |= I2C_CR1_START;
-	  
+
  while ((I2C_DEV->SR1 & I2C_SR2_MSL) == 0) /* wait for master mode */
  {
   if ((millis() - start) > timeout)
@@ -253,7 +253,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
    return;
   }
  }
-		
+
 
  I2C_DEV->DR = SLAVE_ADDRESS<<1;
 
@@ -311,10 +311,10 @@ void i2cWrite(uint8_t *data, uint16_t size)
    return;
   }
  }
-  
+
  I2C_DEV->CR2 = (I2C_CR2_AUTOEND | (size << I2C_CR2_NBYTES_Pos) |
 		 I2C_CR2_START | (SLAVE_ADDRESS<<1));
-	  
+
  while (size > 0U)
  {
   size -= 1;

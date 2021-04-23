@@ -364,7 +364,7 @@ unsigned char spisend(unsigned char c)
  while ((spi->SR & SPI_SR_RXP) == 0)
   spiw1++;
  c = spi->RXDR;
-#endif 
+#endif
 
  return(c);
 }
@@ -392,7 +392,7 @@ unsigned char spiread(void)
  while ((spi->SR & SPI_SR_RXP) == 0)
   spiw1++;
  char c = spi->RXDR;
-#endif 
+#endif
 
  return(c);
 }

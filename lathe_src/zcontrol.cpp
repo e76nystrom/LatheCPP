@@ -64,7 +64,7 @@ void zJMoveX(int dir)
   mov->stop = 0;		/* clear stop flag */
   mov->jogInc = (int) (rVar.jogTimeInc * ac->stepsSecX); /* save increment */
   mov->maxDist = (int) (rVar.jogTimeMax * ac->stepsSecX); /* save maximum */
-  printf("zJMove dist %5d zLoc %5d inc %5d max %5d\n", 
+  printf("zJMove dist %5d zLoc %5d inc %5d max %5d\n",
 	 d, rVar.zLoc, mov->jogInc, mov->maxDist);
   zMoveRelX(d, CMD_JOG);	/* start movement */
  }

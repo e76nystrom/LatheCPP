@@ -64,7 +64,7 @@ void xJMoveX(int dir)
   mov->stop = 0;		/* clear stop flag */
   mov->jogInc = (int) (rVar.jogTimeInc * ac->stepsSecX); /* save increment */
   mov->maxDist = (int) (rVar.jogTimeMax * ac->stepsSecX); /* save maximum */
-  printf("xJMove dist %5d xLoc %5d inc %5d max %5d\n",  
+  printf("xJMove dist %5d xLoc %5d inc %5d max %5d\n",
 	 d, rVar.xLoc, mov->jogInc, mov->maxDist);
   xMoveRelX(d, CMD_JOG);	/* start movement */
  }

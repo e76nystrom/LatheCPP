@@ -78,7 +78,7 @@ T_PINDEF pinDef[] =
  PIN(Pin14, Pin14),
  PIN(Pin16, Pin16),
  PIN(Pin17, Pin17),
- 
+
  PIN(Pin10, Pin10),
  PIN(Pin11, Pin11),
  PIN(Pin12, Pin12),
@@ -120,23 +120,23 @@ T_PINDEF pinDef[] =
 
 #ifdef SPI_SEL_Pin
  PIN(SPI_SEL, SPI_SEL),
-#endif 
+#endif
 #ifdef SPI_SCK_Pin
  PIN(SPI_SCK, SPI_SCK),
-#endif 
+#endif
 #ifdef SPI_MISO_Pin
  PIN(SPI_MISO, SPI_MISO),
-#endif 
+#endif
 #ifdef SPI_MOSI_Pin
  PIN(SPI_MOSI, SPI_MOSI),
-#endif 
+#endif
 
 #ifdef I2C_SCL_Pin
  PIN(I2C_SCL, I2C_SCL),
-#endif 
+#endif
 #ifdef I2C_SDA_Pin
  PIN(I2C_SDA, I2C_SDA),
-#endif 
+#endif
 
 #ifdef PinA1_Pin
  PIN(PinA1, PinA1),
@@ -286,11 +286,11 @@ extern UART_HandleTypeDef huart3;
 // Not defined in CMSIS 4.00 headers - check if defined
 // to allow for possible correction in later versions
 
-#if !defined DWT_LSR_Present_Msk 
+#if !defined DWT_LSR_Present_Msk
 #define DWT_LSR_Present_Msk ITM_LSR_Present_Msk
 #endif
 
-#if !defined DWT_LSR_Access_Msk 
+#if !defined DWT_LSR_Access_Msk
 #define DWT_LSR_Access_Msk ITM_LSR_Access_Msk
 #endif
 
@@ -304,19 +304,19 @@ void dwtAccessEnable(unsigned ena)
  printf("lsr %08x\n", (unsigned int) lsr);
 
  CoreDebug->DEMCR |= CoreDebug_DEMCR_TrcEna;
- if ((lsr & DWT_LSR_Present_Msk) != 0) 
+ if ((lsr & DWT_LSR_Present_Msk) != 0)
  {
-  if (ena) 
+  if (ena)
   {
    if ((lsr & DWT_LSR_Access_Msk) != 0) //locked: access need unlock
-   {    
+   {
     DWT->LAR = DWT_LAR_KEY;
    }
-  } 
-  else 
+  }
+  else
   {
    if ((lsr & DWT_LSR_Access_Msk) == 0) //unlocked
-   {   
+   {
     DWT->LAR = 0;
    }
   }
@@ -394,7 +394,7 @@ int16_t mainLoop(void)
  uint8_t startMsg[] = "start main loop\n\r";
  HAL_UART_Transmit(&huart3, startMsg, sizeof(startMsg), HAL_MAX_DELAY);
 #endif
- 
+
  initCharBuf();
 
  putstr("start main loop\n");
@@ -426,7 +426,7 @@ int16_t mainLoop(void)
  printf("spindle timer %d pwm %d\n", SPINDLE_TIMER, SPINDLE_TMR_PWM);
 #else
  printf("spindle timer ");
- 
+
 #ifdef SPINDLE_TIM3
  printf("3 pwm ");
 #endif
@@ -575,7 +575,7 @@ void pinDisplay(void)
 //  printf("port %08x pin %08x gpio %c pin %2d\n",
 //	 (unsigned int) pin->port, (unsigned int) pin->pin,
 //	 val.port, val.num);
-   
+
   P_CONDEF con = conDef;
   const char *connector = "";
   unsigned int j;
@@ -726,19 +726,19 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
  unsigned int stacked_lr;
  unsigned int stacked_pc;
  unsigned int stacked_psr;
- 
+
  stacked_r0 = ((unsigned long) hardfault_args[0]);
  stacked_r1 = ((unsigned long) hardfault_args[1]);
  stacked_r2 = ((unsigned long) hardfault_args[2]);
  stacked_r3 = ((unsigned long) hardfault_args[3]);
- 
+
  stacked_r12 = ((unsigned long) hardfault_args[4]);
  stacked_lr = ((unsigned long) hardfault_args[5]);
  stacked_pc = ((unsigned long) hardfault_args[6]);
  stacked_psr = ((unsigned long) hardfault_args[7]);
- 
+
  dbgBuffer = 0;
- 
+
  printf("\n\n[Hard fault handler - all numbers in hex]\n");
  printf("R0 = %x\n", stacked_r0);
  printf("R1 = %x\n", stacked_r1);
@@ -754,7 +754,7 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
  printf("DFSR = %x\n", (*((volatile unsigned int *) (0xE000ED30))));
  printf("AFSR = %x\n", (*((volatile unsigned int *) (0xE000ED3C))));
  printf("SCB_SHCSR = %x\n", (unsigned int) SCB->SHCSR);
-  
+
  while (1);
 }
 

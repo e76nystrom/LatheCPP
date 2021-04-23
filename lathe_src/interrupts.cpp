@@ -242,7 +242,7 @@ extern "C" void jogISR(void)
     putBufCharIsr('A' - 10 + c);
    putBufCharIsr(' ');
   }
-  
+
   if ((jog1LastDecode == 0x7 && tmp.w == 1)
   ||  (jog1LastDecode == 0xb && tmp.w == 2))
   {
@@ -299,7 +299,7 @@ extern "C" void jogISR(void)
   {
    dbgTrk1W((((decoder[tmp.w] & 0xf) << 4) | (tmp.w & 0xf)));
   }
-  
+
   if (rVar.jogDebug)		/* debugging */
   {
    char c = tmp.w & 0xf;
@@ -376,7 +376,7 @@ extern "C" void TIM1_UP_TIM10_IRQHandler(void)
    xTmrISR();
   }
  }
- 
+
  if constexpr (PWM_TIMER == 1)
  {
   if (pwmTmrIF())
@@ -413,7 +413,7 @@ extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void)
 extern "C" void indexISR(void)
 {
  EXTI->PR = INDEX_PIN;		/* clear index interrupt */
- 
+
  static T_INDEX_COUNTER indexTmp;
 
  indexTmrStop();
@@ -461,7 +461,7 @@ extern "C" void indexISR(void)
  {
   dbgmsg(D_ZIDX, rVar.zDroLoc);	/* save dro position */
  }
- 
+
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
  {
   dbgTrk1W(sp.pos);
@@ -526,7 +526,7 @@ extern "C" void spindleTmrISR(void)
   encState &= 0x3;              /* mas in range */
  }
 #endif
- 
+
  char index;
  if (rVar.spTestIndex)		/* if testing index pulse */
  {
@@ -534,7 +534,7 @@ extern "C" void spindleTmrISR(void)
   {
    EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
   }
-  
+
   if (spStep < sp.stepsRev)	/* if not at index pulse */
   {
    spStep++;			/* increment step */
@@ -586,7 +586,7 @@ extern "C" void spindleTmrISR(void)
    }
   }
 #endif
-  
+
   dbgSpRevClr();
   sp.pos++;			/* update position */
   if (sp.pos >= sp.stepsRev)	/* if completed revolution */
@@ -806,7 +806,7 @@ void zIsrStop(char ch)
  }
  else				/* if normal operation */
   putBufStrIsr("zD");
- 
+
  zIsr.taper = 0;		/* clear taper flag */
  zIsr.done = 1;			/* indicate done */
  if (rVar.cfgDro)
@@ -855,7 +855,7 @@ extern "C" void zTmrISR(void)
     }
    }
   }
- 
+
   if (zIsr.dist != 0)		/* 2*+ if distance set */
   {
    --zIsr.dist;			/* decrement distance */
@@ -885,7 +885,7 @@ extern "C" void zTmrISR(void)
      zRunoutFlag = 0;		/* clear flag */
      dbgRunoutSet();
     }
-  
+
     if ((zIsr.cFactor != 0)	/* if acceleration enabled */
     &&  (zIsr.decel == 0)	/* and not decelerating */
     &&  (zIsr.dist <= (zIsr.accelStep - zIsr.initialStep))) /* time to decel */
@@ -897,7 +897,7 @@ extern "C" void zTmrISR(void)
    } /* if not done */
   } /* if distance set */
  } /* if not in arc mode */
- 
+
  if (zIsr.accel)		/* 3*+ if accelerating */
  {
   if (zIsr.accelStep < zIsr.finalStep) /* if accelerating */
@@ -1009,7 +1009,7 @@ void xIsrStop(char ch)
  xIsr.decel = 0;		/* and decel flags */
  xIsr.sync = 0;			/* clear sync flag */
  xIsr.dist = 0;			/* clear distance */
- 
+
  putBufCharIsr(ch);
  if (xIsr.active)		/* if synchrinized move */
  {
@@ -1027,7 +1027,7 @@ void xIsrStop(char ch)
    }
   }
  }
- 
+
  if (xIsr.taper & TAPER_SLAVE)	/* if tapering */
  {
   xIsr.lastRemCount = xIsr.remCount; /* save remainder count */
@@ -1047,7 +1047,7 @@ void xIsrStop(char ch)
  xIsr.done = 1;			/* indicate done */
  xIsr.stopRev = sp.rev;
  xIsr.stopPos = sp.pos;
- 
+
  if (rVar.cfgDro)
   dbgmsg(D_XDRO, rVar.xDroLoc);
  dbgmsg(D_XLOC, rVar.xLoc);
@@ -1119,7 +1119,7 @@ extern "C" void xTmrISR(void)
    }
   }
  }
-  
+
  if (xIsr.accel)		/* 3*+ if accelerating */
  {
   if (xIsr.accelStep < xIsr.finalStep) /* if accelerating */
@@ -1219,7 +1219,7 @@ extern "C" void spSyncISR(void)
   }
   dbgZEncClr();
  }
-   
+
  if ((xIsr.active & SYNC_ACTIVE_EXT) != 0) /* if x axis active */
  {
   dbgXEncSet();
@@ -1351,7 +1351,7 @@ extern "C" void cmpTmrISR(void)
    }
   }
  }
- 
+
  if constexpr (0)		/* **disabled */
  {
   if (cmpTmrIF())		/* if update interrupt */

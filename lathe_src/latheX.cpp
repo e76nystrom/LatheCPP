@@ -240,7 +240,7 @@ void zSetupX(void)
  axis->accel = rVar.zAccel;
  axis->backlash = rVar.zBacklash;
 
- axis->stepsInch = lrint((axis->microSteps * axis->motorSteps * 
+ axis->stepsInch = lrint((axis->microSteps * axis->motorSteps *
 			  axis->ratio) / axis->pitch);
  axis->backlashSteps = lrint(axis->backlash * axis->stepsInch);
 
@@ -328,7 +328,7 @@ void xSetupX(void)
  axis->accel = rVar.xAccel;
  axis->backlash = rVar.xBacklash;
 
- axis->stepsInch = lrint((axis->microSteps * axis->motorSteps * 
+ axis->stepsInch = lrint((axis->microSteps * axis->motorSteps *
 			  axis->ratio) / axis->pitch);
  axis->backlashSteps = lrint(axis->backlash * axis->stepsInch);
 
@@ -477,7 +477,7 @@ void accelSetupX(P_ACCEL ac)
  int accelMaxStep = (int) (((stepsSecMax / stepsSec2) * stepsSecMax) / 2.0);
  ac->accelSteps = accelMaxStep - accelMinStep;
  if (DBG_SETUP)
-  printf("accelSteps %d accelMinStep %d accelMaxStep %d\n", 
+  printf("accelSteps %d accelMinStep %d accelMaxStep %d\n",
 	 ac->accelSteps, accelMinStep, accelMaxStep);
 
  int dxBase = ac->clocksPerInch;
@@ -539,17 +539,17 @@ void accelSetupX(P_ACCEL ac)
  ac->intAccel = 2 * intIncPerClock;
  if (DBG_SETUP)
   printf("\nincr1 %d incr2 %d sum %d\n", ac->incr1X, ac->incr2X, ac->sum);
- 
+
  if (intIncPerClock != 0)
  {
   int64_t totalSum = (int64_t) accelClocks * ac->incr1X + ac->sum;
-  int64_t totalInc = ((int64_t) accelClocks * (accelClocks - 1) * 
+  int64_t totalInc = ((int64_t) accelClocks * (accelClocks - 1) *
 		      ac->intAccel) / 2;
   ac->accelSteps = (int) ((totalSum + totalInc) / (2 * ac->dx));
 #ifdef WIN32
   if (DBG_SETUP)
    printf("accelClocks %d "
-	  "totalSum %" PRId64 " totalInc %" PRId64 " accelSteps %d\n", 
+	  "totalSum %" PRId64 " totalInc %" PRId64 " accelSteps %d\n",
 	  ac->accelClocks, totalSum, totalInc, ac->accelSteps);
 #else
   if (DBG_SETUP)

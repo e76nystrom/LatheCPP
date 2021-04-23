@@ -121,7 +121,7 @@ __STATIC_INLINE void delayUSecX(volatile uint32_t microseconds)
 {
  uint32_t start = DWT->CYCCNT;
  microseconds *= (HAL_RCC_GetSysClockFreq() / 1000000);
- 
+
  while ((DWT->CYCCNT - start) < microseconds)
   ;
 #if 0
