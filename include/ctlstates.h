@@ -403,7 +403,10 @@ enum SEL_ARC_TYPE
 {
  SEL_ARC_END,                   /*  0 x00 End */
  SEL_ARC_CORNER,                /*  1 x01 Corner */
- SEL_ARC_BALL,                  /*  2 x02 Ball */
+ SEL_ARC_SMALL,                 /*  2 x02 Small Ball */
+ SEL_ARC_LARGE,                 /*  3 x03 Large Ball */
+ SEL_ARC_SMALL_STEM,            /*  4 x04 Small Stem */
+ SEL_ARC_LARGE_STEM,            /*  5 x05 Large Stem */
 };
 
 #ifdef ENUM_SEL_ARC_TYPE
@@ -412,7 +415,10 @@ const char *selArcTypeList[] =
 {
  "SEL_ARC_END",                 /*  0 x00 End */
  "SEL_ARC_CORNER",              /*  1 x01 Corner */
- "SEL_ARC_BALL",                /*  2 x02 Ball */
+ "SEL_ARC_SMALL",               /*  2 x02 Small Ball */
+ "SEL_ARC_LARGE",               /*  3 x03 Large Ball */
+ "SEL_ARC_SMALL_STEM",          /*  4 x04 Small Stem */
+ "SEL_ARC_LARGE_STEM",          /*  5 x05 Large Stem */
 };
 
 #else

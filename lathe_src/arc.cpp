@@ -315,20 +315,27 @@ void updOctant(int octant)
   arc->cwDir = true;
 
  int cmd;
+ P_OCT_INC inc;
  if (arc->cwDir)
  {
   cmd = cwOctDir[octant];
-  P_OCT_INC inc = &cwOctInc[octant];
-  arc->inXDir = inc->xInc;
-  arc->inZDir = inc->zInc;
+  inc = &cwOctInc[octant];
  }
  else
  {
   cmd = ccwOctDir[octant];
-  P_OCT_INC inc = &ccwOctInc[octant];
-  arc->inXDir = inc->xInc;
-  arc->inZDir = inc->zInc;
+  inc = &ccwOctInc[octant];
  }
+ arc->inXDir = inc->xInc;
+ arc->inZDir = inc->zInc;
+ if (inc->xInc > 0)
+  xMoveCtl.dirFwd();
+ else
+  xMoveCtl.dirRev();
+ if (inc->zInc > 0)
+  zMoveCtl.dirFwd();
+ else
+  zMoveCtl.dirRev();
  cmd = (PCMD_SET_DIR | ((PCMD_DIR_FLAG | cmd) << PCMD_RPT_SHIFT));
  arcQue(cmd, 0);
 
