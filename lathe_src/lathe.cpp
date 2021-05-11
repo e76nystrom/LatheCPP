@@ -3387,15 +3387,16 @@ void syncMoveSetup(void)
   HAL_NVIC_DisableIRQ(spSyncIRQn); /* disable spindle sync interrupt */
 }
 
-void zMoveRel(int dist, int cmd)
+void zMoveRel
+(int dist, int cmd)
 {
  P_MOVECTL mov = &zMoveCtl;
 
  if (DBG_MOVOP)
  {
   float stepsInch = zAxis.stepsInch;
-  printf("zMoveRel %2x l %7.4f d %7.4f\n",
-	 cmd, rVar.zLoc / stepsInch, dist / stepsInch);
+  printf("zMoveRel %2x l %7.4f d %7.4f dir %2d\n",
+	 cmd, rVar.zLoc / stepsInch, dist / stepsInch, mov->dir);
  }
  mov->loc = rVar.zLoc;		/* save current location */
  mov->expLoc = rVar.zLoc + dist; /* calculate expected end location */
@@ -4233,8 +4234,10 @@ void xMoveRel(int dist, int cmd)
  {
   float xTmp = (float) (rVar.xLoc - runCtl.xHomeOffset) / stepsInch;
   float xExp = (float) (mov->expLoc - runCtl.xHomeOffset) / stepsInch;
-  printf("xMoveRel cmd %03x l %7.4f d %7.4f %d diam %7.4f expLoc %7.4f\n",
-	 cmd, xTmp, ((float) dist) / stepsInch, dist, 2.0 * xTmp, xExp);
+  printf("xMoveRel cmd %03x l %7.4f d %7.4f %d diam %7.4f "
+	 "expLoc %7.4f dir %2d\n",
+	 cmd, xTmp, ((float) dist) / stepsInch, dist, 2.0 * xTmp,
+	 xExp, mov->dir);
  }
  mov->cmd = cmd;		/* save command */
  if (rVar.cfgDro)
@@ -5456,6 +5459,10 @@ void procMove(void)
     printf("zIsr.syncInit %3x\n", zIsr.syncInit);
     zIsr.active = zIsr.syncInit; /* make active */
     zIsr.syncInit = 0;		/* clear init flag */
+    xIsr.steps = 0;
+    zIsr.steps = 0;
+    xMoveCtl.expLoc = rVar.arcXEnd + rVar.xHomeOffset;
+    zMoveCtl.expLoc = rVar.arcZEnd + rVar.zHomeOffset;
     mv->state = M_WAIT_ARC;
     break;
 
@@ -5717,7 +5724,25 @@ void procMove(void)
    }
    else
     if (arcData.active == false)
+    {
+     xMoveCtl.loc = rVar.zLoc;
+     zMoveCtl.loc = rVar.xLoc;
+     if (xMoveCtl.loc != xMoveCtl.expLoc)
+     {
+      printf("x move arc error actual %5d expected %5d\n",
+	     xMoveCtl.loc, xMoveCtl.expLoc);
+      dbgmsg(D_XEXP, xMoveCtl.expLoc);
+     }
+     if (zMoveCtl.loc != zMoveCtl.expLoc)
+     {
+      printf("z move arc error actual %5d expected %5d\n",
+	     zMoveCtl.loc, zMoveCtl.expLoc);
+      dbgmsg(D_ZEXP, zMoveCtl.expLoc);
+     }
+     dbgmsg(D_XSTP, xIsr.steps);
+     dbgmsg(D_ZSTP, zIsr.steps);
      mv->state = M_IDLE;
+    }
    break;
   }
 

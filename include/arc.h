@@ -23,7 +23,7 @@ typedef struct sArcData
  int xRadiusSqrd;		/* x radius squared */
  int xStep45;			/* x steps to 45 degrees */
 
- int zRadius;			/* z raidus in steps */
+ int zRadius;			/* z radius in steps */
  int zRadiusSqrd;		/* z radius squared */
  int zStep45;			/* z steps to 45 degrees */
 
@@ -58,6 +58,7 @@ typedef struct sArcData
  bool endCheck;			/* last octant check end */
  bool active;			/* arc function active */
  bool done;			/* done */
+ bool lastMove;			/* output last move */
 
  /* data used by isr for generating arc */
 
