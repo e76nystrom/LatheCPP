@@ -19,7 +19,7 @@
 #include "i2c.h"
 
 #define NO_REM_MACROS
-#include "remStruct.h"
+#include "remstruct.h"
 
 #ifdef EXT
 #undef EXT
