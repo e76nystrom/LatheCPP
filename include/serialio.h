@@ -90,6 +90,7 @@ void putBufCharIsr(char ch);
 void putBufCharX(char ch);
 void putBufStr(const char *s);
 void putBufStrX(const char *s);
+void sndhexIsr(unsigned char *p, int size);
 void putBufStrIsr(const char *s);
 int pollBufChar(void);
 void flushBuf(void);
@@ -109,6 +110,7 @@ EXT float fValRem;
 EXT char dbgBuffer;
 
 EXT char lineStart;
+EXT char lineLen;
 EXT char eolFlag;
 
 #if defined(STM32F4)

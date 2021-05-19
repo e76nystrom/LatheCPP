@@ -1,5 +1,7 @@
 #if 1	// <-
 
+#define UPDATE_DEBUG false
+
 #define ARC_BUF_SIZE 256
 
 typedef struct sPoint
@@ -67,6 +69,7 @@ typedef struct sArcData
  unsigned char *fil;		/* queue fill pointer */
  unsigned char *arcBufEnd;	/* buffer end address */
  unsigned char arcBuf[ARC_BUF_SIZE]; /* arc data buffer */
+ unsigned char *lastFil;
 
  int cmd;			/* command being processed */
  int rpt;			/* repeat value for active command */
@@ -81,10 +84,11 @@ typedef struct sArcData
 EXT T_ARC_DATA arcData;
 
 void arcInit(float radius);
-void arcUpdate();
+void arcUpdate(bool dbg);
 bool arcStep(void);
 void arcQue(unsigned char cmd, unsigned char rpt);
 int octantStart(int x, int z);
 int octantEnd(int x, int z);
+void makeCommand(int x, int z, int dbg);
 
 #endif	// ->

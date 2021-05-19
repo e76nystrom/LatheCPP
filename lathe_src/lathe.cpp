@@ -5432,7 +5432,7 @@ void procMove(void)
 
    case MOVE_ARC:
     arcInit(rVar.arcRadius);
-    arcUpdate();		/* fill queue */
+    arcUpdate(UPDATE_DEBUG);	/* fill queue */
     arcData.active = true;	/* set arc active flag */
     zTurnInit(&zTA, 0, 0);	/* init synchronized move */
     zPulseSetup();
@@ -5720,7 +5720,7 @@ void procMove(void)
   case M_WAIT_ARC:
    if (!arcData.done)
    {
-    arcUpdate();
+    arcUpdate(false);
    }
    else
     if (arcData.active == false)

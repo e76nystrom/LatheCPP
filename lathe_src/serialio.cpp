@@ -126,6 +126,7 @@ void putBufCharIsr(char ch);
 void putBufCharX(char ch);
 void putBufStr(const char *s);
 void putBufStrX(const char *s);
+void sndhexIsr(unsigned char *p, int size);
 void putBufStrIsr(const char *s);
 int pollBufChar(void);
 void flushBuf(void);
@@ -145,6 +146,7 @@ EXT float fValRem;
 EXT char dbgBuffer;
 
 EXT char lineStart;
+EXT char lineLen;
 EXT char eolFlag;
 
 #if defined(STM32F4)
@@ -1243,7 +1245,7 @@ int charCount;
 unsigned int charOverflow;
 char charBuf[CHAR_BUF_SIZE];
 
-#define ISR_BUF_SIZE 64
+#define ISR_BUF_SIZE 1024
 int isrFil;
 int isrEmp;
 int isrCount;
@@ -1260,6 +1262,7 @@ void initCharBuf(void)
  charCount = 0;
  charOverflow = 0;
  lineStart = 1;
+ lineLen = 0;
  eolFlag = 1;
 
  isrFil = 0;
@@ -1287,6 +1290,35 @@ void putBufStrX(const char *s)
   putBufCharX(ch);
   if (ch == '\n')
    putBufCharX('\r');
+ }
+}
+
+void sndhexIsr(unsigned char *p, int size)
+{
+ char tmp;
+ char ch;
+
+ p += size;
+ while (size != 0)
+ {
+  --size;
+  p--;
+  tmp = *p;
+  ch = tmp;
+  ch >>= 4;
+  ch &= 0xf;
+  if (ch < 10)
+   ch += '0';
+  else
+   ch += 'a' - 10;
+  putBufCharIsr(ch);
+
+  tmp &= 0xf;
+  if (tmp < 10)
+   tmp += '0';
+  else
+   tmp += 'a' - 10;
+  putBufCharIsr(tmp);
  }
 }
 
@@ -1369,6 +1401,7 @@ int pollBufChar(void)
     {
      dbgTxSend('*');
      lineStart = 2;
+     lineLen = 0;
     }
     else
      lineStart = 0;
@@ -1384,6 +1417,12 @@ int pollBufChar(void)
      __disable_irq();
      --isrCount;
      __enable_irq();
+     lineLen += 1;
+     if (lineLen >= 80)
+     {
+      lineLen = 0;
+      lineStart = 3;
+     }
     }
     else
      lineStart = 3;
@@ -1396,7 +1435,7 @@ int pollBufChar(void)
 
    case 4:
     dbgTxSend('\r');
-     lineStart = 0;
+     lineStart = 1;
      break;
    }
   }

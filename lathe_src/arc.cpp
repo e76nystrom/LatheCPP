@@ -1,8 +1,10 @@
 #define __ARC__
+
 #if defined(STM32F4)
 #include "stm32f4xx_hal.h"
 #define LATHE_CPP
 #endif	/* STM32F4 */
+
 #ifdef STM32H7
 #include "stm32h7xx_hal.h"
 #define LATHE_CPP
@@ -43,6 +45,7 @@ inline void updZLoc(int dir)
  zPulseTrig();
 }
 
+#define ISR_DEBUG 0
 #define ARC_DEBUG 0
 #define TEST 0
 #define STM_DEBUG 0
@@ -75,6 +78,8 @@ FILE *f;
 #endif	/* LATHE_CPP */
 
 #if defined(__ARC_INC__)		// <-
+
+#define UPDATE_DEBUG false
 
 #define ARC_BUF_SIZE 256
 
@@ -143,6 +148,7 @@ typedef struct sArcData
  unsigned char *fil;		/* queue fill pointer */
  unsigned char *arcBufEnd;	/* buffer end address */
  unsigned char arcBuf[ARC_BUF_SIZE]; /* arc data buffer */
+ unsigned char *lastFil;
 
  int cmd;			/* command being processed */
  int rpt;			/* repeat value for active command */
@@ -157,11 +163,12 @@ typedef struct sArcData
 EXT T_ARC_DATA arcData;
 
 void arcInit(float radius);
-void arcUpdate();
+void arcUpdate(bool dbg);
 bool arcStep(void);
 void arcQue(unsigned char cmd, unsigned char rpt);
 int octantStart(int x, int z);
 int octantEnd(int x, int z);
+void makeCommand(int x, int z, int dbg);
 
 #endif	// ->
 #if defined(__ARC__)
@@ -351,6 +358,12 @@ void updOctant(int octant)
 #if defined(LATHE_CPP)
  printf("\noctant %d inxDir %d inZDir %d cmd %2x\n",
 	 octant, arc->inXDir, arc->inZDir, cmd);
+ printf("xDir %2d dirXPin %d dirXFwd %8x dirXRev %8x\n"
+	"zDir %2d dirXPin %d dirXFwd %8x dirXRev %8x\n",
+	xMoveCtl.dir, dirXRead(),
+	(unsigned int) xAxis.dirFwd, (unsigned int) xAxis.dirRev,
+	zMoveCtl.dir, dirZRead(),
+	(unsigned int) zAxis.dirFwd, (unsigned int) zAxis.dirRev);
 #endif /* LATHE_CPP */
 }
 
@@ -358,6 +371,7 @@ void arcQue(unsigned char cmd, unsigned char rpt)
 {
  P_ARC_DATA arc = &arcData;
  unsigned char *fil = arc->fil;
+ arc->lastFil = fil;
  *fil++ = cmd;
  if (fil >= arc->arcBufEnd)
   fil = arc->arcBuf;
@@ -376,15 +390,39 @@ void arcQue(unsigned char cmd, unsigned char rpt)
 }
 
 #if defined(LATHE_CPP)
+
 inline float xPos(int loc)
 {
- return((loc - rVar.xHomeOffset) / xAxis.stepsInch);
+ return(((float) loc - rVar.xHomeOffset) / xAxis.stepsInch);
 }
 
 inline float zPos(int loc)
 {
- return((loc - rVar.zHomeOffset) / zAxis.stepsInch);
+ return(((float) loc - rVar.zHomeOffset) / zAxis.stepsInch);
 }
+
+inline float xPosC(int loc)
+{
+ return((float) loc / xAxis.stepsInch);
+}
+
+inline float zPosC(int loc)
+{
+ return((float) loc / zAxis.stepsInch);
+}
+
+#else
+
+inline float xPosC(int loc)
+{
+ return((float) loc / arcData.xStepsInch);
+}
+
+inline float zPosC(int loc)
+{
+ return((float) loc / arcData.zStepsInch);
+}
+
 #endif	/* LATHE_CPP */
 
 void arcInit(float radius)
@@ -422,12 +460,18 @@ void arcInit(float radius)
 #endif
 
 #if defined(LATHE_CPP)
+ printf("\narcInit\n");
  printf("radius %6.3f xRadius %5d xRaidusSqrd %10d\n"
 	 "zRadius %5d zRaidusSqrd %10d\n",
 	 radius, arc->xRadius, arc->xRadiusSqrd,
 	 arc->zRadius, arc->zRadiusSqrd);
 
  printf("xSteps45 %d zSteps45 %d\n", arc->xStep45, arc->zStep45);
+
+ printf("c (%7.4f, %7.4f) p0 (%7.4f, %7.4f) p1 (%7.4f %7.4f)\n",
+	xPosC(rVar.arcXCenter), zPosC(rVar.arcZCenter),
+	xPosC(rVar.arcXStart), zPosC(rVar.arcZStart),
+	xPosC(rVar.arcXEnd), zPosC(rVar.arcZEnd));
 
  arc->center.x = rVar.arcXCenter;
  arc->center.z = rVar.arcZCenter;
@@ -438,15 +482,38 @@ void arcInit(float radius)
  arc->p1.x = rVar.arcXEnd - arc->center.x;
  arc->p1.z = rVar.arcZEnd - arc->center.z;
 
- printf("zLoc %7.4f xLoc %7.4f\n", zPos(rVar.zLoc), xPos(rVar.xLoc));
+ int xDelta = arc->p1.x - arc->p0.x;
+ int zDelta = arc->p1.z - arc->p0.z;
 
- xMoveCtl.expLoc = rVar.xLoc + (arc->p1.x - arc->p0.x) - arc->xRadius;
- zMoveCtl.expLoc = rVar.zLoc + (arc->p1.z - arc->p0.z) + arc->zRadius;
+ xMoveCtl.expLoc = rVar.xLoc + xDelta;
+ zMoveCtl.expLoc = rVar.zLoc + zDelta;
 
- printf("z expLoc %7.4f x expLoc %7.4f\n",
-	zPos(zMoveCtl.expLoc), xPos(zMoveCtl.expLoc));
+ float x0 = xPosC(arc->p0.x);
+ float z0 = zPosC(arc->p0.z);
+ float x1 = xPosC(arc->p1.x);
+ float z1 = zPosC(arc->p1.z);
+
+ printf("p0 (%7.4f, %7.4f) p1 (%7.4f %7.4f)\n", x0, z0, x1, z1);
+ printf("radius %7.4f p0 radius %7.4f p1 radius %7.4f\n",
+	radius, sqrt(x0 * x0 + z0 * z0), sqrt(x1 * x1 + z1 * z1));
+
+ printf("xLoc %7.4f zLoc %7.4f\n", xPos(rVar.xLoc), zPos(rVar.zLoc));
+
+ printf("xDelta %7.4f zDelta %7.4f x expLoc %7.4f z expLoc %7.4f\n",
+	xPosC(xDelta), zPosC(zDelta),
+	xPos(xMoveCtl.expLoc), zPos(zMoveCtl.expLoc));
 
 #endif	/* LATHE_CPP */
+#if TEST
+ float x0 = xPosC(arc->p0.x);
+ float z0 = zPosC(arc->p0.z);
+ float x1 = xPosC(arc->p1.x);
+ float z1 = zPosC(arc->p1.z);
+
+ fprintf(f, "p0 (%7.4f, %7.4f) p1 (%7.4f %7.4f)\n", x0, z0, x1, z1);
+ fprintf(f, "p0 radius %7.4f p1 radius %7.4f\n",
+	 sqrt(x0 * x0 + z0 * z0), sqrt(x1 * x1 + z1 * z1));
+#endif
 
  arc->octStart = octantStart(arc->p0.x, arc->p0.z);
  arc->octEnd = octantEnd(arc->p1.x, arc->p1.z);
@@ -575,6 +642,10 @@ bool arcStep(void)
   }
 
   unsigned char *emp = arc->emp;
+#if defined(LATHE_CPP) && (ISR_DEBUG != 0)
+  putBufCharIsr('(');
+  sndhexIsr((unsigned char *) &arc->emp, 1);
+#endif
   cmd = *emp++;
   if (emp >= arc->arcBufEnd)
    emp = arc->arcBuf;
@@ -585,26 +656,43 @@ bool arcStep(void)
   {
    rpt = cmd >> PCMD_RPT_SHIFT;
    cmd = tmpCmd;
+#if defined(LATHE_CPP) && (ISR_DEBUG != 0)
+   putBufCharIsr(cmd + '0');
+#endif
   }
   else
   {
    cmd = (cmd >> PCMD_RPT_SHIFT) + PEXT_OFFSET;
    rpt = 0;
+#if defined(LATHE_CPP) && (ISR_DEBUG != 0)
+   putBufCharIsr(cmd + 'a' - PEXT_OFFSET);
+#endif
   }
-
+  arc->cmd = cmd;
+  first = true;
+  
   if (rpt == 0)
   {
    rpt = *emp++;
-   len += 1;
+   len = 2;
    if (emp >= arc->arcBufEnd)
     emp = arc->arcBuf;
   }
+#if defined(LATHE_CPP) && (ISR_DEBUG != 0)
+  sndhexIsr((unsigned char *) &rpt, 1);
+  putBufCharIsr(')');
+#endif
     
   arc->emp = emp;
   arc->qCount -= len;
-  cmd &= PCMD_CMD_MASK;
-  arc->cmd = cmd;
-  first = true;
+
+#if defined(LATHE_CPP) && (ISR_DEBUG != 0)
+  arc->rpt = rpt;
+  if (arc->rpt < 0)
+  {
+   putBufStrIsr("0R<");
+  }
+#endif
  }
 
 #if TEST
@@ -620,7 +708,7 @@ bool arcStep(void)
   arc->xPos += arc->xDir;
   if (rpt == 0)
   {
-   updZLoc(arc->xDir);
+   updZLoc(arc->zDir);
    arc->zPos += arc->zDir;
   }
   break;
@@ -631,14 +719,14 @@ bool arcStep(void)
   arc->xPos += arc->xDir;
   if (first == false)
   {
-   updZLoc(arc->xDir);
+   updZLoc(arc->zDir);
    arc->zPos += arc->zDir;
   }
   break;
 
  case PCMD_HLDX_S1_INCZ:	/* 2 */
   rpt -= 1;
-  updZLoc(arc->xDir);
+  updZLoc(arc->zDir);
   arc->zPos += arc->zDir;
   if (rpt == 0)
   {
@@ -649,7 +737,7 @@ bool arcStep(void)
 
  case PCMD_HLDX_SN_INCZ:	/* 3 */
   rpt -= 1;
-  updZLoc(arc->xDir);
+  updZLoc(arc->zDir);
   arc->zPos += arc->zDir;
   if (first == false)
   {
@@ -688,7 +776,7 @@ bool arcStep(void)
   
  case PEXT_OFFSET + PEXT_INCX2_INCZ: /* 3 */
   rpt -= 1;
-  updZLoc(arc->xDir);
+  updZLoc(arc->zDir);
   arc->zPos += arc->zDir;
   if (rpt <= 1)
   {
@@ -697,7 +785,14 @@ bool arcStep(void)
   }
   break;
  }
+
  arc->rpt = rpt;
+#if defined(LATHE_CPP)
+ if (arc->rpt < 0)
+ {
+  putBufStrIsr("1R<");
+ }
+#endif
  arc->steps += 1;
  dbgArcStepClr();
  return(true);
@@ -768,8 +863,9 @@ void arcPrint(int xChange, int zChange, int cmd, int rpt)
 
  arc->cmdCount[cmd & PCMD_CMD_MASK] += 1;
 
- printf("%3d %5d x %5d z %5d ",
-	arc->qCount, arc->count, arc->cmdX, arc->cmdZ);
+ printf("%2x %3d %5d x %5d z %5d ",
+	((unsigned int) arc->lastFil) & 0xff, arc->qCount, arc->count,
+	arc->cmdX, arc->cmdZ);
  char buf[16];
  printf("delta %4d %4s xChg %3d zChg %3d rpt %3d cmd %d %2x\n",
 	arc->delta, fmtDelta(arc->lastDelta, buf, sizeof(buf)),
@@ -826,7 +922,7 @@ inline bool endCheck1(P_ARC_DATA arc)
  return(false);
 }
 
-void makeCommand(int x, int z)
+void makeCommand(int x, int z, int dbg)
 {
  P_ARC_DATA arc = &arcData;
  int xChange = abs(x - arc->cmdX);
@@ -838,9 +934,11 @@ void makeCommand(int x, int z)
 
  if (xChange == zChange)
  {
+  if (zChange == 0)
+   return;
   extend = true;
   rpt = zChange;
-  cmd = PEXT_INCX_INCZ;	/* ext 2 */
+  cmd = PEXT_INCX_INCZ;		/* ext 2 */
  }
  else if (zChange == 1)
  {
@@ -880,6 +978,10 @@ void makeCommand(int x, int z)
   rpt = xChange;
   cmd = PEXT_INCZ;		/* ext 1 */
  }
+ else
+ {
+  printf("no command\n");
+ }
 
  if (!extend)
  {
@@ -900,9 +1002,10 @@ void makeCommand(int x, int z)
 #if ARC_DEBUG
  arcTest(xChange, zChange, cmd, rpt);
 #endif	/* ARC_DEBUG */
-#if STM_DEBUG
- arcPrint(xChange, zChange, cmd, rpt);
-#endif	/* STM_DEBUG */
+#if defined(LATHE_CPP)
+ if (dbg)
+  arcPrint(xChange, zChange, cmd, rpt);
+#endif	/* LATHE_CPP */
 
  arc->count += 1;
 
@@ -910,7 +1013,7 @@ void makeCommand(int x, int z)
  arc->cmdZ = z;
 }
 
-void arcUpdate()
+void arcUpdate(bool dbg)
 {
  P_ARC_DATA arc = &arcData;
  while (true)
@@ -956,11 +1059,18 @@ void arcUpdate()
   }
   arc->delta = delta;
 
-#if 1
-  char buf[16];
-  printf("x %5d z %5d delta %5d lastDelta %5s\n",
-	 arc->x, arc->z, delta, fmtDelta(arc->lastDelta, buf, sizeof(buf)));
-  fflush(stdout);
+  if (0)
+  {
+   char buf[16];
+   printf("x %5d z %5d delta %5d lastDelta %5s\n",
+	  arc->x, arc->z, delta, fmtDelta(arc->lastDelta, buf, sizeof(buf)));
+#if defined(LATHE_CPP)
+   flushBuf();
+#else
+   fflush(stdout);
+#endif
+  }
+
 #if 0
   if (arc->octant == 1)
   {
@@ -974,11 +1084,10 @@ void arcUpdate()
   }
   return;
 #endif
-#endif
 
   if ((arc->lastDelta != INT_MAX) && (delta != arc->lastDelta))
   {
-   makeCommand(x, z);
+   makeCommand(x, z, dbg);
 
    arc->delta = INT_MAX;
    int octant = arc->octant;
@@ -1074,7 +1183,7 @@ void arcUpdate()
  if (arc->done && arc->lastMove)
  {
   arc->lastMove = false;
-  makeCommand(arc->x, arc->z);
+  makeCommand(arc->x, arc->z, UPDATE_DEBUG);
  }
  
  dbgArcUpdClr();
@@ -1115,7 +1224,7 @@ int main(int argc, char *argv[])
  }
 #endif	/* __GNUC__ */
 
-#if 1
+#if 0
 
  float a0;
  float a1;
@@ -1152,7 +1261,7 @@ int main(int argc, char *argv[])
    p0 ( 6066,  2540) o 1 p1 ( 6350  2047)
  */
 
- radius = (float) 0.539;
+ radius = (float) 0.479;
 
  arc->xStepsInch = lrint((200 * 10 * 25.4) / 4);
  arc->zStepsInch = lrint((200 * 10 * 25.4) / 5);
@@ -1160,11 +1269,11 @@ int main(int argc, char *argv[])
  fprintf(f, "xStepsInch %5d zStepsInch %5d\n",
 	 arc->xStepsInch, arc->zStepsInch);
 
- arc->p0.x = 6066;
- arc->p0.z = 2540;
+ arc->p0.x = 6018;
+ arc->p0.z = 3810;
 
- arc->p1.x = 6350;
- arc->p1.z = 2047;
+ arc->p1.x = 7674;
+ arc->p1.z = 0;
 
  #endif
 
@@ -1180,7 +1289,7 @@ int main(int argc, char *argv[])
 #endif
  while (!arc->done)
  {
-  arcUpdate();
+  arcUpdate(false);
 #if TEST
   arcStep();
 #endif
