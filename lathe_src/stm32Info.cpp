@@ -252,7 +252,8 @@ void gpioInfo(GPIO_TypeDef *gpio)
 #endif	/* STM32F3 */
 
 #if defined(STM32F1)
- printf("\nmode     ");
+ printf("\n");
+ printf("mode     ");
  val = gpio->CRL;
  for (i = 0; i < 8; i++)
   printf(" %2d", (val >> (4 * i)) & 0x3);
@@ -261,7 +262,8 @@ void gpioInfo(GPIO_TypeDef *gpio)
  for (i = 0; i < 8; i++)
   printf(" %2d", (val >> (4 * i)) & 0x3);
 
- printf("\ncnf      ");
+ printf("\n");
+ printf("cnf      ");
  val = gpio->CRL;
  for (i = 0; i < 8; i++)
   printf(" %2d", (val >> ((4 * i) + 2)) & 0x3);
@@ -271,12 +273,14 @@ void gpioInfo(GPIO_TypeDef *gpio)
   printf(" %2d", (val >> ((4 * i) + 2)) & 0x3);
 #endif	/* STM32F1 */
 
- printf("\nidr      ");
+ printf("\n");
+ printf("idr      ");
  val = gpio->IDR;
  for (i = 0; i < 16; i++)
   printf(" %2d", (val >> i) & 0x1);
 
- printf("\nodr      ");
+ printf("\n");
+ printf("odr      ");
  val = gpio->ODR;
  for (i = 0; i < 16; i++)
   printf(" %2d", (val >> i) & 0x1);
@@ -461,37 +465,43 @@ void extiInfo(void)
  for (i = 0; i <= 22; i++)
   printf(" %2d", i);
 
-#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
- printf("\nIMR   ");
+ printf("\n");
+ printf("IMR   ");
  int val = EXTI->IMR;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
- printf("\nEMR   ");
+ printf("\n");
+ printf("EMR   ");
  val = EXTI->EMR;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
- printf("\nRTSR  ");
+ printf("\n");
+ printf("RTSR  ");
  val = EXTI->RTSR;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
- printf("\nFTSR  ");
+ printf("\n");
+ printf("FTSR  ");
  val = EXTI->FTSR;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
- printf("\nSWIER ");
+ printf("\n");
+ printf("SWIER ");
  val = EXTI->SWIER;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
- printf("\nPR    ");
+ printf("\n");
+ printf("PR    ");
  val = EXTI->PR;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
+#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
  printf("\nSYSCFG %x\n",(unsigned int) SYSCFG);
  printf("      ");
  for (i = 0; i < 16; i++)
@@ -510,6 +520,7 @@ void extiInfo(void)
   }
  }
 #endif
+
 #if defined(STM32H743xx_H)
  extiBit("RTSR1", EXTI->RTSR1);
  extiBit("FTSR1", EXTI->FTSR1);
@@ -519,6 +530,7 @@ void extiInfo(void)
  extiBit("EMR1", EXTI->EMR1);
  extiBit("PR1", EXTI->PR1);
 #endif
+
  printf("\n");
  flushBuf();
 }
