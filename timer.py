@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python37/Python.exe
+#!/cygdrive/c/Python39/Python.exe
 
 import sys
 from collections import namedtuple
@@ -249,7 +249,11 @@ def main(cfg, path):
     global f
     global name, tmr, argType, pwm, isr, slave
 
-    f = open("../" + path + "/inc/timers.h", "wb")
+    try:
+        f = open("../" + path + "/Inc/timers.h", "wb")
+    except FileNotFoundError:
+        sys.exit()
+
     fWrite(f, "#if defined(__STM32F4xx_HAL_H) || "\
            "defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
     fWrite(f, "#if !defined(__TIMERS_H)\n")

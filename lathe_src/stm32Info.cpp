@@ -471,6 +471,7 @@ void extiInfo(void)
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
 
+#if defined(STM32F4)
  printf("\n");
  printf("EMR   ");
  val = EXTI->EMR;
@@ -488,6 +489,7 @@ void extiInfo(void)
  val = EXTI->FTSR;
  for (i = 0; i <= 22; i++)
   printf(" %2d", (val >> i) & 0x1);
+ #endif	 /* STM32F4 */
 
  printf("\n");
  printf("SWIER ");

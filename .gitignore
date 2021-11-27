@@ -26,7 +26,8 @@
 .settings/
 .vs/
 .*/
-cscope*
+cscope.out
+cscope.files
 cfg/
 Debug/
 STM32F4xx_StdPeriph_Driver/src/*
@@ -34,8 +35,11 @@ include/timers.h
 Middlewares/
 Old/
 src/test.cpp
-timer.sh
 TrueStudio/
 /stm32f407xx.h
 
 lathe-new.cpp.lst
+
+
+
+
