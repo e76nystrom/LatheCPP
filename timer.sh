@@ -6,4 +6,4 @@ python3 timer.py core4071
 python3 timer.py nuc446
 python3 timer.py nuc401
 python3 timer.py nuc746
-python3  timer.py nuch743
+python3 timer.py nuch743
