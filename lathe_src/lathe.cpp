@@ -3119,6 +3119,7 @@ void zStop(void)
  zIsr.accel = 0;
  zIsr.decel = 1;
  zIsr.errFlag = 0;
+ dbgZPosErrClr();
  dbgZAccelSet();
 }
 

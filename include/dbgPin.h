@@ -79,14 +79,14 @@
 #ifdef DbgA13_Pin
  PIN(DbgA13, DbgA13),
 #endif
-#ifdef DbgA_Pin
- PIN(dbgSpIsr, DbgA),
+#ifdef Dbg0_Pin
+ PIN(dbgSpIsr, Dbg0),
 #endif
-#ifdef DbgB_Pin
- PIN(dbgZIsr, DbgB),
+#ifdef Dbg1_Pin
+ PIN(dbgZIsr, Dbg1),
 #endif
-#ifdef DbgC_Pin
- PIN(dbgXIsr, DbgC),
+#ifdef Dbg2_Pin
+ PIN(dbgXIsr, Dbg2),
 #endif
 #ifdef Dbg3_Pin
  PIN(dbgZPosErr, Dbg3),

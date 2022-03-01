@@ -87,9 +87,9 @@ pinList = \
 
 dbgList = \
 (\
- ("dbgSpIsr",  "A", "spindle isr time"), \
- ("dbgZIsr",   "B", "z isr time"), \
- ("dbgXIsr",   "C", "x isr time"), \
+ ("dbgSpIsr",  "0", "spindle isr time"), \
+ ("dbgZIsr",   "1", "z isr time"), \
+ ("dbgXIsr",   "2", "x isr time"), \
  ("dbgSpCyc",  "", "spindle cycle counter update"), \
  ("dbgZEnc",   "", "z encoder input"), \
  ("dbgZOut",   "", "z encoder output"), \

@@ -301,10 +301,10 @@ inline void dbgA13Clr() {}
 #endif
 
 /* spindle isr time */
-#ifdef DbgA_Pin
-inline void dbgSpIsrSet() {DbgA_GPIO_Port->BSRR = DbgA_Pin;}
-inline void dbgSpIsrClr() {DbgA_GPIO_Port->BSRR = (DbgA_Pin << 16);}
-inline uint16_t dbgSpIsrRead() {return((DbgA_GPIO_Port->IDR & DbgA_Pin) != 0);}
+#ifdef Dbg0_Pin
+inline void dbgSpIsrSet() {Dbg0_GPIO_Port->BSRR = Dbg0_Pin;}
+inline void dbgSpIsrClr() {Dbg0_GPIO_Port->BSRR = (Dbg0_Pin << 16);}
+inline uint16_t dbgSpIsrRead() {return((Dbg0_GPIO_Port->IDR & Dbg0_Pin) != 0);}
 #else
 inline void dbgSpIsrSet() {}
 inline void dbgSpIsrClr() {}
@@ -312,10 +312,10 @@ inline uint16_t dbgSpIsrRead() {return(0);}
 #endif
 
 /* z isr time */
-#ifdef DbgB_Pin
-inline void dbgZIsrSet() {DbgB_GPIO_Port->BSRR = DbgB_Pin;}
-inline void dbgZIsrClr() {DbgB_GPIO_Port->BSRR = (DbgB_Pin << 16);}
-inline uint16_t dbgZIsrRead() {return((DbgB_GPIO_Port->IDR & DbgB_Pin) != 0);}
+#ifdef Dbg1_Pin
+inline void dbgZIsrSet() {Dbg1_GPIO_Port->BSRR = Dbg1_Pin;}
+inline void dbgZIsrClr() {Dbg1_GPIO_Port->BSRR = (Dbg1_Pin << 16);}
+inline uint16_t dbgZIsrRead() {return((Dbg1_GPIO_Port->IDR & Dbg1_Pin) != 0);}
 #else
 inline void dbgZIsrSet() {}
 inline void dbgZIsrClr() {}
@@ -323,10 +323,10 @@ inline uint16_t dbgZIsrRead() {return(0);}
 #endif
 
 /* x isr time */
-#ifdef DbgC_Pin
-inline void dbgXIsrSet() {DbgC_GPIO_Port->BSRR = DbgC_Pin;}
-inline void dbgXIsrClr() {DbgC_GPIO_Port->BSRR = (DbgC_Pin << 16);}
-inline uint16_t dbgXIsrRead() {return((DbgC_GPIO_Port->IDR & DbgC_Pin) != 0);}
+#ifdef Dbg2_Pin
+inline void dbgXIsrSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
+inline void dbgXIsrClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
+inline uint16_t dbgXIsrRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
 #else
 inline void dbgXIsrSet() {}
 inline void dbgXIsrClr() {}
