@@ -89,14 +89,5 @@
  PIN(dbgXIsr, DbgC),
 #endif
 #ifdef Dbg3_Pin
- PIN(dbgArcUpd, Dbg3),
-#endif
-#ifdef Dbg4_Pin
- PIN(dbgArcStep, Dbg4),
-#endif
-#ifdef Dbg5_Pin
- PIN(dbgEncIsr, Dbg5),
-#endif
-#ifdef Dbg6_Pin
- PIN(dbgRemCmd, Dbg6),
+ PIN(dbgZPosErr, Dbg3),
 #endif

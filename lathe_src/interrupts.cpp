@@ -825,6 +825,22 @@ extern "C" void zTmrISR(void)
   rVar.zLoc += zIsr.dir;	/* update position */
   zIsr.steps++;			/* count a step moved */
 
+  if (rVar.cfgDro)
+  {
+   if (zIsr.errFlag == 0)
+   {
+    int zCur = ((rVar.zLoc - rVar.zHomeOffset) * 10000) / zAxis.stepsInch;
+    int zDro = ((rVar.zDroLoc - rVar.zDroOffset) * 10000) / rVar.zDroCountInch;
+    int delta = zDro - zCur;
+    if (delta > 75)
+    {
+     dbgZPosErrSet();
+     putBufCharIsr('$');
+     zIsr.errFlag = 1;
+    }
+   }
+  }
+
   if (zIsr.home)		/* 1*+ if homing operation */
   {
    updProbeDist();		/* update probe testing distance */

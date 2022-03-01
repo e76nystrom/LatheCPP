@@ -312,6 +312,7 @@ typedef struct s_zxisr
  char axis;			/* axis name */
  char encoderDirect;		/* use encoder directly */
  char useDro;			/* use dro for move */
+ char errFlag;
 
  int16_t syncInit;		/* initialized for sync operation */
  int16_t syncStart;		/* waiting for start */
@@ -3117,6 +3118,7 @@ void zStop(void)
  zMoveCtl.stop = 1;
  zIsr.accel = 0;
  zIsr.decel = 1;
+ zIsr.errFlag = 0;
  dbgZAccelSet();
 }
 

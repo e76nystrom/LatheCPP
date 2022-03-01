@@ -137,10 +137,12 @@ dbgList = \
  ("dbgZStop",   "", "z stop"), \
  ("dbgZDone",   "", "z done"), \
 
- ("dbgArcUpd",  "3", "arc update"), \
- ("dbgArcStep", "4", "arc step"), \
- ("dbgEncIsr",  "5", "encoder isr"), \
- ("dbgRemCmd",  "6", "remote command"), \
+ ("dbgArcUpd",  "", "arc update"), \
+ ("dbgArcStep", "", "arc step"), \
+ ("dbgEncIsr",  "", "encoder isr"), \
+ ("dbgRemCmd",  "", "remote command"), \
+
+ ("dbgZPosErr", "3", "z position error"),\
  )
  #("","",""), \
 

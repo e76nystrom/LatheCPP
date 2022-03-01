@@ -253,6 +253,7 @@ typedef struct s_zxisr
  char axis;			/* axis name */
  char encoderDirect;		/* use encoder directly */
  char useDro;			/* use dro for move */
+ char errFlag;
 
  int16_t syncInit;		/* initialized for sync operation */
  int16_t syncStart;		/* waiting for start */
