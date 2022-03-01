@@ -425,7 +425,10 @@ typedef struct s_movectl
  char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
  char mpgFlag;			/* mpg direction flag */
+ char mpgDirCh;			/* mpg direction change */
  char mpgBackWait;		/* mpg backlash wait */
+ char mpgState;			/* mpg current state */
+ char mpgLastState;		/* mpg last state */
  char limitsEna;		/* limits enabled */
  char limitMove;		/* move off limits in progress */
  unsigned int delayStart;	/* delay start time */
@@ -446,6 +449,7 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
  int mpgBackDist;		/* mpg backlash counter */
+ unsigned int mpgDirChTim;	/* mpg direction change timer */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */

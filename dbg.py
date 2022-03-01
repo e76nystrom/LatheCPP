@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python37/Python.exe
+#!/cygdrive/c/Python39/Python.exe
 
 CPP = True
 
@@ -143,6 +143,7 @@ dbgList = \
  ("dbgRemCmd",  "", "remote command"), \
 
  ("dbgZPosErr", "3", "z position error"),\
+ ("dbgZJogDir", "4", "z jog direction change"),\
  )
  #("","",""), \
 

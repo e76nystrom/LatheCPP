@@ -484,7 +484,10 @@ typedef struct s_movectl
  char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
  char mpgFlag;			/* mpg direction flag */
+ char mpgDirCh;			/* mpg direction change */
  char mpgBackWait;		/* mpg backlash wait */
+ char mpgState;			/* mpg current state */
+ char mpgLastState;		/* mpg last state */
  char limitsEna;		/* limits enabled */
  char limitMove;		/* move off limits in progress */
  unsigned int delayStart;	/* delay start time */
@@ -505,6 +508,7 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
  int mpgBackDist;		/* mpg backlash counter */
+ unsigned int mpgDirChTim;	/* mpg direction change timer */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
@@ -2657,6 +2661,20 @@ void jogMpg2(P_MOVECTL mov)
  &&  ((jogPause & mov->jogFlag) == 0)) /* and jogging not enabled */
   return;
 
+ if (mov->mpgState != mov->mpgLastState)
+ {
+  mov->mpgLastState = mov->mpgState;
+  putBufCharX(mov->mpgState);
+ }
+
+ if (mov->mpgDirCh)		/* if changing direction */
+ {
+  if ((millis() - mov->mpgDirChTim) < 50) /* if waiting to stop */
+  {
+   return;
+  }
+ }
+
  P_JOGQUE jog = mov->jogQue;	/* get queue pointer */
 
  __disable_irq();		/* disable interrupt */
@@ -2683,6 +2701,58 @@ void jogMpg2(P_MOVECTL mov)
  if (mov->mpgFlag)		/* if direction inverted */
   dir = -dir;			/* invert distance */
 
+ if (mov->mpgDirCh == 0)	/* if not changing direction */
+ {
+  if (dir != isr->dir)		/* if direction same */
+  {
+   dbgZJogDirSet();
+   mov->isrStop('9');		/* stop movement */
+   mov->mpgDirCh = 1;		/* start dir change */
+   mov->mpgDirChTim = millis();	/* start of dir change timeout */
+   mov->mpgState = 'a';
+   return;
+  }
+ }
+ else				/* if changing direction */
+ {
+  if (mov->mpgBackWait == 0)	/* if not waiting for backlash */
+  {
+   mov->dir = dir;		/* save direction */
+   if (dir > 0)			/* set direction hardware */
+    mov->dirFwd();
+   else
+    mov->dirRev();
+   isr->dir = dir;		/* set isr direction */
+
+   int backlashSteps = mov->axis->backlashSteps; /* get backlash */
+   if (backlashSteps == 0)	/* if no backlash */
+   {
+    mov->mpgDirCh = 0;		/* end of direction change */
+    mov->mpgState = 'b';
+   }
+   else				/* if backlash */
+   {
+    if (rVar.jogDebug)
+     printf("%c b %d\n", mov->axisName, backlashSteps);
+    mov->mpgBackDist = backlashSteps; /* set distance */
+    mov->mpgBackWait = 1;     /* set to wait for backlash */
+    isr->dir = 0;	      /* set to zero for no position update */
+    mov->mpgState = 'c';
+   }
+  }
+  else				/* if waiting for backlash */
+  {
+   mov->mpgBackDist -= 1;	/* count of distance */
+   if (mov->mpgBackDist == 0)	/* if finished backlash */
+   {
+    mov->mpgBackWait = 0;	/* get out of backlash state */
+    mov->mpgDirCh = 0;		/* end of direction change */
+    isr->dir = mov->dir;	/* set direction */
+    mov->mpgState = 'd';
+   }
+  }
+ }
+ 
  uint32_t ctr;
  int dist = *mov->mpgJogInc;	/* read increment distance */
  if (dist == 0)			/* if continuous jog */
@@ -2701,16 +2771,9 @@ void jogMpg2(P_MOVECTL mov)
   __disable_irq();		/* disable interrupt */
   if (isr->dist != 0)		/* if currently active */
   {
-   if (dir == mov->dir)		/* if direction same */
-   {
-    isr->dist += dist;		/* update distance */
-    isr->clocksStep = ctr;	/* save counter value */
-    mov->timer->ARR = ctr - 1;	/* set new counter value */
-   }
-   else				/* if direction change */
-   {
-    mov->isrStop('9');		/* stop movement */
-   }
+   isr->dist += dist;		/* update distance */
+   isr->clocksStep = ctr;	/* save counter value */
+   mov->timer->ARR = ctr - 1;	/* set new counter value */
    __enable_irq();		/* enable interrupts */
    return;			/* and exit */
   }
@@ -2718,70 +2781,23 @@ void jogMpg2(P_MOVECTL mov)
  else				/* if incremental jog */
  {
   ctr = (mov->mpgUSecSlow * clksPerUSec) / mov->mpgStepsCount; /* set ctr */
-
-  __disable_irq();		/* disable interrupt */
-  if (isr->dist != 0)		/* if active */
-  {
-   if (dir != isr->dir)		/* if direction change */
-   {
-    mov->isrStop('9');		/* stop movement */
-   }
-   __enable_irq();		/* enable interrupts */
-   return;			/* exit */
-  }
  }
  __enable_irq();		/* enable interrupts */
 
- if (mov->mpgBackWait == 0)	/* if not in backlash state */
- {
-  if (dir != mov->dir)		/* if direction change */
-  {
-   mov->dir = dir;		/* save direction */
-   if (dir > 0)			/* set direction hardware */
-    mov->dirFwd();
-   else
-    mov->dirRev();
+ mov->expLoc += dist * dir;	/* update expected loc */
 
-   int backlashSteps = mov->axis->backlashSteps; /* get backlash */
-   if (backlashSteps != 0)	/* if non zero */
-   {
-    if (rVar.jogDebug)
-     printf("%c b %d\n", mov->axisName, backlashSteps);
-    mov->mpgBackDist = backlashSteps; /* set distance */
-    mov->mpgBackWait = 1;	/* set to wait for backlash */
-    dir = 0;			/* set to zero for no position update */
-   }
-   isr->dir = dir;		/* set isr direction */
-  }
-  else				/* if no direction change */
-  {
-   isr->dir = dir;		/* set isr direction */
-  }
+ if (rVar.jogDebug)
+  printf("%c %2d %2d %3d %u\n",
+	 mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
 
-  mov->expLoc += dist * dir;	/* update expected loc */
+ isr->home = 0;			/* clear variables */
+ isr->useDro = 0;
+ isr->cFactor = 0;
+ isr->accel = 0;
+ isr->decel = 0;
+ isr->sync = 0;
 
-  if (rVar.jogDebug)
-   printf("%c %2d %2d %3d %u\n",
-	  mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
-
-  isr->home = 0;		/* clear variables */
-  isr->useDro = 0;
-  isr->cFactor = 0;
-  isr->accel = 0;
-  isr->decel = 0;
-  isr->sync = 0;
-
-  isr->dist = dist;		/* set distance */
- }
- else
- {
-  mov->mpgBackDist -= 1;	/* count of distance */
-  if (mov->mpgBackDist == 0)	/* if finished backlash */
-  {
-   mov->mpgBackWait = 0;	/* get out of backlash state */
-   isr->dir = mov->dir;		/* set direction */
-  }
- }
+ isr->dist = dist;		/* set distance */
 
  mov->hwEnable(ctr);		/* setup hardware */
  mov->start();			/* start */
@@ -4851,15 +4867,16 @@ void axisCtl(void)
  if (zHomeCtl.state != H_IDLE)	/* if home control not idle */
   homeControl(&zHomeCtl);	/* run home state machine */
 
- if (mov->mpgBackWait)		/* if waiting for mpg backlash */
- {
-  if (zIsr.done != 0)		/* if z done */
-  {
-   zIsr.done = 0;		/* clear done flag */
-   mov->mpgBackWait = 0;	/* clear backlash flag */
-  }
- }
- else if (zJogQue.count != 0)	/* if z jog flag set */
+ // if (mov->mpgBackWait)		/* if waiting for mpg backlash */
+ // {
+ //  if (zIsr.done != 0)		/* if z done */
+ //  {
+ //   zIsr.done = 0;		/* clear done flag */
+ //   mov->mpgBackWait = 0;	/* clear backlash flag */
+ //  }
+ // }
+ // else
+ if (zJogQue.count != 0)	/* if z jog flag set */
  {
   jogMpg2(mov);			/* run timed jog routine */
  }
@@ -4871,15 +4888,16 @@ void axisCtl(void)
  if (xHomeCtl.state != H_IDLE)	/* if home control not idle */
   homeControl(&xHomeCtl);	/* run home state machine */
 
- if (mov->mpgBackWait)		/* if waiting for mpg backlash */
- {
-  if (xIsr.done != 0)		/* if x done */
-  {
-   xIsr.done = 0;		/* clear done flag */
-   mov->mpgBackWait = 0;	/* clear backlash flag */
-  }
- }
- else if (xJogQue.count != 0)	/* if x jog flag set */
+// if (mov->mpgBackWait)		/* if waiting for mpg backlash */
+// {
+//  if (xIsr.done != 0)		/* if x done */
+//  {
+//   xIsr.done = 0;		/* clear done flag */
+//   mov->mpgBackWait = 0;	/* clear backlash flag */
+//  }
+// }
+// else
+ if (xJogQue.count != 0)	/* if x jog flag set */
  {
   jogMpg2(mov);			/* run timed jog routine */
  }

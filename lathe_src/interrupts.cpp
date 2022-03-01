@@ -102,6 +102,10 @@ unsigned int lastZJogMSec;
 unsigned int lastXJogUSec;
 unsigned int lastXJogMSec;
 
+int zCur;
+int zDro;
+int zDelta;
+
 extern "C" void encoderISR(void)
 {
  BITWORD tmp;
@@ -827,16 +831,24 @@ extern "C" void zTmrISR(void)
 
   if (rVar.cfgDro)
   {
+   zCur = ((rVar.zLoc - rVar.zHomeOffset) * 10000) / zAxis.stepsInch;
+   zDro = ((rVar.zDroLoc - rVar.zDroOffset) * 10000) / rVar.zDroCountInch;
+   zDelta = zDro - zCur;
    if (zIsr.errFlag == 0)
    {
-    int zCur = ((rVar.zLoc - rVar.zHomeOffset) * 10000) / zAxis.stepsInch;
-    int zDro = ((rVar.zDroLoc - rVar.zDroOffset) * 10000) / rVar.zDroCountInch;
-    int delta = zDro - zCur;
-    if (delta > 75)
+    if (abs(zDelta) > 75)
     {
      dbgZPosErrSet();
      putBufCharIsr('$');
      zIsr.errFlag = 1;
+    }
+   }
+   else
+   {
+    if (abs(zDelta) < 75)
+    {
+     dbgZPosErrClr();
+     zIsr.errFlag = 0;
     }
    }
   }

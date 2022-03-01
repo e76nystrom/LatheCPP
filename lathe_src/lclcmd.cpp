@@ -114,9 +114,26 @@ T_OUTPUT_PIN outputPins[] =
  {8, dir4Set, dir4Clr, dir4Read},
 };
 
+extern int zCur;
+extern int zDro;
+extern int zDelta;
+
 void lclcmd(int ch)
 {
- if (ch == 'i')			/* init character buffer */
+ if (ch == '#')
+ {
+  newline();
+  int tmpLoc = ((rVar.zLoc - rVar.zHomeOffset) * 10000) / zAxis.stepsInch;
+  int tmpDro = ((rVar.zDroLoc - rVar.zDroOffset) * 10000) / rVar.zDroCountInch;
+  int tmpDelta = tmpDro - tmpLoc;
+  printf("tmpLoc %6d tmpDro %6d tmpDelta %6d\n", tmpLoc, tmpDro, tmpDelta);
+  printf("zLoc %6d zHomeOffset %6d zStepsInch %6d\n",
+	 rVar.zLoc, rVar.zHomeOffset, zAxis.stepsInch);
+  printf("zDro %6d xDroOffset %6d zStepsInc %6d\n",
+	 rVar.zDroLoc, rVar.zDroOffset, rVar.zDroCountInch);
+  printf("zCur %6d zDro %6d zDelta %6d\n", zCur, zDro, zDelta);
+ }
+ else if (ch == 'i')		/* init character buffer */
  {
   initCharBuf();
  }
