@@ -424,7 +424,7 @@ typedef struct s_movectl
  char wait;			/* waiting for done fpga */
  char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
- char mpgFlag;			/* mpg direction flag */
+ char mpgFlag;			/* mpg direction inverted */
  char mpgDirCh;			/* mpg direction change */
  char mpgBackWait;		/* mpg backlash wait */
  char mpgState;			/* mpg current state */
@@ -448,6 +448,7 @@ typedef struct s_movectl
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
+ int mpgDir;			/* mpg direction flag */
  int mpgBackDist;		/* mpg backlash counter */
  unsigned int mpgDirChTim;	/* mpg direction change timer */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
@@ -680,6 +681,7 @@ void jogMove(P_MOVECTL mov, int dir);
 void jogMpg(P_MOVECTL mov);
 void jogMpg1(P_MOVECTL mov);
 void jogMpg2(P_MOVECTL mov);
+void jogMpg3(P_MOVECTL mov);
 void jogSpeed(P_MOVECTL mov, float speed);
 
 void zInit(P_AXIS ax);
