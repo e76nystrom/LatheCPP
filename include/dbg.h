@@ -464,9 +464,15 @@ inline void dbgS5IsrClr() {}
 inline uint16_t dbgS5IsrRead() {return(0);}
 
 /* jog isr transition put in queue */
+#ifdef Dbg6_Pin
+inline void dbgJogIsrSet() {Dbg6_GPIO_Port->BSRR = Dbg6_Pin;}
+inline void dbgJogIsrClr() {Dbg6_GPIO_Port->BSRR = (Dbg6_Pin << 16);}
+inline uint16_t dbgJogIsrRead() {return((Dbg6_GPIO_Port->IDR & Dbg6_Pin) != 0);}
+#else
 inline void dbgJogIsrSet() {}
 inline void dbgJogIsrClr() {}
 inline uint16_t dbgJogIsrRead() {return(0);}
+#endif
 
 /* jog idle queue checked */
 inline void dbgJogMPG0Set() {}
@@ -519,9 +525,15 @@ inline void dbgXFinalDroClr() {}
 inline uint16_t dbgXFinalDroRead() {return(0);}
 
 /* z dro isr */
+#ifdef Dbg7_Pin
+inline void dbgZDroSet() {Dbg7_GPIO_Port->BSRR = Dbg7_Pin;}
+inline void dbgZDroClr() {Dbg7_GPIO_Port->BSRR = (Dbg7_Pin << 16);}
+inline uint16_t dbgZDroRead() {return((Dbg7_GPIO_Port->IDR & Dbg7_Pin) != 0);}
+#else
 inline void dbgZDroSet() {}
 inline void dbgZDroClr() {}
 inline uint16_t dbgZDroRead() {return(0);}
+#endif
 
 /* z stop */
 inline void dbgZStopSet() {}

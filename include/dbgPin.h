@@ -88,6 +88,12 @@
 #ifdef Dbg2_Pin
  PIN(dbgXIsr, Dbg2),
 #endif
+#ifdef Dbg6_Pin
+ PIN(dbgJogIsr, Dbg6),
+#endif
+#ifdef Dbg7_Pin
+ PIN(dbgZDro, Dbg7),
+#endif
 #ifdef Dbg3_Pin
  PIN(dbgZPosErr, Dbg3),
 #endif

@@ -2896,7 +2896,9 @@ void jogMpg3(P_MOVECTL mov)
     printf("%c mDir %2d iDir %2d dist %3d ctr %u\n",
 	   mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
 
-   isr->home = 0;		/* clear variables */
+   isr->done = 0;		/* clear variables */
+   isr->steps = 0;
+   isr->home = 0;
    isr->useDro = 0;
    isr->cFactor = 0;
    isr->accel = 0;
@@ -2926,9 +2928,18 @@ void jogMpg3(P_MOVECTL mov)
 
     if (backlashSteps != 0)	/* if backlash */
     {
-     dbgMpgBackLSet();
+     dbgMpgBackLSet();		/* +++ */
+
+     uint32_t ctr = (mov->mpgUSecSlow * clksPerUSec) / backlashSteps;
+     
+     if (rVar.jogDebug)
+      printf("%c mDir %2d iDir %2d dist %3d ctr %u\n",
+	     mov->axisName, mov->dir, isr->dir, isr->dist, (unsigned int) ctr);
+     isr->dir = 0;
+
+     isr->done = 0;		/* clear variables */
      isr->steps = 0;
-     isr->home = 0;		/* clear variables */
+     isr->home = 0;
      isr->useDro = 0;
      isr->cFactor = 0;
      isr->accel = 0;
@@ -2936,15 +2947,8 @@ void jogMpg3(P_MOVECTL mov)
      isr->sync = 0;
 
      isr->dist = backlashSteps;
-     isr->dir = 0;
 
-     uint32_t ctr = (mov->mpgUSecSlow * clksPerUSec) / backlashSteps;
-     
-     if (rVar.jogDebug)
-      printf("%c mDir %2d iDir %2d dist %3d ctr %u\n",
-	     mov->axisName, mov->dir, isr->dir, isr->dist, (unsigned int) ctr);
-
-     mov->hwEnable(ctr);		/* setup hardware */
+     mov->hwEnable(ctr);	/* setup hardware */
      mov->start();		/* start */
 
      mov->mpgState = MPG_WAIT_BACKLASH;
@@ -2972,7 +2976,7 @@ void jogMpg3(P_MOVECTL mov)
    __enable_irq();		/* enable interrupts */
 
    mov->mpgState = MPG_CHECK_QUE;
-   dbgMpgBackLClr();
+   dbgMpgBackLClr();		/* +++ */
    dbgZJogDirClr();
   }
   break;

@@ -119,7 +119,7 @@ dbgList = \
  ("dbgS4Isr",  "", "step 4 isr"), \
  ("dbgS5Isr",  "", "step 5 isr"), \
 
- ("dbgJogIsr",  "", "jog isr transition put in queue"), \
+ ("dbgJogIsr",  "6", "jog isr transition put in queue"), \
  ("dbgJogMPG0", "", "jog idle queue checked"), \
  ("dbgJogMPG1", "", "jog moving all cases"), \
  ("dbgJogMPG2", "", "jog moving isr done start again"), \
@@ -133,7 +133,7 @@ dbgList = \
  ("dbgXUpdDro", "", "x move using dro"), \
  ("dbgXFinalDro","", "x dro final"), \
 
- ("dbgZDro",    "", "z dro isr"), \
+ ("dbgZDro",    "7", "z dro isr"), \
  ("dbgZStop",   "", "z stop"), \
  ("dbgZDone",   "", "z done"), \
 
