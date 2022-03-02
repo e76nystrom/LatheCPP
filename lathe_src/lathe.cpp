@@ -2844,11 +2844,11 @@ void jogMpg3(P_MOVECTL mov)
 
   if (dir != isr->dir)		/* if direction change */
   {
-   dbgZJogDirSet();
    mov->mpgDir = dir;		/* save direction */
    mov->isrStop('9');		/* stop movement */
    mov->mpgDirChTim = millis(); /* start of dir change timeout */
    mov->mpgState = MPG_DIR_CHANGE_WAIT;
+   dbgZJogDirSet();
   }
   else
   {
@@ -2868,16 +2868,16 @@ void jogMpg3(P_MOVECTL mov)
     ctr = (delta * clksPerUSec) / dist; /* calculate new time value */
 
     __disable_irq();		/* disable interrupt */
-    if (isr->dist != 0)	/* if currently active */
+    if (isr->dist != 0)		/* if currently active */
     {
-     isr->dist += dist;	 /* update distance */
+     isr->dist += dist;		/* update distance */
      isr->clocksStep = ctr;	/* save counter value */
      mov->timer->ARR = ctr - 1; /* set new counter value */
      __enable_irq();		/* enable interrupts */
      return;			/* and exit */
     }
    }
-   else			/* if incremental jog */
+   else				/* if incremental jog */
    {
     ctr = (mov->mpgUSecSlow * clksPerUSec) / mov->mpgStepsCount; /* set ctr */
    }
@@ -2925,6 +2925,7 @@ void jogMpg3(P_MOVECTL mov)
     else
     {
      mov->mpgState = MPG_CHECK_QUE;
+     dbgZJogDirClr();
     }
    }
    break;
@@ -2934,6 +2935,7 @@ void jogMpg3(P_MOVECTL mov)
   {
    isr->done = 0;		/* clear done flag */
    mov->mpgState = MPG_CHECK_QUE;
+   dbgZJogDirClr();
   }
   break;
  }
