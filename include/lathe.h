@@ -448,7 +448,6 @@ typedef struct s_movectl
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
- int mpgDir;			/* mpg direction flag */
  int mpgBackDist;		/* mpg backlash counter */
  unsigned int mpgDirChTim;	/* mpg direction change timer */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */

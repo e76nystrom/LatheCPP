@@ -458,38 +458,48 @@ void lclcmd(int ch)
   printf("\njog\n");
   flushBuf();
   P_JOGQUE jog = &zJogQue;
+  putBufChar('z');
   while (1)
   {
    char dir = 0;
    if (dbgRxReady())
    {
-    ch = getx();
+    ch = dbgRxRead();
     if (ch == 3)
      break;
+    
     if (ch == '.')
     {
      dir = 1;
-     putBufChar('>');
+     // putBufChar('>');
     }
     else if (ch == ',')
     {
      dir = -1;
-     putBufChar('<');
+     // putBufChar('<');
     }
     else if (ch == 'x')
     {
+     putBufChar(ch);
      jog = &xJogQue;
     }
     else if (ch == 'z')
     {
+     putBufChar(ch);
      jog = &zJogQue;
     }
+
     if (dir)
     {
+     putBufChar(dir > 0 ? '>' : '<');
+     newline();
      if (jog->count < MAXJOG)
      {
+      MPG_VAL mpgVal;
+      mpgVal.delta = 50 * 1000;
+      mpgVal.dir = dir;
       jog->count++;
-      jog->buf[jog->fil] = 1;
+      jog->buf[jog->fil] = mpgVal.intVal;
       jog->fil++;
       if (jog->fil >= MAXJOG)
        jog->fil = 0;

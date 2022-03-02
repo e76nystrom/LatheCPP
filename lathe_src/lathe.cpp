@@ -507,7 +507,6 @@ typedef struct s_movectl
  int *mpgJogInc;		/* mpg jog increment */
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
- int mpgDir;			/* mpg direction flag */
  int mpgBackDist;		/* mpg backlash counter */
  unsigned int mpgDirChTim;	/* mpg direction change timer */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
@@ -2842,9 +2841,9 @@ void jogMpg3(P_MOVECTL mov)
   if (mov->mpgFlag)		/* if direction inverted */
    dir = -dir;			/* invert distance */
 
-  if (dir != isr->dir)		/* if direction change */
+  if (dir != mov->dir)	/* if direction change */
   {
-   mov->mpgDir = dir;		/* save direction */
+   mov->dir = dir;		/* save direction */
    mov->isrStop('9');		/* stop movement */
    mov->mpgDirChTim = millis(); /* start of dir change timeout */
    mov->mpgState = MPG_DIR_CHANGE_WAIT;
@@ -2883,6 +2882,12 @@ void jogMpg3(P_MOVECTL mov)
    }
    __enable_irq();		/* enable interrupts */
 
+   if (dir > 0)			/* set direction hardware */
+    mov->dirFwd();
+   else
+    mov->dirRev();
+   isr->dir = dir;
+   
    mov->expLoc += dist * dir;	/* update expected loc */
 
    if (rVar.jogDebug)
@@ -2907,7 +2912,7 @@ void jogMpg3(P_MOVECTL mov)
   case MPG_DIR_CHANGE_WAIT:
    if ((millis() - mov->mpgDirChTim) > 50) /* if waiting to stop */
    {
-    int dir = mov->mpgDir;	/* get direction */
+    int dir = mov->dir;		/* get direction */
     mov->dir = dir;		/* save direction */
     if (dir > 0)		/* set direction hardware */
      mov->dirFwd();
@@ -2919,7 +2924,21 @@ void jogMpg3(P_MOVECTL mov)
 
     if (backlashSteps != 0)	/* if backlash */
     {
-     mov->moveInit(mov->acMove, 0, backlashSteps); /* setup backlash move */
+     isr->home = 0;		/* clear variables */
+     isr->useDro = 0;
+     isr->cFactor = 0;
+     isr->accel = 0;
+     isr->decel = 0;
+     isr->sync = 0;
+
+     isr->dist = backlashSteps;
+     isr->dir = 0;
+
+     uint32_t ctr = (mov->mpgUSecSlow * clksPerUSec) / backlashSteps;
+     
+     mov->hwEnable(ctr);		/* setup hardware */
+     mov->start();		/* start */
+
      mov->mpgState = MPG_WAIT_BACKLASH;
     }
     else
@@ -5013,7 +5032,8 @@ void axisCtl(void)
  //  }
  // }
  // else
- if (zJogQue.count != 0)	/* if z jog flag set */
+ if ((zJogQue.count != 0) ||	/* if anything in queue */
+     (mov->mpgState != MPG_CHECK_QUE)) /* or not in queue check state*/
  {
   jogMpg3(mov);			/* run timed jog routine */
  }
@@ -5034,7 +5054,8 @@ void axisCtl(void)
 //  }
 // }
 // else
- if (xJogQue.count != 0)	/* if x jog flag set */
+ if ((xJogQue.count != 0) ||	/* if anything in queue */
+     (mov->mpgState != MPG_CHECK_QUE)) /* or not in queue check state*/
  {
   jogMpg3(mov);			/* run timed jog routine */
  }
