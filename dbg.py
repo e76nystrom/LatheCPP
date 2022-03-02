@@ -143,7 +143,8 @@ dbgList = \
  ("dbgRemCmd",  "", "remote command"), \
 
  ("dbgZPosErr", "3", "z position error"),\
- ("dbgZJogDir", "4", "z jog direction change"),\
+ ("dbgZJogDir", "4", "jog direction change"),\
+ ("dbgMpgBackL","5", "jog backlash"),\
  )
  #("","",""), \
 

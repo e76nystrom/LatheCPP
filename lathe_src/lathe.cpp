@@ -2926,6 +2926,8 @@ void jogMpg3(P_MOVECTL mov)
 
     if (backlashSteps != 0)	/* if backlash */
     {
+     dbgMpgBackLSet();
+     isr->steps = 0;
      isr->home = 0;		/* clear variables */
      isr->useDro = 0;
      isr->cFactor = 0;
@@ -2958,8 +2960,19 @@ void jogMpg3(P_MOVECTL mov)
  case MPG_WAIT_BACKLASH:
   if (isr->done)		/* if done */
   {
+   if (rVar.jogDebug)
+    printf("%c steps %4d\n", mov->axisName, isr->steps);
    isr->done = 0;		/* clear done flag */
+
+   P_JOGQUE jog = mov->jogQue;	/* get queue pointer */
+   __disable_irq();		/* disable interrupt */
+   jog->count = 0;		/* reset count */
+   jog->fil = 0;		/* reset fill */
+   jog->emp = 0;		/* reset emptty */
+   __enable_irq();		/* enable interrupts */
+
    mov->mpgState = MPG_CHECK_QUE;
+   dbgMpgBackLClr();
    dbgZJogDirClr();
   }
   break;

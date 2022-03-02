@@ -94,3 +94,6 @@
 #ifdef Dbg4_Pin
  PIN(dbgZJogDir, Dbg4),
 #endif
+#ifdef Dbg5_Pin
+ PIN(dbgMpgBackL, Dbg5),
+#endif

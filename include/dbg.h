@@ -564,7 +564,7 @@ inline void dbgZPosErrClr() {}
 inline uint16_t dbgZPosErrRead() {return(0);}
 #endif
 
-/* z jog direction change */
+/* jog direction change */
 #ifdef Dbg4_Pin
 inline void dbgZJogDirSet() {Dbg4_GPIO_Port->BSRR = Dbg4_Pin;}
 inline void dbgZJogDirClr() {Dbg4_GPIO_Port->BSRR = (Dbg4_Pin << 16);}
@@ -573,6 +573,17 @@ inline uint16_t dbgZJogDirRead() {return((Dbg4_GPIO_Port->IDR & Dbg4_Pin) != 0);
 inline void dbgZJogDirSet() {}
 inline void dbgZJogDirClr() {}
 inline uint16_t dbgZJogDirRead() {return(0);}
+#endif
+
+/* jog backlash */
+#ifdef Dbg5_Pin
+inline void dbgMpgBackLSet() {Dbg5_GPIO_Port->BSRR = Dbg5_Pin;}
+inline void dbgMpgBackLClr() {Dbg5_GPIO_Port->BSRR = (Dbg5_Pin << 16);}
+inline uint16_t dbgMpgBackLRead() {return((Dbg5_GPIO_Port->IDR & Dbg5_Pin) != 0);}
+#else
+inline void dbgMpgBackLSet() {}
+inline void dbgMpgBackLClr() {}
+inline uint16_t dbgMpgBackLRead() {return(0);}
 #endif
 
 #endif /* __DBG_H */
