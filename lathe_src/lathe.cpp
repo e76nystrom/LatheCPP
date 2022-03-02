@@ -2837,12 +2837,14 @@ void jogMpg3(P_MOVECTL mov)
   unsigned int delta = val.delta; /* mask off time delta */
 
   if (rVar.jogDebug)
-   printf("%2d %6d %3d\n", dir, delta, isr->dist);
+   printf("%c dir %2d delta %6d dist %3d\n", mov->axisName, dir, delta, isr->dist);
   if (mov->mpgFlag)		/* if direction inverted */
    dir = -dir;			/* invert distance */
 
   if (dir != mov->dir)	/* if direction change */
   {
+   if (rVar.jogDebug)
+    printf("%c chg dir %d\n", mov->axisName, dir);
    mov->dir = dir;		/* save direction */
    mov->isrStop('9');		/* stop movement */
    mov->mpgDirChTim = millis(); /* start of dir change timeout */
@@ -2891,7 +2893,7 @@ void jogMpg3(P_MOVECTL mov)
    mov->expLoc += dist * dir;	/* update expected loc */
 
    if (rVar.jogDebug)
-    printf("%c %2d %2d %3d %u\n",
+    printf("%c mDir %2d iDir %2d dist %3d ctr %u\n",
 	   mov->axisName, mov->dir, isr->dir, dist, (unsigned int) ctr);
 
    isr->home = 0;		/* clear variables */
@@ -2936,6 +2938,10 @@ void jogMpg3(P_MOVECTL mov)
 
      uint32_t ctr = (mov->mpgUSecSlow * clksPerUSec) / backlashSteps;
      
+     if (rVar.jogDebug)
+      printf("%c mDir %2d iDir %2d dist %3d ctr %u\n",
+	     mov->axisName, mov->dir, isr->dir, isr->dist, (unsigned int) ctr);
+
      mov->hwEnable(ctr);		/* setup hardware */
      mov->start();		/* start */
 
