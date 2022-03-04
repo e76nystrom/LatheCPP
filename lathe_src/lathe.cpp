@@ -534,6 +534,8 @@ typedef struct s_movectl
  void (*pulse) (void);		/* axis pulse */
  int *locPtr;			/* pointer to location */
  int *droLocPtr;		/* pointer to dro location */
+ int *homeOffset;		/* pointer to home offset */
+ int *droOffset;		/* pointer to dro offset */
 } T_MOVECTL, *P_MOVECTL;
 
 EXT T_MOVECTL zMoveCtl;
@@ -3429,6 +3431,8 @@ void zMoveSetup(void)
  mov->pulse = &zPulse;
  mov->locPtr = &rVar.zLoc;
  mov->droLocPtr = &rVar.zDroLoc;
+ mov->homeOffset = &rVar.zHomeOffset;
+ mov->droOffset = &rVar.zDroOffset;
 }
 
 void syncMoveSetup(void)
@@ -4406,6 +4410,8 @@ void xMoveSetup(void)
  mov->pulse = &xPulse;
  mov->locPtr = &rVar.xLoc;
  mov->droLocPtr = &rVar.xDroLoc;
+ mov->homeOffset = &rVar.xHomeOffset;
+ mov->droOffset = &rVar.xDroOffset;
 }
 
 void xMoveRel(int dist, int cmd)

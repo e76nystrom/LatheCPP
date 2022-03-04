@@ -125,8 +125,10 @@ typedef struct sBckCheck
  char run;
  unsigned int time;
  int steps;
- int droVal;
- int locVal;
+ int strLocVal;
+ int strDroVal;
+ int endLocVal;
+ int endDroVal;
  int stepDist;
  int droDist;
  int backlash;
@@ -152,6 +154,12 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
  case BCK_IDLE:
   if (bck->run)
   {
+   int loc = *mov->locPtr;    /* get end location */
+   int dro = *mov->droLocPtr; /* get end dro location */
+   printf("ini loc %6d dro %d\n",
+	  (int) (((loc - *mov->homeOffset) * 10000) / mov->stepsInch),
+	  (int) (((dro - *mov->droOffset) * 10000) / mov->droCountInch));
+   flushBuf();
    mov->dirFwd();
    isr->dir = mov->dir;
    bck->steps = lrint(0.050 * mov->axis->stepsInch);
@@ -167,6 +175,7 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
    bck->time = t;
    if (bck->steps > 0)
    {
+    putx('<');
     mov->pulse();
     bck->steps -= 1;
    }
@@ -182,11 +191,13 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   if ((t - bck->time) > 50)
   {
    bck->time = t;
-   bck->locVal = *mov->locPtr; 	/* save current location */
-   bck->droVal = *mov->droLocPtr; /* save dro location */
-   printf("loc %6d dro %d\n",
-	  (int) ((bck->locVal * 10000) / mov->stepsInch),
-	  (int) ((bck->droVal * 10000) / mov->droCountInch));
+   bck->strLocVal = *mov->locPtr; /* save start location */
+   bck->strDroVal = *mov->droLocPtr; /* save start dro location */
+   printf("\nstr loc %6d dro %d\n",
+	  (int) (((bck->strLocVal - *mov->homeOffset) * 10000) /
+		 mov->stepsInch),
+	  (int) (((bck->strDroVal - *mov->droOffset) * 10000) /
+		 mov->droCountInch));
 
    mov->dirRev();
    isr->dir = mov->dir;
@@ -203,6 +214,7 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
    bck->time = t;
    if (bck->steps > 0)
    {
+    putx('>');
     mov->pulse();
     bck->steps -= 1;
    }
@@ -217,12 +229,19 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   t = millis();
   if ((t - bck->time) > 50)
   {
-   int stepDist = *mov->locPtr - bck->locVal; /* step dist */
-   int droDist = *mov->droLocPtr - bck->droVal; /* save dro location */
+   int loc = *mov->locPtr;    /* get end location */
+   int dro = *mov->droLocPtr; /* get end dro location */
+   bck->endLocVal = loc;
+   bck->endDroVal = dro;
+   int stepDist = loc - bck->strLocVal; /* step dist */
+   int droDist = dro - bck->strDroVal; /* save dro location */
    bck->stepDist = stepDist * 10000 / mov->stepsInch;
    bck->droDist = droDist * 10000 / mov->droCountInch;
    bck->backlash = bck->stepDist - bck->droDist;
-   printf("step %6d dro %d\n", bck->stepDist, bck->droVal);
+   printf("\nend loc %6d dro %d\n",
+	  (int) (((loc - *mov->homeOffset) * 10000) / mov->stepsInch),
+	  (int) (((dro - *mov->droOffset) * 10000) / mov->droCountInch));
+   printf("step %6d dro %d\n", bck->stepDist, bck->droDist);
    printf("backlash %6d\n", bck->backlash);
    bck->run = 0;
    bck->state = BCK_IDLE;

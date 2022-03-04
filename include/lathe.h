@@ -475,6 +475,8 @@ typedef struct s_movectl
  void (*pulse) (void);		/* axis pulse */
  int *locPtr;			/* pointer to location */
  int *droLocPtr;		/* pointer to dro location */
+ int *homeOffset;		/* pointer to home offset */
+ int *droOffset;		/* pointer to dro offset */
 } T_MOVECTL, *P_MOVECTL;
 
 EXT T_MOVECTL zMoveCtl;
