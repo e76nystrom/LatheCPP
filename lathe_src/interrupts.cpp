@@ -111,6 +111,10 @@ extern "C" void encoderISR(void)
  BITWORD tmp;
  if (EXTI->PR & (ZA_Pin | ZB_Pin)) /* if bit change */
  {
+  if (dbgZDroRead())
+   dbgZDroClr();
+  else
+   dbgZDroSet();
   if (EXTI->PR & ZA_Pin)
    EXTI->PR = ZA_Pin;
   if (EXTI->PR & ZB_Pin)
