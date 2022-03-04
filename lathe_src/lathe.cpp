@@ -520,8 +520,8 @@ typedef struct s_movectl
  P_ACCEL acMove;		/* unsynchronized movement */
  P_ACCEL acJog;			/* jog */
  P_ACCEL acJogSpeed;		/* jog at speed */
- uint32_t stepsInch;		/* steps per inch */
- uint32_t droCountInch;		/* dro count inch */
+ int stepsInch;			/* steps per inch */
+ int droCountInch;		/* dro count inch */
  TIM_TypeDef *timer;		/* axis timer */
  void (*isrStop) (char ch);	/* isr stop routine */
  void (*move) (int pos, int cmd); /* move absolute function */

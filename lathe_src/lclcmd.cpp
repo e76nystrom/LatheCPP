@@ -125,10 +125,10 @@ typedef struct sBckCheck
  char run;
  unsigned int time;
  int steps;
- int strLocVal;
- int strDroVal;
- int endLocVal;
- int endDroVal;
+ int strLoc;
+ int strDro;
+ int endLoc;
+ int endDro;
  int stepDist;
  int droDist;
  int backlash;
@@ -156,9 +156,10 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   {
    int loc = *mov->locPtr;    /* get end location */
    int dro = *mov->droLocPtr; /* get end dro location */
+   bck->strDro = dro;
    printf("ini loc %6d dro %d\n",
-	  (int) (((loc - *mov->homeOffset) * 10000) / mov->stepsInch),
-	  (int) (((dro - *mov->droOffset) * 10000) / mov->droCountInch));
+	  ((loc - *mov->homeOffset) * 10000) / mov->stepsInch,
+	  ((dro - *mov->droOffset) * 10000) / mov->droCountInch);
    flushBuf();
    mov->dirFwd();
    isr->dir = DIR_POS;
@@ -174,7 +175,8 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   if ((t - bck->time) > 2)
   {
    bck->time = t;
-   if (bck->steps > 0)
+   if ((bck->steps > 0)
+   &&  (abs(*mov->droLocPtr - bck->strDro) < 10))
    {
     putx('<');
     mov->pulse();
@@ -192,13 +194,12 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   if ((t - bck->time) > 50)
   {
    bck->time = t;
-   bck->strLocVal = *mov->locPtr; /* save start location */
-   bck->strDroVal = *mov->droLocPtr; /* save start dro location */
+   bck->strLoc = *mov->locPtr; /* save start location */
+   bck->strDro = *mov->droLocPtr; /* save start dro location */
    printf("\nstr loc %6d dro %d steps %4d\n",
-	  (int) (((bck->strLocVal - *mov->homeOffset) * 10000) /
-		 mov->stepsInch),
-	  (int) (((bck->strDroVal - *mov->droOffset) * 10000) /
-		 mov->droCountInch), isr->steps);
+	  ((bck->strLoc - *mov->homeOffset) * 10000 / mov->stepsInch),
+	  ((bck->strDro - *mov->droOffset) * 10000 / mov->droCountInch),
+	  isr->steps);
    flushBuf();
 
    mov->dirRev();
@@ -215,7 +216,8 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   if ((t - bck->time) > 2)
   {
    bck->time = t;
-   if (bck->steps > 0)
+   if ((bck->steps > 0)
+   &&  (abs(*mov->droLocPtr - bck->strDro) < 10))
    {
     putx('>');
     mov->pulse();
@@ -234,16 +236,16 @@ void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
   {
    int loc = *mov->locPtr;    /* get end location */
    int dro = *mov->droLocPtr; /* get end dro location */
-   bck->endLocVal = loc;
-   bck->endDroVal = dro;
-   int stepDist = loc - bck->strLocVal; /* step dist */
-   int droDist = dro - bck->strDroVal; /* save dro location */
-   bck->stepDist = stepDist * 10000 / mov->stepsInch;
-   bck->droDist = droDist * 10000 / mov->droCountInch;
+   bck->endLoc = loc;
+   bck->endDro = dro;
+   int stepDist = loc - bck->strLoc; /* step dist */
+   int droDist = dro - bck->strDro; /* save dro location */
+   bck->stepDist = (stepDist * 10000) / mov->stepsInch;
+   bck->droDist = (droDist * 10000) / mov->droCountInch;
    bck->backlash = bck->stepDist - bck->droDist;
    printf("\nend loc %6d dro %6d steps %4d\n",
-	  (int) (((loc - *mov->homeOffset) * 10000) / mov->stepsInch),
-	  (int) (((dro - *mov->droOffset) * 10000) / mov->droCountInch),
+	  ((loc - *mov->homeOffset) * 10000) / mov->stepsInch,
+	  ((dro - *mov->droOffset) * 10000) / mov->droCountInch,
 	  isr->steps);
    printf("step %6d dro %d\n", bck->stepDist, bck->droDist);
    printf("backlash %6d\n", bck->backlash);
