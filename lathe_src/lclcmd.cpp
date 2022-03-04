@@ -118,6 +118,119 @@ extern int zCur;
 extern int zDro;
 extern int zDelta;
 
+typedef struct sBckCheck
+{
+ char state;
+ char lastState;
+ char run;
+ unsigned int time;
+ int steps;
+ int droVal;
+ int locVal;
+ int stepDist;
+ int droDist;
+ int backlash;
+} T_BACK_CHECK, *P_BACK_CHECK;
+
+T_BACK_CHECK backCheck;
+
+enum BCK_STATE
+{
+ BCK_IDLE,
+ BCK_INI_MOVE,
+ BCK_INI_DELAY,
+ BCK_MOVE,
+ BCK_DELAY,
+};
+
+void backlashCheck(P_MOVECTL mov, P_BACK_CHECK bck)
+{
+ unsigned int t = 0;
+ P_ZXISR isr = mov->isr;
+ switch (bck->state)
+ {
+ case BCK_IDLE:
+  if (bck->run)
+  {
+   mov->dirFwd();
+   isr->dir = mov->dir;
+   bck->steps = lrint(0.050 * mov->axis->stepsInch);
+   bck->state = BCK_INI_MOVE;
+   bck->time = millis();
+  }
+  break;
+
+ case BCK_INI_MOVE:
+  t = millis();
+  if ((t - bck->time) > 2)
+  {
+   bck->time = t;
+   if (bck->steps > 0)
+   {
+    mov->pulse();
+    bck->steps -= 1;
+   }
+   else
+   {
+    bck->state = BCK_INI_DELAY;
+   }
+  }
+  break;
+
+ case BCK_INI_DELAY:
+  t = millis();
+  if ((t - bck->time) > 50)
+  {
+   bck->time = t;
+   bck->locVal = *mov->locPtr; 	/* save current location */
+   bck->droVal = *mov->droLocPtr; /* save dro location */
+   printf("loc %6d dro %d\n",
+	  (int) ((bck->locVal * 10000) / mov->stepsInch),
+	  (int) ((bck->droVal * 10000) / mov->droCountInch));
+
+   mov->dirRev();
+   isr->dir = mov->dir;
+   bck->steps = lrint(0.050 * mov->axis->stepsInch);
+   bck->state = BCK_MOVE;
+   bck->time = millis();
+  }
+  break;
+
+ case BCK_MOVE:
+  t = millis();
+  if ((t - bck->time) > 2)
+  {
+   bck->time = t;
+   if (bck->steps > 0)
+   {
+    mov->pulse();
+    bck->steps -= 1;
+   }
+   else
+   {
+    bck->state = BCK_DELAY;
+   }
+  }
+  break;
+
+ case BCK_DELAY:
+  t = millis();
+  if ((t - bck->time) > 50)
+  {
+   int stepDist = *mov->locPtr - bck->locVal; /* step dist */
+   int droDist = *mov->droLocPtr - bck->droVal; /* save dro location */
+   bck->stepDist = stepDist * 10000 / mov->stepsInch;
+   bck->droDist = droDist * 10000 / mov->droCountInch;
+   bck->backlash = bck->stepDist - bck->droDist;
+   printf("step %6d dro %d\n", bck->stepDist, bck->droVal);
+   printf("backlash %6d\n", bck->backlash);
+   bck->run = 0;
+   bck->state = BCK_IDLE;
+  }
+  break;
+ }
+}
+
 void lclcmd(int ch)
 {
  if (ch == '#')
@@ -132,6 +245,27 @@ void lclcmd(int ch)
   printf("zDro %6d xDroOffset %6d zStepsInc %6d\n",
 	 rVar.zDroLoc, rVar.zDroOffset, rVar.zDroCountInch);
   printf("zCur %6d zDro %6d zDelta %6d\n", zCur, zDro, zDelta);
+ }
+ else if (ch == '!')
+ {
+  newline();
+  P_BACK_CHECK bc = &backCheck;
+  P_MOVECTL mov = &zMoveCtl;
+  memset((void *) bc, 0, sizeof(backCheck));
+  bc->run = 1;
+  while (bc->run != 0)
+  {
+   if (dbgRxReady())
+   {
+    ch = dbgRxRead();
+    if (ch == 3)
+     break;
+   }
+
+   backlashCheck(mov, bc);
+
+   pollBufChar();
+  }
  }
  else if (ch == 'i')		/* init character buffer */
  {
