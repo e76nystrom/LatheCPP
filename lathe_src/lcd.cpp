@@ -51,9 +51,6 @@
 
 #if defined(__LCD_INC__)	// <-
 
-// LCD Address
-#define ADDRESS 0x27
-
 // commands
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_RETURNHOME 0x02
@@ -137,6 +134,7 @@ void lcdInit(void)
 {
  printf("lcdInit address %2x\n", (unsigned int) SLAVE_ADDRESS);
  startCnt();
+ i2cError = 0;
  setBacklight(0);
 
  pulseEnable(LCD_FUNCTIONSET | LCD_8BITMODE);
@@ -173,11 +171,6 @@ void pulseEnable(uint8_t val)
 void command(uint8_t val)
 {
  // printf("command %02x\n", val);
-//#if defined STM32F4
-// pulseEnable(val & 0xf0);
-// pulseEnable(val << 4);
-//#endif
-//#if defined(STM32H7)
  uint8_t tmp;
  uint8_t buf[4];
  tmp = (val & 0xf0) | LCD_BACKLIGHT;
@@ -188,7 +181,6 @@ void command(uint8_t val)
  buf[3] = tmp & ~En;
  i2cWrite(buf, sizeof(buf));
  i2cWaitBusy();
-//#endif
 }
 
 uint8_t *lcdWrite(uint8_t *buf, uint8_t data)

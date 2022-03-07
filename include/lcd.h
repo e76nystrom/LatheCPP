@@ -1,8 +1,5 @@
 #if 1	// <-
 
-// LCD Address
-#define ADDRESS 0x27
-
 // commands
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_RETURNHOME 0x02

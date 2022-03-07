@@ -38,6 +38,7 @@
 #include "serialio.h"
 #include "spix.h"
 #include "lcd.h"
+#include "i2cx.h"
 
 #include "Xilinx.h"
 #include "zcontrol.h"
@@ -1190,7 +1191,7 @@ void setup(void)
  {
   if (!lcdActive)
   {
-   printf("lcdInit\n");
+   printf("lcdInit start");
    flushBuf();
 #if 1
    lcdInit();
@@ -1210,10 +1211,17 @@ void setup(void)
      ;
    }
 #endif
-   printf("lcdInit done\n");
+   if (i2cError == 0)
+   {
+    printf("lcdInit done\n");
+    lcdActive = 1;
+    lcdRow = 0;
+   }
+   else
+   {
+    printf("lcdInit failed\n");
+   }
    flushBuf();
-   lcdActive = 1;
-   lcdRow = 0;
   }
  }
 #endif

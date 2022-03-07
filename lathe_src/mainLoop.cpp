@@ -614,6 +614,9 @@ void pinDisplay(void)
 void lcdDisplay(void)
 {
 #if I2C
+ if (i2cError)			/* if i2c failed initialization */
+  return;
+ 
  if (i2cCtl.state != I_IDLE)	/* if i2c active */
  {
   i2cControl();			/* call i2c control routine */
@@ -622,29 +625,8 @@ void lcdDisplay(void)
  {
   if (lcdDelayStart == 0)
   {
-#if 1
    setCursor(0, lcdRow);
    lcdDelayStart = millis();
-#else
-   if (lcdRetryDelay == 0)
-   {
-    if (setCursor(0, lcdRow))
-    {
-    }
-    else
-    {
-//     lcdRetryDelay = millis();
-    }
-    lcdDelayStart = millis();
-   }
-   else
-   {
-    if ((millis() - lcdRetryDelay) > LCD_RETRY_DELAY)
-    {
-     lcdRetryDelay = 0;
-    }
-   }
-#endif
   }
   else
   {

@@ -41,6 +41,7 @@ typedef struct
  int state;
  int lastState;
  int status;
+ int errCount;
  unsigned int startTime;
  unsigned int timeout;
  unsigned int maxTime;
@@ -51,5 +52,6 @@ typedef struct
 } T_I2C_CTL, *P_I2C_CTL;
 
 EXT T_I2C_CTL i2cCtl;
+EXT int i2cError;
 
 #endif	// ->

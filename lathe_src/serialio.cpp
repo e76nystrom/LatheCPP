@@ -1011,12 +1011,14 @@ extern "C" void remoteISR(void)
    }
   }
  }
+
  if (remRxOverrun())		/* if overrun errror */
  {
   if (remRxRead())		/* read character */
   {
   }
  }
+
  if (remTxEmpty())		/* if transmit empty */
  {
   if (u->tx_count != 0)		/* if anything in buffer */
