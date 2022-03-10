@@ -861,6 +861,13 @@ inline int xDro()
  return(rVar.xDroLoc - rVar.xDroOffset);
 }
 
+#if defined(MEGAPORT)
+
+void megaPoll(void);
+void megaRsp(void);
+
+#endif	/* MEGAPORT */
+
 #include "main.h"
 #include "pinDef.h"
 #include "timers.h"

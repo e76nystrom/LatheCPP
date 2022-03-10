@@ -194,116 +194,117 @@ T_PARM remparm[] =
  PARM(threadSync),              /* 0x77 sync type for threading */
  PARM(capTmrEnable),            /* 0x78 enable capture timer */
  PARM(cfgFpga),                 /* 0x79 using fpga */
- PARM(cfgMpg),                  /* 0x7a manual pulse generator */
- PARM(cfgDro),                  /* 0x7b digital readout */
- PARM(cfgLcd),                  /* 0x7c lcd display */
- PARM(cfgFcy),                  /* 0x7d system clock speed */
- PARM(cfgSwitch),               /* 0x7e spindle off on switch */
- PARM(cfgVarSpeed),             /* 0x7f spindle variable speed */
+ PARM(cfgMega),                 /* 0x7a control link to mega */
+ PARM(cfgMpg),                  /* 0x7b manual pulse generator */
+ PARM(cfgDro),                  /* 0x7c digital readout */
+ PARM(cfgLcd),                  /* 0x7d lcd display */
+ PARM(cfgFcy),                  /* 0x7e system clock speed */
+ PARM(cfgSwitch),               /* 0x7f spindle off on switch */
+ PARM(cfgVarSpeed),             /* 0x80 spindle variable speed */
 
 // setup
 
- PARM(setupDone),               /* 0x80 setup done */
+ PARM(setupDone),               /* 0x81 setup done */
 
 // encoder counts per revolution
 
- PARM(encPerRev),               /* 0x81 spindle enc counts per rev */
+ PARM(encPerRev),               /* 0x82 spindle enc counts per rev */
 
 // test encoder setup variables
 
- PARM(encEnable),               /* 0x82 encoder enable flag */
- PARM(encPreScaler),            /* 0x83 encoder prescaler */
- PARM(encTimer),                /* 0x84 encoder timer counts */
- PARM(encRunCount),             /* 0x85 encoder run count */
+ PARM(encEnable),               /* 0x83 encoder enable flag */
+ PARM(encPreScaler),            /* 0x84 encoder prescaler */
+ PARM(encTimer),                /* 0x85 encoder timer counts */
+ PARM(encRunCount),             /* 0x86 encoder run count */
 
 // test encoder status variables
 
- PARM(encRun),                  /* 0x86 encoder running flag */
- PARM(encCounter),              /* 0x87 encoder count in rev */
- PARM(encRevCounter),           /* 0x88 encoder revolution counter */
+ PARM(encRun),                  /* 0x87 encoder running flag */
+ PARM(encCounter),              /* 0x88 encoder count in rev */
+ PARM(encRevCounter),           /* 0x89 encoder revolution counter */
 
 // measured spindle speed
 
- PARM(rpm),                     /* 0x89 current measured rpm */
+ PARM(rpm),                     /* 0x8a current measured rpm */
 
 // fpga frequency variables
 
- PARM(fpgaFrequency),           /* 0x8a fpga clock frequency */
- PARM(freqMult),                /* 0x8b frequency multiplier */
+ PARM(fpgaFrequency),           /* 0x8b fpga clock frequency */
+ PARM(freqMult),                /* 0x8c frequency multiplier */
 
 // xilinx configuration register
 
- PARM(xCfgReg),                 /* 0x8c xilinx cfg register */
+ PARM(xCfgReg),                 /* 0x8d xilinx cfg register */
 
 // sync parameters
 
- PARM(lSyncCycle),              /* 0x8d sync cycle length */
- PARM(lSyncOutput),             /* 0x8e sync outputs per cycle */
- PARM(lSyncPrescaler),          /* 0x8f sync prescaler */
+ PARM(lSyncCycle),              /* 0x8e sync cycle length */
+ PARM(lSyncOutput),             /* 0x8f sync outputs per cycle */
+ PARM(lSyncPrescaler),          /* 0x90 sync prescaler */
 
 // threading variables
 
- PARM(thZStart),                /* 0x90 threading z start */
- PARM(thXStart),                /* 0x91 threading x start */
- PARM(tanThreadAngle),          /* 0x92 tan of threading angle */
- PARM(xFeed),                   /* 0x93 x feed */
- PARM(runoutDistance),          /* 0x94 runout distance */
- PARM(runoutDepth),             /* 0x95 runout depth */
+ PARM(thZStart),                /* 0x91 threading z start */
+ PARM(thXStart),                /* 0x92 threading x start */
+ PARM(tanThreadAngle),          /* 0x93 tan of threading angle */
+ PARM(xFeed),                   /* 0x94 x feed */
+ PARM(runoutDistance),          /* 0x95 runout distance */
+ PARM(runoutDepth),             /* 0x96 runout depth */
 
 // jog debug
 
- PARM(jogDebug),                /* 0x96 jog interrupt debug */
+ PARM(jogDebug),                /* 0x97 jog interrupt debug */
 
 // motor and speed control
 
- PARM(pwmFreq),                 /* 0x97 spindle speed pwm frequency */
- PARM(minSpeed),                /* 0x98 min speed for current range */
- PARM(maxSpeed),                /* 0x99 max speed for current range */
+ PARM(pwmFreq),                 /* 0x98 spindle speed pwm frequency */
+ PARM(minSpeed),                /* 0x99 min speed for current range */
+ PARM(maxSpeed),                /* 0x9a max speed for current range */
 
 // current operation
 
- PARM(currentOp),               /* 0x9a current operation */
+ PARM(currentOp),               /* 0x9b current operation */
 
 // global limits and home
 
- PARM(limitOverride),           /* 0x9b override limit switches */
- PARM(commonLimits),            /* 0x9c all limit switches one pin */
- PARM(limitsEnabled),           /* 0x9d limits enabled */
- PARM(commonHome),              /* 0x9e all home switches one pin */
+ PARM(limitOverride),           /* 0x9c override limit switches */
+ PARM(commonLimits),            /* 0x9d all limit switches one pin */
+ PARM(limitsEnabled),           /* 0x9e limits enabled */
+ PARM(commonHome),              /* 0x9f all home switches one pin */
 
 // z limits and home
 
- PARM(zLimEna),                 /* 0x9f z limit enable */
- PARM(zLimNegInv),              /* 0xa0 z negative limit invert */
- PARM(zLimPosInv),              /* 0xa1 z Positive limit Invert */
- PARM(zHomeEna),                /* 0xa2 z home enable */
- PARM(zHomeInv),                /* 0xa3 z home invert */
+ PARM(zLimEna),                 /* 0xa0 z limit enable */
+ PARM(zLimNegInv),              /* 0xa1 z negative limit invert */
+ PARM(zLimPosInv),              /* 0xa2 z Positive limit Invert */
+ PARM(zHomeEna),                /* 0xa3 z home enable */
+ PARM(zHomeInv),                /* 0xa4 z home invert */
 
 // x limits and home
 
- PARM(xLimEna),                 /* 0xa4 x limit enable */
- PARM(xLimNegInv),              /* 0xa5 x negative limit invert */
- PARM(xLimPosInv),              /* 0xa6 x Positive limit Invert */
- PARM(xHomeEna),                /* 0xa7 x home enable */
- PARM(xHomeInv),                /* 0xa8 x home invert */
+ PARM(xLimEna),                 /* 0xa5 x limit enable */
+ PARM(xLimNegInv),              /* 0xa6 x negative limit invert */
+ PARM(xLimPosInv),              /* 0xa7 x Positive limit Invert */
+ PARM(xHomeEna),                /* 0xa8 x home enable */
+ PARM(xHomeInv),                /* 0xa9 x home invert */
 
 // e stop
 
- PARM(eStopEna),                /* 0xa9 enable estop */
- PARM(eStopInv),                /* 0xaa invert estop siganl */
+ PARM(eStopEna),                /* 0xaa enable estop */
+ PARM(eStopInv),                /* 0xab invert estop siganl */
 
 // command pause
 
- PARM(cmdPaused),               /* 0xab move commands paused */
+ PARM(cmdPaused),               /* 0xac move commands paused */
 
 // arc parameters
 
- PARM(arcRadius),               /* 0xac arc radius */
- PARM(arcXCenter),              /* 0xad arc x center */
- PARM(arcZCenter),              /* 0xae arc z center */
- PARM(arcXStart),               /* 0xaf arc x start */
- PARM(arcZStart),               /* 0xb0 arc z start */
- PARM(arcXEnd),                 /* 0xb1 arc x center */
- PARM(arcZEnd),                 /* 0xb2 arc z center */
- PARM(maxParm),                 /* 0xb3 maximum parameter */
+ PARM(arcRadius),               /* 0xad arc radius */
+ PARM(arcXCenter),              /* 0xae arc x center */
+ PARM(arcZCenter),              /* 0xaf arc z center */
+ PARM(arcXStart),               /* 0xb0 arc x start */
+ PARM(arcZStart),               /* 0xb1 arc z start */
+ PARM(arcXEnd),                 /* 0xb2 arc x center */
+ PARM(arcZEnd),                 /* 0xb3 arc z center */
+ PARM(maxParm),                 /* 0xb4 maximum parameter */
 };

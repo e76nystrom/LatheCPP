@@ -1,5 +1,5 @@
-//#if !defined(INCLUDE)
 #define __SERIALIO__
+
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
 #endif
@@ -32,7 +32,6 @@
 
 #define EXT
 #include "serialio.h"
-//#endif /* !defined(INCLUDE) */
 
 #if defined(__SERIALIO_INC__)	// <-
 
@@ -109,7 +108,7 @@ void dbgmsg(char dbg, int32_t val);
 #else
 void dbgmsg(char *str, int32_t val);
 void dbgmsgx(char *str, char reg, int32_t val);
-#endif
+#endif	/* DBGMSG == 2 */
 void clrDbgBuf(void);
 #else
 #define dbgmsg(a, b)
@@ -148,6 +147,18 @@ EXT char dbgBuffer;
 EXT char lineStart;
 EXT char lineLen;
 EXT char eolFlag;
+
+#if defined(MEGAPORT)
+
+void initMega(void);
+void putMega(char ch);
+void putstrMega(const char *p);
+void sndhexMega(const unsigned char *p, int size);
+int getMega(void);
+char gethexMega(void);
+
+EXT int32_t valMega;
+#endif	/* MEGAPORT */
 
 #if defined(STM32F4)
 
@@ -213,7 +224,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->SR & USART_SR_RXNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->DR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->SR & USART_SR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->SR & USART_SR_TXE);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->DR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32F4 */
 
 #if defined(STM32F7)
 
@@ -279,7 +327,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->ISR & USART_ISR_RXNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->RDR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->ISR & USART_ISR_TXE);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->TDR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32F7 */
 
 #if defined(STM32H7)
 
@@ -345,7 +430,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->ISR & USART_ISR_RXNE_RXFNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->RDR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->ISR & USART_ISR_TXE_TXFNF);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->TDR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32H7 */
 
 // #define SNDHEX(val) sndhex((unsigned char *) &val, sizeof(val))
 
@@ -371,7 +493,7 @@ typedef struct
  int32_t time;
 } T_DBGMSG, *P_DBGMSG;
 
-#endif
+#endif	/* DBGMSG == 2 */
 
 EXT T_DBGMSG dbgdata[MAXDBGMSG];
 
@@ -383,26 +505,51 @@ EXT uint16_t dbgemp;
 
 /* remote port interrupt driven routines */
 
-#define TX_BUF_SIZE 140
-#define RX_BUF_SIZE 80
+#define REM_TX_SIZE 140
+#define REM_RX_SIZE 80
 
 typedef struct
 {
  int tx_fil;
  int tx_emp;
  int tx_count;
- char tx_buffer[TX_BUF_SIZE];
+ char tx_buffer[REM_TX_SIZE];
  int rx_fil;
  int rx_emp;
  int rx_count;
- char rx_buffer[RX_BUF_SIZE];
+ char rx_buffer[REM_RX_SIZE];
  int state;
 } T_REMCTL, *P_REMCTL;
 
 EXT T_REMCTL remCtl;
 
+#if defined(MEGAPORT)
+
+#define MEGA_TX_SIZE 40
+#define MEGA_RX_SIZE 40
+
+typedef struct
+{
+ int tx_fil;
+ int tx_emp;
+ int tx_count;
+ char tx_buffer[MEGA_TX_SIZE];
+ int rx_fil;
+ int rx_emp;
+ int rx_count;
+ char rx_buffer[MEGA_RX_SIZE];
+ int state;
+ uint32_t timer;
+} T_MEGACTL, *P_MEGACTL;
+
+EXT T_MEGACTL megaCtl;
+
+#endif	/* MEGAPORT */
+
 #endif	// ->
 #ifdef __SERIALIO__
+
+unsigned int millis(void);
 
 /* polled debug port routines */
 
@@ -787,7 +934,7 @@ void prtibuf(int16_t *p, int size)
  }
 }
 
-#ifdef REMPORT
+#if defined(REMPORT)
 
 /* polled remote port routines */
 
@@ -993,11 +1140,11 @@ extern "C" void remoteISR(void)
   }
   else				/* if receiving data */
   {
-   if (u->rx_count < RX_BUF_SIZE) /* if room in buffer */
+   if (u->rx_count < REM_RX_SIZE) /* if room in buffer */
    {
     int fill = u->rx_fil;	/* temp copy of fill pointer */
     u->rx_buffer[fill++] = ch;	/* put character in buffer */
-    if (fill >= RX_BUF_SIZE)	/* if past end of buffer */
+    if (fill >= REM_RX_SIZE)	/* if past end of buffer */
      fill = 0;			/* reset to zero */
     u->rx_fil = fill;		/* save fill pointer */
     u->rx_count++;		/* update count */
@@ -1025,7 +1172,7 @@ extern "C" void remoteISR(void)
   {
    int emp = u->tx_emp;		/* temp copy of empty pointer */
    remTxSend(u->tx_buffer[emp++]); /* send character */
-   if (emp >= TX_BUF_SIZE)	/* if at buffer end */
+   if (emp >= REM_TX_SIZE)	/* if at buffer end */
     emp = 0;			/* reset to start */
    u->tx_emp = emp;		/* save empty pointer */
    --u->tx_count;		/* count it off */
@@ -1038,11 +1185,11 @@ extern "C" void remoteISR(void)
 void putRem(char ch)
 {
  P_REMCTL u = &remCtl;
- if (u->tx_count < TX_BUF_SIZE) /* if room for data */
+ if (u->tx_count < REM_TX_SIZE) /* if room for data */
  {
   int fill = u->tx_fil;		/* temp copy of fill pointer */
   u->tx_buffer[fill++] = ch;	/* put character in buffer */
-  if (fill >= TX_BUF_SIZE)	/* if past end of buffer */
+  if (fill >= REM_TX_SIZE)	/* if past end of buffer */
    fill = 0;			/* reset to zero */
   u->tx_fil = fill;		/* save fill pointer */
   u->tx_count++;		/* update count */
@@ -1112,7 +1259,7 @@ int getRem(void)
  {
   int emp = u->rx_emp;		/* temp copy of empty pointer */
   unsigned char ch = u->rx_buffer[emp++]; /* send character */
-  if (emp >= RX_BUF_SIZE)	/* if at buffer end */
+  if (emp >= REM_RX_SIZE)	/* if at buffer end */
    emp = 0;			/* reset to start */
   u->rx_emp = emp;		/* save empty pointer */
   --u->rx_count;		/* count it off */
@@ -1254,7 +1401,210 @@ int isrCount;
 unsigned int isrOverflow;
 char isrBuf[ISR_BUF_SIZE];
 
-#endif
+#endif	/* REMPORT */
+
+#if defined(MEGAPORT)
+
+void megaRsp(void);
+
+void initMega(void)
+{
+ memset(&megaCtl, 0, sizeof(megaCtl));
+ megaRxIntEna();
+}
+
+extern "C" void megaISR(void)
+{
+ P_MEGACTL u = &megaCtl;
+ if (megaRxReady())		/* if received character */
+ {
+  char ch = megaRxRead();	/* read character */
+  if (u->state == 0)		/* if waiting for start */
+  {
+   if (ch == '-')		/* if start of message received */
+   {
+    u->state = 1;		/* set to start receiving */
+    u->timer = millis();	/* set message timeout */
+   }
+  }
+  else				/* if receiving data */
+  {
+   if (u->rx_count < MEGA_RX_SIZE) /* if room in buffer */
+   {
+    int fill = u->rx_fil;	/* temp copy of fill pointer */
+    u->rx_buffer[fill++] = ch;	/* put character in buffer */
+    if (fill >= MEGA_RX_SIZE)	/* if past end of buffer */
+     fill = 0;			/* reset to zero */
+    u->rx_fil = fill;		/* save fill pointer */
+    u->rx_count++;		/* update count */
+
+    if (ch == '*')		/* if end of command */
+    {
+     u->state = 0;		/* set to waiting for start */
+     NVIC_ClearPendingIRQ(MEGA_IRQn); /* clear pending interrupt */
+     megaRsp();			/* process mega command */
+    }
+   }
+  }
+ }
+
+ if (megaRxOverrun())		/* if overrun errror */
+ {
+  if (megaRxRead())		/* read character */
+  {
+  }
+ }
+
+ if (megaTxEmpty())		/* if transmit empty */
+ {
+  if (u->tx_count != 0)		/* if anything in buffer */
+  {
+   int emp = u->tx_emp;		/* temp copy of empty pointer */
+   megaTxSend(u->tx_buffer[emp++]); /* send character */
+   if (emp >= MEGA_TX_SIZE)	/* if at buffer end */
+    emp = 0;			/* reset to start */
+   u->tx_emp = emp;		/* save empty pointer */
+   --u->tx_count;		/* count it off */
+  }
+  else				/* if nothing to send */
+   megaTxIntDis();		/* disable transmit interrupt */
+ }
+}
+
+void putMega(char ch)
+{
+ P_MEGACTL u = &megaCtl;
+ if (u->tx_count < MEGA_TX_SIZE) /* if room for data */
+ {
+  int fill = u->tx_fil;		/* temp copy of fill pointer */
+  u->tx_buffer[fill++] = ch;	/* put character in buffer */
+  if (fill >= MEGA_TX_SIZE)	/* if past end of buffer */
+   fill = 0;			/* reset to zero */
+  u->tx_fil = fill;		/* save fill pointer */
+  __disable_irq();
+  u->tx_count++;		/* update count */
+  megaTxIntEna();		/* enable transmit interrupt */
+  __enable_irq();
+ }
+}
+
+void putstrMega(const char *p)
+{
+ while (1)
+ {
+  char ch = *p++;
+  if (ch == 0)
+   break;
+  putMega(ch);
+  if (ch == '\n')
+   putMega('\r');
+ }
+}
+
+void sndhexMega(const unsigned char *p, int size)
+{
+ char tmp;
+ char ch;
+ int zeros = 0;
+
+ p += size;
+ while (size != 0)
+ {
+  --size;
+  p--;
+  tmp = *p;
+  ch = tmp;
+  ch >>= 4;
+  ch &= 0xf;
+  if ((ch != 0)
+  ||  zeros)
+  {
+   zeros = 1;
+   if (ch < 10)
+    ch += '0';
+   else
+    ch += 'a' - 10;
+   putMega(ch);
+  }
+
+  tmp &= 0xf;
+  if ((tmp != 0)
+  ||  zeros)
+  {
+   zeros = 1;
+   if (tmp < 10)
+    tmp += '0';
+   else
+    tmp += 'a' - 10;
+   putMega(tmp);
+  }
+ }
+ if (zeros == 0)
+  putMega('0');
+}
+
+int getMega(void)
+{
+ P_MEGACTL u = &megaCtl;
+ if (u->rx_count != 0)		/* if anything in buffer */
+ {
+  int emp = u->rx_emp;		/* temp copy of empty pointer */
+  unsigned char ch = u->rx_buffer[emp++]; /* send character */
+  if (emp >= MEGA_RX_SIZE)	/* if at buffer end */
+   emp = 0;			/* reset to start */
+  u->rx_emp = emp;		/* save empty pointer */
+  --u->rx_count;		/* count it off */
+  return(ch);
+ }
+ return(-1);			/* nothing in buffer */
+}
+
+char gethexMega(void)
+{
+ char ch;
+ int count;
+
+ valMega = 0;
+ count = 0;
+ while (count <= 8)
+ {
+  int tmp = getMega();
+  if (tmp > 0)
+  {
+   ch = (char) tmp;
+   if ((ch >= '0')
+   &&  (ch <= '9'))
+   {
+    //putMega(ch);
+    ch -= '0';
+    count++;
+   }
+   else if ((ch >= 'a')
+   &&       (ch <= 'f'))
+   {
+    //putMega(ch);
+    ch -= 'a' - 10;
+    count++;
+   }
+   else if (ch == ' ')
+   {
+    //putMega(ch);
+    break;
+   }
+   else if (ch == '\r')
+    break;
+   else
+    continue;
+   valMega <<= 4;
+   valMega += ch;
+  }
+  else
+   return(0);
+ }
+ return(count != 0);
+}
+
+#endif	/* MEGAPORT */
 
 void initCharBuf(void)
 {
@@ -1574,7 +1924,7 @@ void dbgmsgx(char *str, char reg, int32_t val)
  }
 }
 
-#endif
+#endif	/* DBGMSG == 2 */
 
 void clrDbgBuf(void)
 {
@@ -1642,4 +1992,4 @@ write (int handle, const char *buffer, int len)
  return (len);
 }
 
-#endif	/* INCLUDE */
+#endif	/* __SERIALIO__ */

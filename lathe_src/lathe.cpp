@@ -921,6 +921,13 @@ inline int xDro()
  return(rVar.xDroLoc - rVar.xDroOffset);
 }
 
+#if defined(MEGAPORT)
+
+void megaPoll(void);
+void megaRsp(void);
+
+#endif	/* MEGAPORT */
+
 #include "main.h"
 #include "pinDef.h"
 #include "timers.h"
@@ -1322,41 +1329,60 @@ void allStop(void)
  dbg10Clr();
 }
 
+#define TMR1_PWM_MAX 1024
+
 void setSpindleSpeed(int rpm)
 {
- if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
+ if (rVar.cfgMega == 0)
  {
-  constexpr int MAX_COUNT = 65536;
-
-  int cnt = rVar.cfgFcy / rVar.pwmFreq;
-  int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
-  cnt /= preScale;
-  int pwmTmrVal = cnt;
-  cnt -= 1;
-
-  int pwm = (rpm * pwmTmrVal) / rVar.maxSpeed;
-
-  if (DBG_SETUP)
+  if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */
   {
-   printf("pwmFreq %d preScale %d cnt %d\n", rVar.pwmFreq, preScale, pwmTmrVal);
-   printf("rpm %d maxSpeed %d pwm %d\n", rpm, rVar.maxSpeed, pwm);
+   constexpr int MAX_COUNT = 65536;
+
+   int cnt = rVar.cfgFcy / rVar.pwmFreq;
+   int preScale = (cnt % MAX_COUNT) ? cnt / MAX_COUNT + 1 : cnt / MAX_COUNT;
+   cnt /= preScale;
+   int pwmTmrVal = cnt;
+   cnt -= 1;
+
+   int pwm = (rpm * pwmTmrVal) / rVar.maxSpeed;
+
+   if (DBG_SETUP)
+   {
+    printf("pwmFreq %d preScale %d cnt %d\n",
+	   rVar.pwmFreq, preScale, pwmTmrVal);
+    printf("rpm %d maxSpeed %d pwm %d\n",
+	   rpm, rVar.maxSpeed, pwm);
+   }
+
+   pwmTmrInit();
+   pwmTmrScl(preScale - 1);
+   pwmTmrCntClr();
+   pwmTmrSet(cnt);
+   pwmTmrStart();
+   pwmTmrCCR(pwm - 1);
+   pwmTmrPWMMode();
   }
+  else			/* if pwm and idx timers the same */
+  {
+   int pwm = (uint16_t) ((rpm * indexTmrCount) / rVar.maxSpeed);
 
-  pwmTmrInit();
-  pwmTmrScl(preScale - 1);
-  pwmTmrCntClr();
-  pwmTmrSet(cnt);
-  pwmTmrStart();
-  pwmTmrCCR(pwm - 1);
-  pwmTmrPWMMode();
+   pwmTmrCCR(pwm - 1);
+   pwmTmrPWMMode();
+  }
  }
- else			/* if pwm and idx timers the same */
+#if defined(MEGAPORT)
+ else
  {
-  int pwm = (uint16_t) ((rpm * indexTmrCount) / rVar.maxSpeed);
-
-  pwmTmrCCR(pwm - 1);
-  pwmTmrPWMMode();
+  int16_t pwm = (int16_t) ((rpm * TMR1_PWM_MAX) / rVar.maxSpeed);
+  char ch = MEGA_SET_RPM;
+  putMega(1);
+  sndhexMega((const unsigned char *) &ch, sizeof(ch));
+  putMega(' ');
+  sndhexMega((const unsigned char *) &pwm, sizeof(pwm));
+  putMega('\r');
  }
+#endif	/* MEGAPORT */
 }
 
 void spindleSetup(int rpm)
@@ -6572,6 +6598,50 @@ void encRunoutCalc(P_ACCEL a0, P_ACCEL a1, float runout, float runoutDepth)
 	 dx, dy, a1->incr1, a1->incr2, a1->d);
  }
 }
+
+#if defined(MEGAPORT)
+
+void megaRsp()
+{
+ gethexMega();
+ int parm = valMega;
+ switch (parm)
+ {
+ case MEGA_SET_RPM:
+  break;
+
+ case MEGA_GET_RPM:
+  break;
+
+ case MEGA_POLL:
+  gethexMega();
+  putBufChar('P');
+  break;
+
+ default:
+  gethexMega();
+  break;
+ }
+
+ while (1)
+ {
+  int ch = getMega();
+  if (ch == '*')
+   break;
+  if (ch < 0)
+   break;
+ }
+}
+
+void megaPoll(void)
+{
+ putMega(1);
+ char ch = MEGA_POLL;
+ sndhexMega((const unsigned char *) &ch, sizeof(ch));
+ putMega('\r');
+}
+
+#endif	/* MEGAPORT */
 
 /* TIM3 init function */
 

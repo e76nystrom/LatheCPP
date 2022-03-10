@@ -73,7 +73,7 @@ void dbgmsg(char dbg, int32_t val);
 #else
 void dbgmsg(char *str, int32_t val);
 void dbgmsgx(char *str, char reg, int32_t val);
-#endif
+#endif	/* DBGMSG == 2 */
 void clrDbgBuf(void);
 #else
 #define dbgmsg(a, b)
@@ -112,6 +112,18 @@ EXT char dbgBuffer;
 EXT char lineStart;
 EXT char lineLen;
 EXT char eolFlag;
+
+#if defined(MEGAPORT)
+
+void initMega(void);
+void putMega(char ch);
+void putstrMega(const char *p);
+void sndhexMega(const unsigned char *p, int size);
+int getMega(void);
+char gethexMega(void);
+
+EXT int32_t valMega;
+#endif	/* MEGAPORT */
 
 #if defined(STM32F4)
 
@@ -177,7 +189,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->SR & USART_SR_RXNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->DR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->SR & USART_SR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->SR & USART_SR_TXE);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->DR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32F4 */
 
 #if defined(STM32F7)
 
@@ -243,7 +292,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->ISR & USART_ISR_RXNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->RDR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->ISR & USART_ISR_TXE);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->TDR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32F7 */
 
 #if defined(STM32H7)
 
@@ -309,7 +395,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->ISR & USART_ISR_RXNE_RXFNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->RDR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->ISR & USART_ISR_TXE_TXFNF);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->TDR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32H7 */
 
 // #define SNDHEX(val) sndhex((unsigned char *) &val, sizeof(val))
 
@@ -335,7 +458,7 @@ typedef struct
  int32_t time;
 } T_DBGMSG, *P_DBGMSG;
 
-#endif
+#endif	/* DBGMSG == 2 */
 
 EXT T_DBGMSG dbgdata[MAXDBGMSG];
 
@@ -347,22 +470,45 @@ EXT uint16_t dbgemp;
 
 /* remote port interrupt driven routines */
 
-#define TX_BUF_SIZE 140
-#define RX_BUF_SIZE 80
+#define REM_TX_SIZE 140
+#define REM_RX_SIZE 80
 
 typedef struct
 {
  int tx_fil;
  int tx_emp;
  int tx_count;
- char tx_buffer[TX_BUF_SIZE];
+ char tx_buffer[REM_TX_SIZE];
  int rx_fil;
  int rx_emp;
  int rx_count;
- char rx_buffer[RX_BUF_SIZE];
+ char rx_buffer[REM_RX_SIZE];
  int state;
 } T_REMCTL, *P_REMCTL;
 
 EXT T_REMCTL remCtl;
+
+#if defined(MEGAPORT)
+
+#define MEGA_TX_SIZE 40
+#define MEGA_RX_SIZE 40
+
+typedef struct
+{
+ int tx_fil;
+ int tx_emp;
+ int tx_count;
+ char tx_buffer[MEGA_TX_SIZE];
+ int rx_fil;
+ int rx_emp;
+ int rx_count;
+ char rx_buffer[MEGA_RX_SIZE];
+ int state;
+ uint32_t timer;
+} T_MEGACTL, *P_MEGACTL;
+
+EXT T_MEGACTL megaCtl;
+
+#endif	/* MEGAPORT */
 
 #endif	// ->

@@ -530,8 +530,8 @@ void remcmd(void)
      p->val = -p->val;
     }
     sndhexrem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
-    if ((remCtl.tx_count < (TX_BUF_SIZE - MAX_DBG_SIZE)) /* if space */
-	&&  (dbgcnt != 0))		/* and more data */
+    if ((remCtl.tx_count < (REM_TX_SIZE - MAX_DBG_SIZE)) /* if space */
+    &&  (dbgcnt != 0))		/* and more data */
      putrem(' ');		/* output a space */
     else			/* if no more data */
      break;			/* exit loop */

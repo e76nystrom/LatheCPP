@@ -47,15 +47,15 @@ T_PINDEF pinDef[] =
 {
  PIN(StepZ, Step1),
  PIN(DirZ, Dir1),
-#ifdef Step2a_Pin
+#if defined(Step2a_Pin)
  PIN(StepX, Step2a),
-#endif
-#ifdef Step2_Pin
+#endif	/* Step2a_Pin */
+#if defined(Step2_Pin)
  PIN(StepX, Step2),
-#endif
-#ifdef Step2b_Pin
+#endif	/* Step2_Pin */
+#if defined(Step2b_Pin)
  PIN(Step2b, Step2b),
-#endif
+#endif	/* Step2b_Pin */
  PIN(DirX, Dir2),
  PIN(Step3, Step3),
  PIN(Dir3, Dir3),
@@ -64,15 +64,15 @@ T_PINDEF pinDef[] =
  PIN(StepSp, Step5),
  PIN(DirSp, Dir5),
 
-#ifdef Index1_Pin
+#if defined(Index1_Pin)
  PIN(Index1, Index1),
-#endif
-#ifdef Index2_Pin
+#endif	/* Index1_Pin */
+#if defined(Index2_Pin)
  PIN(Index2, Index2),
-#endif
-#ifdef Index_Pin
+#endif	/* Index2_Pin */
+#if defined(Index_Pin)
  PIN(Index, Index),
-#endif
+#endif	/* Index_Pin */
 
  PIN(Pin1,  Pin1),
  PIN(Pin14, Pin14),
@@ -89,9 +89,9 @@ T_PINDEF pinDef[] =
  PIN(ZFlag, ZFlag),
  PIN(XFlag, XFlag),
  PIN(Encoder, Encoder),
-#ifdef Exti2_Pin
+#if defined(Exti2_Pin)
  PIN(Exti2, Exti2),
-#endif
+#endif	/* Exti2_Pin */
 
  PIN(DbgTx, DbgTx),
  PIN(DbgRx, DbgRx),
@@ -103,92 +103,92 @@ T_PINDEF pinDef[] =
  PIN(JogA2, JogA2),
  PIN(JogB2, JogB2),
 
-#ifdef Led1_Pin
+#if defined(Led1_Pin)
  PIN(Led1, Led1),
-#endif
-#ifdef Led2_Pin
+#endif	/* Led1_Pin */
+#if defined(Led2_Pin)
  PIN(Led2, Led2),
-#endif
-#ifdef Led3_Pin
+#endif	/* Led2_Pin */
+#if defined(Led3_Pin)
  PIN(Led3, Led3),
-#endif
+#endif	/* Led3_Pin */
 
  PIN(ZA, ZA),
  PIN(ZB, ZB),
  PIN(XA, XA),
  PIN(XB, XB),
 
-#ifdef SPI_SEL_Pin
+#if defined(SPI_SEL_Pin)
  PIN(SPI_SEL, SPI_SEL),
-#endif
-#ifdef SPI_SCK_Pin
+#endif	/* SPI_SEL_Pin */
+#if defined(SPI_SCK_Pin)
  PIN(SPI_SCK, SPI_SCK),
-#endif
-#ifdef SPI_MISO_Pin
+#endif	/* SPI_SCK_Pin */
+#if defined(SPI_MISO_Pin)
  PIN(SPI_MISO, SPI_MISO),
-#endif
-#ifdef SPI_MOSI_Pin
+#endif	/* SPI_MISO_Pin */
+#if defined(SPI_MOSI_Pin)
  PIN(SPI_MOSI, SPI_MOSI),
-#endif
+#endif	/* SPI_MOSI_Pin */
 
-#ifdef I2C_SCL_Pin
+#if defined(I2C_SCL_Pin)
  PIN(I2C_SCL, I2C_SCL),
-#endif
-#ifdef I2C_SDA_Pin
+#endif	/* I2C_SCL_Pin */
+#if defined(I2C_SDA_Pin)
  PIN(I2C_SDA, I2C_SDA),
-#endif
+#endif	/* I2C_SDA_Pin */
 
-#ifdef PinA1_Pin
+#if defined(PinA1_Pin)
  PIN(PinA1, PinA1),
-#endif
-#ifdef PinA2_Pin
+#endif	/* PinA1_Pin */
+#if defined(PinA2_Pin)
  PIN(PinA2, PinA2),
-#endif
-#ifdef PinA3_Pin
+#endif  /* PinA2_Pin */
+#if defined(PinA3_Pin)
  PIN(PinA3, PinA3),
-#endif
-#ifdef PinA4_Pin
+#endif  /* PinA3_Pin */
+#if defined(PinA4_Pin)
  PIN(PinA4, PinA4),
-#endif
-#ifdef PinA1_Pin
+#endif  /* PinA4_Pin */
+#if defined(PinA1_Pin)
  PIN(PinA5, PinA5),
-#endif
-#ifdef PinA6_Pin
+#endif  /* PinA5_Pin */
+#if defined(PinA6_Pin)
  PIN(PinA6, PinA6),
-#endif
-#ifdef PinA7_Pin
+#endif  /* PinA6_Pin */
+#if defined(PinA7_Pin)
  PIN(PinA7, PinA7),
-#endif
-#ifdef PinA8_Pin
+#endif  /* PinA7_Pin */
+#if defined(PinA8_Pin)
  PIN(PinA8, PinA8),
-#endif
-#ifdef PinA9_Pin
+#endif  /* PinA8_Pin */
+#if defined(PinA9_Pin)
  PIN(PinA9, PinA9),
-#endif
-#ifdef PinA10_Pin
+#endif  /* PinA9_Pin */
+#if defined(PinA10_Pin)
  PIN(PinA10, PinA10),
-#endif
-#ifdef PinA11_Pin
+#endif  /* PinA10_Pin */
+#if defined(PinA11_Pin)
  PIN(PinA11, PinA11),
-#endif
-#ifdef PinA12_Pin
+#endif  /* PinA11_Pin */
+#if defined(PinA12_Pin)
  PIN(PinA12, PinA12),
-#endif
-#ifdef PinA13_Pin
+#endif  /* PinA12_Pin */
+#if defined(PinA13_Pin)
  PIN(PinA13, PinA13),
-#endif
-#ifdef PinA14_Pin
+#endif  /* PinA13_Pin */
+#if defined(PinA14_Pin)
  PIN(PinA14, PinA14),
-#endif
-#ifdef PinA15_Pin
+#endif  /* PinA14_Pin */
+#if defined(PinA15_Pin)
  PIN(PinA15, PinA15),
-#endif
-#ifdef PinA16_Pin
+#endif  /* PinA15_Pin */
+#if defined(PinA16_Pin)
  PIN(PinA16, PinA16),
-#endif
-#ifdef PinA17_Pin
+#endif  /* PinA16_Pin */
+#if defined(PinA17_Pin)
  PIN(PinA17, PinA17),
-#endif
+#endif  /* PinA17_Pin */
 
 #include "dbgPin.h"
 };
@@ -197,7 +197,7 @@ T_PINDEF pinDef[] =
 extern int lcdRow;
 unsigned int lcdDelayStart;
 unsigned int lcdRetryDelay;
-#endif
+#endif	/* I2C */
 #define LCD_DELAY 50U
 #define LCD_RETRY_DELAY 25U
 
@@ -210,7 +210,13 @@ extern char __data_start__;
 extern char __data_end__;
 extern char __stack;
 extern char __Main_Stack_Limit;
-#endif
+#endif	/* DATA_SIZE */
+
+#if defined(MEGAPORT)
+uint32_t megaPollTime;
+#define MEGA_POLL_TIMEOUT 200
+#define MEGA_RCV_TIMEOUT 1000
+#endif	/* MEGAPORT */
 
 void mainLoopSetup(void)
 {
@@ -277,12 +283,12 @@ void mainLoopSetupX(void)
 
 #define LED_DELAY 500
 
-#ifdef STM32H7
+#if definded(STM32H7)
 extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart3;
-#endif
+#endif	/* STM32H7 */
 
-#ifdef STM32H7
+#if defined(STM32H7)
 // Not defined in CMSIS 4.00 headers - check if defined
 // to allow for possible correction in later versions
 
@@ -323,7 +329,7 @@ void dwtAccessEnable(unsigned ena)
  }
 }
 
-#endif
+#endif	/* STM32H7 */
 
 //#define main mainLoop
 
@@ -341,16 +347,18 @@ int16_t mainLoop(void)
   EXTI15_10_IRQn
  };
 
-#ifdef Led1_Pin
+#if defined(Led1_Pin)
  uint32_t ledUpdTime = millis();
  led1Set();
-#endif
+#endif	/* Led1_Pin */
 
  startSet();
 
 #if defined(STM32F4) || defined(STM32F7)
  DBGMCU->APB1FZ = DBGMCU_APB1_FZ_DBG_IWDG_STOP; /* stop wd on debug */
-#endif
+
+#endif	/* STM32F4 || STM32F7 */
+
 #if defined(STM32H7)
  printf("DWT_CTRL %x\n", (unsigned int) DWT->CTRL);
  dwtAccessEnable(1);
@@ -371,7 +379,7 @@ int16_t mainLoop(void)
  printf("APB1HFZ1 %08x\n", (unsigned int) DBGMCU->APB1HFZ1);
  printf("APB2FZ1  %08x\n", (unsigned int) DBGMCU->APB2FZ1);
  printf("APB4FZ1  %08x\n", (unsigned int) DBGMCU->APB4FZ1);
-#endif
+#endif	/* STM32H7 */
 
  IRQn_Type *p = extInt;		/* external interrupt list */
  int i = sizeof(extInt) / sizeof(IRQn_Type); /* sizeof list */
@@ -382,7 +390,12 @@ int16_t mainLoop(void)
  initRem();
 #else
  HAL_NVIC_DisableIRQ(REMOTE_IRQn);
-#endif
+#endif	/* REM_ISR */
+
+#if defined(MEGAPORT)
+ initMega();
+ megaPollTime = millis();
+#endif	/* MEGAPORT */
 
  tpi = 0.0;
  zTaperDist = 0.0;
@@ -390,10 +403,10 @@ int16_t mainLoop(void)
  zDist = 0;
  xDist = 0;
 
-#ifdef STM32H7
+#if defined(STM32H7)
  uint8_t startMsg[] = "start main loop\n\r";
  HAL_UART_Transmit(&huart3, startMsg, sizeof(startMsg), HAL_MAX_DELAY);
-#endif
+#endif	/* STM32H7 */
 
  initCharBuf();
 
@@ -407,10 +420,10 @@ int16_t mainLoop(void)
 	getSP());
  #endif
 
-#ifdef STM32H7
+#if defined(STM32H7)
  uint8_t remMsg[] = "start remcmd\n\r";
  HAL_UART_Transmit(&huart7, remMsg, sizeof(remMsg), HAL_MAX_DELAY);
-#endif
+#endif	/* STM32H7 */
 
  putstr1("start remcmd\n");
  unsigned int sysClock = HAL_RCC_GetSysClockFreq();
@@ -454,14 +467,14 @@ int16_t mainLoop(void)
 #if I2C
  lcdDelayStart = 0;
  lcdRetryDelay = 0;
-#endif
+#endif	/* I2C */
 
  while (1)			/* main loop */
  {
   newline();
   while (1)			/* input background loop */
   {
-#ifdef Led1_Pin
+#if defined(Led1_Pin)
    uint32_t t = millis();
    if ((t - ledUpdTime) > LED_DELAY) /* if time to flash led */
    {
@@ -471,7 +484,31 @@ int16_t mainLoop(void)
     else
      led1Set();
    }
-#endif
+#endif	/* Led1_Pin */
+
+#if defined(MEGAPORT)
+
+   if (megaCtl.state != 0)
+   {
+    if ((millis() - megaCtl.timer) > MEGA_RCV_TIMEOUT)
+    {
+     __disable_irq();
+     megaCtl.state = 0;
+     megaCtl.rx_fil = 0;
+     megaCtl.rx_emp = 0;
+     megaCtl.rx_count = 0;
+     __enable_irq();
+     printf("mega receive timeout\n");
+    }
+   }
+
+   if ((millis() - megaPollTime) > MEGA_POLL_TIMEOUT)
+   {
+    megaPollTime = millis();
+    megaPoll();
+   }
+
+#endif  /* MEGAPORT */
 
    if (rVar.setupDone)		/* setup complete */
    {
@@ -544,7 +581,7 @@ int16_t mainLoop(void)
      }
     }
    }
-#endif
+#endif	/* REM_ISR */
   }
 
   flushBuf();
@@ -556,7 +593,7 @@ int16_t mainLoop(void)
 #if REM_ISR == 0
   if (remcmdTimeout < UINT_MAX)
    remcmdUpdateTime = millis();
-#endif
+#endif	/* REM_ISR */
  }
 }
 
@@ -695,7 +732,7 @@ void lcdDisplay(void)
    }
   }
  }
-#endif
+#endif	/* I2C */
 }
 
 void hard_fault_handler_c (unsigned int * hardfault_args)

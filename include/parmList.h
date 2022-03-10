@@ -194,116 +194,117 @@ enum PARM
  THREAD_SYNC,                   /* 0x77 sync type for threading */
  CAP_TMR_ENABLE,                /* 0x78 enable capture timer */
  CFG_FPGA,                      /* 0x79 using fpga */
- CFG_MPG,                       /* 0x7a manual pulse generator */
- CFG_DRO,                       /* 0x7b digital readout */
- CFG_LCD,                       /* 0x7c lcd display */
- CFG_FCY,                       /* 0x7d system clock speed */
- CFG_SWITCH,                    /* 0x7e spindle off on switch */
- CFG_VAR_SPEED,                 /* 0x7f spindle variable speed */
+ CFG_MEGA,                      /* 0x7a control link to mega */
+ CFG_MPG,                       /* 0x7b manual pulse generator */
+ CFG_DRO,                       /* 0x7c digital readout */
+ CFG_LCD,                       /* 0x7d lcd display */
+ CFG_FCY,                       /* 0x7e system clock speed */
+ CFG_SWITCH,                    /* 0x7f spindle off on switch */
+ CFG_VAR_SPEED,                 /* 0x80 spindle variable speed */
 
 // setup
 
- SETUP_DONE,                    /* 0x80 setup done */
+ SETUP_DONE,                    /* 0x81 setup done */
 
 // encoder counts per revolution
 
- ENC_PER_REV,                   /* 0x81 spindle enc counts per rev */
+ ENC_PER_REV,                   /* 0x82 spindle enc counts per rev */
 
 // test encoder setup variables
 
- ENC_ENABLE,                    /* 0x82 encoder enable flag */
- ENC_PRE_SCALER,                /* 0x83 encoder prescaler */
- ENC_TIMER,                     /* 0x84 encoder timer counts */
- ENC_RUN_COUNT,                 /* 0x85 encoder run count */
+ ENC_ENABLE,                    /* 0x83 encoder enable flag */
+ ENC_PRE_SCALER,                /* 0x84 encoder prescaler */
+ ENC_TIMER,                     /* 0x85 encoder timer counts */
+ ENC_RUN_COUNT,                 /* 0x86 encoder run count */
 
 // test encoder status variables
 
- ENC_RUN,                       /* 0x86 encoder running flag */
- ENC_COUNTER,                   /* 0x87 encoder count in rev */
- ENC_REV_COUNTER,               /* 0x88 encoder revolution counter */
+ ENC_RUN,                       /* 0x87 encoder running flag */
+ ENC_COUNTER,                   /* 0x88 encoder count in rev */
+ ENC_REV_COUNTER,               /* 0x89 encoder revolution counter */
 
 // measured spindle speed
 
- RPM,                           /* 0x89 current measured rpm */
+ RPM,                           /* 0x8a current measured rpm */
 
 // fpga frequency variables
 
- FPGA_FREQUENCY,                /* 0x8a fpga clock frequency */
- FREQ_MULT,                     /* 0x8b frequency multiplier */
+ FPGA_FREQUENCY,                /* 0x8b fpga clock frequency */
+ FREQ_MULT,                     /* 0x8c frequency multiplier */
 
 // xilinx configuration register
 
- X_CFG_REG,                     /* 0x8c xilinx cfg register */
+ X_CFG_REG,                     /* 0x8d xilinx cfg register */
 
 // sync parameters
 
- L_SYNC_CYCLE,                  /* 0x8d sync cycle length */
- L_SYNC_OUTPUT,                 /* 0x8e sync outputs per cycle */
- L_SYNC_PRESCALER,              /* 0x8f sync prescaler */
+ L_SYNC_CYCLE,                  /* 0x8e sync cycle length */
+ L_SYNC_OUTPUT,                 /* 0x8f sync outputs per cycle */
+ L_SYNC_PRESCALER,              /* 0x90 sync prescaler */
 
 // threading variables
 
- TH_Z_START,                    /* 0x90 threading z start */
- TH_X_START,                    /* 0x91 threading x start */
- TAN_THREAD_ANGLE,              /* 0x92 tan of threading angle */
- X_FEED,                        /* 0x93 x feed */
- RUNOUT_DISTANCE,               /* 0x94 runout distance */
- RUNOUT_DEPTH,                  /* 0x95 runout depth */
+ TH_Z_START,                    /* 0x91 threading z start */
+ TH_X_START,                    /* 0x92 threading x start */
+ TAN_THREAD_ANGLE,              /* 0x93 tan of threading angle */
+ X_FEED,                        /* 0x94 x feed */
+ RUNOUT_DISTANCE,               /* 0x95 runout distance */
+ RUNOUT_DEPTH,                  /* 0x96 runout depth */
 
 // jog debug
 
- JOG_DEBUG,                     /* 0x96 jog interrupt debug */
+ JOG_DEBUG,                     /* 0x97 jog interrupt debug */
 
 // motor and speed control
 
- PWM_FREQ,                      /* 0x97 spindle speed pwm frequency */
- MIN_SPEED,                     /* 0x98 min speed for current range */
- MAX_SPEED,                     /* 0x99 max speed for current range */
+ PWM_FREQ,                      /* 0x98 spindle speed pwm frequency */
+ MIN_SPEED,                     /* 0x99 min speed for current range */
+ MAX_SPEED,                     /* 0x9a max speed for current range */
 
 // current operation
 
- CURRENT_OP,                    /* 0x9a current operation */
+ CURRENT_OP,                    /* 0x9b current operation */
 
 // global limits and home
 
- LIMIT_OVERRIDE,                /* 0x9b override limit switches */
- COMMON_LIMITS,                 /* 0x9c all limit switches one pin */
- LIMITS_ENABLED,                /* 0x9d limits enabled */
- COMMON_HOME,                   /* 0x9e all home switches one pin */
+ LIMIT_OVERRIDE,                /* 0x9c override limit switches */
+ COMMON_LIMITS,                 /* 0x9d all limit switches one pin */
+ LIMITS_ENABLED,                /* 0x9e limits enabled */
+ COMMON_HOME,                   /* 0x9f all home switches one pin */
 
 // z limits and home
 
- Z_LIM_ENA,                     /* 0x9f z limit enable */
- Z_LIM_NEG_INV,                 /* 0xa0 z negative limit invert */
- Z_LIM_POS_INV,                 /* 0xa1 z Positive limit Invert */
- Z_HOME_ENA,                    /* 0xa2 z home enable */
- Z_HOME_INV,                    /* 0xa3 z home invert */
+ Z_LIM_ENA,                     /* 0xa0 z limit enable */
+ Z_LIM_NEG_INV,                 /* 0xa1 z negative limit invert */
+ Z_LIM_POS_INV,                 /* 0xa2 z Positive limit Invert */
+ Z_HOME_ENA,                    /* 0xa3 z home enable */
+ Z_HOME_INV,                    /* 0xa4 z home invert */
 
 // x limits and home
 
- X_LIM_ENA,                     /* 0xa4 x limit enable */
- X_LIM_NEG_INV,                 /* 0xa5 x negative limit invert */
- X_LIM_POS_INV,                 /* 0xa6 x Positive limit Invert */
- X_HOME_ENA,                    /* 0xa7 x home enable */
- X_HOME_INV,                    /* 0xa8 x home invert */
+ X_LIM_ENA,                     /* 0xa5 x limit enable */
+ X_LIM_NEG_INV,                 /* 0xa6 x negative limit invert */
+ X_LIM_POS_INV,                 /* 0xa7 x Positive limit Invert */
+ X_HOME_ENA,                    /* 0xa8 x home enable */
+ X_HOME_INV,                    /* 0xa9 x home invert */
 
 // e stop
 
- E_STOP_ENA,                    /* 0xa9 enable estop */
- E_STOP_INV,                    /* 0xaa invert estop siganl */
+ E_STOP_ENA,                    /* 0xaa enable estop */
+ E_STOP_INV,                    /* 0xab invert estop siganl */
 
 // command pause
 
- CMD_PAUSED,                    /* 0xab move commands paused */
+ CMD_PAUSED,                    /* 0xac move commands paused */
 
 // arc parameters
 
- ARC_RADIUS,                    /* 0xac arc radius */
- ARC_X_CENTER,                  /* 0xad arc x center */
- ARC_Z_CENTER,                  /* 0xae arc z center */
- ARC_X_START,                   /* 0xaf arc x start */
- ARC_Z_START,                   /* 0xb0 arc z start */
- ARC_X_END,                     /* 0xb1 arc x center */
- ARC_Z_END,                     /* 0xb2 arc z center */
- MAX_PARM,                      /* 0xb3 maximum parameter */
+ ARC_RADIUS,                    /* 0xad arc radius */
+ ARC_X_CENTER,                  /* 0xae arc x center */
+ ARC_Z_CENTER,                  /* 0xaf arc z center */
+ ARC_X_START,                   /* 0xb0 arc x start */
+ ARC_Z_START,                   /* 0xb1 arc z start */
+ ARC_X_END,                     /* 0xb2 arc x center */
+ ARC_Z_END,                     /* 0xb3 arc z center */
+ MAX_PARM,                      /* 0xb4 maximum parameter */
 };

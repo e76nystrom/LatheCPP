@@ -1061,10 +1061,21 @@ void info()
   gpioInfo(GPIOH);
 #endif
 
+#if defined(STM32MON)
  if (val & 0x100000)
   usartInfo(USART1, "DBG");
  if (val & 0x200000)
   usartInfo(USART3, "WIFI");
+#else
+ if (val & 0x100000)
+ {
+  usartInfo(DBGPORT, "DBG");
+  usartInfo(REMPORT, "REM");
+#if defined(MEGAPORT)
+  usartInfo(DBGPORT, "MEGA");
+#endif	/* MEGAPORT */
+ }
+#endif	/* STM32MON */
 
 #ifdef I2C1
  if (val & 0x400000)

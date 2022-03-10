@@ -34,9 +34,13 @@
 
 #define REMPORT USART6
 #define DBGPORT USART3
+#define MEGAPORT UART5
 
 #define remoteISR(x) USART6_IRQHandler(x)
 #define REMOTE_IRQn USART6_IRQn
+
+#define megaISR(x) UART5_IRQHandler(x)
+#define MEGA_IRQn UART5_IRQn
 
 #define indexISR(x) EXTI2_IRQHandler(x)
 #define indexIRQn EXTI2_IRQn
