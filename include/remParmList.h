@@ -1,4 +1,4 @@
-enum PARM
+enum REM_PARM
 {
 
 // spindle parameters

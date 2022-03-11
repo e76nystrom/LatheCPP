@@ -218,6 +218,11 @@ uint32_t megaPollTime;
 #define MEGA_RCV_TIMEOUT 1000
 #endif	/* MEGAPORT */
 
+#if defined(SYNC_SPI)
+uint32_t syncPollTime;
+#define SYNC_POLL_TIMEOUT 2000
+#endif	/* SYNC_SPI */
+
 void mainLoopSetup(void)
 {
  flushBuf();
@@ -283,7 +288,7 @@ void mainLoopSetupX(void)
 
 #define LED_DELAY 500
 
-#if definded(STM32H7)
+#if defined(STM32H7)
 extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart3;
 #endif	/* STM32H7 */
@@ -392,23 +397,18 @@ int16_t mainLoop(void)
  HAL_NVIC_DisableIRQ(REMOTE_IRQn);
 #endif	/* REM_ISR */
 
-#if defined(MEGAPORT)
- initMega();
- megaPollTime = millis();
-#endif	/* MEGAPORT */
-
  tpi = 0.0;
  zTaperDist = 0.0;
  taper = 0.0;
  zDist = 0;
  xDist = 0;
 
+ initCharBuf();
+
 #if defined(STM32H7)
  uint8_t startMsg[] = "start main loop\n\r";
  HAL_UART_Transmit(&huart3, startMsg, sizeof(startMsg), HAL_MAX_DELAY);
 #endif	/* STM32H7 */
-
- initCharBuf();
 
  putstr("start main loop\n");
  #if DATA_SIZE
@@ -469,6 +469,18 @@ int16_t mainLoop(void)
  lcdRetryDelay = 0;
 #endif	/* I2C */
 
+#if defined(MEGAPORT)
+ initMega();
+ megaPollTime = millis();
+#endif	/* MEGAPORT */
+
+#if defined(SYNC_SPI)
+ initSync();
+ newline();
+ spiInfo(SPIn);
+ syncPollTime = millis();
+#endif
+
  while (1)			/* main loop */
  {
   newline();
@@ -509,6 +521,16 @@ int16_t mainLoop(void)
    }
 
 #endif  /* MEGAPORT */
+
+#if defined(SYNC_SPI)
+
+   if ((millis() - syncPollTime) > SYNC_POLL_TIMEOUT)
+   {
+    syncPollTime = millis();
+    syncPoll();
+   }
+
+#endif	/* SYNC_SPI */
 
    if (rVar.setupDone)		/* setup complete */
    {

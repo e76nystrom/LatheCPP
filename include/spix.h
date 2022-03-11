@@ -6,7 +6,7 @@
 
 #if defined(STM32MON) || defined(ARDUINO)
 #define SPIn SPI2
-#endif	/* ARDUINO */
+#endif	/* STM32MON || ARDUINO */
 
 typedef union
 {
@@ -43,18 +43,19 @@ void loadb(char addr, char val);
 char readb(char addr);
 int read16(char addr);
 int read24(char addr);
-#else
+#else  /* ! (STM32MON || ARDUINO) */
+void spiSendCmd(char cmd);
 void read1(char addr);
 void read(char addr);
-#endif
+#endif	/* STM32MON || ARDUINO */
 
 unsigned char spisend(unsigned char);
 unsigned char spiread(void);
 
 #if defined(STM32MON) || defined(ARDUINO)
-#else
+#else  /* ! (STM32MON || ARDUINO) */
 EXT byte_long readval;
-#endif
+#endif	/* STM32MON || ARDUINO */
 
 EXT int16_t spiw0;
 EXT int16_t spiw1;
@@ -71,6 +72,36 @@ EXT int16_t spiw1;
 #define spirel() SPI_SEL_REG = SPI_SEL_BIT; \
  SPIn->CR1 &= ~SPI_CR1_SPE
 
-#endif
+#endif	/* __cplusplus */
+
+int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize);
+
+#if defined(SPI_ISR)
+
+#define SPI_TX_SIZE 20
+#define SPI_RX_SIZE 20
+
+typedef struct
+{
+ int txFil;
+ int txEmp;
+ int txCount;
+ char txBuf[SPI_TX_SIZE];
+ int rxFil;
+ int rxEmp;
+ int rxCount;
+ char rxBuf[SPI_RX_SIZE];
+ int state;
+ uint32_t timer;
+} T_SPICTL, *P_SPICTL;
+
+EXT T_SPICTL spiCtl;
+
+void putSPI(char ch);
+int getSPI(void);
+
+extern "C" void spiISR(void);
+
+#endif	/* SPI_ISR */
 
 #endif	// ->

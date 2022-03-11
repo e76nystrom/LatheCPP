@@ -57,6 +57,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
+void spiInfo(SPI_TypeDef *spi);
 void rccInfo(void);
 void pwrInfo(void);
 void adcInfo(ADC_TypeDef *adc, char n);
@@ -597,6 +598,14 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str)
  printf("TXDR     %8x\n", (unsigned int) i2c->TXDR);
 #endif
  flushBuf();
+}
+
+void spiInfo(SPI_TypeDef *spi)
+{
+ printf("spi %x\n", (unsigned int) spi);
+ printf("CR1      %8x ",  (unsigned int) spi->CR1);
+ printf("CR2      %8x\n", (unsigned int) spi->CR2);
+ printf("SR       %8x",   (unsigned int) spi->SR);
 }
 
 void rccInfo(void)

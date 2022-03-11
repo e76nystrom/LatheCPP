@@ -31,8 +31,8 @@ void loadVal(void);
 
 EXT int16_t tmpval;
 
-#include "cmdList.h"
-#include "parmList.h"
+#include "remCmdList.h"
+#include "remParmList.h"
 #include "ctlbits.h"
 
 #endif	// ->

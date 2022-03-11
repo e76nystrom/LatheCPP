@@ -1,8 +1,8 @@
 #include <stdint.h>
 #define NO_REM_MACROS
-#include "parmList.h"
+#include "remParmList.h"
 
-#include "remstruct.h"
+#include "remStruct.h"
 
 T_REM_VAR rVar;
 

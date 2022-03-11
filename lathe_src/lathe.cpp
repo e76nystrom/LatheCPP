@@ -70,6 +70,7 @@
 
 #include "config.h"
 #include "remvar.h"
+#include "syncCmdList.h"
 
 #if !defined(EXT)
 #define EXT extern
@@ -927,6 +928,13 @@ void megaPoll(void);
 void megaRsp(void);
 
 #endif	/* MEGAPORT */
+
+#if defined(SYNC_SPI)
+
+void initSync(void);
+void syncPoll(void);
+
+#endif	/* SYNC_SPI */
 
 #include "main.h"
 #include "pinDef.h"
@@ -6642,6 +6650,93 @@ void megaPoll(void)
 }
 
 #endif	/* MEGAPORT */
+
+#if defined(SYNC_SPI)
+
+void initSync(void)
+{
+ SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
+}
+
+#define CHAR_BUF_SIZE 80
+
+typedef struct sBufCtl
+{
+ int count;
+ char buf[CHAR_BUF_SIZE];
+} T_BUF_CTL, *P_BUF_CTL;
+
+T_BUF_CTL cBufCtl;
+T_BUF_CTL rBufCtl;
+
+void initBuf()
+{
+ cBufCtl.count = 0;
+}
+
+void putBuf(char ch)
+{
+ if (cBufCtl.count < CHAR_BUF_SIZE)
+ {
+  cBufCtl.buf[cBufCtl.count] = ch;
+  cBufCtl.count += 1;
+ }
+}
+
+void bufHex(unsigned char *p, int size)
+{
+ char tmp;
+ char ch;
+ int zeros = 0;
+
+ p += size;
+ while (size != 0)
+ {
+  --size;
+  p--;
+  tmp = *p;
+  ch = tmp;
+  ch >>= 4;
+  ch &= 0xf;
+  if ((ch != 0)
+  ||  zeros)
+  {
+   zeros = 1;
+   if (ch < 10)
+    ch += '0';
+   else
+    ch += 'a' - 10;
+   putBuf(ch);
+  }
+
+  tmp &= 0xf;
+  if ((tmp != 0)
+  ||  zeros)
+  {
+   zeros = 1;
+   if (tmp < 10)
+    tmp += '0';
+   else
+    tmp += 'a' - 10;
+   putBuf(tmp);
+  }
+ }
+
+ if (zeros == 0)
+  putBuf('0');
+}
+
+void syncPoll(void)
+{
+ initBuf();
+ putBuf(1);
+ unsigned char tmp = SYNC_POLL;
+ bufHex(&tmp, sizeof(tmp));
+ putBuf('\r');
+ spiSendRecv(cBufCtl.buf, cBufCtl.count, rBufCtl.buf, CHAR_BUF_SIZE);
+}
+
+#endif	/* SYNC_SPI */
 
 /* TIM3 init function */
 

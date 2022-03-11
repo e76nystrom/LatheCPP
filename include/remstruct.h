@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#if !defined(__DATA_UNION__)
+#define __DATA_UNION__
+
 typedef union uDataUnion
 {
  float t_float;
@@ -13,6 +16,8 @@ typedef union uDataUnion
  uint16_t t_uint16_t;
  char t_char;
 } T_DATA_UNION, *P_DATA_UNION;
+
+#endif  /* __DATA_UNION__ */
 
 void setRemVar(int parm, T_DATA_UNION val);
 void getRemVar(int parm, P_DATA_UNION val);

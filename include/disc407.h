@@ -49,6 +49,8 @@
 #define spSyncISR(x) EXTI4_IRQHandler(x)
 #define spSyncIRQn EXTI4_IRQn
 
+#define SYNC_SPI
+
 #define ENC_TEST 0		/* encoder test */
 //#define ENC_TMR_TIM7		/* encoder timer 7 */
 

@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "remvar.h"
+#include "syncCmdList.h"
 
 #if !defined(EXT)
 #define EXT extern
@@ -867,6 +868,13 @@ void megaPoll(void);
 void megaRsp(void);
 
 #endif	/* MEGAPORT */
+
+#if defined(SYNC_SPI)
+
+void initSync(void);
+void syncPoll(void);
+
+#endif	/* SYNC_SPI */
 
 #include "main.h"
 #include "pinDef.h"

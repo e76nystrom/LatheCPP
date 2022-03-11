@@ -1,4 +1,4 @@
-enum COMMANDS
+enum REM_COMMANDS
 {
 
 // z motion commands

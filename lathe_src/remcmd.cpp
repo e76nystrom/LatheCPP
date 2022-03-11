@@ -63,8 +63,8 @@ void loadVal(void);
 
 EXT int16_t tmpval;
 
-#include "cmdList.h"
-#include "parmList.h"
+#include "remCmdList.h"
+#include "remParmList.h"
 #include "ctlbits.h"
 
 #endif	// ->
@@ -125,8 +125,6 @@ void loadVal(void)
 {
  gethexrem();			/* read the parameter number */
  int parm = valRem;		/* save it */
-
-#if 1
  if (parm < MAX_PARM)		/* if in range */
  {
   T_DATA_UNION parmVal;
@@ -134,7 +132,7 @@ void loadVal(void)
   if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
-   int size = remparm[parm].size; /* value size */
+   int size = remParm[parm];	/* value size */
    printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) valRem);
 #endif
    parmVal.t_int = valRem;
@@ -148,42 +146,6 @@ void loadVal(void)
   }
   setRemVar(parm, parmVal);
  }
-#else
- if (parm < MAX_PARM)		/* if in range */
- {
-  P_PARM valptr = &remparm[parm]; /* pointer to parameter info */
-  p = (unsigned char *) (valptr->p); /* destination pointer */
-  int size = valptr->size;	/* value size */
-
-  int type = getnumrem();	/* get the value */
-  if (type == INT_VAL)		/* if integer */
-  {
-#if DBG_LOAD
-   printf("w %2x %d (%08x) =  %8x\n",
-	  parm, size, (unsigned) p, (unsigned) valRem);
-#endif
-   if (size == 4)		/* if a long word */
-   {
-    *(int32_t *) p = valRem;	/* save as a long word */
-   }
-   else if (size == 1)		/* if a character */
-   {
-    *p = valRem;		/* save the character */
-   }
-   else if (size == 2)		/* if a short integer */
-   {
-    *(int16_t *) p = valRem;	/* save the value */
-   }
-  }
-  else if (type == FLOAT_VAL)	/* if floating value */
-  {
-#if DBG_LOAD
-   printf("w %2x f (%08x) =  %8.4f\n", parm, (unsigned) p, fValRem);
-#endif
-   *(float *) p = fValRem;	/* save as a float */
-  }
- }
-#endif
 }
 
 void remcmd(void)
@@ -367,39 +329,13 @@ void remcmd(void)
  {
   gethexrem();			/* save the parameter number */
   parm = valRem;		/* save it */
-#if 1
   T_DATA_UNION parmVal;
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
-  int size = remparm[parm].size;
+  int size = remParm[parm];
   printf("r p %2x s %d v %8x\n",
 	 (unsigned int) parm, size, parmVal.t_unsigned_int);
   sndhexrem((unsigned char *) &parmVal.t_char, size); /* send the response */
-#else
-  valptr = &remparm[parm];	/* pointer to parameters */
-  if (DBG_LOAD)
-  {
-   unsigned char *p = (unsigned char *) (valptr->p);
-   char size;
-   unsigned int tmp = 0;
-   size = valptr->size;
-   if (size == 4)
-   {
-    tmp = *(int32_t *) p;
-   }
-   else if (size == 1)
-   {
-    tmp = *p;
-   }
-   else if (size == 2)
-   {
-    tmp = *(int16_t *) p;
-   }
-   printf("r %2x %d (%08x) = %8x\n",
-	  (unsigned int) parm, size, (unsigned int) p, tmp);
-  }
-  sndhexrem((unsigned char *) valptr->p, valptr->size); /* send the response */
-#endif
  }
  break;
 
