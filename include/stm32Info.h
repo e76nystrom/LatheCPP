@@ -26,7 +26,7 @@ void tmrInfo(TIM_TypeDef *tmr);
 void extiInfo(void);
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
-void spiInfo(SPI_TypeDef *spi);
+void spiInfo(SPI_TypeDef *spi, const char *str);
 void rccInfo(void);
 void pwrInfo(void);
 void adcInfo(ADC_TypeDef *adc, char n);

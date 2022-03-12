@@ -642,6 +642,16 @@ inline void chgPumpClr() {}
 inline uint16_t chgPump() {return(0);}
 #endif
 
+#ifdef SPI_SEL_Pin
+inline void spiSelSet() {SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;}
+inline void spiSelClr() {SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);}
+inline uint16_t spiSelRead() {return((SPI_SEL_GPIO_Port->ODR & SPI_SEL_Pin) != 0);}
+#else
+inline void spiSelSet() {}
+inline void spiSelClr() {}
+inline uint16_t spiSel() {return(0);}
+#endif
+
 #ifdef Led1_Pin
 inline void led1Set() {Led1_GPIO_Port->BSRR = Led1_Pin;}
 inline void led1Clr() {Led1_GPIO_Port->BSRR = (Led1_Pin << 16);}

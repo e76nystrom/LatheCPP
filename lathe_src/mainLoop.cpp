@@ -221,6 +221,7 @@ uint32_t megaPollTime;
 #if defined(SYNC_SPI)
 uint32_t syncPollTime;
 #define SYNC_POLL_TIMEOUT 2000
+#define SPI_RCV_TIMEOUT 5
 #endif	/* SYNC_SPI */
 
 void mainLoopSetup(void)
@@ -477,7 +478,7 @@ int16_t mainLoop(void)
 #if defined(SYNC_SPI)
  initSync();
  newline();
- spiInfo(SPIn);
+ spiInfo(SPIn, SPI_NAME);
  syncPollTime = millis();
 #endif
 
@@ -529,6 +530,16 @@ int16_t mainLoop(void)
     syncPollTime = millis();
     syncPoll();
    }
+
+#if defined(SPI_MASTER)
+   if (!spiSelRead())
+   {
+    if ((millis() - spiCtl.timer) > SPI_RCV_TIMEOUT)
+    {
+     spiMasterReset();
+    }
+   }
+#endif	/* SPI_MASTER */
 
 #endif	/* SYNC_SPI */
 

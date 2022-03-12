@@ -697,7 +697,7 @@ void doneCmd(void);
 void measureCmd(void);
 void clearCmd(void);
 
-void allStop(void);			/* stop all */
+void allStop(void);		/* stop all */
 
 void zIsrStop(char ch);
 void xIsrStop(char ch);
@@ -933,6 +933,12 @@ void megaRsp(void);
 
 void initSync(void);
 void syncPoll(void);
+void syncResp(void);
+
+EXT bool syncCmdDone;
+EXT bool syncLoadDone;
+EXT bool syncReadDone;
+EXT bool syncPollDone;
 
 #endif	/* SYNC_SPI */
 
@@ -6658,6 +6664,7 @@ void initSync(void)
  SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
 }
 
+#if 0
 #define CHAR_BUF_SIZE 80
 
 typedef struct sBufCtl
@@ -6682,8 +6689,9 @@ void putBuf(char ch)
   cBufCtl.count += 1;
  }
 }
+#endif
 
-void bufHex(unsigned char *p, int size)
+void sndHexSPI(unsigned char *p, int size)
 {
  char tmp;
  char ch;
@@ -6706,7 +6714,7 @@ void bufHex(unsigned char *p, int size)
     ch += '0';
    else
     ch += 'a' - 10;
-   putBuf(ch);
+   putSPI(ch);
   }
 
   tmp &= 0xf;
@@ -6718,22 +6726,121 @@ void bufHex(unsigned char *p, int size)
     tmp += '0';
    else
     tmp += 'a' - 10;
-   putBuf(tmp);
+   putSPI(tmp);
   }
  }
 
  if (zeros == 0)
-  putBuf('0');
+  putSPI('0');
+}
+
+int valSPI;
+
+char getHexSPI(void)
+{
+ char ch;
+ int count;
+
+ valSPI = 0;
+ count = 0;
+ while (count <= 8)
+ {
+  ch = getSPI();
+  if ((ch >= '0')
+  &&  (ch <= '9'))
+  {
+   ch -= '0';
+  }
+  else if ((ch >= 'a')
+  &&       (ch <= 'f'))
+  {
+   ch -= 'a' - 10;
+  }
+  else if (ch == ' ')
+  {
+   break;
+  }
+  else if (ch == '\r')
+   break;
+  else
+   continue;
+
+  count++;
+  valSPI <<= 4;
+  valSPI += ch;
+ }
+ return(count != 0);
 }
 
 void syncPoll(void)
 {
- initBuf();
- putBuf(1);
+ syncPollDone = false;
+ putSPI(1);
  unsigned char tmp = SYNC_POLL;
- bufHex(&tmp, sizeof(tmp));
- putBuf('\r');
- spiSendRecv(cBufCtl.buf, cBufCtl.count, rBufCtl.buf, CHAR_BUF_SIZE);
+ sndHexSPI(&tmp, sizeof(tmp));
+ putSPI('\r');
+ spiMasterStart();
+}
+
+#include "syncStruct.h"
+#include "syncParmList.h"
+
+void syncResp(void)
+{
+ int parm;
+
+ parm = getSPI();
+ getHexSPI();			/* read parameter */
+ parm = valSPI;
+ switch (parm)
+ {
+ case SYNC_SETUP:
+  syncCmdDone = true;
+  break;
+
+ case SYNC_START:
+  syncCmdDone = true;
+  break;
+
+ case SYNC_STOP:
+  syncCmdDone = true;
+  break;
+  
+ case SYNC_LOADVAL:		/* load a local parameter */
+  syncLoadDone = true;
+  break;
+
+ case SYNC_LOADMULTI:		/* load multiple parameters */
+  syncLoadDone = true;
+  break;
+
+ case SYNC_READVAL:		/* read a local parameter */
+ {
+  T_DATA_UNION parmVal;
+  getHexSPI();			/* save the parameter number */
+  parm = valSPI;		/* save it */
+  if (parm < SYNC_MAX_PARM)	/* if in range */
+  {
+   parmVal.t_int = 0;
+   setSyncVar(parm, parmVal);
+#if DBG_LOAD
+   int size = syncParm[parm];
+   printf("r p %2x s %d v %8x\n",
+	  (unsigned int) parm, size, parmVal.t_unsigned_int);
+#endif
+  }
+  syncReadDone = true;
+ }
+  break;
+
+ case SYNC_POLL:
+  printf("SYNC_POLL response\n");
+  syncPollDone = true;
+  break;
+
+ default:
+  break;
+ }
 }
 
 #endif	/* SYNC_SPI */

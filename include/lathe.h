@@ -637,7 +637,7 @@ void doneCmd(void);
 void measureCmd(void);
 void clearCmd(void);
 
-void allStop(void);			/* stop all */
+void allStop(void);		/* stop all */
 
 void zIsrStop(char ch);
 void xIsrStop(char ch);
@@ -873,6 +873,12 @@ void megaRsp(void);
 
 void initSync(void);
 void syncPoll(void);
+void syncResp(void);
+
+EXT bool syncCmdDone;
+EXT bool syncLoadDone;
+EXT bool syncReadDone;
+EXT bool syncPollDone;
 
 #endif	/* SYNC_SPI */
 

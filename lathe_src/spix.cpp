@@ -38,6 +38,7 @@ int print;
 #include "lathe.h"
 #include "Xilinx.h"
 #include "serialio.h"
+#include "pinDef.h"
 
 #else  /* SYNC */
 
@@ -139,8 +140,8 @@ int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize);
 
 #if defined(SPI_ISR)
 
-#define SPI_TX_SIZE 20
-#define SPI_RX_SIZE 20
+#define SPI_TX_SIZE 80
+#define SPI_RX_SIZE 80
 
 typedef struct
 {
@@ -153,6 +154,7 @@ typedef struct
  int rxCount;
  char rxBuf[SPI_RX_SIZE];
  int state;
+ int txEna;
  uint32_t timer;
 } T_SPICTL, *P_SPICTL;
 
@@ -161,12 +163,21 @@ EXT T_SPICTL spiCtl;
 void putSPI(char ch);
 int getSPI(void);
 
+#if defined(SPI_MASTER)
+
+void spiMasterStart();
+void spiMasterReset();
+
+#endif	/* SPI_MASTER */
+
 extern "C" void spiISR(void);
 
 #endif	/* SPI_ISR */
 
 #endif	// ->
 #ifdef __SPI__
+
+#if defined(SPI_SEL_Pin)
 
 void spisel(void)
 {
@@ -511,7 +522,11 @@ unsigned char spiread(void)
  return(c);
 }
 
+#endif	/* SPI_SEL_Pin */
+
 #if defined(SPI_ISR)
+
+#if defined SPI_SLAVE
 
 extern "C" void spiISR(void)
 {
@@ -519,37 +534,128 @@ extern "C" void spiISR(void)
  if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
  {
   char ch = spi->DR;
-  if (spiCtl.rxCount < SPI_RX_SIZE)
+  if (spiCtl.state == 0)
   {
-   int fil = spiCtl.rxFil;
-   spiCtl.rxBuf[fil] = ch;
-   fil += 1;
-   if (fil >= SPI_RX_SIZE)
-    fil = 0;
-   spiCtl.rxFil = fil;
-   spiCtl.rxCount += 1;
-
-   if (spiCtl.state == 0)
+   if (ch == 1)
    {
-    if (ch == 1)
+    spiCtl.state = 1;
+    if (spiCtl.txCount != 0)
     {
-     spiCtl.state = 1;
-    }
+     spiCtl.txCount = 0;
+     spiCtl.txFil = 0;
+     spiCtl.txEmp = 0;
+    }     
    }
-   else
+  }
+
+  if (spiCtl.state != 0)
+  {
+   if (spiCtl.rxCount < SPI_RX_SIZE)
    {
-    if (ch == '\r')
-    {
-     spiCtl.state = 0;
-     remcmd(&spiAction);
-    }
+    int fil = spiCtl.rxFil;
+    spiCtl.rxBuf[fil] = ch;
+    fil += 1;
+    if (fil >= SPI_RX_SIZE)
+     fil = 0;
+    spiCtl.rxFil = fil;
+    spiCtl.rxCount += 1;
+   }
+ 
+   if (ch == '\r')
+   {
+    spiCtl.state = 0;
+    remcmd(&spiAction);
+    spi->CR2 |= SPI_CR2_TXEIE;
+    spiCtl.txEna = 1;
    }
   }
  }
 
  if (spi->SR & SPI_SR_TXE)	/* if transmitter empty */
  {
-  if (spiCtl.txCount != 0)
+  if ((spiCtl.txEna != 0)
+  &&  (spiCtl.txCount > 0))
+  {
+   int emp = spiCtl.txEmp;
+   spi->DR = spiCtl.txBuf[emp];
+   emp += 1;
+   if (emp >= SPI_TX_SIZE)
+    emp = 0;
+   spiCtl.txEmp = emp;
+   spiCtl.txCount -= 1;
+   if (spiCtl.txCount == 0)
+    spiCtl.txEna = 0;
+  }
+  else
+  {
+   spi->DR = 0;
+   spi->CR2 &= ~SPI_CR2_TXEIE;
+  }
+ }
+}
+
+#endif	/* SPI_SLAVE */
+
+#if defined(SPI_MASTER)
+
+void spiMasterStart()
+{
+ spiCtl.state = 0;
+ spiCtl.timer = millis();
+ SPIn->CR2 |= SPI_CR2_TXEIE | SPI_CR2_RXNEIE;
+ SPIn->CR1 |= SPI_CR1_SPE;
+ spiSelClr();
+}
+
+void spiMasterReset()
+{
+ spiSelSet();
+ SPIn->CR1 &= ~SPI_CR1_SPE;
+ SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
+ spiCtl.state = 0;
+}
+
+extern "C" void spiISR(void)
+{
+ SPI_TypeDef *spi = SPIn;
+ if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
+ {
+  char ch = spi->DR;
+  if (spiCtl.state == 0)
+  {
+   if (ch == '-')
+   {
+    spiCtl.state = 1;
+   }
+  }
+
+  if (spiCtl.state != 0)
+  {
+   if (spiCtl.rxCount < SPI_RX_SIZE)
+   {
+    int fil = spiCtl.rxFil;
+    spiCtl.rxBuf[fil] = ch;
+    fil += 1;
+    if (fil >= SPI_RX_SIZE)
+     fil = 0;
+    spiCtl.rxFil = fil;
+    spiCtl.rxCount += 1;
+   }
+ 
+   if (ch == '*')
+   {
+    SPIn->CR1 &= ~SPI_CR1_SPE;
+    SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
+    spiSelSet();
+    spiCtl.state = 0;
+    syncResp();
+   }
+  }
+ }
+
+ if (spi->SR & SPI_SR_TXE)	/* if transmitter empty */
+ {
+  if (spiCtl.txCount > 0)
   {
    int emp = spiCtl.txEmp;
    spi->DR = spiCtl.txBuf[emp];
@@ -561,10 +667,12 @@ extern "C" void spiISR(void)
   }
   else
   {
-   spi->CR2 &= ~SPI_CR2_TXEIE;
+   spi->DR = 0;
   }
  }
 }
+
+#endif	/* SPI_MASTER */
 
 void putSPI(char ch)
 { 
@@ -586,7 +694,7 @@ int getSPI(void)
  if (spiCtl.rxCount != 0)
  {
   int emp = spiCtl.rxEmp;
-  SPIn->DR = spiCtl.rxBuf[emp];
+  ch = spiCtl.rxBuf[emp];
   emp += 1;
   if (emp >= SPI_RX_SIZE)
    emp = 0;

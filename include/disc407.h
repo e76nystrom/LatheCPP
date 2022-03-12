@@ -49,28 +49,36 @@
 #define spSyncISR(x) EXTI4_IRQHandler(x)
 #define spSyncIRQn EXTI4_IRQn
 
+#define SPI 1
+#define SPI_ISR
+#define SPI_MASTER
+#define SPIn SPI3
+#define SPI_NAME "SPI3"
+#define spiISR(x) SPI3_IRQHandler(x)
+#define SPI_IRQn SPI3_IRQn
+
 #define SYNC_SPI
 
 #define ENC_TEST 0		/* encoder test */
 //#define ENC_TMR_TIM7		/* encoder timer 7 */
 
 #include "i2c.h"
+#define I2C 1
+#define I2Cn I2C1
 #define I2C_DEV I2C1
 #define I2C_NAME "I2C1"
 #define I2C_GPIO GPIOB
+
 #if 0
 #define SLAVE_ADDRESS 0x4e
 #else
 #define SLAVE_ADDRESS 0x7e
 #endif
+
 inline void mxI2CInit()
 {
  MX_I2C1_Init();
 }
 
-#define SPI 1
-#define SPIn SPI3
-#define I2C 1
-#define I2Cn I2C1
 
 #endif	/* defined(DISCOVERY407) */

@@ -78,6 +78,8 @@ pinList = \
   ("o", "spRev", "Pin1", ""), \
   ("o", "chgPump", "Pin17", ""), \
 
+  ("o", "spiSel", "SPI_SEL", ""), \
+
   ("o", "led1", "Led1", ""), \
   ("o", "led2", "Led2", ""), \
   ("o", "led3", "Led3", ""), \

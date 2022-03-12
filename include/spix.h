@@ -78,8 +78,8 @@ int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize);
 
 #if defined(SPI_ISR)
 
-#define SPI_TX_SIZE 20
-#define SPI_RX_SIZE 20
+#define SPI_TX_SIZE 80
+#define SPI_RX_SIZE 80
 
 typedef struct
 {
@@ -92,6 +92,7 @@ typedef struct
  int rxCount;
  char rxBuf[SPI_RX_SIZE];
  int state;
+ int txEna;
  uint32_t timer;
 } T_SPICTL, *P_SPICTL;
 
@@ -99,6 +100,13 @@ EXT T_SPICTL spiCtl;
 
 void putSPI(char ch);
 int getSPI(void);
+
+#if defined(SPI_MASTER)
+
+void spiMasterStart();
+void spiMasterReset();
+
+#endif	/* SPI_MASTER */
 
 extern "C" void spiISR(void);
 
