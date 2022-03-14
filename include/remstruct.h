@@ -260,77 +260,83 @@ typedef struct sRemVar
 
  int16_t xCfgReg;               /* 0x8d xilinx cfg register */
 
-// sync parameters
+// z sync parameters
 
  uint16_t lSyncCycle;           /* 0x8e sync cycle length */
  uint16_t lSyncOutput;          /* 0x8f sync outputs per cycle */
  uint16_t lSyncPrescaler;       /* 0x90 sync prescaler */
 
+// x sync parameters
+
+ uint16_t lXSyncCycle;          /* 0x91 sync cycle length */
+ uint16_t lXSyncOutput;         /* 0x92 sync outputs per cycle */
+ uint16_t lXSyncPrescaler;      /* 0x93 sync prescaler */
+
 // threading variables
 
- int32_t thZStart;              /* 0x91 threading z start */
- int32_t thXStart;              /* 0x92 threading x start */
- float tanThreadAngle;          /* 0x93 tan of threading angle */
- int16_t xFeed;                 /* 0x94 x feed */
- float runoutDistance;          /* 0x95 runout distance */
- float runoutDepth;             /* 0x96 runout depth */
+ int32_t thZStart;              /* 0x94 threading z start */
+ int32_t thXStart;              /* 0x95 threading x start */
+ float tanThreadAngle;          /* 0x96 tan of threading angle */
+ int16_t xFeed;                 /* 0x97 x feed */
+ float runoutDistance;          /* 0x98 runout distance */
+ float runoutDepth;             /* 0x99 runout depth */
 
 // jog debug
 
- char jogDebug;                 /* 0x97 jog interrupt debug */
+ char jogDebug;                 /* 0x9a jog interrupt debug */
 
 // motor and speed control
 
- int16_t pwmFreq;               /* 0x98 spindle speed pwm frequency */
- int16_t minSpeed;              /* 0x99 min speed for current range */
- int16_t maxSpeed;              /* 0x9a max speed for current range */
+ int16_t pwmFreq;               /* 0x9b spindle speed pwm frequency */
+ int16_t minSpeed;              /* 0x9c min speed for current range */
+ int16_t maxSpeed;              /* 0x9d max speed for current range */
 
 // current operation
 
- char currentOp;                /* 0x9b current operation */
+ char currentOp;                /* 0x9e current operation */
 
 // global limits and home
 
- char limitOverride;            /* 0x9c override limit switches */
- char commonLimits;             /* 0x9d all limit switches one pin */
- char limitsEnabled;            /* 0x9e limits enabled */
- char commonHome;               /* 0x9f all home switches one pin */
+ char limitOverride;            /* 0x9f override limit switches */
+ char commonLimits;             /* 0xa0 all limit switches one pin */
+ char limitsEnabled;            /* 0xa1 limits enabled */
+ char commonHome;               /* 0xa2 all home switches one pin */
 
 // z limits and home
 
- char zLimEna;                  /* 0xa0 z limit enable */
- char zLimNegInv;               /* 0xa1 z negative limit invert */
- char zLimPosInv;               /* 0xa2 z Positive limit Invert */
- char zHomeEna;                 /* 0xa3 z home enable */
- char zHomeInv;                 /* 0xa4 z home invert */
+ char zLimEna;                  /* 0xa3 z limit enable */
+ char zLimNegInv;               /* 0xa4 z negative limit invert */
+ char zLimPosInv;               /* 0xa5 z Positive limit Invert */
+ char zHomeEna;                 /* 0xa6 z home enable */
+ char zHomeInv;                 /* 0xa7 z home invert */
 
 // x limits and home
 
- char xLimEna;                  /* 0xa5 x limit enable */
- char xLimNegInv;               /* 0xa6 x negative limit invert */
- char xLimPosInv;               /* 0xa7 x Positive limit Invert */
- char xHomeEna;                 /* 0xa8 x home enable */
- char xHomeInv;                 /* 0xa9 x home invert */
+ char xLimEna;                  /* 0xa8 x limit enable */
+ char xLimNegInv;               /* 0xa9 x negative limit invert */
+ char xLimPosInv;               /* 0xaa x Positive limit Invert */
+ char xHomeEna;                 /* 0xab x home enable */
+ char xHomeInv;                 /* 0xac x home invert */
 
 // e stop
 
- char eStopEna;                 /* 0xaa enable estop */
- char eStopInv;                 /* 0xab invert estop siganl */
+ char eStopEna;                 /* 0xad enable estop */
+ char eStopInv;                 /* 0xae invert estop siganl */
 
 // command pause
 
- char cmdPaused;                /* 0xac move commands paused */
+ char cmdPaused;                /* 0xaf move commands paused */
 
 // arc parameters
 
- float arcRadius;               /* 0xad arc radius */
- int arcXCenter;                /* 0xae arc x center */
- int arcZCenter;                /* 0xaf arc z center */
- int arcXStart;                 /* 0xb0 arc x start */
- int arcZStart;                 /* 0xb1 arc z start */
- int arcXEnd;                   /* 0xb2 arc x center */
- int arcZEnd;                   /* 0xb3 arc z center */
- int16_t maxParm;               /* 0xb4 maximum parameter */
+ float arcRadius;               /* 0xb0 arc radius */
+ int arcXCenter;                /* 0xb1 arc x center */
+ int arcZCenter;                /* 0xb2 arc z center */
+ int arcXStart;                 /* 0xb3 arc x start */
+ int arcZStart;                 /* 0xb4 arc z start */
+ int arcXEnd;                   /* 0xb5 arc x center */
+ int arcZEnd;                   /* 0xb6 arc z center */
+ int16_t maxParm;               /* 0xb7 maximum parameter */
 } T_REM_VAR, *P_REM_VAR;
 
 extern T_REM_VAR rVar;

@@ -236,75 +236,81 @@ enum REM_PARM
 
  X_CFG_REG,                     /* 0x8d xilinx cfg register */
 
-// sync parameters
+// z sync parameters
 
  L_SYNC_CYCLE,                  /* 0x8e sync cycle length */
  L_SYNC_OUTPUT,                 /* 0x8f sync outputs per cycle */
  L_SYNC_PRESCALER,              /* 0x90 sync prescaler */
 
+// x sync parameters
+
+ L_X_SYNC_CYCLE,                /* 0x91 sync cycle length */
+ L_X_SYNC_OUTPUT,               /* 0x92 sync outputs per cycle */
+ L_X_SYNC_PRESCALER,            /* 0x93 sync prescaler */
+
 // threading variables
 
- TH_Z_START,                    /* 0x91 threading z start */
- TH_X_START,                    /* 0x92 threading x start */
- TAN_THREAD_ANGLE,              /* 0x93 tan of threading angle */
- X_FEED,                        /* 0x94 x feed */
- RUNOUT_DISTANCE,               /* 0x95 runout distance */
- RUNOUT_DEPTH,                  /* 0x96 runout depth */
+ TH_Z_START,                    /* 0x94 threading z start */
+ TH_X_START,                    /* 0x95 threading x start */
+ TAN_THREAD_ANGLE,              /* 0x96 tan of threading angle */
+ X_FEED,                        /* 0x97 x feed */
+ RUNOUT_DISTANCE,               /* 0x98 runout distance */
+ RUNOUT_DEPTH,                  /* 0x99 runout depth */
 
 // jog debug
 
- JOG_DEBUG,                     /* 0x97 jog interrupt debug */
+ JOG_DEBUG,                     /* 0x9a jog interrupt debug */
 
 // motor and speed control
 
- PWM_FREQ,                      /* 0x98 spindle speed pwm frequency */
- MIN_SPEED,                     /* 0x99 min speed for current range */
- MAX_SPEED,                     /* 0x9a max speed for current range */
+ PWM_FREQ,                      /* 0x9b spindle speed pwm frequency */
+ MIN_SPEED,                     /* 0x9c min speed for current range */
+ MAX_SPEED,                     /* 0x9d max speed for current range */
 
 // current operation
 
- CURRENT_OP,                    /* 0x9b current operation */
+ CURRENT_OP,                    /* 0x9e current operation */
 
 // global limits and home
 
- LIMIT_OVERRIDE,                /* 0x9c override limit switches */
- COMMON_LIMITS,                 /* 0x9d all limit switches one pin */
- LIMITS_ENABLED,                /* 0x9e limits enabled */
- COMMON_HOME,                   /* 0x9f all home switches one pin */
+ LIMIT_OVERRIDE,                /* 0x9f override limit switches */
+ COMMON_LIMITS,                 /* 0xa0 all limit switches one pin */
+ LIMITS_ENABLED,                /* 0xa1 limits enabled */
+ COMMON_HOME,                   /* 0xa2 all home switches one pin */
 
 // z limits and home
 
- Z_LIM_ENA,                     /* 0xa0 z limit enable */
- Z_LIM_NEG_INV,                 /* 0xa1 z negative limit invert */
- Z_LIM_POS_INV,                 /* 0xa2 z Positive limit Invert */
- Z_HOME_ENA,                    /* 0xa3 z home enable */
- Z_HOME_INV,                    /* 0xa4 z home invert */
+ Z_LIM_ENA,                     /* 0xa3 z limit enable */
+ Z_LIM_NEG_INV,                 /* 0xa4 z negative limit invert */
+ Z_LIM_POS_INV,                 /* 0xa5 z Positive limit Invert */
+ Z_HOME_ENA,                    /* 0xa6 z home enable */
+ Z_HOME_INV,                    /* 0xa7 z home invert */
 
 // x limits and home
 
- X_LIM_ENA,                     /* 0xa5 x limit enable */
- X_LIM_NEG_INV,                 /* 0xa6 x negative limit invert */
- X_LIM_POS_INV,                 /* 0xa7 x Positive limit Invert */
- X_HOME_ENA,                    /* 0xa8 x home enable */
- X_HOME_INV,                    /* 0xa9 x home invert */
+ X_LIM_ENA,                     /* 0xa8 x limit enable */
+ X_LIM_NEG_INV,                 /* 0xa9 x negative limit invert */
+ X_LIM_POS_INV,                 /* 0xaa x Positive limit Invert */
+ X_HOME_ENA,                    /* 0xab x home enable */
+ X_HOME_INV,                    /* 0xac x home invert */
 
 // e stop
 
- E_STOP_ENA,                    /* 0xaa enable estop */
- E_STOP_INV,                    /* 0xab invert estop siganl */
+ E_STOP_ENA,                    /* 0xad enable estop */
+ E_STOP_INV,                    /* 0xae invert estop siganl */
 
 // command pause
 
- CMD_PAUSED,                    /* 0xac move commands paused */
+ CMD_PAUSED,                    /* 0xaf move commands paused */
 
 // arc parameters
 
- ARC_RADIUS,                    /* 0xad arc radius */
- ARC_X_CENTER,                  /* 0xae arc x center */
- ARC_Z_CENTER,                  /* 0xaf arc z center */
- ARC_X_START,                   /* 0xb0 arc x start */
- ARC_Z_START,                   /* 0xb1 arc z start */
- ARC_X_END,                     /* 0xb2 arc x center */
- ARC_Z_END,                     /* 0xb3 arc z center */
- MAX_PARM,                      /* 0xb4 maximum parameter */
+ ARC_RADIUS,                    /* 0xb0 arc radius */
+ ARC_X_CENTER,                  /* 0xb1 arc x center */
+ ARC_Z_CENTER,                  /* 0xb2 arc z center */
+ ARC_X_START,                   /* 0xb3 arc x start */
+ ARC_Z_START,                   /* 0xb4 arc z start */
+ ARC_X_END,                     /* 0xb5 arc x center */
+ ARC_Z_END,                     /* 0xb6 arc z center */
+ MAX_PARM,                      /* 0xb7 maximum parameter */
 };

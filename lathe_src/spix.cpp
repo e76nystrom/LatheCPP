@@ -140,7 +140,7 @@ int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize);
 
 #if defined(SPI_ISR)
 
-#define SPI_TX_SIZE 80
+#define SPI_TX_SIZE 160
 #define SPI_RX_SIZE 80
 
 typedef struct
@@ -155,6 +155,7 @@ typedef struct
  char rxBuf[SPI_RX_SIZE];
  int state;
  int txEna;
+ int rxReady;
  uint32_t timer;
 } T_SPICTL, *P_SPICTL;
 
@@ -617,6 +618,7 @@ void spiMasterReset()
 
 extern "C" void spiISR(void)
 {
+ dbgSpiIsrSet();
  SPI_TypeDef *spi = SPIn;
  if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
  {
@@ -648,7 +650,7 @@ extern "C" void spiISR(void)
     SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
     spiSelSet();
     spiCtl.state = 0;
-    syncResp();
+    spiCtl.rxReady = 1;
    }
   }
  }
@@ -670,6 +672,7 @@ extern "C" void spiISR(void)
    spi->DR = 0;
   }
  }
+ dbgSpiIsrClr();
 }
 
 #endif	/* SPI_MASTER */

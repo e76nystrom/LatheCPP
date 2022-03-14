@@ -301,37 +301,19 @@ inline void dbgA13Clr() {}
 #endif
 
 /* spindle isr time */
-#ifdef Dbg0_Pin
-inline void dbgSpIsrSet() {Dbg0_GPIO_Port->BSRR = Dbg0_Pin;}
-inline void dbgSpIsrClr() {Dbg0_GPIO_Port->BSRR = (Dbg0_Pin << 16);}
-inline uint16_t dbgSpIsrRead() {return((Dbg0_GPIO_Port->IDR & Dbg0_Pin) != 0);}
-#else
 inline void dbgSpIsrSet() {}
 inline void dbgSpIsrClr() {}
 inline uint16_t dbgSpIsrRead() {return(0);}
-#endif
 
 /* z isr time */
-#ifdef Dbg1_Pin
-inline void dbgZIsrSet() {Dbg1_GPIO_Port->BSRR = Dbg1_Pin;}
-inline void dbgZIsrClr() {Dbg1_GPIO_Port->BSRR = (Dbg1_Pin << 16);}
-inline uint16_t dbgZIsrRead() {return((Dbg1_GPIO_Port->IDR & Dbg1_Pin) != 0);}
-#else
 inline void dbgZIsrSet() {}
 inline void dbgZIsrClr() {}
 inline uint16_t dbgZIsrRead() {return(0);}
-#endif
 
 /* x isr time */
-#ifdef Dbg2_Pin
-inline void dbgXIsrSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
-inline void dbgXIsrClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
-inline uint16_t dbgXIsrRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
-#else
 inline void dbgXIsrSet() {}
 inline void dbgXIsrClr() {}
 inline uint16_t dbgXIsrRead() {return(0);}
-#endif
 
 /* spindle cycle counter update */
 inline void dbgSpCycSet() {}
@@ -525,15 +507,9 @@ inline void dbgXFinalDroClr() {}
 inline uint16_t dbgXFinalDroRead() {return(0);}
 
 /* z dro isr */
-#ifdef Dbg7_Pin
-inline void dbgZDroSet() {Dbg7_GPIO_Port->BSRR = Dbg7_Pin;}
-inline void dbgZDroClr() {Dbg7_GPIO_Port->BSRR = (Dbg7_Pin << 16);}
-inline uint16_t dbgZDroRead() {return((Dbg7_GPIO_Port->IDR & Dbg7_Pin) != 0);}
-#else
 inline void dbgZDroSet() {}
 inline void dbgZDroClr() {}
 inline uint16_t dbgZDroRead() {return(0);}
-#endif
 
 /* z stop */
 inline void dbgZStopSet() {}
@@ -566,36 +542,51 @@ inline void dbgRemCmdClr() {}
 inline uint16_t dbgRemCmdRead() {return(0);}
 
 /* z position error */
-#ifdef Dbg3_Pin
-inline void dbgZPosErrSet() {Dbg3_GPIO_Port->BSRR = Dbg3_Pin;}
-inline void dbgZPosErrClr() {Dbg3_GPIO_Port->BSRR = (Dbg3_Pin << 16);}
-inline uint16_t dbgZPosErrRead() {return((Dbg3_GPIO_Port->IDR & Dbg3_Pin) != 0);}
-#else
 inline void dbgZPosErrSet() {}
 inline void dbgZPosErrClr() {}
 inline uint16_t dbgZPosErrRead() {return(0);}
-#endif
 
 /* jog direction change */
-#ifdef Dbg4_Pin
-inline void dbgZJogDirSet() {Dbg4_GPIO_Port->BSRR = Dbg4_Pin;}
-inline void dbgZJogDirClr() {Dbg4_GPIO_Port->BSRR = (Dbg4_Pin << 16);}
-inline uint16_t dbgZJogDirRead() {return((Dbg4_GPIO_Port->IDR & Dbg4_Pin) != 0);}
-#else
 inline void dbgZJogDirSet() {}
 inline void dbgZJogDirClr() {}
 inline uint16_t dbgZJogDirRead() {return(0);}
-#endif
 
 /* jog backlash */
-#ifdef Dbg5_Pin
-inline void dbgMpgBackLSet() {Dbg5_GPIO_Port->BSRR = Dbg5_Pin;}
-inline void dbgMpgBackLClr() {Dbg5_GPIO_Port->BSRR = (Dbg5_Pin << 16);}
-inline uint16_t dbgMpgBackLRead() {return((Dbg5_GPIO_Port->IDR & Dbg5_Pin) != 0);}
-#else
 inline void dbgMpgBackLSet() {}
 inline void dbgMpgBackLClr() {}
 inline uint16_t dbgMpgBackLRead() {return(0);}
+
+/* spi isr */
+#ifdef Dbg0_Pin
+inline void dbgSpiIsrSet() {Dbg0_GPIO_Port->BSRR = Dbg0_Pin;}
+inline void dbgSpiIsrClr() {Dbg0_GPIO_Port->BSRR = (Dbg0_Pin << 16);}
+inline uint16_t dbgSpiIsrRead() {return((Dbg0_GPIO_Port->IDR & Dbg0_Pin) != 0);}
+#else
+inline void dbgSpiIsrSet() {}
+inline void dbgSpiIsrClr() {}
+inline uint16_t dbgSpiIsrRead() {return(0);}
+#endif
+
+/* debug procMove */
+#ifdef Dbg1_Pin
+inline void dbgProcMoveSet() {Dbg1_GPIO_Port->BSRR = Dbg1_Pin;}
+inline void dbgProcMoveClr() {Dbg1_GPIO_Port->BSRR = (Dbg1_Pin << 16);}
+inline uint16_t dbgProcMoveRead() {return((Dbg1_GPIO_Port->IDR & Dbg1_Pin) != 0);}
+#else
+inline void dbgProcMoveSet() {}
+inline void dbgProcMoveClr() {}
+inline uint16_t dbgProcMoveRead() {return(0);}
+#endif
+
+/* sync response */
+#ifdef Dbg2_Pin
+inline void dbgSyncRespSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
+inline void dbgSyncRespClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
+inline uint16_t dbgSyncRespRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
+#else
+inline void dbgSyncRespSet() {}
+inline void dbgSyncRespClr() {}
+inline uint16_t dbgSyncRespRead() {return(0);}
 #endif
 
 #endif /* __DBG_H */

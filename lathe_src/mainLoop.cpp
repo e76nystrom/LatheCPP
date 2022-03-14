@@ -500,7 +500,6 @@ int16_t mainLoop(void)
 #endif	/* Led1_Pin */
 
 #if defined(MEGAPORT)
-
    if (megaCtl.state != 0)
    {
     if ((millis() - megaCtl.timer) > MEGA_RCV_TIMEOUT)
@@ -520,15 +519,20 @@ int16_t mainLoop(void)
     megaPollTime = millis();
     megaPoll();
    }
-
 #endif  /* MEGAPORT */
 
 #if defined(SYNC_SPI)
 
+   if (spiCtl.rxReady)
+   {
+    spiCtl.rxReady = 0;
+    syncResp();
+   }
+
    if ((millis() - syncPollTime) > SYNC_POLL_TIMEOUT)
    {
     syncPollTime = millis();
-    syncPoll();
+    //syncPoll();
    }
 
 #if defined(SPI_MASTER)
@@ -540,7 +544,6 @@ int16_t mainLoop(void)
     }
    }
 #endif	/* SPI_MASTER */
-
 #endif	/* SYNC_SPI */
 
    if (rVar.setupDone)		/* setup complete */
@@ -623,6 +626,7 @@ int16_t mainLoop(void)
   else
    lclcmdX(ch);
   flushBuf();
+
 #if REM_ISR == 0
   if (remcmdTimeout < UINT_MAX)
    remcmdUpdateTime = millis();

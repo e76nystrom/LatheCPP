@@ -1,5 +1,4 @@
 /******************************************************************************/
-//#if !defined(INCLUDE)
 #define __LATHE__
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
@@ -56,7 +55,6 @@
 #include "lathe.h"
 #include "stm32Info.h"
 #include "arc.h"
-//#endif
 
 #if defined(__LATHE_INC__)		// <-
 
@@ -931,9 +929,18 @@ void megaRsp(void);
 
 #if defined(SYNC_SPI)
 
+typedef struct sSyncMulti
+{
+ int16_t syncParm;
+ int16_t remParm;
+} T_SYNC_PARM, *P_SYNC_PARM;
+
 void initSync(void);
-void syncPoll(void);
 void syncResp(void);
+
+void syncCommand(uint8_t cmd);
+void syncSendMulti(P_SYNC_PARM p);
+void syncPoll(void);
 
 EXT bool syncCmdDone;
 EXT bool syncLoadDone;
@@ -954,6 +961,22 @@ EXT bool syncPollDone;
 #ifdef __LATHE__
 
 #include "latheX.h"
+
+#if defined(SYNC_SPI)
+
+#include "syncStruct.h"
+#include "remParmList.h"
+#include "syncParmList.h"
+
+T_SYNC_PARM syncParms[] =
+{
+ {SYNC_ENCODER, ENC_PER_REV},
+ {SYNC_CYCLE, L_SYNC_CYCLE},
+ {SYNC_OUTPUT, L_SYNC_OUTPUT},
+ {SYNC_PRESCALER, L_SYNC_PRESCALER},
+ {SYNC_MAX_PARM, 0},
+};
+#endif	/* SYNC_SPI */
 
 unsigned int lastRevCount;
 
@@ -5211,6 +5234,7 @@ void stopMove(void)
 
 void procMove(void)
 {
+ dbgProcMoveSet();
  P_RUN_CTL mv = &runCtl;
 
  if (rVar.cmdPaused		/* if paused */
@@ -5498,6 +5522,20 @@ void procMove(void)
     done = 0;
     break;
 
+   case SEND_SYNC_PARMS:
+#if defined(SYNC_SPI)
+    syncSendMulti(syncParms);
+    mv->state = M_WAIT_SYNC_PARMS;
+#endif  /* SYNC_SPI */
+    break;
+
+   case SYNC_COMMAND:
+#if defined(SYNC_SPI)
+    syncCommand((char) cmd->iVal);
+    mv->state = M_WAIT_SYNC_CMD;
+#endif  /* SYNC_SPI */
+    break;
+
    case PASS_NUM:
    {
     int iVal = cmd->iVal;
@@ -5777,6 +5815,20 @@ void procMove(void)
    mv->state = M_IDLE;
   break;
 
+ case M_WAIT_SYNC_PARMS:
+#if defined(SYNC_SPI)
+  if (syncLoadDone)
+   mv->state = M_IDLE;
+#endif  /* SYNC_SPI */
+  break;
+
+ case M_WAIT_SYNC_CMD:
+#if defined(SYNC_SPI)
+  if (syncCmdDone)
+   mv->state = M_IDLE;
+#endif  /* SYNC_SPI */
+  break;   
+
  case M_WAIT_SPINDLE:
   if (rVar.cfgFpga == 0)	/* processor control version */
   {
@@ -6015,6 +6067,8 @@ void procMove(void)
    printf("mvState %d %s\n", mv->state, mStatesList[(int) mv->state]);
   }
  }
+ dbgProcMoveClr();
+ flushBuf();
 }
 
 void moveZX(int zDest, int xDest)
@@ -6738,7 +6792,7 @@ int valSPI;
 
 char getHexSPI(void)
 {
- char ch;
+ int ch;
  int count;
 
  valSPI = 0;
@@ -6760,7 +6814,9 @@ char getHexSPI(void)
   {
    break;
   }
-  else if (ch == '\r')
+  else if (ch == '*')
+   break;
+  else if (ch < 0)
    break;
   else
    continue;
@@ -6770,6 +6826,56 @@ char getHexSPI(void)
   valSPI += ch;
  }
  return(count != 0);
+}
+
+void syncCommand(uint8_t cmd)
+{
+ syncCmdDone = false;
+ putSPI(1);
+ sndHexSPI(&cmd, sizeof(cmd));
+ putSPI('\r');
+ spiMasterStart();
+}
+
+extern char remParm[];
+
+void syncSendMulti(P_SYNC_PARM p)
+{
+ P_SYNC_PARM p0 = p;
+ unsigned char count = 0;
+ while (p0->syncParm != SYNC_MAX_PARM)
+ {
+  count +=1;
+  p0 += 1;
+ }
+ printf("syncSendMulti %d\n", count);
+ 
+ syncLoadDone = false;
+ putSPI(1);
+ unsigned char tmp = SYNC_LOADMULTI;
+ sndHexSPI(&tmp, sizeof(tmp));
+ putSPI(' ');
+ sndHexSPI(&count, sizeof(count));
+ while (1)
+ {
+  if (p->syncParm == SYNC_MAX_PARM)
+   break;
+  else
+  {
+   T_DATA_UNION parmVal;
+   putSPI(' ');
+   sndHexSPI((unsigned char *) &p->syncParm, sizeof(p->syncParm));
+   putSPI(' ');
+   getRemVar(p->remParm, &parmVal);
+   int size = remParm[p->remParm];
+   printf("r p %2x s %d v %8x\n",
+	  (unsigned int) p->syncParm, size, parmVal.t_unsigned_int);
+   sndHexSPI((unsigned char *) &parmVal.t_unsigned_int, size);
+   p += 1;
+  }
+ }
+ putSPI('\r');
+ spiMasterStart();
 }
 
 void syncPoll(void)
@@ -6782,16 +6888,15 @@ void syncPoll(void)
  spiMasterStart();
 }
 
-#include "syncStruct.h"
-#include "syncParmList.h"
-
 void syncResp(void)
 {
  int parm;
 
+ dbgSyncRespSet();
  parm = getSPI();
  getHexSPI();			/* read parameter */
  parm = valSPI;
+ putBufChar(parm + '0');
  switch (parm)
  {
  case SYNC_SETUP:
@@ -6841,6 +6946,15 @@ void syncResp(void)
  default:
   break;
  }
+
+ printf("count %d emp %d fil %d\n",
+	spiCtl.rxCount, spiCtl.rxEmp, spiCtl.rxFil);
+ flushBuf();
+
+ while (getSPI() >= 0)
+ {
+ }
+ dbgSyncRespClr();
 }
 
 #endif	/* SYNC_SPI */

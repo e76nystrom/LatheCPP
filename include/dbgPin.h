@@ -79,27 +79,15 @@
 #ifdef DbgA13_Pin
  PIN(DbgA13, DbgA13),
 #endif
-#ifdef Dbg0_Pin
- PIN(dbgSpIsr, Dbg0),
-#endif
-#ifdef Dbg1_Pin
- PIN(dbgZIsr, Dbg1),
-#endif
-#ifdef Dbg2_Pin
- PIN(dbgXIsr, Dbg2),
-#endif
 #ifdef Dbg6_Pin
  PIN(dbgJogIsr, Dbg6),
 #endif
-#ifdef Dbg7_Pin
- PIN(dbgZDro, Dbg7),
+#ifdef Dbg0_Pin
+ PIN(dbgSpiIsr, Dbg0),
 #endif
-#ifdef Dbg3_Pin
- PIN(dbgZPosErr, Dbg3),
+#ifdef Dbg1_Pin
+ PIN(dbgProcMove, Dbg1),
 #endif
-#ifdef Dbg4_Pin
- PIN(dbgZJogDir, Dbg4),
-#endif
-#ifdef Dbg5_Pin
- PIN(dbgMpgBackL, Dbg5),
+#ifdef Dbg2_Pin
+ PIN(dbgSyncResp, Dbg2),
 #endif

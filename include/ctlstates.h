@@ -39,15 +39,17 @@ enum M_STATES
  M_WAIT_Z,                      /*  1 x01 wait for z to complete */
  M_WAIT_X,                      /*  2 x02 wait for x to complete */
  M_WAIT_SPINDLE,                /*  3 x03 wait for spindle start */
- M_START_SYNC,                  /*  4 x04 start sync */
- M_WAIT_SYNC_READY,             /*  5 x05 wait for sync */
- M_WAIT_SYNC_DONE,              /*  6 x06 wait for sync done */
- M_WAIT_MEASURE_DONE,           /*  7 x07 wait for measurment done */
- M_WAIT_PROBE,                  /*  8 x08 wait for probe to complete */
- M_WAIT_MEASURE,                /*  9 x09 wait for measurement to complete */
- M_WAIT_SAFE_X,                 /* 10 x0a wait for move to safe x to complete */
- M_WAIT_SAFE_Z,                 /* 11 x0b wait for move to safe z to complete */
- M_WAIT_ARC,                    /* 12 x0c wait for arc move to complete */
+ M_WAIT_SYNC_PARMS,             /*  4 x04 wait for sync paramaters */
+ M_WAIT_SYNC_CMD,               /*  5 x05 wait for sync command */
+ M_START_SYNC,                  /*  6 x06 start sync */
+ M_WAIT_SYNC_READY,             /*  7 x07 wait for sync */
+ M_WAIT_SYNC_DONE,              /*  8 x08 wait for sync done */
+ M_WAIT_MEASURE_DONE,           /*  9 x09 wait for measurment done */
+ M_WAIT_PROBE,                  /* 10 x0a wait for probe to complete */
+ M_WAIT_MEASURE,                /* 11 x0b wait for measurement to complete */
+ M_WAIT_SAFE_X,                 /* 12 x0c wait for move to safe x to complete */
+ M_WAIT_SAFE_Z,                 /* 13 x0d wait for move to safe z to complete */
+ M_WAIT_ARC,                    /* 14 x0e wait for arc move to complete */
 };
 
 #ifdef ENUM_M_STATES
@@ -58,15 +60,17 @@ const char *mStatesList[] =
  "M_WAIT_Z",                    /*  1 x01 wait for z to complete */
  "M_WAIT_X",                    /*  2 x02 wait for x to complete */
  "M_WAIT_SPINDLE",              /*  3 x03 wait for spindle start */
- "M_START_SYNC",                /*  4 x04 start sync */
- "M_WAIT_SYNC_READY",           /*  5 x05 wait for sync */
- "M_WAIT_SYNC_DONE",            /*  6 x06 wait for sync done */
- "M_WAIT_MEASURE_DONE",         /*  7 x07 wait for measurment done */
- "M_WAIT_PROBE",                /*  8 x08 wait for probe to complete */
- "M_WAIT_MEASURE",              /*  9 x09 wait for measurement to complete */
- "M_WAIT_SAFE_X",               /* 10 x0a wait for move to safe x to complete */
- "M_WAIT_SAFE_Z",               /* 11 x0b wait for move to safe z to complete */
- "M_WAIT_ARC",                  /* 12 x0c wait for arc move to complete */
+ "M_WAIT_SYNC_PARMS",           /*  4 x04 wait for sync paramaters */
+ "M_WAIT_SYNC_CMD",             /*  5 x05 wait for sync command */
+ "M_START_SYNC",                /*  6 x06 start sync */
+ "M_WAIT_SYNC_READY",           /*  7 x07 wait for sync */
+ "M_WAIT_SYNC_DONE",            /*  8 x08 wait for sync done */
+ "M_WAIT_MEASURE_DONE",         /*  9 x09 wait for measurment done */
+ "M_WAIT_PROBE",                /* 10 x0a wait for probe to complete */
+ "M_WAIT_MEASURE",              /* 11 x0b wait for measurement to complete */
+ "M_WAIT_SAFE_X",               /* 12 x0c wait for move to safe x to complete */
+ "M_WAIT_SAFE_Z",               /* 13 x0d wait for move to safe z to complete */
+ "M_WAIT_ARC",                  /* 14 x0e wait for arc move to complete */
 };
 
 #else
@@ -94,20 +98,22 @@ enum M_COMMANDS
  STOP_SPINDLE,                  /* 12 x0c spindle stop */
  Z_SYN_SETUP,                   /* 13 x0d z sync setup */
  X_SYN_SETUP,                   /* 14 x0e x sync setup */
- PASS_NUM,                      /* 15 x0f set pass number */
- QUE_PAUSE,                     /* 16 x10 pause queue */
- MOVE_Z_OFFSET,                 /* 17 x11 move z offset */
- SAVE_FEED_TYPE,                /* 18 x12 save feed type */
- Z_FEED_SETUP,                  /* 19 x13 setup z feed */
- X_FEED_SETUP,                  /* 20 x14 setup x feed */
- SAVE_FLAGS,                    /* 21 x15 save thread flags */
- PROBE_Z,                       /* 22 x16 probe in z direction */
- PROBE_X,                       /* 23 x17 probe in x direction */
- SAVE_Z_DRO,                    /* 24 x18 save z dro reading */
- SAVE_X_DRO,                    /* 25 x19 save x dro reading */
- QUE_PARM,                      /* 26 x1a save parameter in queue */
- MOVE_ARC,                      /* 27 x1b move in an arc */
- OP_DONE,                       /* 28 x1c operation done */
+ SEND_SYNC_PARMS,               /* 15 x0f send sync parameters */
+ SYNC_COMMAND,                  /* 16 x10 send sync command */
+ PASS_NUM,                      /* 17 x11 set pass number */
+ QUE_PAUSE,                     /* 18 x12 pause queue */
+ MOVE_Z_OFFSET,                 /* 19 x13 move z offset */
+ SAVE_FEED_TYPE,                /* 20 x14 save feed type */
+ Z_FEED_SETUP,                  /* 21 x15 setup z feed */
+ X_FEED_SETUP,                  /* 22 x16 setup x feed */
+ SAVE_FLAGS,                    /* 23 x17 save thread flags */
+ PROBE_Z,                       /* 24 x18 probe in z direction */
+ PROBE_X,                       /* 25 x19 probe in x direction */
+ SAVE_Z_DRO,                    /* 26 x1a save z dro reading */
+ SAVE_X_DRO,                    /* 27 x1b save x dro reading */
+ QUE_PARM,                      /* 28 x1c save parameter in queue */
+ MOVE_ARC,                      /* 29 x1d move in an arc */
+ OP_DONE,                       /* 30 x1e operation done */
 };
 
 #ifdef ENUM_M_COMMANDS
@@ -129,20 +135,22 @@ const char *mCommandsList[] =
  "STOP_SPINDLE",                /* 12 x0c spindle stop */
  "Z_SYN_SETUP",                 /* 13 x0d z sync setup */
  "X_SYN_SETUP",                 /* 14 x0e x sync setup */
- "PASS_NUM",                    /* 15 x0f set pass number */
- "QUE_PAUSE",                   /* 16 x10 pause queue */
- "MOVE_Z_OFFSET",               /* 17 x11 move z offset */
- "SAVE_FEED_TYPE",              /* 18 x12 save feed type */
- "Z_FEED_SETUP",                /* 19 x13 setup z feed */
- "X_FEED_SETUP",                /* 20 x14 setup x feed */
- "SAVE_FLAGS",                  /* 21 x15 save thread flags */
- "PROBE_Z",                     /* 22 x16 probe in z direction */
- "PROBE_X",                     /* 23 x17 probe in x direction */
- "SAVE_Z_DRO",                  /* 24 x18 save z dro reading */
- "SAVE_X_DRO",                  /* 25 x19 save x dro reading */
- "QUE_PARM",                    /* 26 x1a save parameter in queue */
- "MOVE_ARC",                    /* 27 x1b move in an arc */
- "OP_DONE",                     /* 28 x1c operation done */
+ "SEND_SYNC_PARMS",             /* 15 x0f send sync parameters */
+ "SYNC_COMMAND",                /* 16 x10 send sync command */
+ "PASS_NUM",                    /* 17 x11 set pass number */
+ "QUE_PAUSE",                   /* 18 x12 pause queue */
+ "MOVE_Z_OFFSET",               /* 19 x13 move z offset */
+ "SAVE_FEED_TYPE",              /* 20 x14 save feed type */
+ "Z_FEED_SETUP",                /* 21 x15 setup z feed */
+ "X_FEED_SETUP",                /* 22 x16 setup x feed */
+ "SAVE_FLAGS",                  /* 23 x17 save thread flags */
+ "PROBE_Z",                     /* 24 x18 probe in z direction */
+ "PROBE_X",                     /* 25 x19 probe in x direction */
+ "SAVE_Z_DRO",                  /* 26 x1a save z dro reading */
+ "SAVE_X_DRO",                  /* 27 x1b save x dro reading */
+ "QUE_PARM",                    /* 28 x1c save parameter in queue */
+ "MOVE_ARC",                    /* 29 x1d move in an arc */
+ "OP_DONE",                     /* 30 x1e operation done */
 };
 
 #else

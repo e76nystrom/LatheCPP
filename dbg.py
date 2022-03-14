@@ -89,9 +89,9 @@ pinList = \
 
 dbgList = \
 (\
- ("dbgSpIsr",  "0", "spindle isr time"), \
- ("dbgZIsr",   "1", "z isr time"), \
- ("dbgXIsr",   "2", "x isr time"), \
+ ("dbgSpIsr",  "", "spindle isr time"), \
+ ("dbgZIsr",   "", "z isr time"), \
+ ("dbgXIsr",   "", "x isr time"), \
  ("dbgSpCyc",  "", "spindle cycle counter update"), \
  ("dbgZEnc",   "", "z encoder input"), \
  ("dbgZOut",   "", "z encoder output"), \
@@ -135,7 +135,7 @@ dbgList = \
  ("dbgXUpdDro", "", "x move using dro"), \
  ("dbgXFinalDro","", "x dro final"), \
 
- ("dbgZDro",    "7", "z dro isr"), \
+ ("dbgZDro",    "", "z dro isr"), \
  ("dbgZStop",   "", "z stop"), \
  ("dbgZDone",   "", "z done"), \
 
@@ -144,9 +144,13 @@ dbgList = \
  ("dbgEncIsr",  "", "encoder isr"), \
  ("dbgRemCmd",  "", "remote command"), \
 
- ("dbgZPosErr", "3", "z position error"),\
- ("dbgZJogDir", "4", "jog direction change"),\
- ("dbgMpgBackL","5", "jog backlash"),\
+ ("dbgZPosErr", "", "z position error"),\
+ ("dbgZJogDir", "", "jog direction change"),\
+ ("dbgMpgBackL","", "jog backlash"),\
+
+ ("dbgSpiIsr",  "0", "spi isr"), \
+ ("dbgProcMove","1", "debug procMove"), \
+ ("dbgSyncResp","2", "sync response"), \
  )
  #("","",""), \
 
