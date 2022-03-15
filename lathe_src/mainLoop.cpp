@@ -477,8 +477,6 @@ int16_t mainLoop(void)
 
 #if defined(SYNC_SPI)
  initSync();
- newline();
- spiInfo(SPIn, SPI_NAME);
  syncPollTime = millis();
 #endif
 
@@ -523,12 +521,12 @@ int16_t mainLoop(void)
 
 #if defined(SYNC_SPI)
 
-   if (spiCtl.rxReady)
-   {
-    spiCtl.rxReady = 0;
-    syncResp();
-   }
-
+//   if (spiCtl.rxReady)
+//   {
+//    spiCtl.rxReady = 0;
+//    syncResp();
+//   }
+   
    if ((millis() - syncPollTime) > SYNC_POLL_TIMEOUT)
    {
     syncPollTime = millis();

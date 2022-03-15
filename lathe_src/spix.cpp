@@ -650,7 +650,8 @@ extern "C" void spiISR(void)
     SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
     spiSelSet();
     spiCtl.state = 0;
-    spiCtl.rxReady = 1;
+    syncResp();
+    //spiCtl.rxReady = 1;
    }
   }
  }

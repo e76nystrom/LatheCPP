@@ -6068,7 +6068,6 @@ void procMove(void)
   }
  }
  dbgProcMoveClr();
- flushBuf();
 }
 
 void moveZX(int zDest, int xDest)
@@ -6841,6 +6840,8 @@ extern char remParm[];
 
 void syncSendMulti(P_SYNC_PARM p)
 {
+ syncLoadDone = false;
+
  P_SYNC_PARM p0 = p;
  unsigned char count = 0;
  while (p0->syncParm != SYNC_MAX_PARM)
@@ -6848,9 +6849,7 @@ void syncSendMulti(P_SYNC_PARM p)
   count +=1;
   p0 += 1;
  }
- printf("syncSendMulti %d\n", count);
  
- syncLoadDone = false;
  putSPI(1);
  unsigned char tmp = SYNC_LOADMULTI;
  sndHexSPI(&tmp, sizeof(tmp));
@@ -6863,6 +6862,7 @@ void syncSendMulti(P_SYNC_PARM p)
   else
   {
    T_DATA_UNION parmVal;
+   parmVal.t_int = 0;
    putSPI(' ');
    sndHexSPI((unsigned char *) &p->syncParm, sizeof(p->syncParm));
    putSPI(' ');
@@ -6939,7 +6939,6 @@ void syncResp(void)
   break;
 
  case SYNC_POLL:
-  printf("SYNC_POLL response\n");
   syncPollDone = true;
   break;
 
@@ -6947,9 +6946,9 @@ void syncResp(void)
   break;
  }
 
- printf("count %d emp %d fil %d\n",
-	spiCtl.rxCount, spiCtl.rxEmp, spiCtl.rxFil);
- flushBuf();
+ //printf("count %d emp %d fil %d\n",
+ //	spiCtl.rxCount, spiCtl.rxEmp, spiCtl.rxFil);
+ //flushBuf();
 
  while (getSPI() >= 0)
  {
