@@ -47,6 +47,12 @@
 #include "i2c.h"
 #include "tim.h"
 
+#if defined(MEGAPORT)
+#include "megaCmdList.h"
+#include "megaParmList.h"
+#include "megaCtlstates.h"
+#endif	/* MEGAPORT */
+
 #ifdef EXT
 #undef EXT
 #endif
@@ -929,17 +935,17 @@ void megaRsp(void);
 
 #if defined(SYNC_SPI)
 
-typedef struct sSyncMulti
+typedef struct sSyncMultiParm
 {
  int16_t syncParm;
  int16_t remParm;
-} T_SYNC_PARM, *P_SYNC_PARM;
+} T_SYNC_MULTI_PARM, *P_SYNC_MULTI_PARM;
 
 void initSync(void);
 void syncResp(void);
 
 void syncCommand(uint8_t cmd);
-void syncSendMulti(P_SYNC_PARM p);
+void syncSendMulti(P_SYNC_MULTI_PARM p);
 void syncPoll(void);
 
 EXT bool syncCmdDone;
@@ -964,11 +970,11 @@ EXT bool syncPollDone;
 
 #if defined(SYNC_SPI)
 
-#include "syncStruct.h"
+//#include "syncStruct.h"
 #include "remParmList.h"
 #include "syncParmList.h"
 
-T_SYNC_PARM syncParms[] =
+T_SYNC_MULTI_PARM syncParms[] =
 {
  {SYNC_ENCODER, ENC_PER_REV},
  {SYNC_CYCLE, L_SYNC_CYCLE},
@@ -6682,7 +6688,6 @@ void megaRsp()
 
  case MEGA_POLL:
   gethexMega();
-  putBufChar('P');
   break;
 
  default:
@@ -6838,11 +6843,11 @@ void syncCommand(uint8_t cmd)
 
 extern char remParm[];
 
-void syncSendMulti(P_SYNC_PARM p)
+void syncSendMulti(P_SYNC_MULTI_PARM p)
 {
  syncLoadDone = false;
 
- P_SYNC_PARM p0 = p;
+ P_SYNC_MULTI_PARM p0 = p;
  unsigned char count = 0;
  while (p0->syncParm != SYNC_MAX_PARM)
  {
@@ -6921,6 +6926,7 @@ void syncResp(void)
 
  case SYNC_READVAL:		/* read a local parameter */
  {
+#if 0
   T_DATA_UNION parmVal;
   getHexSPI();			/* save the parameter number */
   parm = valSPI;		/* save it */
@@ -6934,6 +6940,7 @@ void syncResp(void)
 	  (unsigned int) parm, size, parmVal.t_unsigned_int);
 #endif
   }
+#endif
   syncReadDone = true;
  }
   break;

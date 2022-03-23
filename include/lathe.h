@@ -871,17 +871,17 @@ void megaRsp(void);
 
 #if defined(SYNC_SPI)
 
-typedef struct sSyncMulti
+typedef struct sSyncMultiParm
 {
  int16_t syncParm;
  int16_t remParm;
-} T_SYNC_PARM, *P_SYNC_PARM;
+} T_SYNC_MULTI_PARM, *P_SYNC_MULTI_PARM;
 
 void initSync(void);
 void syncResp(void);
 
 void syncCommand(uint8_t cmd);
-void syncSendMulti(P_SYNC_PARM p);
+void syncSendMulti(P_SYNC_MULTI_PARM p);
 void syncPoll(void);
 
 EXT bool syncCmdDone;

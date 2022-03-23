@@ -80,5 +80,4 @@ inline void mxI2CInit()
  MX_I2C1_Init();
 }
 
-
 #endif	/* defined(DISCOVERY407) */
