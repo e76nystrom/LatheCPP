@@ -39,4 +39,4 @@ cscope.out
 include/timers.h
 lathe-new.cpp.lst
 src/test.cpp
-STM32CubeIDE/
+STM32CubeIDE/*
