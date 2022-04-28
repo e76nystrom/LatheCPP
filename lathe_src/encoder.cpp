@@ -12,6 +12,7 @@
 
 #include "lathe.h"
 #include "lclcmd.h"
+#include "stm32Info.h"
 
 #ifdef EXT
 #undef EXT
@@ -37,11 +38,33 @@ void encStop(void);
 
 #if ENC_TEST
 
+#if !defined(aSet)
+#define aSet()
+#endif
+#if !defined(aClr)
+#define aClr()
+#endif
+
+#if !defined(bSet)
+#define bSet()
+#endif
+#if !defined(bClr)
+#define bClr()
+#endif
+
+#if !defined(syncSet)
+#define syncSet()
+#endif
+#if !defined(syncClr)
+#define syncClr()
+#endif
+
+
 void encInit(void)
 {
- encPerRev = ENCMAX;		/* set encoder maximum */
- encPreScaler = 0;		/* prescale 1 */
- encTimer = FCY / encPerRev;	/* timer for one sync per second */
+ rVar.encPerRev = ENCMAX;		/* set encoder maximum */
+ rVar.encPreScaler = 0;		/* prescale 1 */
+ rVar.encTimer = FCY / rVar.encPerRev;	/* timer for one sync per second */
 }
 
 void encStart(int tEna)
@@ -52,16 +75,16 @@ void encStart(int tEna)
 
  encTestTmrStop();		/* disable timer */
  encTestTmrClrIF();		/* clear interrupt flag */
- encTestTmrClr();		/* clear counter register */
- if (encPreScaler != 0)		/* if prescaler non zero */
-  encTestTmrScl(encPreScaler);	/* load prescaler */
- encTestTmrMax(encTimer);	/* set timer period */
+ encTestTmrCntClr();		/* clear counter register */
+ if (rVar.encPreScaler != 0)		/* if prescaler non zero */
+  encTestTmrScl(rVar.encPreScaler);	/* load prescaler */
+ encTestTmrMax(rVar.encTimer);	/* set timer period */
  if constexpr (0)
   tmrInfo(ENCTEST_TMR);
  encState = 0;
- encCounter = 0;
- encRevCounter = 0;
- encRun = true;
+ rVar.encCounter = 0;
+ rVar.encRevCounter = 0;
+ rVar.encRun = true;
 
  if (tEna)
  {
@@ -72,7 +95,7 @@ void encStart(int tEna)
 
 void encStop(void)
 {
- encRun = false;		/* clear run flag */
+ rVar.encRun = false;		/* clear run flag */
  encTestTmrClrIE();		/* disable interrupt */
  encTestTmrStop();		/* stop timer */
  encTestTmrClrIF();		/* clear interrupt flag */
@@ -84,21 +107,21 @@ extern "C" void encTestTmrISR(void)
 
  if constexpr(ENC_TEST)
  {
-  if (encRun)
+  if (rVar.encRun)
   {
-   if (encRunCount != 0)	/* if encoder counting */
+   if (rVar.encRunCount != 0)	/* if encoder counting */
    {
-    if (--encRunCount == 0)	/* if count is now zero */
+    if (--rVar.encRunCount == 0) /* if count is now zero */
     {
      encStop();			/* stop encoder */
     }
    }
 
-   encCounter += 1;		/* update counter */
-   if (encCounter >= encPerRev)	/* if at maximum */
+   rVar.encCounter += 1;		/* update counter */
+   if (rVar.encCounter >= rVar.encPerRev)	/* if at maximum */
    {
-    encCounter = 0;		/* reset */
-    encRevCounter += 1;		/* count a revolution */
+    rVar.encCounter = 0;		/* reset */
+    rVar.encRevCounter += 1;		/* count a revolution */
     syncSet();			/* set the sync bit */
    }
    else				/* if not at maximum */

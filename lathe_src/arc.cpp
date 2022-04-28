@@ -2,12 +2,12 @@
 
 #if defined(STM32F4)
 #include "stm32f4xx_hal.h"
-#define LATHE_CPP
+//#define LATHE_CPP
 #endif	/* STM32F4 */
 
 #ifdef STM32H7
 #include "stm32h7xx_hal.h"
-#define LATHE_CPP
+//#define LATHE_CPP
 #endif
 
 #define _USE_MATH_DEFINES

@@ -12,7 +12,7 @@
 #endif
 #endif
 
-#include "remstruct.h"
+#include "remStruct.h"
 #include "lathe.h"
 
 #include "Xilinx.h"
@@ -60,8 +60,6 @@
 
 void remcmd(void);
 void loadVal(void);
-
-EXT int16_t tmpval;
 
 #include "remCmdList.h"
 #include "remParmList.h"
@@ -119,29 +117,30 @@ void xMoveRel(int dist)
 
 #endif
 
-#include "remparm.h"
+#include "remParm.h"
 
 void loadVal(void)
 {
- gethexrem();			/* read the parameter number */
- int parm = valRem;		/* save it */
+ int parm;
+ gethexRem(&parm);		/* read the parameter number */
  if (parm < MAX_PARM)		/* if in range */
  {
+  T_INT_FLOAT intFloat;
   T_DATA_UNION parmVal;
-  int type = getnumrem();	/* get the value */
+  int type = getnumrem(&intFloat); /* get the value */
   if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
    int size = remParm[parm];	/* value size */
-   printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) valRem);
+   printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) intFloat.i);
 #endif
-   parmVal.t_int = valRem;
+   parmVal.t_int = intFloat.i;
   }
   else if (type == FLOAT_VAL)	/* if floating value */
   {
-   parmVal.t_float = fValRem;
+   parmVal.t_float = intFloat.f;
 #if DBG_LOAD
-   printf("w parm %2x     val %8.4f\n", parm, fValRem);
+   printf("w parm %2x     val %8.4f\n", parm, intFloat.f);
 #endif
   }
   setRemVar(parm, parmVal);
@@ -152,14 +151,14 @@ void remcmd(void)
 {
  dbgRemCmdSet();
  int parm;
+ int val;
 
  remcmdUpdateTime = millis();
  remcmdTimeout = REMCMD_TIMEOUT;
 
  putrem('-');
- gethexrem();			/* read parameter */
- parm = valRem;
- switch (parm)
+ gethexRem(&parm);		/* read parameter */
+  switch (parm)
  {
  case ZMOVEABS:
   zMoveAbsCmd();
@@ -306,7 +305,7 @@ void remcmd(void)
 
  case READISTATE:
  {
-  tmpval = zMoveCtl.state;
+  int tmpval = zMoveCtl.state;
   tmpval |= xMoveCtl.state << 4;
   sndhexrem((unsigned char *) &tmpval, sizeof(tmpval));
  }
@@ -318,8 +317,8 @@ void remcmd(void)
 
  case LOADMULTI:		/* load multiple parameters */
  {
-  gethexrem();
-  int count = valRem;
+  int count;
+  gethexRem(&count);
   while (--count >= 0)
    loadVal();
  }
@@ -327,8 +326,7 @@ void remcmd(void)
 
  case READVAL:			/* read a local parameter */
  {
-  gethexrem();			/* save the parameter number */
-  parm = valRem;		/* save it */
+  gethexRem(&parm);		/* save the parameter number */
   T_DATA_UNION parmVal;
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
@@ -341,18 +339,17 @@ void remcmd(void)
 
  case LOADXREG:			/* load a xilinx register */
  {
-  gethexrem();			/* save the parameter number */
-  parm = valRem;		/* save it */
-  gethexrem();			/* get the value */
+  gethexRem(&parm);		/* save the parameter number */
+
+  gethexRem(&val);		/* get the value */
   LOAD(parm, val);		/* load value to xilinx register */
  }
  break;
 
  case READXREG:			/* read a xilinx register */
  {
-  gethexrem();			/* save the parameter number */
-  parm = valRem;		/* save it */
-//   read(parm);		/* read the xilinx register */
+  gethexRem(&parm);		/* save the parameter number */
+  //   read(parm);		/* read the xilinx register */
   read1(parm);			/* read the xilinx register */
   sndhexrem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
  }
@@ -379,12 +376,12 @@ void remcmd(void)
 //  else
 //   putstrrem("# ");
 
-  if (rVar.cfgFpga == 0)		/* processor control */
+  if (rVar.cfgFpga == 0)	/* processor control */
   {
    if (rVar.indexPeriod != 0)
    {
     sprintf(buf, "%1.0f ",
-	    ((float) indexFreq / (uint32_t) rVar.indexPeriod) * 60);
+	    ((float) idxTmr.freq / (uint32_t) rVar.indexPeriod) * 60);
     putstrrem(buf);
    }
    else
@@ -407,17 +404,17 @@ void remcmd(void)
 
  case QUEMOVE:			/* que move operation */
  {
-  gethexrem();			/* save op code and flag */
-  parm = valRem;		/* save input value */
-  char rtn = getnumrem();	/* read parameter */
+  gethexRem(&parm);		/* save op code and flag */
+  T_INT_FLOAT intFloat;
+  char rtn = getnumRem(&intFloat); /* read parameter */
   if (rtn != NO_VAL)		/* if valid number */
   {
    if (rVar.setupDone)		/* if setup complete */
    {
     if (rtn == FLOAT_VAL)	/* if floating */
-     queMoveCmd(parm, fValRem);	/* que command */
+     queMoveCmd(parm, intFloat.f); /* que command */
     else			/* if integer */
-     queIntCmd(parm, valRem);	/* que command */
+     queIntCmd(parm, intFloat.i); /* que command */
    }
   }
  }
@@ -434,31 +431,19 @@ void remcmd(void)
 #define MAX_DBG_SIZE (2 + 1 + 1 + 8 + 1)
  case READDBG:
  {
-  gethexrem();
-  parm = valRem;
-  if (dbgcnt > 0)		/* if debug messages */
+  gethexRem(&parm);
+  if (dbgQue.count > 0)		/* if debug messages */
   {
    while (--parm >= 0)		/* while more requested */
    {
-    --dbgcnt;			/* count off a message */
-    P_DBGMSG p = &dbgdata[dbgemp]; /* get pointer to data */
-    dbgemp++;			/* update empty pointer */
-    if (dbgemp >= MAXDBGMSG)	/* if past end */
-     dbgemp = 0;		/* point back to beginning */
+    --dbgQue.count;		/* count off a message */
+    P_DBGMSG p = &dbgQue.data[dbgQue.emp]; /* get pointer to data */
+    dbgQue.emp++;		 /* update empty pointer */
+    if (dbgQue.emp >= MAXDBGMSG) /* if past end */
+     dbgQue.emp = 0;		/* point back to beginning */
 
-#if DBGMSG == 2
     sndhexrem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
-#else
-    int16_t count = sizeof(p->str); /* get maximum length */
-    char *p1 = p->str;		/* get poninter to string */
-    while (--count >= 0)	/* while not at end of buffer */
-    {
-     char ch = *p1++;		/* read a character */
-     if (ch == 0)		/* if null */
-      break;			/* exit loop */
-     putrem(ch);		/* output character */
-    }
-#endif
+
     putrem(' ');		/* output a space */
     if (p->val < 0)
     {
@@ -467,7 +452,7 @@ void remcmd(void)
     }
     sndhexrem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
     if ((remCtl.tx_count < (REM_TX_SIZE - MAX_DBG_SIZE)) /* if space */
-    &&  (dbgcnt != 0))		/* and more data */
+    &&  (dbgQue.count != 0))	/* and more data */
      putrem(' ');		/* output a space */
     else			/* if no more data */
      break;			/* exit loop */
@@ -493,7 +478,7 @@ void remcmd(void)
  }
 
 #if REM_ISR
- while (1)
+ while (true)
  {
   int tmp = getRem();
   if (tmp < 0)

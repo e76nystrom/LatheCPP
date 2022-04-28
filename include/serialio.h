@@ -15,6 +15,15 @@ enum RTN_VALUES
  FLOAT_VAL,
 };
 
+typedef struct s_intFloat
+{
+ union
+ {
+  int i;
+  float f;
+ };
+} T_INT_FLOAT, *P_INT_FLOAT;
+
 void newline(void);
 
 #define MAXDIG 10		/* maximum input digits */
@@ -34,8 +43,16 @@ unsigned char getnum(void);
 unsigned char getnumAll(void);
 unsigned char getfloat(void);
 
+unsigned char gethex(int *val);
+unsigned char getnum(int *val);
+unsigned char getnumAll(T_INT_FLOAT *val);
+unsigned char getfloat(float *val);
+
 char query(const char *format, ...);
 char query(unsigned char (*get)(), const char *format, ...);
+char query(unsigned char (*get)(int *), int *val, const char *format, ...);
+char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
+	   const char *format, ...);
 
 void prtbuf(unsigned char *p, int size);
 void prtibuf(int16_t *p, int size);
@@ -59,21 +76,16 @@ void putRem(char ch);
 void putstrRem(const char *p);
 void sndhexRem(const unsigned char *p, int size);
 int getRem(void);
-char gethexRem(void);
+char gethexRem(int *val);
 char getstrRem(char *buf, int bufLen);
-unsigned char getnumRem(void);
+unsigned char getnumRem(T_INT_FLOAT *val);
 
 //#endif
 
 /* debug message routines */
 
 #if DBGMSG
-#if DBGMSG == 2
 void dbgmsg(char dbg, int32_t val);
-#else
-void dbgmsg(char *str, int32_t val);
-void dbgmsgx(char *str, char reg, int32_t val);
-#endif	/* DBGMSG == 2 */
 void clrDbgBuf(void);
 #else
 #define dbgmsg(a, b)
@@ -100,18 +112,21 @@ void flushBuf(void);
 extern "C" ssize_t _write (int fd  __attribute__((unused)),
 			   const char* buf, size_t nbyte);
 
-EXT unsigned char *p;
-EXT int32_t val;
-EXT float fVal;
+typedef struct s_serVar
+{
+ char dbgBuffer;
 
-EXT int32_t valRem;
-EXT float fValRem;
+ char lineStart;
+ char lineLen;
+ char eolFlag;
+ char remCmdRcv;
 
-EXT char dbgBuffer;
+#if defined(MEGAPORT)
+ char megaRspRcv;
+#endif	/* MEGAPORT */
+} T_SER_VAR, *P_SER_VAR;
 
-EXT char lineStart;
-EXT char lineLen;
-EXT char eolFlag;
+EXT T_SER_VAR serial;
 
 #if defined(MEGAPORT)
 
@@ -120,9 +135,8 @@ void putMega(char ch);
 void putstrMega(const char *p);
 void sndhexMega(const unsigned char *p, int size);
 int getMega(void);
-char gethexMega(void);
+char gethexMega(int *val);
 
-EXT int32_t valMega;
 #endif	/* MEGAPORT */
 
 #if defined(STM32F4)
@@ -440,8 +454,6 @@ inline void megaTxIntDis()
 
 #define MAXDBGMSG 200
 
-#if DBGMSG == 2
-
 typedef struct
 {
  char dbg;
@@ -449,22 +461,15 @@ typedef struct
  int32_t time;
 } T_DBGMSG, *P_DBGMSG;
 
-#else
-
-typedef struct
+typedef struct s_dbgQue
 {
- char str[12];
- int32_t val;
- int32_t time;
-} T_DBGMSG, *P_DBGMSG;
+ int16_t count;
+ uint16_t fil;
+ uint16_t emp;
+ T_DBGMSG data[MAXDBGMSG];
+} T_DBG_QUE, *P_DBG_QUE;
 
-#endif	/* DBGMSG == 2 */
-
-EXT T_DBGMSG dbgdata[MAXDBGMSG];
-
-EXT int16_t dbgcnt;
-EXT uint16_t dbgfil;
-EXT uint16_t dbgemp;
+EXT T_DBG_QUE dbgQue;
 
 #endif	/* DBGMSG */
 

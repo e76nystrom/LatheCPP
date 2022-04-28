@@ -40,4 +40,5 @@ include/timers.h
 lathe-new.cpp.lst
 src/test.cpp
 STM32CubeIDE/*
-SrcX/*
+SrcNew/*
+cmake-build-debug/*

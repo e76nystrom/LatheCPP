@@ -226,6 +226,7 @@ extern "C" void encoderISR(void)
 extern "C" void jogISR(void)
 {
  BITWORD tmp;
+ tmp.w = 0;
  dbgJogIsrClr();
  if (EXTI->PR & (JogA1_Pin | JogB1_Pin)) /* if bit change */
  {
@@ -425,14 +426,14 @@ extern "C" void indexISR(void)
  static T_INDEX_COUNTER indexTmp;
 
  indexTmrStop();
- indexTmp.overflow = indexOverflow; /* copy overflow value */
+ indexTmp.overflow = idxTmr.overflow; /* copy overflow value */
  indexTmp.count = indexTmrRead(); /* read index timer */
  indexTmrStart();		/* restart counter */
- if (indexStart != 0)		/* if not the first index interrupt */
+ if (idxTmr.start != 0)		/* if not the first index interrupt */
  {
-  rVar.indexPeriod = indexTmp.period - indexStart; /* save to period */
+  rVar.indexPeriod = indexTmp.period - idxTmr.start; /* save to period */
  }
- indexStart = indexTmp.period;	/* set start for next period */
+ idxTmr.start = indexTmp.period;	/* set start for next period */
 
  if (trackSpeed)		/* if tracking speed */
   updateFeed = 1;		/* set to update the feed */
@@ -441,11 +442,11 @@ extern "C" void indexISR(void)
  {
   uint32_t tmp = (uint32_t) rVar.indexPeriod;
   tmp /= 10;
-  tmp = indexTrkFreq / tmp;
+  tmp = idxTmr.trkFreq / tmp;
   dbgTrk1L(tmp);
  }
- indexUpdateTime = millis();	/* set update time */
- indexTimeout = INDEX_TIMEOUT;	/* and timeout */
+ idxTmr.updateTime = millis();	/* set update time */
+ idxTmr.timeout = INDEX_TIMEOUT; /* and timeout */
  rVar.revCounter++;		/* increment revolution counter */
 
  if (rVar.spindleEncoder)	/* *ok* if using spindle encoder */
@@ -900,8 +901,8 @@ extern "C" void zTmrISR(void)
    }
    else				/* if not done */
    {
-    if (zRunoutFlag
-    &&  (zIsr.dist <= zRunoutStart)) /* if time to start runout */
+    if (runout.zFlag
+    &&  (zIsr.dist <= runout.zStart)) /* if time to start runout */
     {
      if (rVar.spindleEncoder == 0) /* *ok* if not using encoder */
      {
@@ -911,10 +912,10 @@ extern "C" void zTmrISR(void)
      }
      else			/* *chk* if using encoder */
      {
-      xIsr.active = xSyncInit;	/* set active flag to proper mode */
+      xIsr.active = syn.xSyncInit;	/* set active flag to proper mode */
       putBufStrIsr("R1");
      }
-     zRunoutFlag = 0;		/* clear flag */
+     runout.zFlag = 0;		/* clear flag */
      dbgRunoutSet();
     }
 
@@ -1052,7 +1053,7 @@ void xIsrStop(char ch)
   {
    dbgXOutClr();
    dbgmsg(D_XEDN, spEncCount);	/* send spindle encoder count */
-   if (spindleSync == 0)	/* *ok* using encodder directly */
+   if (syn.spindle == 0)	/* *ok* using encodder directly */
    {
     dbgmsg(D_XX, xIsr.x);
     dbgmsg(D_XY, xIsr.y);
@@ -1304,7 +1305,7 @@ extern "C" void cmpTmrISR(void)
   cmpTmrCap1ClrIF();		/* clear interrupt */
   cmpTmrOCP1Clr();		/* clear over capture flag */
 
-  if (encoderDirect)		/* if encoder direct */
+  if (syn.encoderDirect)		/* if encoder direct */
   {
 //   EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
    encISR();
@@ -1479,7 +1480,7 @@ extern "C" void indexTmrISR(void)
  if (indexTmrIF())		/* if index timer */
  {
   indexTmrClrIF();		/* clear interrupt flag */
-  indexOverflow++;		/* update overflow */
+  idxTmr.overflow++;		/* update overflow */
  }
 }
 

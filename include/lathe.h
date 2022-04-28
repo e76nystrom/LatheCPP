@@ -310,12 +310,20 @@ EXT T_SPINDLEISR sp;		/* spindle isr variables */
 
 EXT T_AXIS zAxis;		/* z axis info */
 
-EXT int zRunoutFlag;		/* z axis runout flag */
-EXT float zRunoutDist;		/* z runout distance */
-EXT unsigned int zRunoutStart;	/* z runout start step */
-EXT int zRunoutSteps;		/* z runout steps */
-
 EXT T_AXIS xAxis;		/* x axis info */
+
+typedef struct s_runout
+{
+ boolean active;		/* runout active */
+ boolean zFlag;			/* z axis runout flag */
+ boolean xFlag;			/* x runout in progress */
+ unsigned int zStart;		/* z runout start step */
+ float zDist;			/* z runout distance */
+ int zSteps;			/* z runout steps */
+ int xSteps;			/* x runout steps */
+} T_RUNOUT, *P_RUNOUT;
+
+EXT T_RUNOUT runout;
 
 EXT T_ACCEL zTA;		/* z threading accel */
 EXT T_ACCEL zPA;		/* z taper accel */
@@ -324,12 +332,7 @@ EXT T_ACCEL zJA;		/* z jog accel */
 EXT T_ACCEL zJSA;		/* z jog speed accel */
 EXT T_ACCEL zSA;		/* z slow jog accel */
 
-EXT boolean xRunoutFlag;	/* x runout in progress */
-EXT int xRunoutSteps;		/* x runout steps */
-
 EXT T_ZXISR zIsr;		/* z isr variables */
-
-EXT int16_t zSyncInit;		/* z sync init */
 
 EXT T_ACCEL xTA;		/* x threading accel */
 EXT T_ACCEL xPA;		/* x taper accel */
@@ -341,30 +344,36 @@ EXT T_ACCEL xSA;		/* x slow jog accel */
 
 EXT T_ZXISR xIsr;		/* x isr variables */
 
-EXT int16_t xSyncInit;		/* x sync init */
+enum eActive
+{
+ INACTIVE,
+ Z_ACTIVE,			/* z axis active */
+ X_ACTIVE,			/* x axis active */
+};
 
-#define Z_ACTIVE 1		/* z axis active */
-#define X_ACTIVE 2		/* x axis active */
+typedef struct s_sync
+{
+ char spindle;
+ char useEncoder;
+ char encoderDirect;
 
-EXT char runoutActive;		/* runout active */
-EXT char active;		/* axis driven by spindle */
-EXT char stepActive;		/* stepper active */
-EXT char encActive;		/* encoder active */
-EXT char synIntActive;		/* sync internal active */
-EXT char synExtActive;		/* sync external active */
+ int16_t zSyncInit;		/* z sync init */
+ int16_t xSyncInit;		/* x sync init */
 
-EXT int32_t tmrStepWidth;	/* step width */
-EXT int32_t tmrMin;		/* timer minimum width */
+// char active;			/* axis driven by spindle */
+ char stepActive;		/* stepper active */
+ char encActive;		/* encoder active */
+ char intActive;		/* sync internal active */
+ char extActive;		/* sync external active */
+} T_SYN_CTL, *P_SYN_CTL;
+
+EXT T_SYN_CTL syn;
 
 EXT int trackSpeed;		/* external motor track speed */
 EXT int updateFeed;		/* time to update feed */
 
-EXT unsigned int wdUpdateTime;	/* watchdog update time */
-EXT unsigned int wdTimeout;	/* watchdog timeout */
-EXT int wdState;		/* watchdog state */
-
-#define WD_INTERVAL 8		/* interval between watchdog pulses */
-#define WD_PULSE 2		/* watchdog pulse width */
+EXT int32_t tmrStepWidth;	/* step width */
+EXT int32_t tmrMin;		/* timer minimum width */
 
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
@@ -569,18 +578,19 @@ EXT T_MOVEQUE moveQue;
 
 EXT int16_t springInfo;
 
+#define WD_INTERVAL 8		/* interval between watchdog pulses */
+#define WD_PULSE 2		/* watchdog pulse width */
+
 #define MAX_TIMEOUT UINT_MAX
 #define REMCMD_TIMEOUT 1000U
 #define INDEX_TIMEOUT 1500U
 
+EXT unsigned int wdUpdateTime;	/* watchdog update time */
+EXT unsigned int wdTimeout;	/* watchdog timeout */
+EXT int wdState;		/* watchdog state */
+
 EXT unsigned int remcmdUpdateTime;
 EXT unsigned int remcmdTimeout;
-
-EXT unsigned int indexUpdateTime;
-
-EXT char spindleSync;
-EXT char useEncoder;
-EXT char encoderDirect;
 
 typedef struct
 {
@@ -598,15 +608,22 @@ typedef struct
  };
 } T_INDEX_COUNTER;
 
-EXT int indexTmrPreScale;	/* index timer prescaler */
-EXT int indexTmrCount;		/* index timer count */
-EXT int indexTmrAct;		/* index timer active */
-EXT unsigned int indexTimeout;
+typedef struct s_indexTmr
+{
+ int indexTmrPreScale;		/* index timer prescaler */
 
-EXT uint16_t indexOverflow;	/* index counter overflow */
-EXT uint32_t indexStart;	/* index period start count */
-EXT uint32_t indexTrkFreq;	/* freq for dbgTrk rpm calculation */
-EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
+ int tmrCount;			/* index timer count */
+ int tmrAct;			/* index timer active */
+ unsigned int timeout;
+ unsigned int updateTime;
+
+ uint16_t overflow;		/* index counter overflow */
+ uint32_t start;		/* index period start count */
+ uint32_t trkFreq;		/* freq for dbgTrk rpm calculation */
+ uint32_t freq;			/* freq for remcmd rpm calculation */
+} T_INDEX_TMR, *P_INDEX_TMR;
+
+EXT T_INDEX_TMR idxTmr;
 
 EXT int lcdRow;
 EXT int lcdActive;

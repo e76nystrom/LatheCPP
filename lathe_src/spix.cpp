@@ -603,7 +603,11 @@ void spiMasterStart()
 {
  spiCtl.state = 0;
  spiCtl.timer = millis();
+#if defined(STM32F4)
  SPIn->CR2 |= SPI_CR2_TXEIE | SPI_CR2_RXNEIE;
+#endif
+#if defined(STM32H7)
+#endif
  SPIn->CR1 |= SPI_CR1_SPE;
  spiSelClr();
 }
@@ -612,7 +616,9 @@ void spiMasterReset()
 {
  spiSelSet();
  SPIn->CR1 &= ~SPI_CR1_SPE;
+#if defined(STM32F4)
  SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
+#endif
  spiCtl.state = 0;
 }
 
@@ -620,6 +626,7 @@ extern "C" void spiISR(void)
 {
  dbgSpiIsrSet();
  SPI_TypeDef *spi = SPIn;
+#if defined(STM32F4)
  if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
  {
   char ch = spi->DR;
@@ -673,6 +680,7 @@ extern "C" void spiISR(void)
    spi->DR = 0;
   }
  }
+#endif
  dbgSpiIsrClr();
 }
 

@@ -19,7 +19,8 @@
 #include "zcontrol.h"
 #include "xcontrol.h"
 #include "encoder.h"
-#if DBGMSG == 2
+
+#if DBGMSG
 extern const char *dMessageList[];
 #endif
 
@@ -85,15 +86,16 @@ void loadregb(char addr, char val)
 
 void lclcmdX(int ch)
 {
+ int val;
  if (ch == 'd')			/* dump memory */
  {
   putx(' ');
-  if (gethex())
+  if (gethex(&val))
   {
    unsigned char *p;
 
    p = (unsigned char *) (int) val;
-   if (gethex())
+   if (gethex(&val))
    {
     newline();
     prtbuf(p,val);
@@ -104,18 +106,13 @@ void lclcmdX(int ch)
  else if (ch == 'D')		/* dump dbg buffer */
  {
   newline();
-  int empty = dbgemp;
-  for (int i = 0; i < dbgcnt; i++)
+  int empty = dbgQue.emp;
+  for (int i = 0; i < dbgQue.count; i++)
   {
-   P_DBGMSG p = &dbgdata[empty];
+   P_DBGMSG p = &dbgQue.data[empty];
    float t = (float) p->time / 1000;
-#if DBGMSG == 2
    printf("%8.3f %7s %8x %12d\n", t, dMessageList[(int) p->dbg],
 	  (unsigned int) p->val, (int) p->val);
-#else
-   printf("%8.3f %8s %8x %12d\n", t, p->str,
-	  (unsigned int) p->val, (int) p->val);
-#endif
    empty++;
    if (empty >= MAXDBGMSG)
     empty = 0;
@@ -137,10 +134,10 @@ void lclcmdX(int ch)
  {
   printf(" counts ");
   fflush(stdout);
-  if (getnum())
+  if (getnum(&val))
   {
    encInit();
-   encRunCount = val;
+   rVar.encRunCount = val;
    encStart(true);
   }
   else
@@ -158,7 +155,7 @@ void lclcmdX(int ch)
  else if (ch == 't')
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
   {
    newline();
    int i;
@@ -202,7 +199,7 @@ void lclcmdX(int ch)
  else if (ch == 'r')		/* read memory */
  {
   putx(' ');
-  if (gethex())
+  if (gethex(&val))
   {
    printf("%x",*(int16_t *) (int) val);
   }
@@ -210,12 +207,12 @@ void lclcmdX(int ch)
  else if (ch == 'w')		/* write memory */
  {
   putx(' ');
-  if (gethex())
+  if (gethex(&val))
   {
    int16_t *p;
    p = (int16_t *) (int) val;
    printf(" %x ",*p);
-   if (gethex())
+   if (gethex(&val))
    {
     *p = val;
    }
@@ -224,13 +221,13 @@ void lclcmdX(int ch)
  else if (ch == 'a')		/* set command address */
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
    addr = val;
  }
  else if (ch == 'g')		/* read spi data */
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
   {
    addr = val;			/* save address */
    read1(addr);			/* read from device */
@@ -240,11 +237,11 @@ void lclcmdX(int ch)
  else if (ch == 'G')		/* read spi repeatedly */
  {
   putx(' ');
-  if (getnum())			/* enter address */
+  if (getnum(&val))			/* enter address */
   {
    addr = val;			/* save address */
    putx(' ');
-   if (getnum())		/* enter number of tries */
+   if (getnum(&val))		/* enter number of tries */
    {
     newline();
     int16_t i = (int16_t) val;
@@ -268,14 +265,14 @@ void lclcmdX(int ch)
  {
   printf(" addr ");
   fflush(stdout);
-  if (getnum())			/* read address */
+  if (getnum(&val))			/* read address */
   {
    addr = val;
    printf(" data ");
    fflush(stdout);
-   if (getnum())		/* read data */
+   if (getnum(&val))		/* read data */
    {
-    printf("\nsending addr %x %10ld val %8lx",addr,val,val);
+    printf("\nsending addr %x %10d val %8lx", addr, val, (unsigned long) val);
     LOAD(addr,val);
    }
   }
@@ -284,7 +281,7 @@ void lclcmdX(int ch)
  else if (ch == 'p')		/* set print flag */
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
   {
    print = val;
   }
@@ -300,7 +297,7 @@ void lclcmdX(int ch)
  else if (ch == 'x')		/* move x rel */
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
   {
    xMoveRelX(val, CMD_MOV);
   }
@@ -308,7 +305,7 @@ void lclcmdX(int ch)
  else if (ch == 'z')		/* move z rel */
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
   {
    zMoveRelX(val, CMD_MOV);
   }
@@ -316,7 +313,7 @@ void lclcmdX(int ch)
  else if (ch == 'u')		/* send debug message */
  {
   putx(' ');
-  if (getnum())
+  if (getnum(&val))
   {
    dbgmsg(D_TEST, val);
   }

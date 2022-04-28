@@ -204,6 +204,14 @@ unsigned int lcdRetryDelay;
 #define DATA_SIZE 1
 
 #if DATA_SIZE
+#if defined(CLION)
+#define __bss_start__ _sbss
+#define __bss_end__ _ebss
+#define __data_start__ _sdata
+#define __data_end__ _edata
+#define __stack _estack
+#define __Main_Stack_Limit _end
+#endif	/* CLION */
 extern char __bss_start__;
 extern char __bss_end__;
 extern char __data_start__;
@@ -252,16 +260,16 @@ void mainLoopSetup(void)
  if constexpr (USEC_TIMER == INDEX_TIMER)
  {
   indexTmrScl((tmrClkFreq / 1000000U) - 1); /* load scaler */
-  indexFreq = 1000000U;
+  idxTmr.freq = 1000000U;
  }
 // #else
  {
   indexTmrScl(0);
-  indexFreq = tmrClkFreq;
+  idxTmr.freq = tmrClkFreq;
  }
 // #endif
 
- indexTrkFreq = indexFreq * 6;
+ idxTmr.trkFreq = idxTmr.freq * 6;
  indexTmrClrIF();
  indexTmrSetIE();
  indexTmrInit();
@@ -791,7 +799,7 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
  stacked_pc = ((unsigned long) hardfault_args[6]);
  stacked_psr = ((unsigned long) hardfault_args[7]);
 
- dbgBuffer = 0;
+ serial.dbgBuffer = 0;
 
  printf("\n\n[Hard fault handler - all numbers in hex]\n");
  printf("R0 = %x\n", stacked_r0);

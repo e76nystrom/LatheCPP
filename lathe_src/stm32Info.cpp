@@ -965,7 +965,8 @@ char query(unsigned char (*get)(), const char *format, ...)
 
 void info()
 {
- if (query(&getNum, " flag [0x%x]: ", lastFlags) == 0)
+ int val;
+ if (query(&getNum, &val, " flag [0x%x]: ", lastFlags) == 0)
  {
   val = lastFlags;
  }
