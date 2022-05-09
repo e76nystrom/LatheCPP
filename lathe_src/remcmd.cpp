@@ -1,4 +1,3 @@
-//#if !defined(INCLUDE)
 #define __REMCMD__
 #if !defined(WIN32)
 #ifdef STM32F4
@@ -16,6 +15,7 @@
 #include "lathe.h"
 
 #include "Xilinx.h"
+
 #if !defined(WIN32)
 #include "serialio.h"
 #include "spix.h"
@@ -28,7 +28,10 @@
 
 #define EXT
 #include "remcmd.h"
-//#endif
+
+#if defined(MEGAPORT)
+#include "megaCmdList.h"
+#endif	/* MEGAPORT */
 
 #if defined(__REMCMD_INC__)	// <-
 
@@ -37,29 +40,10 @@
 #endif
 
 #define REM_ISR 1		/* remote port using isr */
-
-#if REM_ISR
-#define putrem putRem
-#define putstrrem putstrRem
-#define sndhexrem sndhexRem
-#define getrem getRem
-#define gethexrem() gethexRem()
-#define getnumrem getnumRem
-#define getstrrem getstrRem
-#else
-#define putrem putx1
-#define putstrrem putstr1
-#define sndhexrem sndhex1
-#define getrem get1
-#define gethexrem gethex1
-#define getnumrem getnum1
-#define getstrrem getstr1
-#endif
-
 #define DBG_LOAD 1
 
-void remcmd(void);
-void loadVal(void);
+void remcmd();
+void loadVal();
 
 #include "remCmdList.h"
 #include "remParmList.h"
@@ -115,11 +99,11 @@ void xMoveRel(int dist)
 {
 }
 
-#endif
+#endif	/* WIN32 */
 
 #include "remParm.h"
 
-void loadVal(void)
+void loadVal()
 {
  int parm;
  gethexRem(&parm);		/* read the parameter number */
@@ -127,7 +111,7 @@ void loadVal(void)
  {
   T_INT_FLOAT intFloat;
   T_DATA_UNION parmVal;
-  int type = getnumrem(&intFloat); /* get the value */
+  int type = getnumRem(&intFloat); /* get the value */
   if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
@@ -147,7 +131,7 @@ void loadVal(void)
  }
 }
 
-void remcmd(void)
+void remcmd()
 {
  dbgRemCmdSet();
  int parm;
@@ -156,9 +140,9 @@ void remcmd(void)
  remcmdUpdateTime = millis();
  remcmdTimeout = REMCMD_TIMEOUT;
 
- putrem('-');
+ putRem('-');
  gethexRem(&parm);		/* read parameter */
-  switch (parm)
+ switch (parm)
  {
  case ZMOVEABS:
   zMoveAbsCmd();
@@ -273,7 +257,7 @@ void remcmd(void)
  break;
 
  case CMD_SPSETUP:
-  spindleSetup(rVar.spMaxRpm);
+  spindleSetup((int) rVar.spMaxRpm);
  break;
 
  case CMD_SYNCSETUP:
@@ -307,7 +291,7 @@ void remcmd(void)
  {
   int tmpval = zMoveCtl.state;
   tmpval |= xMoveCtl.state << 4;
-  sndhexrem((unsigned char *) &tmpval, sizeof(tmpval));
+  sndhexRem((unsigned char *) &tmpval, sizeof(tmpval));
  }
  break;
 
@@ -333,7 +317,7 @@ void remcmd(void)
   int size = remParm[parm];
   printf("r p %2x s %d v %8x\n",
 	 (unsigned int) parm, size, parmVal.t_unsigned_int);
-  sndhexrem((unsigned char *) &parmVal.t_char, size); /* send the response */
+  sndhexRem((unsigned char *) &parmVal.t_char, size); /* send the response */
  }
  break;
 
@@ -351,7 +335,7 @@ void remcmd(void)
   gethexRem(&parm);		/* save the parameter number */
   //   read(parm);		/* read the xilinx register */
   read1(parm);			/* read the xilinx register */
-  sndhexrem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
+  sndhexRem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
  }
  break;
 
@@ -362,39 +346,39 @@ void remcmd(void)
 //  {
   // sprintf(buf, "%0.4f ", ((float) zLoc) / zAxis.stepsInch);
   sprintf(buf, "%d ", rVar.zLoc);
-  putstrrem(buf);
+  putstrRem(buf);
 //  }
 //  else
-//   putstrrem("# ");
+//   putstrRem("# ");
 
 //  if (xAxis.stepsInch != 0)
 //  {
   // sprintf(buf, "%0.4f ", ((float) xLoc) / xAxis.stepsInch);
   sprintf(buf, "%d ", rVar.xLoc);
-  putstrrem(buf);
+  putstrRem(buf);
 //  }
 //  else
-//   putstrrem("# ");
+//   putstrRem("# ");
 
   if (rVar.cfgFpga == 0)	/* processor control */
   {
    if (rVar.indexPeriod != 0)
    {
     sprintf(buf, "%1.0f ",
-	    ((float) idxTmr.freq / (uint32_t) rVar.indexPeriod) * 60);
-    putstrrem(buf);
+	    ((float) idxTmr.freq / (float) rVar.indexPeriod) * 60);
+    putstrRem(buf);
    }
    else
-    putstrrem("0 ");
+    putstrRem("0 ");
   }
   else				/* xilinx control */
   {
-   putstrrem("0 ");
+   putstrRem("0 ");
   }
 
   sprintf(buf, "%d %d %d %d",
 	  runCtl.pass, rVar.zDroLoc, rVar.xDroLoc, rVar.mvStatus);
-  putstrrem(buf);
+  putstrRem(buf);
  }
  break;
 
@@ -423,7 +407,7 @@ void remcmd(void)
  case MOVEQUESTATUS:		/* get move queue status */
  {
   parm = MAX_CMDS - moveQue.count; /* calculate amount empty */
-  sndhexrem((unsigned char *) &parm, sizeof(parm)); /* send it back */
+  sndhexRem((unsigned char *) &parm, sizeof(parm)); /* send it back */
  }
  break;
 
@@ -442,18 +426,18 @@ void remcmd(void)
     if (dbgQue.emp >= MAXDBGMSG) /* if past end */
      dbgQue.emp = 0;		/* point back to beginning */
 
-    sndhexrem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
+    sndhexRem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
 
-    putrem(' ');		/* output a space */
+    putRem(' ');		/* output a space */
     if (p->val < 0)
     {
-     putrem('-');
+     putRem('-');
      p->val = -p->val;
     }
-    sndhexrem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
+    sndhexRem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
     if ((remCtl.tx_count < (REM_TX_SIZE - MAX_DBG_SIZE)) /* if space */
     &&  (dbgQue.count != 0))	/* and more data */
-     putrem(' ');		/* output a space */
+     putRem(' ');		/* output a space */
     else			/* if no more data */
      break;			/* exit loop */
    }
@@ -464,7 +448,7 @@ void remcmd(void)
  case CLRDBG:
   clrDbgBuf();
  break;
-#endif
+#endif	/* DBGMSG */
 
 #if ENCODER
  case ENCSTART:
@@ -474,8 +458,27 @@ void remcmd(void)
  case ENCSTOP:
   encStop();
  break;
-#endif
+#endif	/* ENCODER */
+
+#if defined(MEGAPORT)
+
+ case SET_MEGA_VAL:
+ {
+  putMega(1);
+  char ch = MEGA_SET_VAL;
+  sndhexMega((const unsigned char *) &ch, sizeof(ch), ' ');
+  gethexRem(&parm);		/* read parameter */
+  sndhexMega((const unsigned char *) &parm, sizeof(parm), ' ');
+  gethexRem(&val);		/* read value */
+  sndhexMega((const unsigned char *) &val, sizeof(val), '\r');
  }
+  break;
+
+#endif  /* MEGAPORT */
+  default:
+   printf("remcmd default\n");
+   break;
+ } /* switch */
 
 #if REM_ISR
  while (true)
@@ -491,11 +494,11 @@ void remcmd(void)
   printf("extra char %d\n", tmp);
   flushBuf();
  }
-#endif
+#endif	/* REM_ISR */
 
 // flushBuf();
- putrem('*');
+ putRem('*');
  dbgRemCmdClr();
 }
 
-#endif
+#endif	/* __REMCMD__ */

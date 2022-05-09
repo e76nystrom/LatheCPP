@@ -222,7 +222,7 @@ typedef struct sRemVar
  char cfgMpg;                   /* 0x7b manual pulse generator */
  char cfgDro;                   /* 0x7c digital readout */
  char cfgLcd;                   /* 0x7d lcd display */
- int cfgFcy;                    /* 0x7e system clock speed */
+ unsigned int cfgFcy;           /* 0x7e system clock speed */
  int cfgSwitch;                 /* 0x7f spindle off on switch */
  int cfgVarSpeed;               /* 0x80 spindle variable speed */
 
@@ -277,7 +277,7 @@ typedef struct sRemVar
  int32_t thZStart;              /* 0x94 threading z start */
  int32_t thXStart;              /* 0x95 threading x start */
  float tanThreadAngle;          /* 0x96 tan of threading angle */
- int16_t xFeed;                 /* 0x97 x feed */
+ int32_t xFeed;                 /* 0x97 x feed */
  float runoutDistance;          /* 0x98 runout distance */
  float runoutDepth;             /* 0x99 runout depth */
 
@@ -287,7 +287,7 @@ typedef struct sRemVar
 
 // motor and speed control
 
- int16_t pwmFreq;               /* 0x9b spindle speed pwm frequency */
+ unsigned int pwmFreq;          /* 0x9b spindle speed pwm frequency */
  int16_t minSpeed;              /* 0x9c min speed for current range */
  int16_t maxSpeed;              /* 0x9d max speed for current range */
 
@@ -336,7 +336,9 @@ typedef struct sRemVar
  int arcZStart;                 /* 0xb4 arc z start */
  int arcXEnd;                   /* 0xb5 arc x center */
  int arcZEnd;                   /* 0xb6 arc z center */
- int16_t maxParm;               /* 0xb7 maximum parameter */
+ char megaVfd;                  /* 0xb7 mega vfd speed mode */
+ char megaSim;                  /* 0xb8 mega encoder lines */
+ int16_t maxParm;               /* 0xb9 maximum parameter */
 } T_REM_VAR, *P_REM_VAR;
 
 extern T_REM_VAR rVar;

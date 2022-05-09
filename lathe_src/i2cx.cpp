@@ -1,7 +1,7 @@
 //#if !defined(INCLUDE)
 #define __I2C__
-#include <stdio.h>
-#include <limits.h>
+#include <cstdio>
+#include <climits>
 
 #ifdef STM32F1
 #include "stm32f1xx_hal.h"
@@ -28,7 +28,7 @@
 
 #if defined(STM32MON)
 
-unsigned int millis(void);
+unsigned int millis();
 #define SLAVE_ADDRESS 0x7e
 
 #else  /* STM32MON */
@@ -64,11 +64,11 @@ void i2cWrite(uint8_t);
 #endif	/* STM32F1 || STM32F4 */
 void i2cWrite(uint8_t *data, uint16_t size);
 
-void i2cWaitBusy(void);
+void i2cWaitBusy();
 void i2cPut(uint8_t ch);
 void i2cPutString(uint8_t *p, int size);
-void i2cSend(void);
-void i2cControl(void);
+void i2cSend();
+void i2cControl();
 
 enum I2C_STATES
 {
@@ -262,7 +262,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
 
  I2C_DEV->DR = SLAVE_ADDRESS;
 
- while (1)
+ while (true)
  {
   if ((I2C_DEV->SR1 == (I2C_SR1_ADDR | I2C_SR1_TXE))
   &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
@@ -282,7 +282,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
   size -= 1;
   i2c_SendData(I2C_DEV, *data++);
 
-  while (1)
+  while (true)
   {
    if ((I2C_DEV->SR1 == (I2C_SR1_BTF | I2C_SR1_TXE))
    &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
@@ -358,11 +358,11 @@ void i2cWrite(uint8_t *data, uint16_t size)
 
 #endif	/* STM32H7 */
 
-void i2cWaitBusy(void)
+void i2cWaitBusy()
 {
  unsigned int timeout = 20;
  unsigned int start = millis();
- while (1)
+ while (true)
  {
   if (i2cNotBusy())
    break;
@@ -397,7 +397,7 @@ void i2cPutString(uint8_t *p, int size)
   int fill = i2c->fil;		/* temp copy of fill pointer */
   uint8_t *dst = &i2c->buffer[fill]; /* get pointer to data buffer */
   // while (i2c->count < I2C_BUF_SIZE) /* if room */
-  while (1)
+  while (true)
   {
    --size;			/* count of size */
    if (size < 0)		/* if done */
@@ -415,7 +415,7 @@ void i2cPutString(uint8_t *p, int size)
  }
 }
 
-void i2cSend(void)
+void i2cSend()
 {
  P_I2C_CTL i2c = &i2cCtl;
  i2c->timeout = I2CX_TIMEOUT;
@@ -425,7 +425,7 @@ void i2cSend(void)
  i2c->lastState = I_IDLE;
 }
 
-void i2cControl(void)
+void i2cControl()
 {
  P_I2C_CTL i2c = &i2cCtl;
 
@@ -561,7 +561,7 @@ void i2cControl(void)
 #endif	/* STM32F1 || STM32F4 */
   break;
 
- case I_WAIT_DATA:		/* 0x05 wait for data to be send */
+ case I_WAIT_DATA:		/* 0x05 wait for data to be sent */
   if (i2cDataSent())
   {
    i2c->state = I_SEND_DATA;

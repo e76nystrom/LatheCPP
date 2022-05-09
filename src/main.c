@@ -70,6 +70,7 @@ void mainLoop(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  RCC->CFGR = 0;
 
   /* USER CODE END 1 */
 
@@ -106,8 +107,8 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI3_Init();
   MX_TIM6_Init();
-  MX_IWDG_Init();
   MX_TIM9_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
   mainLoop();

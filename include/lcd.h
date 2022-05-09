@@ -46,7 +46,7 @@
 #define Rw 0b00000010 // Read/Write bit
 #define Rs 0b00000001 // Register select bit
 
-void lcdInit(void);
+void lcdInit();
 void command(uint8_t val);
 void pulseEnable(uint8_t val);
 

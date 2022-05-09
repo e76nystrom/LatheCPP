@@ -9,11 +9,11 @@ void i2cWrite(uint8_t);
 #endif	/* STM32F1 || STM32F4 */
 void i2cWrite(uint8_t *data, uint16_t size);
 
-void i2cWaitBusy(void);
+void i2cWaitBusy();
 void i2cPut(uint8_t ch);
 void i2cPutString(uint8_t *p, int size);
-void i2cSend(void);
-void i2cControl(void);
+void i2cSend();
+void i2cControl();
 
 enum I2C_STATES
 {

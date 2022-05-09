@@ -121,7 +121,7 @@ dbgList = \
  ("dbgS4Isr",  "", "step 4 isr"), \
  ("dbgS5Isr",  "", "step 5 isr"), \
 
- ("dbgJogIsr",  "6", "jog isr transition put in queue"), \
+ ("dbgJogIsr",  "", "jog isr transition put in queue"), \
  ("dbgJogMPG0", "", "jog idle queue checked"), \
  ("dbgJogMPG1", "", "jog moving all cases"), \
  ("dbgJogMPG2", "", "jog moving isr done start again"), \
@@ -148,9 +148,14 @@ dbgList = \
  ("dbgZJogDir", "", "jog direction change"),\
  ("dbgMpgBackL","", "jog backlash"),\
 
- ("dbgSpiIsr",  "0", "spi isr"), \
- ("dbgProcMove","1", "debug procMove"), \
- ("dbgSyncResp","2", "sync response"), \
+ ("dbgSpiIsr",  "", "spi isr"), \
+ ("dbgProcMove","", "debug procMove"), \
+ ("dbgSyncResp","", "sync response"), \
+
+ ("dbgMegaTx",   "0", "mega tx"), \
+ ("dbgMegaRx",   "1", "mega rx"), \
+ ("dbgMegaRsp",  "2", "mega rsp"), \
+ ("dbgMegaWait", "3", "mega wait"), \
  )
  #("","",""), \
 

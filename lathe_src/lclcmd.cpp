@@ -48,11 +48,8 @@ EXT int xDist;
 #endif	// ->
 #ifdef __LCLCMD__
 
-extern const char *dMessageList[];
-
-void zCommand(void);
-void xCommand(void);
-void pinDisplay(void);
+void zCommand();
+void xCommand();
 
 //uint32_t lastFlags;
 
@@ -96,9 +93,9 @@ T_PORT_LIST portList[] =
 typedef struct s_output_pin
 {
  int pin;
- void (*set) (void);
- void (*clr) (void);
- uint16_t (*read) (void);
+ void (*set) ();
+ void (*clr) ();
+ uint16_t (*read) ();
 } T_OUTPUT_PIN, *P_OUTPUT_PIN;
 
 T_OUTPUT_PIN outputPins[] =
@@ -283,7 +280,7 @@ void lclcmd(int ch)
   {
    if (dbgRxReady())
    {
-    ch = dbgRxRead();
+    ch = (char) dbgRxRead();
     if (ch == 3)
      break;
    }
@@ -535,8 +532,8 @@ void lclcmd(int ch)
      if (query(&getnum, &val, "invert "))
       invert = val != 0;
 
-     int set = (((reg & mask) != 0) ^ invert);
-     int clr = (((reg & mask) == 0) ^ invert);
+     unsigned int set = (((reg & mask) != 0) ^ invert);
+     unsigned int clr = (((reg & mask) == 0) ^ invert);
 
      printf("\nreg %02x mask %02x invert %02x set %d clr %d",
 	    reg, mask, invert, set, clr);
@@ -570,7 +567,7 @@ void lclcmd(int ch)
     for (int i = 1; i < 8; i++)
     {
      printf("\n");
-     float speed = factor[i] * 20.0;
+     float speed = factor[i] * 20.0f;
      speedCalc(&zJSA, &zIsr, speed);
     }
    }
@@ -624,12 +621,12 @@ void lclcmd(int ch)
     flushBuf();
     P_JOGQUE jog = &zJogQue;
     putBufChar('z');
-    while (1)
+    while (true)
     {
      char dir = 0;
      if (dbgRxReady())
      {
-      ch = dbgRxRead();
+      ch = (char) dbgRxRead();
       if (ch == 3)
        break;
 
@@ -690,7 +687,7 @@ void lclcmd(int ch)
     ch = query("\nPort: ");
     unsigned int i;
     P_PORT_LIST p = portList;
-    GPIO_TypeDef *port = 0;
+    GPIO_TypeDef *port = nullptr;
     for (i = 0; i < sizeof(portList) / sizeof(T_PORT_LIST); i++)
     {
      if (ch == p->ch)
@@ -700,9 +697,9 @@ void lclcmd(int ch)
       break;
      }
     }
-    if (port != 0)
+    if (port != nullptr)
     {
-     int modeSave = port->MODER;
+     unsigned int modeSave = port->MODER;
      gpioInfo(port);
      if (query(&gethex, &val, "\nbit: "))
      {
@@ -730,7 +727,7 @@ void lclcmd(int ch)
     ch = query("\nPort: ");
     unsigned int i;
     P_PORT_LIST p = portList;
-    GPIO_TypeDef *port = 0;
+    GPIO_TypeDef *port = nullptr;
     for (i = 0; i < sizeof(portList) / sizeof(T_PORT_LIST); i++)
     {
      if (ch == p->ch)
@@ -740,7 +737,7 @@ void lclcmd(int ch)
       break;
      }
     }
-    if (port != 0)
+    if (port != nullptr)
     {
      if (query(&gethex, &val, "\nmask: "))
      {
@@ -876,7 +873,7 @@ void lclcmd(int ch)
      printf(" %x ", *p);
      if (gethex(&val))
      {
-      *p = val;
+      *p = (int16_t) val;
      }
     }
    }
@@ -1024,7 +1021,7 @@ void lclcmd(int ch)
      int16_t i = TRKBUFSIZE;
      while (--i >= 0)
      {
-      int16_t tmp = (int16_t) (*(int16_t *) &trkbuf[idx]);
+      auto tmp = (int16_t) (*(int16_t *) &trkbuf[idx]);
       printf("%4d %6d %4x\n", idx, tmp, (uint16_t) tmp);
       idx += 1;
       idx &= (TRKBUFSIZE - 1);
@@ -1038,10 +1035,10 @@ void lclcmd(int ch)
       int *p = (int *) &trkbuf[idx];
       if (DBGTRK1L1)
       {
-       MPG_VAL val;
-       val.intVal = *p;
+       MPG_VAL mpgVal;
+       mpgVal.intVal = *p;
        printf("%4d x%08x %2d %8d\n",
-	      idx, (unsigned int) val.intVal, val.dir, val.delta);
+	      idx, (unsigned int) mpgVal.intVal, mpgVal.dir, mpgVal.delta);
       }
       else
       {
@@ -1070,7 +1067,7 @@ void lclcmd(int ch)
      int16_t i = sizeof(trkbuf) / (2 * sizeof(int16_t) + sizeof(int));
      while (--i >= 0)
      {
-      int16_t *p = (int16_t *) &trkbuf[idx];
+      auto *p = (int16_t *) &trkbuf[idx];
       int16_t tmp0 = *p++;
       int16_t tmp1 = *p++;
       int tmp2 = *((int32_t *) p);
@@ -1157,12 +1154,12 @@ void lclcmd(int ch)
  }
 }
 
-void zCommand(void)
+void zCommand()
 {
  int val;
  float fVal;
  newline();
- while (1)
+ while (true)
  {
   putBufChar('>');
   char ch = getx();
@@ -1271,7 +1268,7 @@ void zCommand(void)
  }
 }
 
-void xCommand(void)
+void xCommand()
 {
 }
 

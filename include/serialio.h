@@ -6,8 +6,6 @@
 
 #define DBGMSG 2
 
-void wdUpdate(void);
-
 enum RTN_VALUES
 {
  NO_VAL,
@@ -15,16 +13,13 @@ enum RTN_VALUES
  FLOAT_VAL,
 };
 
-typedef struct s_intFloat
+typedef union s_intFloat
 {
- union
- {
-  int i;
-  float f;
- };
+ int i;
+ float f;
 } T_INT_FLOAT, *P_INT_FLOAT;
 
-void newline(void);
+void newline();
 
 #define MAXDIG 10		/* maximum input digits */
 
@@ -36,12 +31,12 @@ write (int handle, const char *buffer, int len);
 void putx(char c);
 void putstr(const char *p);
 void sndhex(unsigned char *p, int size);
-char getx(void);
-unsigned char gethex(void);
+char getx();
+unsigned char gethex();
 char getstr(char *buf, int bufLen);
-unsigned char getnum(void);
-unsigned char getnumAll(void);
-unsigned char getfloat(void);
+unsigned char getnum();
+unsigned char getnumAll();
+unsigned char getfloat();
 
 unsigned char gethex(int *val);
 unsigned char getnum(int *val);
@@ -63,19 +58,22 @@ void prtibuf(int16_t *p, int size);
 
 void putx1(char c);
 void putstr1(const char *p);
+
+#if 0
 void sndhex1(unsigned char *p, int size);
-char gethex1(void);
-char getx1(void);
+char gethex1();
+char getx1();
 char getstr1(char *buf, int bufLen);
-unsigned char getnum1(void);
+unsigned char getnum1();
+#endif
 
 /* interrupt remote port routines */
 
-void initRem(void);
+void initRem();
 void putRem(char ch);
 void putstrRem(const char *p);
 void sndhexRem(const unsigned char *p, int size);
-int getRem(void);
+int getRem();
 char gethexRem(int *val);
 char getstrRem(char *buf, int bufLen);
 unsigned char getnumRem(T_INT_FLOAT *val);
@@ -85,8 +83,8 @@ unsigned char getnumRem(T_INT_FLOAT *val);
 /* debug message routines */
 
 #if DBGMSG
-void dbgmsg(char dbg, int32_t val);
-void clrDbgBuf(void);
+void dbgmsg(char dbg, int val);
+void clrDbgBuf();
 #else
 #define dbgmsg(a, b)
 #define dbgmsgx(a, b, c)
@@ -94,9 +92,9 @@ void clrDbgBuf(void);
 
 /* debug port buffered character routines */
 
-extern "C" void remoteISR(void);
+extern "C" void remoteISR();
 
-void initCharBuf(void);
+void initCharBuf();
 void putBufChar(char ch);
 void putBufCharIsr(char ch);
 void putBufCharX(char ch);
@@ -104,8 +102,8 @@ void putBufStr(const char *s);
 void putBufStrX(const char *s);
 void sndhexIsr(unsigned char *p, int size);
 void putBufStrIsr(const char *s);
-int pollBufChar(void);
-void flushBuf(void);
+int pollBufChar();
+void flushBuf();
 
 /* printf output */
 
@@ -130,11 +128,11 @@ EXT T_SER_VAR serial;
 
 #if defined(MEGAPORT)
 
-void initMega(void);
+void initMega();
 void putMega(char ch);
 void putstrMega(const char *p);
-void sndhexMega(const unsigned char *p, int size);
-int getMega(void);
+void sndhexMega(const unsigned char *p, int size, unsigned char end);
+int getMega();
 char gethexMega(int *val);
 
 #endif	/* MEGAPORT */
@@ -458,7 +456,7 @@ typedef struct
 {
  char dbg;
  int32_t val;
- int32_t time;
+ uint32_t time;
 } T_DBGMSG, *P_DBGMSG;
 
 typedef struct s_dbgQue
@@ -498,6 +496,13 @@ EXT T_REMCTL remCtl;
 #define MEGA_TX_SIZE 40
 #define MEGA_RX_SIZE 40
 
+enum MEGA_STATE
+{
+ MEGA_ST_IDLE,
+ MEGA_ST_START,
+ MEGA_ST_DATA,
+};
+
 typedef struct
 {
  int tx_fil;
@@ -509,6 +514,7 @@ typedef struct
  int rx_count;
  char rx_buffer[MEGA_RX_SIZE];
  int state;
+ int txWait;
  uint32_t timer;
 } T_MEGACTL, *P_MEGACTL;
 

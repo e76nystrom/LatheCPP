@@ -89,8 +89,8 @@ typedef union
 #endif
 
 #ifdef __cplusplus
-void spisel(void);
-void spirel(void);
+void spisel();
+void spirel();
 #endif
 
 #if 1
@@ -112,7 +112,7 @@ void read(char addr);
 #endif	/* STM32MON || ARDUINO */
 
 unsigned char spisend(unsigned char);
-unsigned char spiread(void);
+unsigned char spiread();
 
 #if defined(STM32MON) || defined(ARDUINO)
 #else  /* ! (STM32MON || ARDUINO) */
@@ -162,7 +162,7 @@ typedef struct
 EXT T_SPICTL spiCtl;
 
 void putSPI(char ch);
-int getSPI(void);
+int getSPI();
 
 #if defined(SPI_MASTER)
 
@@ -171,7 +171,7 @@ void spiMasterReset();
 
 #endif	/* SPI_MASTER */
 
-extern "C" void spiISR(void);
+extern "C" void spiISR();
 
 #endif	/* SPI_ISR */
 
@@ -180,7 +180,7 @@ extern "C" void spiISR(void);
 
 #if defined(SPI_SEL_Pin)
 
-void spisel(void)
+void spisel()
 {
  SPIn->CR1 |= SPI_CR1_SPE;
  SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
@@ -188,7 +188,7 @@ void spisel(void)
 
 char spiRelTmp;
 
-void spirel(void)
+void spirel()
 {
 #if defined(CYCLE_CTR)
  //uint32_t start = getCycles();
@@ -226,12 +226,12 @@ void spirel(void)
 
 #if 0
 
-void spisel(void)
+void spisel()
 {
  spi1sel = 0;
 }
 
-void spirel(void)
+void spirel()
 {
  SPI_SEL_REG = SPI_SEL_BIT;
  SPIn->CR1 &= ~SPI_CR1_SPE;
@@ -315,7 +315,7 @@ int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize)
  int txCount = 0;
 
  spisel();
- while (1)
+ while (true)
  {
   if (txSize != 0)
   {
@@ -495,7 +495,7 @@ unsigned char spisend(unsigned char c)
  return(c);
 }
 
-unsigned char spiread(void)
+unsigned char spiread()
 {
  spiw0 = 0;
  spiw1 = 0;
@@ -529,7 +529,7 @@ unsigned char spiread(void)
 
 #if defined SPI_SLAVE
 
-extern "C" void spiISR(void)
+extern "C" void spiISR()
 {
  SPI_TypeDef *spi = SPIn;
  if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
@@ -622,7 +622,7 @@ void spiMasterReset()
  spiCtl.state = 0;
 }
 
-extern "C" void spiISR(void)
+extern "C" void spiISR()
 {
  dbgSpiIsrSet();
  SPI_TypeDef *spi = SPIn;
@@ -700,7 +700,7 @@ void putSPI(char ch)
  }
 }
 
-int getSPI(void)
+int getSPI()
 {
  int ch = -1;
  if (spiCtl.rxCount != 0)

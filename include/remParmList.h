@@ -312,5 +312,7 @@ enum REM_PARM
  ARC_Z_START,                   /* 0xb4 arc z start */
  ARC_X_END,                     /* 0xb5 arc x center */
  ARC_Z_END,                     /* 0xb6 arc z center */
- MAX_PARM,                      /* 0xb7 maximum parameter */
+ MEGA_VFD,                      /* 0xb7 mega vfd speed mode */
+ MEGA_SIM,                      /* 0xb8 mega encoder lines */
+ MAX_PARM,                      /* 0xb9 maximum parameter */
 };

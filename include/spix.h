@@ -27,8 +27,8 @@ typedef union
 #endif
 
 #ifdef __cplusplus
-void spisel(void);
-void spirel(void);
+void spisel();
+void spirel();
 #endif
 
 #if 1
@@ -50,7 +50,7 @@ void read(char addr);
 #endif	/* STM32MON || ARDUINO */
 
 unsigned char spisend(unsigned char);
-unsigned char spiread(void);
+unsigned char spiread();
 
 #if defined(STM32MON) || defined(ARDUINO)
 #else  /* ! (STM32MON || ARDUINO) */
@@ -100,7 +100,7 @@ typedef struct
 EXT T_SPICTL spiCtl;
 
 void putSPI(char ch);
-int getSPI(void);
+int getSPI();
 
 #if defined(SPI_MASTER)
 
@@ -109,7 +109,7 @@ void spiMasterReset();
 
 #endif	/* SPI_MASTER */
 
-extern "C" void spiISR(void);
+extern "C" void spiISR();
 
 #endif	/* SPI_ISR */
 

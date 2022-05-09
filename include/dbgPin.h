@@ -79,15 +79,15 @@
 #ifdef DbgA13_Pin
  PIN(DbgA13, DbgA13),
 #endif
-#ifdef Dbg6_Pin
- PIN(dbgJogIsr, Dbg6),
-#endif
 #ifdef Dbg0_Pin
- PIN(dbgSpiIsr, Dbg0),
+ PIN(dbgMegaTx, Dbg0),
 #endif
 #ifdef Dbg1_Pin
- PIN(dbgProcMove, Dbg1),
+ PIN(dbgMegaRx, Dbg1),
 #endif
 #ifdef Dbg2_Pin
- PIN(dbgSyncResp, Dbg2),
+ PIN(dbgMegaRsp, Dbg2),
+#endif
+#ifdef Dbg3_Pin
+ PIN(dbgMegaWait, Dbg3),
 #endif

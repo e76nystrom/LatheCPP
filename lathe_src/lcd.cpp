@@ -14,7 +14,7 @@
 #include "stm32h7xx_hal.h"
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include "i2cx.h"
 
 #ifdef EXT
@@ -97,7 +97,7 @@
 #define Rw 0b00000010 // Read/Write bit
 #define Rs 0b00000001 // Register select bit
 
-void lcdInit(void);
+void lcdInit();
 void command(uint8_t val);
 void pulseEnable(uint8_t val);
 
@@ -130,7 +130,7 @@ __STATIC_INLINE void delayUSecX(volatile uint32_t microseconds)
 }
 //#endif
 
-void lcdInit(void)
+void lcdInit()
 {
  printf("lcdInit address %2x\n", (unsigned int) SLAVE_ADDRESS);
  startCnt();
@@ -230,7 +230,7 @@ void lcdString(const char *str)
  uint8_t buf[80];
  uint8_t ch;
  uint8_t *p = buf;
- while (1)
+ while (true)
  {
   ch = *str++;
   if (ch == 0)

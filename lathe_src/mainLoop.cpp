@@ -26,12 +26,11 @@
 #include "latheX.h"
 #include "condef.h"
 
-void mainLoopSetup(void);
-extern "C" int16_t mainLoop(void);
-extern "C" void hard_fault_handler_c (unsigned int * hardfault_args);
+extern "C" int16_t mainLoop();
+extern "C" void hard_fault_handler_c (const unsigned int * hardfault_args);
 
-void lcdDisplay(void);
-void pinDisplay(void);
+void lcdDisplay();
+void pinDisplay();
 
 typedef struct
 {
@@ -41,7 +40,6 @@ typedef struct
 } T_PINDEF, *P_PINDEF;
 
 #define PIN(name, pin) {#name, pin ## _GPIO_Port, pin ## _Pin}
-#define DBGPIN(name) {#name, name ## _GPIO_Port, name ## _Pin}
 
 T_PINDEF pinDef[] =
 {
@@ -194,12 +192,11 @@ T_PINDEF pinDef[] =
 };
 
 #if I2C
-extern int lcdRow;
 unsigned int lcdDelayStart;
-unsigned int lcdRetryDelay;
+//unsigned int lcdRetryDelay;
 #endif	/* I2C */
 #define LCD_DELAY 50U
-#define LCD_RETRY_DELAY 25U
+//#define LCD_RETRY_DELAY 25U
 
 #define DATA_SIZE 1
 
@@ -232,7 +229,7 @@ uint32_t syncPollTime;
 #define SPI_RCV_TIMEOUT 5
 #endif	/* SYNC_SPI */
 
-void mainLoopSetup(void)
+void mainLoopSetup()
 {
  flushBuf();
 
@@ -287,11 +284,11 @@ void mainLoopSetup(void)
   usecTmrStart();		/* start */
  }
 
- if constexpr (0)
+ if constexpr (false)
   testOutputs(0);
 }
 
-void mainLoopSetupX(void)
+void mainLoopSetupX()
 {
 }
 
@@ -347,7 +344,7 @@ void dwtAccessEnable(unsigned ena)
 
 //#define main mainLoop
 
-int16_t mainLoop(void)
+int16_t mainLoop()
 {
  unsigned char ch;
  IRQn_Type extInt[] =
@@ -421,8 +418,8 @@ int16_t mainLoop(void)
 
  putstr("start main loop\n");
  #if DATA_SIZE
- unsigned int bss = (unsigned int) (&__bss_end__ - &__bss_start__);
- unsigned int data = (unsigned int) (&__data_end__ - &__data_start__);
+ auto  bss = (unsigned int) (&__bss_end__ - &__bss_start__);
+ auto data = (unsigned int) (&__data_end__ - &__data_start__);
  printf("data %u bss %u total %u\n", data, bss, data + bss);
  printf("stack %08x stackLimit %08x sp %08x\n",
 	(unsigned int) &__stack, (unsigned int) &__Main_Stack_Limit,
@@ -475,7 +472,7 @@ int16_t mainLoop(void)
  lcdActive = 0;
 #if I2C
  lcdDelayStart = 0;
- lcdRetryDelay = 0;
+// lcdRetryDelay = 0;
 #endif	/* I2C */
 
 #if defined(MEGAPORT)
@@ -488,10 +485,10 @@ int16_t mainLoop(void)
  syncPollTime = millis();
 #endif
 
- while (1)			/* main loop */
+ while (true)			/* main loop */
  {
   newline();
-  while (1)			/* input background loop */
+  while (true)			/* input background loop */
   {
 #if defined(Led1_Pin)
    uint32_t t = millis();
@@ -506,15 +503,21 @@ int16_t mainLoop(void)
 #endif	/* Led1_Pin */
 
 #if defined(MEGAPORT)
-   if (megaCtl.state != 0)
+   if (megaCtl.timer != 0)
    {
     if ((millis() - megaCtl.timer) > MEGA_RCV_TIMEOUT)
     {
      __disable_irq();
-     megaCtl.state = 0;
+     megaCtl.state = MEGA_ST_IDLE;
+     megaCtl.timer = 0;
      megaCtl.rx_fil = 0;
      megaCtl.rx_emp = 0;
      megaCtl.rx_count = 0;
+     if (megaCtl.txWait)
+     {
+      megaCtl.txWait = 0;
+      megaTxIntEna();
+     }
      __enable_irq();
      printf("mega receive timeout\n");
     }
@@ -523,7 +526,7 @@ int16_t mainLoop(void)
    if ((millis() - megaPollTime) > MEGA_POLL_TIMEOUT)
    {
     megaPollTime = millis();
-    megaPoll();
+    // megaPoll();
    }
 #endif  /* MEGAPORT */
 
@@ -643,7 +646,7 @@ int16_t mainLoop(void)
 #define CON_SIZE (sizeof(conDef) / sizeof(T_CONDEF))
 #define CON_PINS (CON_SIZE / 2)
 
-void pinDisplay(void)
+void pinDisplay()
 {
  printf("CON_SIZE %d CON_PINS %d\n", CON_SIZE, CON_PINS);
  P_PINDEF pin = pinDef;
@@ -691,7 +694,7 @@ void pinDisplay(void)
   RPM 000 Pass 00/00 S
  */
 
-void lcdDisplay(void)
+void lcdDisplay()
 {
 #if I2C
  if (i2cError)			/* if i2c failed initialization */
@@ -717,8 +720,8 @@ void lcdDisplay(void)
     {
     case 0:
      sprintf(buf, "Z %8.4f X %7.4f",
-	     ((float) (rVar.zLoc - rVar.zHomeOffset)) / zAxis.stepsInch,
-	     ((float) (rVar.xLoc - rVar.xHomeOffset)) / xAxis.stepsInch);
+	     (float) (rVar.zLoc - rVar.zHomeOffset) / (float) zAxis.stepsInch,
+	     (float) (rVar.xLoc - rVar.xHomeOffset) / (float) xAxis.stepsInch);
      lcdRow = 1;
      break;
 
@@ -728,7 +731,7 @@ void lcdDisplay(void)
      char p = rVar.cmdPaused ? 'P' : ' ';
      sprintf(buf, "%c%c         D %7.4f", h, p,
 	     2.0 * fabsf(((float) (rVar.xLoc - rVar.xHomeOffset)) /
-			 xAxis.stepsInch));
+                                 (float) xAxis.stepsInch));
      if (rVar.cfgDro)
       lcdRow = 2;
      else
@@ -739,16 +742,17 @@ void lcdDisplay(void)
     case 2:
      if (rVar.cfgDro)
       sprintf(buf, "Z %8.4f X %7.4f",
-	      ((float) (rVar.zDroLoc - rVar.zDroOffset)) / rVar.zDroCountInch,
-	      ((float) xDro()) / rVar.xDroCountInch);
+	      (float) (rVar.zDroLoc - rVar.zDroOffset) /
+              (float) rVar.zDroCountInch,
+	      ((float) xDro()) / (float) rVar.xDroCountInch);
      lcdRow = 3;
      break;
 
     case 3:
     {
-     int rpm;
+     unsigned int rpm;
      if (rVar.indexPeriod != 0)
-      rpm = (int) (((float) rVar.cfgFcy / rVar.indexPeriod) * 60 + 0.5);
+      rpm = (rVar.cfgFcy * 60)  / rVar.indexPeriod;
      else
       rpm = 0;
      char spring = ' ';
@@ -778,7 +782,7 @@ void lcdDisplay(void)
 #endif	/* I2C */
 }
 
-void hard_fault_handler_c (unsigned int * hardfault_args)
+void hard_fault_handler_c (const unsigned int * hardfault_args)
 {
  unsigned int stacked_r0;
  unsigned int stacked_r1;
@@ -817,7 +821,7 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
  printf("AFSR = %x\n", (*((volatile unsigned int *) (0xE000ED3C))));
  printf("SCB_SHCSR = %x\n", (unsigned int) SCB->SHCSR);
 
- while (1);
+ while (true);
 }
 
 #if 0

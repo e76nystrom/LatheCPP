@@ -12,22 +12,19 @@
 
 #define _USE_MATH_DEFINES
 
-#include <stdio.h>
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cmath>
+#include <climits>
+#include <cstdlib>
+#include <cstring>
 
 #if defined(LATHE_CPP)
 
 #define EXT extern
-#include "config.h"
 #include "lathe.h"
 #include "arc.h"
 #include "ctlbits.h"
-#include "remstruct.h"
+#include "remStruct.h"
 #include "timers.h"
 #include "serialio.h"
 
@@ -393,22 +390,22 @@ void arcQue(unsigned char cmd, unsigned char rpt)
 
 inline float xPos(int loc)
 {
- return(((float) loc - rVar.xHomeOffset) / xAxis.stepsInch);
+ return(((float) (loc - rVar.xHomeOffset)) / (float) xAxis.stepsInch);
 }
 
 inline float zPos(int loc)
 {
- return(((float) loc - rVar.zHomeOffset) / zAxis.stepsInch);
+ return(((float) (loc - rVar.zHomeOffset)) / (float) zAxis.stepsInch);
 }
 
 inline float xPosC(int loc)
 {
- return((float) loc / xAxis.stepsInch);
+ return((float) loc / (float) xAxis.stepsInch);
 }
 
 inline float zPosC(int loc)
 {
- return((float) loc / zAxis.stepsInch);
+ return((float) loc / (float) zAxis.stepsInch);
 }
 
 #else
@@ -442,7 +439,7 @@ void arcInit(float radius)
  arc->fil = arc->emp;
  arc->arcBufEnd = &arc->arcBuf[ARC_BUF_SIZE];
 
- arc->xRadius = lrint(radius * arc->xStepsInch);
+ arc->xRadius = lrintf(radius * (float) arc->xStepsInch);
  arc->xRadiusSqrd = arc->xRadius * arc->xRadius;
  arc->xStep45 = lrint(radius * sqrt(2) / 2 * arc->xStepsInch);
 
@@ -495,7 +492,7 @@ void arcInit(float radius)
 
  printf("p0 (%7.4f, %7.4f) p1 (%7.4f %7.4f)\n", x0, z0, x1, z1);
  printf("radius %7.4f p0 radius %7.4f p1 radius %7.4f\n",
-	radius, sqrt(x0 * x0 + z0 * z0), sqrt(x1 * x1 + z1 * z1));
+	radius, sqrtf(x0 * x0 + z0 * z0), sqrtf(x1 * x1 + z1 * z1));
 
  printf("xLoc %7.4f zLoc %7.4f\n", xPos(rVar.xLoc), zPos(rVar.zLoc));
 
@@ -575,6 +572,9 @@ void arcInit(float radius)
 		     arc->xStepsInch);
  }
  break;
+
+  default:
+   break;
  }
 
  arc->lessThan45 = ((octant == 0) || (octant == 3));
@@ -615,7 +615,7 @@ void arcInit(float radius)
  updOctant(octant);
  }
 
-bool arcStep(void)
+bool arcStep()
 {
  dbgArcStepSet();
  P_ARC_DATA arc = &arcData;
@@ -784,6 +784,9 @@ bool arcStep(void)
    arc->xPos += arc->xDir;
   }
   break;
+
+  default:
+   break;
  }
 
  arc->rpt = rpt;
@@ -1059,7 +1062,7 @@ void arcUpdate(bool dbg)
   }
   arc->delta = delta;
 
-  if (0)
+  if (false)
   {
    char buf[16];
    printf("x %5d z %5d delta %5d lastDelta %5s\n",
@@ -1128,6 +1131,9 @@ void arcUpdate(bool dbg)
 #endif
      }
      break;
+
+     default:
+      break;
     } /* switch */
    } /* cwDir */
    else				/* ccw dir */
@@ -1170,6 +1176,9 @@ void arcUpdate(bool dbg)
 #endif
      }
      break;
+
+     default:
+      break;
      
     }
    } /* switch */

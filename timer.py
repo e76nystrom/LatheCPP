@@ -28,7 +28,7 @@ constants = \
 (\
  ("auto", "SP_FWD", "1"),
  ("auto", "SP_REV", "-1"),
- ("auto", "STEP_WIDTH", "10"),
+ ("unsigned int", "STEP_WIDTH", "10"),
 )
 
 condConstants = \
@@ -51,7 +51,7 @@ macros = \
  (None, "dirZRev",    None, None, "Dir1_GPIO_Port->BSRR = zAxis.dirRev"),
  (None, "dirXFwd",    None, None, "Dir2_GPIO_Port->BSRR = xAxis.dirFwd"),
  (None, "dirXRev",    None, None, "Dir2_GPIO_Port->BSRR = xAxis.dirRev"),
- ("uint32_t", "CALC_STEP_WIDTH", "uint32_t", "x", \
+ ("uint32_t", "CALC_STEP_WIDTH", "unsigned int", "x", \
   "(rVar.cfgFcy * x) / 1000000l"),
 )
 

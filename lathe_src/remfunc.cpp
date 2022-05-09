@@ -518,7 +518,7 @@ void setRemVar(int parm, T_DATA_UNION val)
   break;
 
  case CFG_FCY:                   /* 126 0x7e system clock speed */
-  rVar.cfgFcy = val.t_int;
+  rVar.cfgFcy = val.t_unsigned_int;
   break;
 
  case CFG_SWITCH:                /* 127 0x7f spindle off on switch */
@@ -618,7 +618,7 @@ void setRemVar(int parm, T_DATA_UNION val)
   break;
 
  case X_FEED:                    /* 151 0x97 x feed */
-  rVar.xFeed = val.t_int16_t;
+  rVar.xFeed = val.t_int32_t;
   break;
 
  case RUNOUT_DISTANCE:           /* 152 0x98 runout distance */
@@ -634,7 +634,7 @@ void setRemVar(int parm, T_DATA_UNION val)
   break;
 
  case PWM_FREQ:                  /* 155 0x9b spindle speed pwm frequency */
-  rVar.pwmFreq = val.t_int16_t;
+  rVar.pwmFreq = val.t_unsigned_int;
   break;
 
  case MIN_SPEED:                 /* 156 0x9c min speed for current range */
@@ -745,7 +745,15 @@ void setRemVar(int parm, T_DATA_UNION val)
   rVar.arcZEnd = val.t_int;
   break;
 
- case MAX_PARM:                  /* 183 0xb7 maximum parameter */
+ case MEGA_VFD:                  /* 183 0xb7 mega vfd speed mode */
+  rVar.megaVfd = val.t_char;
+  break;
+
+ case MEGA_SIM:                  /* 184 0xb8 mega encoder lines */
+  rVar.megaSim = val.t_char;
+  break;
+
+ case MAX_PARM:                  /* 185 0xb9 maximum parameter */
   rVar.maxParm = val.t_int16_t;
   break;
 
@@ -1261,7 +1269,7 @@ void getRemVar(int parm, P_DATA_UNION val)
   break;
 
  case CFG_FCY:                   /* 126 0x7e system clock speed */
-  val->t_int = rVar.cfgFcy;
+  val->t_unsigned_int = rVar.cfgFcy;
   break;
 
  case CFG_SWITCH:                /* 127 0x7f spindle off on switch */
@@ -1361,7 +1369,7 @@ void getRemVar(int parm, P_DATA_UNION val)
   break;
 
  case X_FEED:                    /* 151 0x97 x feed */
-  val->t_int16_t = rVar.xFeed;
+  val->t_int32_t = rVar.xFeed;
   break;
 
  case RUNOUT_DISTANCE:           /* 152 0x98 runout distance */
@@ -1377,7 +1385,7 @@ void getRemVar(int parm, P_DATA_UNION val)
   break;
 
  case PWM_FREQ:                  /* 155 0x9b spindle speed pwm frequency */
-  val->t_int16_t = rVar.pwmFreq;
+  val->t_unsigned_int = rVar.pwmFreq;
   break;
 
  case MIN_SPEED:                 /* 156 0x9c min speed for current range */
@@ -1488,7 +1496,15 @@ void getRemVar(int parm, P_DATA_UNION val)
   val->t_int = rVar.arcZEnd;
   break;
 
- case MAX_PARM:                  /* 183 0xb7 maximum parameter */
+ case MEGA_VFD:                  /* 183 0xb7 mega vfd speed mode */
+  val->t_char = rVar.megaVfd;
+  break;
+
+ case MEGA_SIM:                  /* 184 0xb8 mega encoder lines */
+  val->t_char = rVar.megaSim;
+  break;
+
+ case MAX_PARM:                  /* 185 0xb9 maximum parameter */
   val->t_int16_t = rVar.maxParm;
   break;
 
