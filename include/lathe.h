@@ -257,9 +257,9 @@ typedef struct s_zxisr
  char errFlag;
 
  int dir;			/* axis direction */
- int16_t syncInit;		/* initialized for sync operation */
- int16_t syncStart;		/* waiting for start */
- int16_t active;		/* axis active */
+ int syncInit;			/* initialized for sync operation */
+ int syncStart;			/* waiting for start */
+ int active;			/* axis active */
 
  /* control variables */
  float cFactor;			/* acceleration factor */
@@ -358,8 +358,8 @@ typedef struct s_sync
  char useEncoder;
  char encoderDirect;
 
- int16_t zSyncInit;		/* z sync init */
- int16_t xSyncInit;		/* x sync init */
+ int zSyncInit;			/* z sync init */
+ int xSyncInit;			/* x sync init */
 
 // char active;			/* axis driven by spindle */
  char stepActive;		/* stepper active */
@@ -683,7 +683,7 @@ unsigned int turnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 void encTurnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 void syncTurnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 unsigned int taperInit(P_ZXISR isr, P_ACCEL ac, int dir);
-void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir);
+void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir, int syncInit);
 unsigned int moveInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 
 void cmpTmrSetup();

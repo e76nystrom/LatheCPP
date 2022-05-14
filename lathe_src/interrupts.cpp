@@ -440,6 +440,7 @@ extern "C" void indexISR()
   tmp = idxTmr.trkFreq / tmp;
   dbgTrk1L(tmp);
  }
+
  idxTmr.updateTime = millis();	/* set update time */
  idxTmr.timeout = INDEX_TIMEOUT; /* and timeout */
  rVar.revCounter++;		/* increment revolution counter */
@@ -450,6 +451,7 @@ extern "C" void indexISR()
   {
    zIsr.active = zIsr.syncStart; /* set to active */
    zIsr.syncStart = 0;		/* clear start flag */
+   putBufStrIsr("Sz");
    dbgmsg(D_ZEST, (int) spEncCount); /* encoder count at start */
   }
 
@@ -457,6 +459,7 @@ extern "C" void indexISR()
   {
    xIsr.active = xIsr.syncStart; /* set to active */
    xIsr.syncStart = 0;		/* clear start flag */
+   putBufStrIsr("Sx");
    dbgmsg(D_XEST, (int) spEncCount); /* encoder count at start */
   }
  }

@@ -315,9 +315,9 @@ typedef struct s_zxisr
  char errFlag;
 
  int dir;			/* axis direction */
- int16_t syncInit;		/* initialized for sync operation */
- int16_t syncStart;		/* waiting for start */
- int16_t active;		/* axis active */
+ int syncInit;			/* initialized for sync operation */
+ int syncStart;			/* waiting for start */
+ int active;			/* axis active */
 
  /* control variables */
  float cFactor;			/* acceleration factor */
@@ -416,8 +416,8 @@ typedef struct s_sync
  char useEncoder;
  char encoderDirect;
 
- int16_t zSyncInit;		/* z sync init */
- int16_t xSyncInit;		/* x sync init */
+ int zSyncInit;			/* z sync init */
+ int xSyncInit;			/* x sync init */
 
 // char active;			/* axis driven by spindle */
  char stepActive;		/* stepper active */
@@ -741,7 +741,7 @@ unsigned int turnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 void encTurnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 void syncTurnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 unsigned int taperInit(P_ZXISR isr, P_ACCEL ac, int dir);
-void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir);
+void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir, int syncInit);
 unsigned int moveInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 
 void cmpTmrSetup();
@@ -2451,10 +2451,10 @@ unsigned int taperInit(P_ZXISR isr, P_ACCEL ac, int dir)
  return(ctr);
 }
 
-void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir, char syncInit)
+void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir, int syncInit)
 {
  if (DBG_P)
-  printf("\ntaperInit %s\n", ac->label);
+  printf("\nencTaperInit %s dir %d syncInit %d\n", ac->label, dir, syncInit);
 
  isr->dir = dir;
 
@@ -3292,6 +3292,9 @@ void zTurnInit(P_ACCEL ac, int dir, unsigned int dist)
 
 void zTaperInit(P_ACCEL ac, int dir)
 {
+ if (DBG_P)
+  printf("\nzTaperInit %s dir %d\n", ac->label, dir);
+
  if (ac->taper)
  {
   if (rVar.spindleEncoder == 0)	/* *ok* if no spindle encoder */
@@ -3301,7 +3304,7 @@ void zTaperInit(P_ACCEL ac, int dir)
   }
   else				/* *chk* if spindle encoder */
   {
-   char syncInit = 0;
+   int syncInit = 0;
    if (syn.encActive)
    {
     syncInit = SYNC_ACTIVE_ENC;
@@ -3742,7 +3745,8 @@ void zMoveRel(int dist, int cmd)
  {
   auto stepsInch = (float) zAxis.stepsInch;
   printf("zMoveRel %2x l %7.4f d %7.4f dir %2d\n",
-	 cmd, (float) rVar.zLoc / stepsInch, (float) dist / stepsInch, mov->dir);
+	 cmd, (float) rVar.zLoc / stepsInch,
+	 (float) dist / stepsInch, mov->dir);
  }
  mov->loc = rVar.zLoc;		/* save current location */
  mov->expLoc = rVar.zLoc + dist; /* calculate expected end location */
@@ -3963,7 +3967,7 @@ void zControl()
     } /* end taper */
 
     if (rVar.stepperDrive	/* if stepper drive */
-    ||	rVar.spindleEncoder)	/* *chk* spindle encoder */
+    ||	rVar.spindleEncoder)	/* *chk* or spindle encoder */
     {
      slaveEna();		/* enable slave mode */
     }
@@ -4174,23 +4178,26 @@ void xTurnInit(P_ACCEL ac, int dir, unsigned int dist)
 
 void xTaperInit(P_ACCEL ac, int dir)
 {
+ if (DBG_P)
+  printf("\nxTaperInit %s dir %d\n", ac->label, dir);
+
  if (ac->taper)
  {
-  if (rVar.spindleEncoder == 0) 	/* *ok* if no spindle encoder */
+  if (rVar.spindleEncoder == 0)	/* *ok* if no spindle encoder */
   {
    unsigned int ctr = taperInit(&xIsr, ac, dir);
    xHwEnable(ctr);
   }
   else				/* *chk* if spindle encoder */
   {
-   char syncInit = 0;
+   int syncInit = 0;
    if (syn.encActive)
    {
-    syncInit = SYNC_ACTIVE_ENC;
+    syncInit = SYNC_ACTIVE_ENC;	/* 0x04 */
    }
    if (syn.intActive)
    {
-    syncInit = SYNC_ACTIVE_TAPER;
+    syncInit = SYNC_ACTIVE_TAPER; /* 0x10 */
    }
    if (syn.extActive)
    {
