@@ -2249,6 +2249,53 @@ void spindleAccelCalc(P_SPINDLE s)
   printf("finalCount %d clocksStep %d\n", finalCount, s->clocksStep);
 }
 
+void syncDecode(int flag, char *buf)
+{
+ if (flag == 0)
+ {
+  *buf = 0;
+  return;
+ }
+
+ if (flag & SYNC_ACTIVE_EXT)
+ {
+  *buf++ = 'e';
+  *buf++ = 'x';
+  *buf++ = ' ';
+ }
+ if (flag & SYNC_ACTIVE_TMR)
+ {
+  *buf++ = 't';
+  *buf++ = 'm';
+  *buf++ = ' ';
+ }
+ if (flag & SYNC_ACTIVE_ENC)
+ {
+  *buf++ = 'e';
+  *buf++ = 'n';
+  *buf++ = ' ';
+ }
+ if (flag & SYNC_ACTIVE_STEP)
+ {
+  *buf++ = 's';
+  *buf++ = 't';
+  *buf++ = ' ';
+ }
+ if (flag & SYNC_ACTIVE_TAPER)
+ {
+  *buf++ = 't';
+  *buf++ = 'p';
+  *buf++ = ' ';
+ }
+ if (flag & SYNC_ACTIVE_THREAD)
+ {
+  *buf++ = 't';
+  *buf++ = 'h';
+  *buf++ = ' ';
+ }
+ *(buf - 1) = 0;
+}
+
 void slaveEna()
 {
  if (rVar.spindleEncoder == 0)	/* *ok* if not using spindle encodeer */
@@ -2285,8 +2332,14 @@ void slaveEna()
  else				/* *chk* if using spindle encoder */
  {
   if (DBG_SETUP)
-   printf("\nslave enable 1  z %d x %d\n", zIsr.syncInit, xIsr.syncInit);
-
+  {
+   char buf[6 * 3 + 2];
+   syncDecode(zIsr.syncInit, buf);
+   printf("\nslave enable 1 z %d %s ", zIsr.syncInit, buf);
+   syncDecode(xIsr.syncInit, buf);
+   printf("x %d %s\n", xIsr.syncInit, buf);
+  }
+  
   __disable_irq();		/* disable interrupts */
   if (zIsr.syncInit)		/* if initialized for sync op */
   {
@@ -3317,6 +3370,10 @@ void zTaperInit(P_ACCEL ac, int dir)
    {
     syncInit = SYNC_ACTIVE_TAPER;
    }
+   if (DBG_P)
+    printf("enc %d int %d ext %d syn %d\n",
+	   syn.encActive, syn.intActive, syn.extActive, syncInit);
+
    encTaperInit(&zIsr, ac, dir, syncInit);
   }
  }
@@ -3587,10 +3644,10 @@ void syncMoveSetup()
 	 rVar.threadSync, selThreadList[(int) rVar.threadSync]);
 
  runout.active = 0;
- //active = 0;
+
  syn.encActive = 0;
- syn.zSyncInit = 0;
- syn.encoderDirect = 0;
+ syn.intActive = 0;
+ syn.extActive = 0;
 
  syn.zSyncInit = 0;
  syn.xSyncInit = 0;
@@ -3653,7 +3710,7 @@ void syncMoveSetup()
    break;
 
   case SEL_TU_ESYN:		/* 4 Ext Syn */
-   syn.extActive = active;
+   syn.encActive = active;
    if (active & Z_ACTIVE)
     syn.zSyncInit = SYNC_ACTIVE_EXT;
    if (active & X_ACTIVE)
@@ -4168,7 +4225,7 @@ void xTurnInit(P_ACCEL ac, int dir, unsigned int dist)
    syncTurnInit(&xIsr, ac, dir, dist);
    xIsr.syncInit = syn.xSyncInit;
   }
-     if (syn.extActive & X_ACTIVE)	/* if external sync */
+  if (syn.extActive & X_ACTIVE)	/* if external sync */
   {
    syncTurnInit(&xIsr, ac, dir, dist);
    xIsr.syncInit = syn.xSyncInit;
@@ -4203,6 +4260,10 @@ void xTaperInit(P_ACCEL ac, int dir)
    {
     syncInit = SYNC_ACTIVE_TAPER;
    }
+   if (DBG_P)
+    printf("enc %d int %d ext %d syn %d\n",
+	   syn.encActive, syn.intActive, syn.extActive, syncInit);
+
    encTaperInit(&xIsr, ac, dir, syncInit);
   }
  }
