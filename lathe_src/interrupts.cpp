@@ -784,7 +784,7 @@ void zIsrStop(char ch)
  zIsr.dist = 0;			/* clear distance */
  putBufCharIsr(ch);
 
- if (zIsr.active)		/* if synchcronized move */
+ if (zIsr.active)		/* if synchronized move */
  {
   zIsr.active = 0;		/* clear active flag */
   if (rVar.spindleEncoder == 0)	/* *ok* if stepper drive */
@@ -792,7 +792,7 @@ void zIsrStop(char ch)
   else				/* *ok* spindle encoder */
   {
    dbgZOutClr();
-   if (zIsr.encoderDirect != 0)	/* *ok* using encodder directly */
+   if (zIsr.encoderDirect != 0)	/* *ok* using encoder directly */
    {
     dbgmsg(D_ZEDN, (int) spEncCount); /* spindle encoder count */
     dbgmsg(D_ZX, zIsr.x);
@@ -1038,7 +1038,7 @@ void xIsrStop(char ch)
  xIsr.dist = 0;			/* clear distance */
 
  putBufCharIsr(ch);
- if (xIsr.active)		/* if synchrinized move */
+ if (xIsr.active)		/* if synchronized move */
  {
   xIsr.active = 0;		/* clear active flag */
   if (rVar.spindleEncoder == 0)	/* *ok* if no encoder */
@@ -1047,7 +1047,7 @@ void xIsrStop(char ch)
   {
    dbgXOutClr();
    dbgmsg(D_XEDN, (int) spEncCount); /* send spindle encoder count */
-   if (syn.spindle == 0)	/* *ok* using encodder directly */
+   if (syn.spindle == 0)	/* *ok* using encoder directly */
    {
     dbgmsg(D_XX, xIsr.x);
     dbgmsg(D_XY, xIsr.y);
@@ -1311,7 +1311,7 @@ extern "C" void cmpTmrISR(void)
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */
    cmpTmr.encPulse -= 1;	/* count off a pulse */
 
-   uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycleclocks */
+   uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycle clocks */
    uint16_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
    cycleClocks -= *p;		/* subtract old value */
    cycleClocks += delta;	/* add in new value */

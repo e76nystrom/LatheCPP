@@ -1669,7 +1669,7 @@ void spindleStart()
 
   if (rVar.megaSim == 0)
   {
-   if (rVar.cfgVarSpeed)		/* if var speed */
+   if (rVar.cfgVarSpeed)	/* if var speed */
    {
     pwmTmrPWMEna();		/* start pwm */
    }
@@ -1764,7 +1764,7 @@ void cmpTmrSetup()
  cmpTmrCntClr();		/* clear counter */
  cmpTmrSet(0xffff);		/* set count to maximum */
  cmpTmrScl(cmpTmr.preScale - 1); /* set prescaler */
- cmpTmrCap1EnaSet();		/* enable capture from encoer */
+ cmpTmrCap1EnaSet();		/* enable capture from encoder */
  cmpTmrCap1SetIE();		/* enable capture interrupt */
  cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
  cmpTmr.measure = 0;		/* clear measure flag */
@@ -1799,7 +1799,7 @@ void syncMeasure()
  cmpTmrCntClr();		/* clear counter */
  cmpTmrSet(0xffff);		/* set count to maximum */
  cmpTmrScl(0);			/* set prescaler */
- cmpTmrCap1EnaSet();		/* enable capture from encoer */
+ cmpTmrCap1EnaSet();		/* enable capture from encoder */
  cmpTmrCap1SetIE();		/* enable capture interrupt */
  cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
  cmpTmrStart();			/* start capture timer */
@@ -1808,7 +1808,7 @@ void syncMeasure()
 void syncCalculate()
 {
  if (DBG_SETUP)
-  printf("syncCalculatee\n");
+  printf("syncCalculate\n");
 
  uint64_t n = clocksMin * cmpTmr.encCycLen;
  uint64_t d = ((uint64_t) cmpTmr.cycleClocks * rVar.encPerRev);
@@ -2030,9 +2030,9 @@ void spindleJogSpeed()
   }
   else
   {
-   if (rVar.spJogRpm != spa->maxRPM)	/* if jog speed different */
+   if (rVar.spJogRpm != spa->maxRPM) /* if jog speed different */
    {
-    spindleSpeedCalc(rVar.spJogRpm);	/* calculate acceleration */
+    spindleSpeedCalc(rVar.spJogRpm); /* calculate acceleration */
     s->jogInc = (int) (2 * rVar.spJogTimeInc * spa->stepsSec); /* save inc */
     s->maxDist = (int) (2 * rVar.spJogTimeMax * spa->stepsSec); /* save max */
    }
@@ -2674,7 +2674,7 @@ void jogMpg1(P_MOVECTL mov)
  if (jog->count != 0)		/* if anything in count */
  {
   --jog->count;			/* count removal */
-  dir = (int) jog->buf[jog->emp];	/* get value */
+  dir = (int) jog->buf[jog->emp]; /* get value */
   __enable_irq();		/* enable interrupts */
   jog->emp++;			/* update pointer */
   if (jog->emp >= MAXJOG)	/* if at end of queue */
@@ -3327,7 +3327,7 @@ void zTurnInit(P_ACCEL ac, int dir, unsigned int dist)
 
   if (runout.active)		/* if runout */
   {
-   if (syn.encActive & X_ACTIVE)	/* if using encoder */
+   if (syn.encActive & X_ACTIVE) /* if using encoder */
     xEncRunoutInit();		/* initialize for encoder runout */
 
    if ((runCtl.threadFlags & TH_LEFT) == 0) /* if right hand threading */
@@ -4271,7 +4271,7 @@ void xTaperInit(P_ACCEL ac, int dir)
 
 void xRunoutInit()
 {
- if (rVar.runoutDepth > 0)		/* if depth positive */
+ if (rVar.runoutDepth > 0)	/* if depth positive */
  {
   xIsr.dir = DIR_POS;		/* set dir positive */
   dirXFwd();
@@ -4856,7 +4856,7 @@ void xControl()
      else
      {
       xIsr.active = SYNC_ACTIVE_STEP; /* set to active */
-      dbgmsg(D_ZEST, (int)sp.intCount); /* send spindle interrupt count at start */
+      dbgmsg(D_ZEST, (int) sp.intCount); /* spindle interrupt count at start */
      }
     }
     else			/* *chk* if spindle encoder */
@@ -4933,7 +4933,7 @@ void xControl()
      printf("x dist %7.4f %6d feed %7.4f spindle revs %d steps %d\n",
 	    fDist, mov->dist, fDist / fRev, revs, steps);
    }
-   if (rVar.xDoneDelay != 0)		/* if delay */
+   if (rVar.xDoneDelay != 0)	/* if delay */
    {
     mov->state = AXIS_DELAY;	/* wait for position to settle */
     mov->delayStart = millis();	/* set start of delay */
@@ -5149,9 +5149,9 @@ void homeControl(P_HOMECTL home)
     *(home->status) = HOME_SUCCESS; /* set flag */
     tmp |= (int) home->setHomed; /* indicate homed */
     *home->status = HOME_SUCCESS; /* set to success */
-    *mov->locPtr = 0;                /* set position to zero */
+    *mov->locPtr = 0;		/* set position to zero */
     *mov->droLocPtr = 0;        /* set dro position to zero */
-   } else                                /* if failure */
+   } else			/* if failure */
    {
     *(home->status) = HOME_FAIL; /* set failed flag */
    }
@@ -5208,7 +5208,7 @@ void axisCtl()
    else				/* if limit clear */
     rVar.mvStatus &= MV_XLIMIT;	/* clear at limit bit */
   }
-  else				/* if inidvidual limits */
+  else				/* if individual limits */
   {
    if (rVar.zLimEna)		/* if z limits enabled */
    {
@@ -5223,8 +5223,8 @@ void axisCtl()
      if ((mov->limitDir == 0)	/* if not at limits */
      ||  (zIsr.dir == dir))	/* or trying to move further to limit */
      {
-      mov->limitDir = dir;	/* set direction where limit occured */
-      rVar.mvStatus |= MV_ZLIMIT;	/* set at limit bit */
+      mov->limitDir = dir;	/* set direction where limit occurred */
+      rVar.mvStatus |= MV_ZLIMIT; /* set at limit bit */
       if (zIsr.dist != 0)	/* if moving */
       {
        zIsrStop('7');		/* stop movement */
@@ -5251,7 +5251,7 @@ void axisCtl()
      if ((mov->limitDir == 0)	/* if not at limits */
      ||  (xIsr.dir == dir))	/* or trying to move further to limit */
      {
-      mov->limitDir = dir;	/* set direction where limit occured */
+      mov->limitDir = dir;	/* set direction where limit occurred */
       rVar.mvStatus |= MV_XLIMIT; /* set at limit bit */
       if (xIsr.dist != 0)	/* if moving */
       {
@@ -5275,15 +5275,16 @@ void axisCtl()
  if (zHomeCtl.state != H_IDLE)	/* if home control not idle */
   homeControl(&zHomeCtl);	/* run home state machine */
 
- // if (mov->mpgBackWait)		/* if waiting for mpg backlash */
+ // if (mov->mpgBackWait)	/* if waiting for mpg backlash */
  // {
- //  if (zIsr.done != 0)		/* if z done */
+ //  if (zIsr.done != 0)	/* if z done */
  //  {
  //   zIsr.done = 0;		/* clear done flag */
  //   mov->mpgBackWait = 0;	/* clear backlash flag */
  //  }
  // }
  // else
+ 
  if ((zJogQue.count != 0) ||	/* if anything in queue */
      (mov->mpgState != MPG_CHECK_QUE)) /* or not in queue check state*/
  {
@@ -5297,7 +5298,7 @@ void axisCtl()
  if (xHomeCtl.state != H_IDLE)	/* if home control not idle */
   homeControl(&xHomeCtl);	/* run home state machine */
 
-// if (mov->mpgBackWait)		/* if waiting for mpg backlash */
+// if (mov->mpgBackWait)	/* if waiting for mpg backlash */
 // {
 //  if (xIsr.done != 0)		/* if x done */
 //  {
@@ -5306,6 +5307,7 @@ void axisCtl()
 //  }
 // }
 // else
+ 
  if ((xJogQue.count != 0) ||	/* if anything in queue */
      (mov->mpgState != MPG_CHECK_QUE)) /* or not in queue check state*/
  {
@@ -5451,7 +5453,7 @@ void procMove()
 #else
     val = cmd->iVal + mv->zHomeOffset;
     dbgmsg(D_ZMOV, val);
-    if (!rVar.cfgDro		      /* if dro not confugred */
+    if (!rVar.cfgDro		      /* if dro not configured */
     ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
     {
      if (rVar.cfgFpga == 0)
@@ -5478,7 +5480,7 @@ void procMove()
    case MOVE_X:
     val = cmd->iVal + mv->xHomeOffset;
     dbgmsg(D_XMOV, val);
-    if (!rVar.cfgDro		      /* if not confugre */
+    if (!rVar.cfgDro		      /* if not configure */
     ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
     {
      if (rVar.cfgFpga == 0)
@@ -5705,7 +5707,7 @@ void procMove()
       if (DBG_QUE)
        printf("measure start %d\n", passNum);
 
-      rVar.cmdPaused = 1;		/* pause */
+      rVar.cmdPaused = 1;	/* pause */
       rVar.mvStatus |= MV_PAUSE;
       if (rVar.cfgFpga == 0)
        spindleStop();
@@ -5949,7 +5951,7 @@ void procMove()
   {
    if (runout.xFlag)		/* if runout */
    {
-    if (xIsr.active == 0)	/* if x isr no longer active active */
+    if (xIsr.active == 0)	/* if x isr no longer active */
     {
      runout.xFlag = 0;		/* clear runout flag */
      mv->state = M_IDLE;	/* return to idle state */
@@ -6093,7 +6095,7 @@ void procMove()
     syncMeasure();		/* measure for x encoder */
     mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
    }
-   else	if (syn.encActive)		/* if using encoder */
+   else	if (syn.encActive)	/* if using encoder */
    {
     encoderStart();		/* start encoder to use interrupt */
     mv->state = M_IDLE;		/* return to idle state */
@@ -6121,7 +6123,7 @@ void procMove()
  case M_WAIT_PROBE:
   if (mv->probeCmd == PROBE_Z)
   {
-   if (zMoveCtl.state == AXIS_IDLE) /* if opearation complete */
+   if (zMoveCtl.state == AXIS_IDLE) /* if operation complete */
    {
     mv->state = M_IDLE;
     rVar.zHomeStatus = zIsr.doneHome ? PROBE_SUCCESS : PROBE_FAIL;
@@ -6132,7 +6134,7 @@ void procMove()
   }
   else if (mv->probeCmd == PROBE_X)
   {
-   if (xMoveCtl.state == AXIS_IDLE) /* if opearation complete */
+   if (xMoveCtl.state == AXIS_IDLE) /* if operation complete */
    {
     mv->state = M_IDLE;
     rVar.xHomeStatus = xIsr.doneHome ? PROBE_SUCCESS : PROBE_FAIL;
@@ -6494,7 +6496,7 @@ void turnAccel(P_ACCEL ac, float accel, int flag, float rpm)
 	  ac->time, ac->steps, ac->clocks, ac->dist);
    printf("initialCount %d finalCount %d totAccelClocks %d\n",
 	  ac->initialCount, ac->finalCount, ac->totAccelClocks);
-   printf("initalTime %8.6f isrTime %8.6f\n",
+   printf("initialTime %8.6f isrTime %8.6f\n",
 	  ((float) ac->initialCount) / (float) rVar.cfgFcy,
 	  ((float) ac->totAccelClocks) / (float) rVar.cfgFcy);
   }
@@ -6543,7 +6545,7 @@ void speedCalc(P_ACCEL accel, P_ZXISR isr, float finalSpeed)
   }
   else
   {
-   aClocksStep = lrintf(accel->cFactor * (sqrtf((float) (finalStep + 1) )-
+   aClocksStep = lrintf(accel->cFactor * (sqrtf((float) (finalStep + 1) ) -
 				   sqrtf((float) finalStep)));
   }
   clocksStep = aClocksStep;
@@ -6639,7 +6641,7 @@ void accelCalc(P_ACCEL accel)
   accel->finalStep = (int) ((maxStepsSec * maxTime) / 2.0);
 
   if (DBG_P)
-   printf("initalStep %d finalStep %d\n",
+   printf("initialStep %d finalStep %d\n",
 	  accel->initialStep, accel->finalStep);
 
   float cFactor0 = (((float) rVar.cfgFcy * sqrtf(2.0f)) /
@@ -6740,7 +6742,7 @@ void taperCalc(P_ACCEL a0, P_ACCEL a1, float taper)
   if (syn.encActive)		/* if using encoder */
   {
    int dx = lrintf(((float) rVar.encPerRev * a0CycleDist) /
-		   a0->pitch); /* encPercycle */
+		   a0->pitch); /* enc per cycle */
    int dy = lrintf(a1CycleDist * (float) a1->stepsInch); /* stepsCycle */
    a1->incr1 = 2 * dy;
    a1->incr2 = a1->incr1 - 2 * dx;

@@ -515,7 +515,7 @@ void lclcmd(int ch)
    }
    else if (ch == '*')
    {
-    unsigned int reg = 0;
+    unsigned int reg;
     unsigned int mask = 0;
     unsigned int invert = 0;
 
@@ -791,7 +791,7 @@ void lclcmd(int ch)
     step = ac->initialStep;
     lastCount = (int) (ac->cFactor * sqrt(step));
     step++;
-    printf("step      count    lastcount\n");
+    printf("step      count    lastCount\n");
     for (; step < ac->finalStep; step++)
     {
      count = (int) (ac->cFactor * sqrt(step));
@@ -932,7 +932,7 @@ void lclcmd(int ch)
    else if (ch == 'I')
    {
     putstr("\ntpi ");
-    if (getfloat())
+    if (getfloat(&fVal))
      threadTPI(&zTA, fVal);
    }
    else if (ch == 'M')

@@ -1,5 +1,5 @@
 #define __STM32INFO__
-#include <stdio.h>
+#include <cstdio>
 
 #if defined(STM32F1)
 #include "stm32f1xx_hal.h"
@@ -54,22 +54,22 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo);
 #endif
 void gpioInfo(GPIO_TypeDef *gpio);
 void tmrInfo(TIM_TypeDef *tmr);
-void extiInfo(void);
+void extiInfo();
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
 void spiInfo(SPI_TypeDef *spi, const char *str);
-void rccInfo(void);
-void pwrInfo(void);
+void rccInfo();
+void pwrInfo();
 void adcInfo(ADC_TypeDef *adc, char n);
-void bkpInfo(void);
-void afioInfo(void);
-void rtcInfo(void);
+void bkpInfo();
+void afioInfo();
+void rtcInfo();
 #if defined(STM32F1)
 void dmaInfo(DMA_TypeDef *dma);
 void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n);
 #endif
 
-void info(void);
+void info();
 void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
 
 #if defined(ARDUINO_ARCH_STM32)
@@ -156,19 +156,19 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
 //   printf("port  %08x %2d %c %2d\n", (unsigned int) port, pin,
 //	  pinInfo->port, pinInfo->num);
 
-   int mode = (port->MODER >> (pin << 1)) & 3;
+   unsigned int mode = (port->MODER >> (pin << 1)) & 3;
 //   printf("mode  %08x %d\n", (unsigned int) port->MODER, mode);
 
-   int outType = (port->OTYPER >> pin) & 1;
+   unsigned int outType = (port->OTYPER >> pin) & 1;
 //   printf("type  %08x %d\n", (unsigned int) port->OTYPER, outType);
 
-   int outSpeed = (port->OSPEEDR >> (pin << 1)) & 3;
+   unsigned int outSpeed = (port->OSPEEDR >> (pin << 1)) & 3;
 //   printf("speed %08x %d\n", (unsigned int) port->OSPEEDR, outSpeed);
 
-   int pupd = (port->PUPDR >> (pin << 1)) & 3;
+   unsigned int pupd = (port->PUPDR >> (pin << 1)) & 3;
 //   printf("pupd  %08x %d\n", (unsigned int) port->PUPDR, pupd);
 
-   int afr = (port->AFR[pin >> 3] >> ((pin << 2) & 0x1f)) & 0xf;
+   unsigned int afr = (port->AFR[pin >> 3] >> ((pin << 2) & 0x1f)) & 0xf;
 
    char interrupt = ' ';
    if (mode == GPIO_MODE_INPUT)
@@ -178,7 +178,8 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
 
     if ((EXTI->IMR >> pin) & 1)
     {
-     int exti = (SYSCFG->EXTICR[pin >> 2] >> ((pin << 2) & 0xf)) & 0xf;
+     unsigned int exti =
+             (SYSCFG->EXTICR[pin >> 2] >> ((pin << 2) & 0xf)) & 0xf;
      if ((pinInfo->port - 'A') == exti)
       interrupt = 'I';
 //     printf("exti %2d pinInfo->port - 'A' %d pin >> 2 %d pin << 2 %d\n",
@@ -228,28 +229,28 @@ void gpioInfo(GPIO_TypeDef *gpio)
  for (i = 0; i < 16; i++)
   printf(" %2d", i);
 
- int val;
+ uint32_t val;
 
 #if defined(STM32F3) || defined(STM32F4)
  printf("\nmoder    ");
  val = gpio->MODER;
  for (i = 0; i < 16; i++)
-  printf(" %2d", (val >> (2 * i)) & 0x3);
+  printf(" %2lu", (val >> (2 * i)) & 0x3);
 
  printf("\notyper   ");
  val = gpio->OTYPER;
  for (i = 0; i < 16; i++)
-  printf(" %2d", (val >> i) & 0x1);
+  printf(" %2lu", (val >> i) & 0x1);
 
  printf("\nopspeedr ");
  val = gpio->OSPEEDR;
  for (i = 0; i < 16; i++)
-  printf(" %2d", (val >> (2 * i)) & 0x3);
+  printf(" %2lu", (val >> (2 * i)) & 0x3);
 
  printf("\npupdr    ");
  val = gpio->PUPDR;
  for (i = 0; i < 16; i++)
-  printf(" %2d", (val >> (2 * i)) & 0x3);
+  printf(" %2lu", (val >> (2 * i)) & 0x3);
 #endif	/* STM32F3 */
 
 #if defined(STM32F1)
@@ -278,22 +279,22 @@ void gpioInfo(GPIO_TypeDef *gpio)
  printf("idr      ");
  val = gpio->IDR;
  for (i = 0; i < 16; i++)
-  printf(" %2d", (val >> i) & 0x1);
+  printf(" %2lu", (val >> i) & 0x1);
 
  printf("\n");
  printf("odr      ");
  val = gpio->ODR;
  for (i = 0; i < 16; i++)
-  printf(" %2d", (val >> i) & 0x1);
+  printf(" %2lu", (val >> i) & 0x1);
 
 #if defined(STM32F3) || defined(STM32F4)
  printf("\nafr      ");
  val = gpio->AFR[0];
  for (i = 0; i < 8; i++)
-  printf(" %2d", (val >> (4 * i)) & 0xf);
+  printf(" %2lu", (val >> (4 * i)) & 0xf);
  val = gpio->AFR[1];
  for (i = 0; i < 8; i++)
-  printf(" %2d", (val >> (4 * i)) & 0xf);
+  printf(" %2lu", (val >> (4 * i)) & 0xf);
 #endif	/* STM32F3 */
  printf("\n");
  flushBuf();
@@ -458,7 +459,7 @@ void extiBit(const char *label, uint32_t val)
   printf(" %2d", (int) ((val >> i) & 0x1));
 }
 
-void extiInfo(void)
+void extiInfo()
 {
  printf("EXTI %x\n",(unsigned int) EXTI);
  int i;
@@ -608,7 +609,7 @@ void spiInfo(SPI_TypeDef *spi, const char *str)
  printf("SR       %8x\n", (unsigned int) spi->SR);
 }
 
-void rccInfo(void)
+void rccInfo()
 {
 #if defined(STM32F1)
  printf("RCC %08x\n", (unsigned int) RCC);
@@ -883,7 +884,7 @@ void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n)
 }
 #endif
 
-void afioInfo(void)
+void afioInfo()
 {
 #if defined(STM32F1)
  printf("AFIO %x\n", (unsigned int) AFIO);
@@ -897,7 +898,7 @@ void afioInfo(void)
 #endif
 }
 
-void bkpInfo(void)
+void bkpInfo()
 {
 #if defined(STM32F1)
  printf("BKP %x\n", (unsigned int) BKP);
@@ -907,7 +908,7 @@ void bkpInfo(void)
 #endif
 }
 
-void rtcInfo(void)
+void rtcInfo()
 {
 #if defined(STM32F1)
  printf("RTC %x\n", (unsigned int) RTC);
@@ -924,7 +925,7 @@ void rtcInfo(void)
 #endif
 }
 
-void pwrInfo(void)
+void pwrInfo()
 {
  printf("PWR %x\n", (unsigned int) PWR);
 #if defined(STM32F1) || defined(STM32F4)
@@ -968,7 +969,7 @@ void info()
  int val;
  if (query(&getNum, &val, " flag [0x%x]: ", lastFlags) == 0)
  {
-  val = lastFlags;
+  val = (int) lastFlags;
  }
  else
  {

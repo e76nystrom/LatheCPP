@@ -51,7 +51,7 @@ int print;
 
 #endif /* SYNC */
 #endif	/* STM32MON */
-#endif	/* ARDUINI_ARCH_STM32 */
+#endif	/* ARDUINO_ARCH_STM32 */
 
 #ifdef EXT
 #undef EXT

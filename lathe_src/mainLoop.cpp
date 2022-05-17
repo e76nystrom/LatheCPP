@@ -274,7 +274,7 @@ void mainLoopSetup()
 
 // #ifdef USEC_TMR_TIM6
 
- /* init timer 6 for use as a usec timer */
+ /* init timer 6 for use usec timer */
 
  if constexpr (USEC_TIMER != INDEX_TIMER)
  {

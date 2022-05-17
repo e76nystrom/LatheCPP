@@ -1201,7 +1201,7 @@ extern "C" void remoteISR()
   }
  }
 
- if (remRxOverrun())		/* if overrun errror */
+ if (remRxOverrun())		/* if overrun error */
  {
   if (remRxRead())		/* read character */
   {
@@ -1508,7 +1508,7 @@ extern "C" void megaISR()
   dbgMegaRxClr();
  }
 
- if (megaRxOverrun())		/* if overrun errror */
+ if (megaRxOverrun())		/* if overrun error */
  {
   if (megaRxRead())		/* read character */
   {
@@ -1664,7 +1664,7 @@ char gethexMega(int *val)
     //putMega(ch);
     ch -= 'a' - 10;
    }
-   else if ((ch == ' ') && (ch == '\r'))
+   else if ((ch == ' ') || (ch == '\r'))
     break;
 //   else if (ch == ' ')
 //   {
