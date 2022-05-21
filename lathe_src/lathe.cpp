@@ -1471,25 +1471,28 @@ void spindleSetup(int rpm)
   P_SPINDLE spa = &spA;
   GPIO_InitTypeDef gpio;
 
-#ifdef Index_Pin
+#if defined(INDEX_PIN)
+  if (DBG_SETUP)
+   printf("spTestIndex %d\n", rVar.spTestIndex);
+
   if (rVar.spTestIndex)		/* if testing index pulse */
   {
-   gpio.Pin = Index_Pin;
+   gpio.Pin = INDEX_PIN;
    gpio.Mode = GPIO_MODE_INPUT;	/* configure as input */
    gpio.Pull = GPIO_NOPULL;
-   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
+   HAL_GPIO_Init(INDEX_GPIO_PORT, &gpio);
   }
   else				/* if normal operation */
   {
-   gpio.Pin = Index_Pin;
+   gpio.Pin = INDEX_PIN;
    gpio.Mode = GPIO_MODE_IT_RISING; /* configure for interrupt */
    gpio.Pull = GPIO_NOPULL;
-   HAL_GPIO_Init(Index_GPIO_Port, &gpio);
+   HAL_GPIO_Init(INDEX_GPIO_PORT, &gpio);
   }
 
   HAL_NVIC_EnableIRQ(indexIRQn); /* enable index 2 interrupt */
   EXTI->PR = Index_Pin;
-#endif
+#endif	/* Index_Pin */
 
   spa->label = "spA";
   if (rVar.stepperDrive		/* if using stepper drive */
@@ -2298,7 +2301,7 @@ void syncDecode(int flag, char *buf)
 
 void slaveEna()
 {
- if (rVar.spindleEncoder == 0)	/* *ok* if not using spindle encodeer */
+ if (rVar.spindleEncoder == 0)	/* *ok* if not using spindle encoder */
  {
   if (DBG_SETUP)
    printf("\nslave enable 0 z %d x %d\n", zIsr.sync, xIsr.sync);
@@ -3167,7 +3170,7 @@ void jogMpg3(P_MOVECTL mov)
    __disable_irq();		/* disable interrupt */
    jog->count = 0;		/* reset count */
    jog->fil = 0;		/* reset fill */
-   jog->emp = 0;		/* reset emptty */
+   jog->emp = 0;		/* reset empty */
    __enable_irq();		/* enable interrupts */
 
    mov->mpgState = MPG_CHECK_QUE;
@@ -3293,7 +3296,7 @@ void zHwEnable(unsigned int ctr)
 void zTurnInit(P_ACCEL ac, int dir, unsigned int dist)
 {
  if (DBG_P)
-  printf("\nzTurninit %s\n", ac->label);
+  printf("\nzTurninit %s %d %u\n", ac->label, dir, dist);
 
  if (rVar.spindleEncoder == 0)	/* if no spindle encoder */
  {
@@ -3303,7 +3306,11 @@ void zTurnInit(P_ACCEL ac, int dir, unsigned int dist)
   }
 
   unsigned int ctr = turnInit(&zIsr, ac, dir, dist);
+  if (DBG_P)
+   printf("\n");
   tmrInfo(TIM5);
+  if (DBG_P)
+   printf("\nzHwEnable ctr %d\n", ctr);
   zHwEnable(ctr);
   tmrInfo(TIM5);
  }
@@ -3319,6 +3326,7 @@ void zTurnInit(P_ACCEL ac, int dir, unsigned int dist)
    syncTurnInit(&zIsr, ac, dir, dist);
    zIsr.syncInit = syn.zSyncInit;
   }
+
 //  else if (syn.extActive & Z_ACTIVE)
 //  {
 //   syncTurnInit(&zIsr, ac, dir, dist);
@@ -3710,7 +3718,7 @@ void syncMoveSetup()
    break;
 
   case SEL_TU_ESYN:		/* 4 Ext Syn */
-   syn.encActive = active;
+   syn.extActive = active;
    if (active & Z_ACTIVE)
     syn.zSyncInit = SYNC_ACTIVE_EXT;
    if (active & X_ACTIVE)
@@ -3781,7 +3789,7 @@ void syncMoveSetup()
   printf("zSyncInit %d xSyncInit %d encoderDirect %d\n",
 	 syn.zSyncInit, syn.xSyncInit, syn.encoderDirect);
   printf("active %d encActive %d synIntActive %d "
-	 "synExtAcitve %d runoutActive %d\n\n",
+	 "synExtActive %d runoutActive %d\n\n",
 	 active, syn.encActive, syn.intActive, syn.encActive, runout.active);
  }
 
@@ -4908,7 +4916,7 @@ void xControl()
     xIsr.home |= PROBE_SET;
    if ((cmd & CLEAR_PROBE) != 0)
     xIsr.home |= PROBE_CLR;
-   printf("x jogslow cmd %02x home %02x\n", cmd, xIsr.home);
+   printf("x jogSlow cmd %02x home %02x\n", cmd, xIsr.home);
    mov->jog = 1;
    xStart();
    break;
@@ -5050,7 +5058,7 @@ void homeAxis(P_HOMECTL home, int homeCmd)
    {
     dist = -home->findDist;
     flag = CMD_JOG | CLEAR_HOME;
-    home->state = H_OFF_HOME;	/* move off home swtich */
+    home->state = H_OFF_HOME;	/* move off home switch */
    }
   }
   else				/* if reverse homing */
@@ -5667,10 +5675,10 @@ void procMove()
 
    case X_SYN_SETUP:
     mv->xFeed = cmd->val;
-    if (rVar.cfgFpga == 0)
+//    if (rVar.cfgFpga == 0)
      xSynSetup(mv->feedType, cmd->val);
-    else
-     xSynSetup(mv->feedType, cmd->val);
+//    else
+//     xSynSetup(mv->feedType, cmd->val);
     done = 0;
     break;
 
@@ -5882,11 +5890,38 @@ void procMove()
 
    case MOVE_ARC:
     arcInit(rVar.arcRadius);
-    arcUpdate(UPDATE_DEBUG);	/* fill queue */
-    arcData.active = true;	/* set arc active flag */
-    zTurnInit(&zTA, 0, 0);	/* init synchronized move */
+
+    if (rVar.turnSync == SEL_TU_STEP)	/* if stepper drive */
+    {
+     int spStepsRev = rVar.spSteps * rVar.spMicro;
+     int zStepsRev = lrintf(mv->zFeed * (float) zAxis.stepsInch);
+     arcStepSetup(spStepsRev, zStepsRev);
+     zIsr.syncInit = syn.zSyncInit;
+    }
+    else if (rVar.turnSync == SEL_TU_ENC)
+    {
+     int zStepsRev = lrintf(mv->zFeed * (float) zAxis.stepsInch);
+     arcStepSetup(rVar.encPerRev, zStepsRev);
+     zIsr.syncInit = syn.zSyncInit;
+     // zTurnInit(&zTA, 0, 0);	/* init synchronized move */
+    }
+    else if ((rVar.turnSync == SEL_TU_ESYN)
+	 ||  (rVar.turnSync == SEL_TU_ISYN))
+    {
+     zIsr.syncInit = syn.zSyncInit;
+    }
+    else
+    {
+     if (DBG_QUE)
+      printf("MOVE_ARC invalid turnSync\n");
+    }
+    
     zPulseSetup();
     xPulseSetup();
+
+    arcUpdate(UPDATE_DEBUG);	/* fill queue */
+    arcData.active = true;	/* set arc active flag */
+    
 #if 0
     printf("Z_TMR %d pwm %d\n", Z_TIMER, Z_TMR_PWM);
     printf(" CR1 %8x  CNT %8x  ARR %8x  CCR %8x\n",
@@ -5905,8 +5940,11 @@ void procMove()
 	   (unsigned int) (X_TMR->DIER));
     flushBuf();
 #endif
+
     zIsr.syncInit <<= ARC_SHIFT;
-    printf("zIsr.syncInit %3x\n", zIsr.syncInit);
+    if (DBG_QUE)
+     printf("\nzIsr.syncInit %3x\n", zIsr.syncInit);
+
     zIsr.active = zIsr.syncInit; /* make active */
     zIsr.syncInit = 0;		/* clear init flag */
     xIsr.steps = 0;
@@ -6052,11 +6090,11 @@ void procMove()
 	 syncMeasure();		/* measure for encoder */
 	 mv->state = M_WAIT_MEASURE_DONE; /* wait for measurement done */
 	}
-	else if (syn.encActive)	/* if using encoder directly */
-	{
-	 encoderStart();	/* start encoder to use interrupt */
-	 mv->state = M_IDLE;	/* return to idle state */
-	}
+//	else if (syn.encActive)	/* if using encoder directly */
+//	{
+//	 encoderStart();	/* start encoder to use interrupt */
+//	 mv->state = M_IDLE;	/* return to idle state */
+//	}
 	else			/* if not threading */
 	{
 	 encoderStart();	/* enable interrupt for encoder */
@@ -6836,7 +6874,7 @@ void megaRsp()
  switch (parm)
  {
  case MEGA_SET_RPM:
-  break;
+  //break;
 
  case MEGA_GET_RPM:
   break;

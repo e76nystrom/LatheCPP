@@ -43,8 +43,9 @@
 #define MEGA_IRQn UART5_IRQn
 
 #define indexISR(x) EXTI2_IRQHandler(x)
-#define indexIRQn EXTI2_IRQn
+#define indexIRQn Index2_EXTI_IRQn
 #define INDEX_PIN Index2_Pin
+#define INDEX_GPIO_PORT Index2_GPIO_Port
 
 #define encISR(x) EXTI0_IRQHandler(x)
 #define encIRQn EXTI0_IRQn

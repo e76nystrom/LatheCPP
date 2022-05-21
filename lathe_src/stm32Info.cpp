@@ -180,7 +180,7 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
     {
      unsigned int exti =
              (SYSCFG->EXTICR[pin >> 2] >> ((pin << 2) & 0xf)) & 0xf;
-     if ((pinInfo->port - 'A') == exti)
+     if ((unsigned int) (pinInfo->port - 'A') == exti)
       interrupt = 'I';
 //     printf("exti %2d pinInfo->port - 'A' %d pin >> 2 %d pin << 2 %d\n",
 //	    exti, pinInfo->port - 'A', pin >> 2, pin << 2);

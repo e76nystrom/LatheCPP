@@ -412,11 +412,11 @@ int16_t mainLoop()
  initCharBuf();
 
 #if defined(STM32H7)
- uint8_t startMsg[] = "start main loop\n\r";
+ uint8_t startMsg[] = "start mainLoop\n\r";
  HAL_UART_Transmit(&huart3, startMsg, sizeof(startMsg), HAL_MAX_DELAY);
 #endif	/* STM32H7 */
 
- putstr("start main loop\n");
+ putstr("start mainLoop\n");
  #if DATA_SIZE
  auto  bss = (unsigned int) (&__bss_end__ - &__bss_start__);
  auto data = (unsigned int) (&__data_end__ - &__data_start__);

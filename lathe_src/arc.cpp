@@ -10,7 +10,7 @@
 //#define LATHE_CPP
 #endif
 
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
 
 #include <cstdio>
 #include <cmath>
@@ -155,6 +155,14 @@ typedef struct sArcData
 
  int zDir;			/* z direction for isr */
  int zPos;			/* z position for isr */
+
+ int d;				/* sum accumulator */
+ int incr1;			/* incr 1 value */
+ int incr2;			/* incr 2 value */
+ int initialD;			/* initial value for accumulator */
+
+ unsigned int stepX;		/* input steps */
+ unsigned int stepY;		/* output steps */
 } T_ARC_DATA, *P_ARC_DATA;
 
 EXT T_ARC_DATA arcData;
@@ -166,6 +174,11 @@ void arcQue(unsigned char cmd, unsigned char rpt);
 int octantStart(int x, int z);
 int octantEnd(int x, int z);
 void makeCommand(int x, int z, int dbg);
+
+#if defined(LATHE_CPP)
+void arcStepSetup(int inCount, int outCount);
+void arcStepUpdate();
+#endif	/* LATHE_CPP */
 
 #endif	// ->
 #if defined(__ARC__)
@@ -350,7 +363,7 @@ void updOctant(int octant)
 #if TEST
  fprintf(f, "\noctant %d inxDir %d inZDir %d cmd %2x\n",
 	 octant, arc->inXDir, arc->inZDir, cmd);
-#endif
+#endif	/* TEST */
 
 #if defined(LATHE_CPP)
  printf("\noctant %d inxDir %d inZDir %d cmd %2x\n",
@@ -454,12 +467,12 @@ void arcInit(float radius)
 	 arc->zRadius, arc->zRadiusSqrd);
 
  fprintf(f, "xSteps45 %d zSteps45 %d\n", arc->xStep45, arc->zStep45);
-#endif
+#endif	/* TEST */
 
 #if defined(LATHE_CPP)
  printf("\narcInit\n");
- printf("radius %6.3f xRadius %5d xRaidusSqrd %10d\n"
-	 "zRadius %5d zRaidusSqrd %10d\n",
+ printf("radius %6.3f xRadius %5d xRadiusSqrd %10d\n"
+	 "zRadius %5d zRadiusSqrd %10d\n",
 	 radius, arc->xRadius, arc->xRadiusSqrd,
 	 arc->zRadius, arc->zRadiusSqrd);
 
@@ -501,6 +514,7 @@ void arcInit(float radius)
 	xPos(xMoveCtl.expLoc), zPos(zMoveCtl.expLoc));
 
 #endif	/* LATHE_CPP */
+
 #if TEST
  float x0 = xPosC(arc->p0.x);
  float z0 = zPosC(arc->p0.z);
@@ -510,7 +524,7 @@ void arcInit(float radius)
  fprintf(f, "p0 (%7.4f, %7.4f) p1 (%7.4f %7.4f)\n", x0, z0, x1, z1);
  fprintf(f, "p0 radius %7.4f p1 radius %7.4f\n",
 	 sqrt(x0 * x0 + z0 * z0), sqrt(x1 * x1 + z1 * z1));
-#endif
+#endif	/* TEST */
 
  arc->octStart = octantStart(arc->p0.x, arc->p0.z);
  arc->octEnd = octantEnd(arc->p1.x, arc->p1.z);
@@ -529,7 +543,7 @@ void arcInit(float radius)
 	 arc->p0.x, arc->p0.z, arc->octStart, arc->p1.x,
 	 arc->p1.z, arc->octEnd, arc->cwDir);
  fflush(f);
-#endif
+#endif	/* TEST */
 
 #if defined(LATHE_CPP)
  printf("p0 (%5d, %5d) o %d p1 (%5d %5d) o %d cwDir %d\n",
@@ -613,7 +627,45 @@ void arcInit(float radius)
  arc->lastMove = true;
 
  updOctant(octant);
+}
+
+#if defined(LATHE_CPP)
+
+void arcStepSetup(int inCount, int outCount)
+{
+ if (DBG_P)
+  printf("\narcStepSetup in %d out %d\n", inCount, outCount);
+ 
+ P_ARC_DATA arc = &arcData;
+
+ int dx = inCount;
+ int dy = outCount;
+
+ arc->incr1 = 2 * dy;
+ arc->incr2 = arc->incr1 - 2 * dx;
+ arc->initialD = arc->incr1 - dx;
+
+ arc->d = arc->initialD;
+}
+
+void arcStepUpdate()
+{
+ arcData.stepX += 1;
+ if (arcData.d < 0)
+ {
+  arcData.d += arcData.incr1;
  }
+ else
+ {
+  arcData.stepY += 1;
+  zPulse();
+  arcData.d += arcData.incr2;
+
+  arcStep();
+ }
+}
+
+#endif	/* LATHE_CPP */
 
 bool arcStep()
 {
@@ -698,7 +750,7 @@ bool arcStep()
 #if TEST
  if (cmd != PCMD_SET_DIR)
   saveStepHistory(arc->xPos, arc->zPos);
-#endif
+#endif	/* TEST */
 
  switch (cmd)
  {
@@ -752,7 +804,7 @@ bool arcStep()
   arc->rpt = 0;
   dbgArcStepClr();
   return(true);
-  break;
+  // break;
 
  case PEXT_OFFSET + PEXT_INCX:	/* 0 */
   rpt -= 1;
@@ -808,7 +860,7 @@ void arcTest(int xChange, int zChange, int cmd, int rpt)
 #if TEST
  while (arcStep() != false)
   ;
-#endif
+#endif	/* TEST */
 
  fprintf(f, "%5d x %5d z %5d ",
 	 arc->count, arc->cmdX, arc->cmdZ);
@@ -827,7 +879,7 @@ void arcTest(int xChange, int zChange, int cmd, int rpt)
   err = '*';
  }
  fprintf(f, "x %5d z %5d%c", h->stepX, h->stepZ, err);
-#endif
+#endif	/* TEST */
 
  char buf[16];
  fprintf(f, "delta %4d %4s xChg %3d zChg %3d rpt %3d cmd %d %2x\n",
@@ -1005,6 +1057,7 @@ void makeCommand(int x, int z, int dbg)
 #if ARC_DEBUG
  arcTest(xChange, zChange, cmd, rpt);
 #endif	/* ARC_DEBUG */
+
 #if defined(LATHE_CPP)
  if (dbg)
   arcPrint(xChange, zChange, cmd, rpt);
@@ -1261,7 +1314,7 @@ int main(int argc, char *argv[])
  polarToRect(&c, radius, a0, &arc->p0);
  polarToRect(&c, radius, a1, &arc->p1);
 
-#else
+#else  /* 0 */
 
  /*
    radius  0.539 xRadius  6847 xRaidusSqrd   46881409
@@ -1284,7 +1337,7 @@ int main(int argc, char *argv[])
  arc->p1.x = 7674;
  arc->p1.z = 0;
 
- #endif
+ #endif	 /* 0 */
 
  resetHistory();
  arcInit(radius);
@@ -1296,12 +1349,13 @@ int main(int argc, char *argv[])
 	arc->x, arc->z, fmtDelta(arc->delta, buf0, sizeof(buf0)),
 	fmtDelta(arc->lastDelta, buf1, sizeof(buf1)));
 #endif
+
  while (!arc->done)
  {
   arcUpdate(false);
 #if TEST
   arcStep();
-#endif
+#endif	/* TEST */
  }
  fprintf(f, "%5d x %5d z %5d\n",
 	 arc->count, arc->cmdX, arc->cmdZ);

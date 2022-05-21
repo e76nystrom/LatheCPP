@@ -79,6 +79,14 @@ typedef struct sArcData
 
  int zDir;			/* z direction for isr */
  int zPos;			/* z position for isr */
+
+ int d;				/* sum accumulator */
+ int incr1;			/* incr 1 value */
+ int incr2;			/* incr 2 value */
+ int initialD;			/* initial value for accumulator */
+
+ unsigned int stepX;		/* input steps */
+ unsigned int stepY;		/* output steps */
 } T_ARC_DATA, *P_ARC_DATA;
 
 EXT T_ARC_DATA arcData;
@@ -90,5 +98,10 @@ void arcQue(unsigned char cmd, unsigned char rpt);
 int octantStart(int x, int z);
 int octantEnd(int x, int z);
 void makeCommand(int x, int z, int dbg);
+
+#if defined(LATHE_CPP)
+void arcStepSetup(int inCount, int outCount);
+void arcStepUpdate();
+#endif	/* LATHE_CPP */
 
 #endif	// ->

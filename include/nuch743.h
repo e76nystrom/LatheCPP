@@ -31,6 +31,7 @@
 #define indexISR(x) EXTI0_IRQHandler(x)
 #define indexIRQn EXTI0_IRQn
 #define INDEX_PIN indexIRQn
+#define INDEX_GPIO_PORT Index_GPIO_Port
 
 #define encISR(x) EXTI2_IRQHandler(x)
 #define encIRQn EXTI2_IRQn

@@ -214,131 +214,132 @@ typedef struct sRemVar
  char motorTest;                /* 0x73 use stepper to test motor */
  char spindleEncoder;           /* 0x74 motor with spindle enc */
  char spindleSyncBoard;         /* 0x75 spindle sync board */
- char turnSync;                 /* 0x76 sync type for turning */
- char threadSync;               /* 0x77 sync type for threading */
- char capTmrEnable;             /* 0x78 enable capture timer */
- char cfgFpga;                  /* 0x79 using fpga */
- char cfgMega;                  /* 0x7a control link to mega */
- char cfgMpg;                   /* 0x7b manual pulse generator */
- char cfgDro;                   /* 0x7c digital readout */
- char cfgLcd;                   /* 0x7d lcd display */
- unsigned int cfgFcy;           /* 0x7e system clock speed */
- int cfgSwitch;                 /* 0x7f spindle off on switch */
- int cfgVarSpeed;               /* 0x80 spindle variable speed */
+ char spindleInternalSync;      /* 0x76 spindle internal sync */
+ char turnSync;                 /* 0x77 sync type for turning */
+ char threadSync;               /* 0x78 sync type for threading */
+ char capTmrEnable;             /* 0x79 enable capture timer */
+ char cfgFpga;                  /* 0x7a using fpga */
+ char cfgMega;                  /* 0x7b control link to mega */
+ char cfgMpg;                   /* 0x7c manual pulse generator */
+ char cfgDro;                   /* 0x7d digital readout */
+ char cfgLcd;                   /* 0x7e lcd display */
+ unsigned int cfgFcy;           /* 0x7f system clock speed */
+ int cfgSwitch;                 /* 0x80 spindle off on switch */
+ int cfgVarSpeed;               /* 0x81 spindle variable speed */
 
 // setup
 
- char setupDone;                /* 0x81 setup done */
+ char setupDone;                /* 0x82 setup done */
 
 // encoder counts per revolution
 
- uint16_t encPerRev;            /* 0x82 spindle enc counts per rev */
+ uint16_t encPerRev;            /* 0x83 spindle enc counts per rev */
 
 // test encoder setup variables
 
- char encEnable;                /* 0x83 encoder enable flag */
- uint16_t encPreScaler;         /* 0x84 encoder prescaler */
- uint16_t encTimer;             /* 0x85 encoder timer counts */
- int encRunCount;               /* 0x86 encoder run count */
+ char encEnable;                /* 0x84 encoder enable flag */
+ uint16_t encPreScaler;         /* 0x85 encoder prescaler */
+ uint16_t encTimer;             /* 0x86 encoder timer counts */
+ int encRunCount;               /* 0x87 encoder run count */
 
 // test encoder status variables
 
- char encRun;                   /* 0x87 encoder running flag */
- int16_t encCounter;            /* 0x88 encoder count in rev */
- int32_t encRevCounter;         /* 0x89 encoder revolution counter */
+ char encRun;                   /* 0x88 encoder running flag */
+ int16_t encCounter;            /* 0x89 encoder count in rev */
+ int32_t encRevCounter;         /* 0x8a encoder revolution counter */
 
 // measured spindle speed
 
- int16_t rpm;                   /* 0x8a current measured rpm */
+ int16_t rpm;                   /* 0x8b current measured rpm */
 
 // fpga frequency variables
 
- int32_t fpgaFrequency;         /* 0x8b fpga clock frequency */
- int16_t freqMult;              /* 0x8c frequency multiplier */
+ int32_t fpgaFrequency;         /* 0x8c fpga clock frequency */
+ int16_t freqMult;              /* 0x8d frequency multiplier */
 
 // xilinx configuration register
 
- int16_t xCfgReg;               /* 0x8d xilinx cfg register */
+ int16_t xCfgReg;               /* 0x8e xilinx cfg register */
 
 // z sync parameters
 
- uint16_t lSyncCycle;           /* 0x8e sync cycle length */
- uint16_t lSyncOutput;          /* 0x8f sync outputs per cycle */
- uint16_t lSyncPrescaler;       /* 0x90 sync prescaler */
+ uint16_t lSyncCycle;           /* 0x8f sync cycle length */
+ uint16_t lSyncOutput;          /* 0x90 sync outputs per cycle */
+ uint16_t lSyncPrescaler;       /* 0x91 sync prescaler */
 
 // x sync parameters
 
- uint16_t lXSyncCycle;          /* 0x91 sync cycle length */
- uint16_t lXSyncOutput;         /* 0x92 sync outputs per cycle */
- uint16_t lXSyncPrescaler;      /* 0x93 sync prescaler */
+ uint16_t lXSyncCycle;          /* 0x92 sync cycle length */
+ uint16_t lXSyncOutput;         /* 0x93 sync outputs per cycle */
+ uint16_t lXSyncPrescaler;      /* 0x94 sync prescaler */
 
 // threading variables
 
- int32_t thZStart;              /* 0x94 threading z start */
- int32_t thXStart;              /* 0x95 threading x start */
- float tanThreadAngle;          /* 0x96 tan of threading angle */
- int32_t xFeed;                 /* 0x97 x feed */
- float runoutDistance;          /* 0x98 runout distance */
- float runoutDepth;             /* 0x99 runout depth */
+ int32_t thZStart;              /* 0x95 threading z start */
+ int32_t thXStart;              /* 0x96 threading x start */
+ float tanThreadAngle;          /* 0x97 tan of threading angle */
+ int32_t xFeed;                 /* 0x98 x feed */
+ float runoutDistance;          /* 0x99 runout distance */
+ float runoutDepth;             /* 0x9a runout depth */
 
 // jog debug
 
- char jogDebug;                 /* 0x9a jog interrupt debug */
+ char jogDebug;                 /* 0x9b jog interrupt debug */
 
 // motor and speed control
 
- unsigned int pwmFreq;          /* 0x9b spindle speed pwm frequency */
- int16_t minSpeed;              /* 0x9c min speed for current range */
- int16_t maxSpeed;              /* 0x9d max speed for current range */
+ unsigned int pwmFreq;          /* 0x9c spindle speed pwm frequency */
+ int16_t minSpeed;              /* 0x9d min speed for current range */
+ int16_t maxSpeed;              /* 0x9e max speed for current range */
 
 // current operation
 
- char currentOp;                /* 0x9e current operation */
+ char currentOp;                /* 0x9f current operation */
 
 // global limits and home
 
- char limitOverride;            /* 0x9f override limit switches */
- char commonLimits;             /* 0xa0 all limit switches one pin */
- char limitsEnabled;            /* 0xa1 limits enabled */
- char commonHome;               /* 0xa2 all home switches one pin */
+ char limitOverride;            /* 0xa0 override limit switches */
+ char commonLimits;             /* 0xa1 all limit switches one pin */
+ char limitsEnabled;            /* 0xa2 limits enabled */
+ char commonHome;               /* 0xa3 all home switches one pin */
 
 // z limits and home
 
- char zLimEna;                  /* 0xa3 z limit enable */
- char zLimNegInv;               /* 0xa4 z negative limit invert */
- char zLimPosInv;               /* 0xa5 z Positive limit Invert */
- char zHomeEna;                 /* 0xa6 z home enable */
- char zHomeInv;                 /* 0xa7 z home invert */
+ char zLimEna;                  /* 0xa4 z limit enable */
+ char zLimNegInv;               /* 0xa5 z negative limit invert */
+ char zLimPosInv;               /* 0xa6 z Positive limit Invert */
+ char zHomeEna;                 /* 0xa7 z home enable */
+ char zHomeInv;                 /* 0xa8 z home invert */
 
 // x limits and home
 
- char xLimEna;                  /* 0xa8 x limit enable */
- char xLimNegInv;               /* 0xa9 x negative limit invert */
- char xLimPosInv;               /* 0xaa x Positive limit Invert */
- char xHomeEna;                 /* 0xab x home enable */
- char xHomeInv;                 /* 0xac x home invert */
+ char xLimEna;                  /* 0xa9 x limit enable */
+ char xLimNegInv;               /* 0xaa x negative limit invert */
+ char xLimPosInv;               /* 0xab x Positive limit Invert */
+ char xHomeEna;                 /* 0xac x home enable */
+ char xHomeInv;                 /* 0xad x home invert */
 
 // e stop
 
- char eStopEna;                 /* 0xad enable estop */
- char eStopInv;                 /* 0xae invert estop siganl */
+ char eStopEna;                 /* 0xae enable estop */
+ char eStopInv;                 /* 0xaf invert estop siganl */
 
 // command pause
 
- char cmdPaused;                /* 0xaf move commands paused */
+ char cmdPaused;                /* 0xb0 move commands paused */
 
 // arc parameters
 
- float arcRadius;               /* 0xb0 arc radius */
- int arcXCenter;                /* 0xb1 arc x center */
- int arcZCenter;                /* 0xb2 arc z center */
- int arcXStart;                 /* 0xb3 arc x start */
- int arcZStart;                 /* 0xb4 arc z start */
- int arcXEnd;                   /* 0xb5 arc x center */
- int arcZEnd;                   /* 0xb6 arc z center */
- char megaVfd;                  /* 0xb7 mega vfd speed mode */
- char megaSim;                  /* 0xb8 mega encoder lines */
- int16_t maxParm;               /* 0xb9 maximum parameter */
+ float arcRadius;               /* 0xb1 arc radius */
+ int arcXCenter;                /* 0xb2 arc x center */
+ int arcZCenter;                /* 0xb3 arc z center */
+ int arcXStart;                 /* 0xb4 arc x start */
+ int arcZStart;                 /* 0xb5 arc z start */
+ int arcXEnd;                   /* 0xb6 arc x center */
+ int arcZEnd;                   /* 0xb7 arc z center */
+ char megaVfd;                  /* 0xb8 mega vfd speed mode */
+ char megaSim;                  /* 0xb9 mega encoder lines */
+ int16_t maxParm;               /* 0xba maximum parameter */
 } T_REM_VAR, *P_REM_VAR;
 
 extern T_REM_VAR rVar;

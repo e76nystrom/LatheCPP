@@ -256,10 +256,11 @@ enum D_MESSAGE
  D_ZEDN,                        /* 32 x20 Z spindle encoder done count */
  D_ZX,                          /* 33 x21 z  */
  D_ZY,                          /* 34 x22 z  */
- D_ZIDX,                        /* 35 x23 z dro at index pulse  */
- D_HST,                         /* 36 x24 home state */
- D_MSTA,                        /* 37 x25 move state */
- D_MCMD,                        /* 38 x26 move command */
+ D_ZIDXD,                       /* 35 x23 z dro at index pulse */
+ D_ZIDXP,                       /* 36 x24 z position at index pulse */
+ D_HST,                         /* 37 x25 home state */
+ D_MSTA,                        /* 38 x26 move state */
+ D_MCMD,                        /* 39 x27 move command */
 };
 
 #ifdef ENUM_D_MESSAGE
@@ -301,10 +302,11 @@ const char *dMessageList[] =
  "D_ZEDN",                      /* 32 x20 Z spindle encoder done count */
  "D_ZX",                        /* 33 x21 z  */
  "D_ZY",                        /* 34 x22 z  */
- "D_ZIDX",                      /* 35 x23 z dro at index pulse  */
- "D_HST",                       /* 36 x24 home state */
- "D_MSTA",                      /* 37 x25 move state */
- "D_MCMD",                      /* 38 x26 move command */
+ "D_ZIDXD",                     /* 35 x23 z dro at index pulse */
+ "D_ZIDXP",                     /* 36 x24 z position at index pulse */
+ "D_HST",                       /* 37 x25 home state */
+ "D_MSTA",                      /* 38 x26 move state */
+ "D_MCMD",                      /* 39 x27 move command */
 };
 
 #else
@@ -379,7 +381,7 @@ enum SEL_THREAD
 {
  SEL_TH_NO_ENC,                 /*  0 x00 No Encoder */
  SEL_TH_STEP,                   /*  1 x01 Stepper */
- SEL_TH_ENC,                    /*  2 x02 Encoder Direct */
+ SEL_TH_ENC,                    /*  2 x02 Encoder */
  SEL_TH_ISYN_RENC,              /*  3 x03 Int Syn, Runout Enc */
  SEL_TH_ESYN_RENC,              /*  4 x04 Ext Syn, Runout Enc */
  SEL_TH_ESYN_RSYN,              /*  5 x05 Ext Syn, Runout Syn */
@@ -392,7 +394,7 @@ const char *selThreadList[] =
 {
  "SEL_TH_NO_ENC",               /*  0 x00 No Encoder */
  "SEL_TH_STEP",                 /*  1 x01 Stepper */
- "SEL_TH_ENC",                  /*  2 x02 Encoder Direct */
+ "SEL_TH_ENC",                  /*  2 x02 Encoder */
  "SEL_TH_ISYN_RENC",            /*  3 x03 Int Syn, Runout Enc */
  "SEL_TH_ESYN_RENC",            /*  4 x04 Ext Syn, Runout Enc */
  "SEL_TH_ESYN_RSYN",            /*  5 x05 Ext Syn, Runout Syn */

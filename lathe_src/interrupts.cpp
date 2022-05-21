@@ -466,7 +466,8 @@ extern "C" void indexISR()
 
  if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
  {
-  dbgmsg(D_ZIDX, rVar.zDroLoc);	/* save dro position */
+  dbgmsg(D_ZIDXD, rVar.zDroLoc); /* save dro position */
+  dbgmsg(D_ZIDXP, rVar.zLoc);	 /* save location */
  }
 
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
@@ -547,7 +548,7 @@ extern "C" void spindleTmrISR()
   {
    sp.spStep = 0;		/* reset step counter */
    index = 1;			/* set index pin */
-   EXTI->SWIER |= Index_Pin;	/* generate software interrupt */
+   EXTI->SWIER |= INDEX_PIN;	/* generate software interrupt */
   }
  }
  else
@@ -705,6 +706,14 @@ extern "C" void spindleTmrISR()
    dbgSpCycSet();
   }
 
+  if (arcData.active)		/* if arc move in progress */
+  {
+   if ((zIsr.active & ARC_ACTIVE_STEP) != 0) /* if arc active */
+   {
+    arcStepUpdate();
+   }
+  }
+  
   dbgSlvClr();
   if (sp.startAxis & START_ENA)	/* if start flag set */
   {
@@ -823,7 +832,7 @@ extern "C" void zTmrISR()
  dbgZIsrSet();
  zTmrClrIF();			/* clear interrupt flag */
 
- if (!arcData.active)		/* if arc move active */
+ if (!arcData.active)		/* if arc move not active */
  {
   rVar.zLoc += zIsr.dir;	/* update position */
   zIsr.steps++;			/* count a step moved */
@@ -1089,7 +1098,7 @@ extern "C" void xTmrISR()
  dbgXRemClr();
  xTmrClrIF();			/* clear interrupt flag */
 
- if (!arcData.active)		/* if arc move active */
+ if (!arcData.active)		/* if arc move not active */
  {
   rVar.xLoc += xIsr.dir;	/* update position */
   xIsr.steps++;			/* count a step moved */
@@ -1236,6 +1245,11 @@ extern "C" void spSyncISR()
 {
  EXTI->PR = ExtInt_Pin;		/* clear encoder interrupt */
 
+ if ((zIsr.active & ARC_ACTIVE_EXT) != 0) /* if arc active */
+ {
+  arcStepUpdate();
+ }
+
  if ((zIsr.active & SYNC_ACTIVE_EXT) != 0) /* if z axis active */
  {
   dbgZEncSet();
@@ -1263,6 +1277,7 @@ extern "C" void encISR()
 {
  EXTI->PR = encIRQ_Bit;
  dbgEncIsrSet();
+ 
  if ((zIsr.active & ARC_ACTIVE_ENC) != 0) /* if arc active */
  {
   arcStep();
@@ -1426,6 +1441,11 @@ extern "C" void intTmrISR()
   {
    dbgCycEndSet();
   }
+ }
+
+ if ((zIsr.active & ARC_ACTIVE_TMR) != 0) /* if arc active */
+ {
+  arcStep();
  }
 
  if (zIsr.active & SYNC_ACTIVE_TMR) /* if z axis active */
