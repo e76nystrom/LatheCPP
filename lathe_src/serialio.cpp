@@ -893,27 +893,27 @@ char query(unsigned char (*get)(), const char *format, ...)
 
 char query(unsigned char (*get)(int *), int *val, const char *format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-    flushBuf();
-    char ch = get(val);
-    newline();
-    return(ch);
+ va_list args;
+ va_start(args, format);
+ vprintf(format, args);
+ va_end(args);
+ flushBuf();
+ char ch = get(val);
+ newline();
+ return(ch);
 }
 
 char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
 	   const char *format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-    flushBuf();
-    char ch = get(val);
-    newline();
-    return(ch);
+ va_list args;
+ va_start(args, format);
+ vprintf(format, args);
+ va_end(args);
+ flushBuf();
+ char ch = get(val);
+ newline();
+ return(ch);
 }
 
 void prtbuf(unsigned char *p, int size)
