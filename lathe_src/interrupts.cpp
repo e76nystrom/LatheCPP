@@ -464,10 +464,18 @@ extern "C" void indexISR()
   }
  }
 
- if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
+ if (zIsr.dbgPos)		/* if debugging position */
  {
-  dbgmsg(D_ZIDXD, rVar.zDroLoc); /* save dro position */
-  dbgmsg(D_ZIDXP, rVar.zLoc);	 /* save location */
+  if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
+  {
+   dbgmsg(D_ZIDXD, rVar.zDroLoc); /* save dro position */
+  }
+  dbgmsg(D_ZIDXP, rVar.zLoc);	/* save location */
+ }
+ 
+ if (xIsr.dbgPos)
+ {
+  dbgmsg(D_XIDXP, rVar.xLoc);	/* save location */
  }
 
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */

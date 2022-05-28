@@ -313,6 +313,7 @@ typedef struct s_zxisr
  char encoderDirect;		/* use encoder directly */
  char useDro;			/* use dro for move */
  char errFlag;
+ char dbgPos;
 
  int dir;			/* axis direction */
  int syncInit;			/* initialized for sync operation */
@@ -4002,6 +4003,7 @@ void zControl()
   switch (cmd & CMD_MSK)
   {
   case CMD_SYN:
+   zIsr.dbgPos = true;
    zTurnInit(&zTA, mov->dir, mov->dist); /* init synchronized move */
    if ((cmd & (Z_SYN_START | Z_SYN_LEFT)) != 0) /* if start on index pulse */
    {
@@ -4106,7 +4108,10 @@ void zControl()
 
  case AXIS_WAIT_MOVE:		/* 0x03 wait for an x move to complete */
   if (zIsr.done)		/* if done */
+  {
+   zIsr.dbgPos = false;
    mov->state = AXIS_DONE;	/* clean up everything */
+  }
   break;
 
  case AXIS_DONE:		/* 0x04 done state */
@@ -4819,6 +4824,7 @@ void xControl()
   switch (cmd & CMD_MSK)	/* select on move type */
   {
   case CMD_SYN:			/* synchronized move */
+   xIsr.dbgPos = true;
    xTurnInit(&xTA, mov->dir, mov->dist); /* init for turning */
    if ((cmd & X_SYN_START) != 0) /* if start on index pulse */
    {
@@ -4928,6 +4934,7 @@ void xControl()
  case AXIS_WAIT_MOVE:		/* 0x03 wait for an x move to complete */
   if (xIsr.done)		/* if done */
   {
+   xIsr.dbgPos = false;
    if (DBG_MOVOP & DBG_DISABLE)
    {
     unsigned int spindleSteps = xIsr.stopPos + xIsr.stopRev * sp.stepsRev;
@@ -7697,16 +7704,16 @@ void testOutputs(int flag)
     int mask = 1;
     for (unsigned int j = 0; i < sizeof(inputDef) / sizeof(T_PORT_INPUT); j++)
     {
-     if ((p->gpio->IDR & p->mask) != 0) /* if bit set */
+     if ((p->gpio->IDR & p->mask) != 0) /* bit set */
      {
-      if ((inputMask & mask) == 0) /* if bit currently clear */
+      if ((inputMask & mask) == 0) /* bit currently clear */
       {
        inputMask |= mask;	/* set input mask */
        printf("%-6s set\n", p->name);
        break;			/* one change per loop */
       }
      }
-     else			/* if bit clear */
+     else			/* bit clear */
      {
       if ((inputMask & mask) != 0)
       {

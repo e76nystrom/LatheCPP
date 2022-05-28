@@ -256,11 +256,13 @@ enum D_MESSAGE
  D_ZEDN,                        /* 32 x20 Z spindle encoder done count */
  D_ZX,                          /* 33 x21 z  */
  D_ZY,                          /* 34 x22 z  */
- D_ZIDXD,                       /* 35 x23 z dro at index pulse */
- D_ZIDXP,                       /* 36 x24 z position at index pulse */
- D_HST,                         /* 37 x25 home state */
- D_MSTA,                        /* 38 x26 move state */
- D_MCMD,                        /* 39 x27 move command */
+ D_XIDXD,                       /* 35 x23 x dro at index pulse */
+ D_XIDXP,                       /* 36 x24 x position at index pulse */
+ D_ZIDXD,                       /* 37 x25 z dro at index pulse */
+ D_ZIDXP,                       /* 38 x26 z position at index pulse */
+ D_HST,                         /* 39 x27 home state */
+ D_MSTA,                        /* 40 x28 move state */
+ D_MCMD,                        /* 41 x29 move command */
 };
 
 #ifdef ENUM_D_MESSAGE
@@ -302,11 +304,13 @@ const char *dMessageList[] =
  "D_ZEDN",                      /* 32 x20 Z spindle encoder done count */
  "D_ZX",                        /* 33 x21 z  */
  "D_ZY",                        /* 34 x22 z  */
- "D_ZIDXD",                     /* 35 x23 z dro at index pulse */
- "D_ZIDXP",                     /* 36 x24 z position at index pulse */
- "D_HST",                       /* 37 x25 home state */
- "D_MSTA",                      /* 38 x26 move state */
- "D_MCMD",                      /* 39 x27 move command */
+ "D_XIDXD",                     /* 35 x23 x dro at index pulse */
+ "D_XIDXP",                     /* 36 x24 x position at index pulse */
+ "D_ZIDXD",                     /* 37 x25 z dro at index pulse */
+ "D_ZIDXP",                     /* 38 x26 z position at index pulse */
+ "D_HST",                       /* 39 x27 home state */
+ "D_MSTA",                      /* 40 x28 move state */
+ "D_MCMD",                      /* 41 x29 move command */
 };
 
 #else
