@@ -966,6 +966,16 @@ char query(unsigned char (*get)(), const char *format, ...)
 
 void info()
 {
+#if defined(ARDUINO_ARCH_STM32)
+ if (query(&getNum, " flag [0x%x]: ", lastFlags) == 0)
+ {
+  val = (int) lastFlags;
+ }
+ else
+ {
+  lastFlags = val;
+ }
+#else
  int val;
  if (query(&getNum, &val, " flag [0x%x]: ", lastFlags) == 0)
  {
@@ -975,6 +985,7 @@ void info()
  {
   lastFlags = val;
  }
+#endif
  newline();
  flushBuf();
  if (val & 0x01)
@@ -1090,12 +1101,16 @@ void info()
 
  if (val & 0x400000)
  {
+#if defined(STM32MON)
+  i2cInfo(I2C1, "I2C1");
+#else
 #ifdef I2C1
   i2cInfo(I2C_DEV, I2C_NAME);
 #endif
 #if defined(SPI3)
   spiInfo(SPIn, SPI_NAME);
 #endif  /* SPI3 */
+#endif  // STM32MON
  }
 
  if (val & 0x800000)
