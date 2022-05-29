@@ -258,21 +258,21 @@ void gpioInfo(GPIO_TypeDef *gpio)
  printf("mode     ");
  val = gpio->CRL;
  for (i = 0; i < 8; i++)
-  printf(" %2d", (val >> (4 * i)) & 0x3);
+  printf(" %2d", (int) (val >> (4 * i)) & 0x3);
 
  val = gpio->CRH;
  for (i = 0; i < 8; i++)
-  printf(" %2d", (val >> (4 * i)) & 0x3);
+  printf(" %2d", (int) (val >> (4 * i)) & 0x3);
 
  printf("\n");
  printf("cnf      ");
  val = gpio->CRL;
  for (i = 0; i < 8; i++)
-  printf(" %2d", (val >> ((4 * i) + 2)) & 0x3);
+  printf(" %2d", (int) (val >> ((4 * i) + 2)) & 0x3);
 
  val = gpio->CRH;
  for (i = 0; i < 8; i++)
-  printf(" %2d", (val >> ((4 * i) + 2)) & 0x3);
+  printf(" %2d", (int) (val >> ((4 * i) + 2)) & 0x3);
 #endif	/* STM32F1 */
 
  printf("\n");
