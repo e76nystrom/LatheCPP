@@ -67,7 +67,7 @@ add_definitions()
 add_definitions(-DSTM32F407xx -DSTM32F4 -DDISCOVERY407 -DLATHE_CPP -DCLION)
 
 file(GLOB_RECURSE SOURCES "Startup/*.*" "Src/*.*" "Drivers/*.*")
-set(SOURCES1 ../LatheCPP/lathe_src/arc.cpp ../LatheCPP/lathe_src/encoder.cpp ../LatheCPP/lathe_src/getSP.s ../LatheCPP/lathe_src/i2cx.cpp ../LatheCPP/lathe_src/interrupts.cpp ../LatheCPP/lathe_src/lathe.cpp ../LatheCPP/lathe_src/latheX.cpp ../LatheCPP/lathe_src/lcd.cpp ../LatheCPP/lathe_src/lclcmd.cpp ../LatheCPP/lathe_src/lclcmdX.cpp ../LatheCPP/lathe_src/mainLoop.cpp ../LatheCPP/lathe_src/pid.cpp ../LatheCPP/lathe_src/pidAutoTune.cpp ../LatheCPP/lathe_src/remcmd.cpp ../LatheCPP/lathe_src/remfunc.cpp ../LatheCPP/lathe_src/remvar.cpp ../LatheCPP/lathe_src/serialio.cpp ../LatheCPP/lathe_src/spix.cpp ../LatheCPP/lathe_src/stm32Info.cpp ../LatheCPP/lathe_src/xcontrol.cpp ../LatheCPP/lathe_src/zcontrol.cpp)
+set(SOURCES1 ../LatheCPP/lathe_src/arc.cpp ../LatheCPP/lathe_src/encoder.cpp ../LatheCPP/lathe_src/getSP.S ../LatheCPP/lathe_src/i2cx.cpp ../LatheCPP/lathe_src/interrupts.cpp ../LatheCPP/lathe_src/lathe.cpp ../LatheCPP/lathe_src/latheX.cpp ../LatheCPP/lathe_src/lcd.cpp ../LatheCPP/lathe_src/lclcmd.cpp ../LatheCPP/lathe_src/lclcmdX.cpp ../LatheCPP/lathe_src/mainLoop.cpp ../LatheCPP/lathe_src/pid.cpp ../LatheCPP/lathe_src/pidAutoTune.cpp ../LatheCPP/lathe_src/remcmd.cpp ../LatheCPP/lathe_src/remfunc.cpp ../LatheCPP/lathe_src/remvar.cpp ../LatheCPP/lathe_src/serialio.cpp ../LatheCPP/lathe_src/spix.cpp ../LatheCPP/lathe_src/stm32Info.cpp ../LatheCPP/lathe_src/xcontrol.cpp ../LatheCPP/lathe_src/zcontrol.cpp)
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F407VGTX_FLASH.ld)
 
