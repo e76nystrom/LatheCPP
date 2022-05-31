@@ -3,7 +3,7 @@
 #define EXT
 #endif
 
-#include "remstruct.h"
+#include "remStruct.h"
 #include "ctlbits.h"
 #include "ctlstates.h"
 

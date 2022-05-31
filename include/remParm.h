@@ -298,7 +298,7 @@ char remParm[] =
 // e stop
 
  sizeof(rVar.eStopEna),         /* 0xae enable estop */
- sizeof(rVar.eStopInv),         /* 0xaf invert estop siganl */
+ sizeof(rVar.eStopInv),         /* 0xaf invert estop signal */
 
 // command pause
 

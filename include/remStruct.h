@@ -322,7 +322,7 @@ typedef struct sRemVar
 // e stop
 
  char eStopEna;                 /* 0xae enable estop */
- char eStopInv;                 /* 0xaf invert estop siganl */
+ char eStopInv;                 /* 0xaf invert estop signal */
 
 // command pause
 

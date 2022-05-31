@@ -298,7 +298,7 @@ enum REM_PARM
 // e stop
 
  E_STOP_ENA,                    /* 0xae enable estop */
- E_STOP_INV,                    /* 0xaf invert estop siganl */
+ E_STOP_INV,                    /* 0xaf invert estop signal */
 
 // command pause
 

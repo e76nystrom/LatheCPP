@@ -713,7 +713,7 @@ void setRemVar(int parm, T_DATA_UNION val)
   rVar.eStopEna = val.t_char;
   break;
 
- case E_STOP_INV:                /* 175 0xaf invert estop siganl */
+ case E_STOP_INV:                /* 175 0xaf invert estop signal */
   rVar.eStopInv = val.t_char;
   break;
 
@@ -1468,7 +1468,7 @@ void getRemVar(int parm, P_DATA_UNION val)
   val->t_char = rVar.eStopEna;
   break;
 
- case E_STOP_INV:                /* 175 0xaf invert estop siganl */
+ case E_STOP_INV:                /* 175 0xaf invert estop signal */
   val->t_char = rVar.eStopInv;
   break;
 

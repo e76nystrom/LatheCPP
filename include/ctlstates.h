@@ -39,12 +39,12 @@ enum M_STATES
  M_WAIT_Z,                      /*  1 x01 wait for z to complete */
  M_WAIT_X,                      /*  2 x02 wait for x to complete */
  M_WAIT_SPINDLE,                /*  3 x03 wait for spindle start */
- M_WAIT_SYNC_PARMS,             /*  4 x04 wait for sync paramaters */
+ M_WAIT_SYNC_PARMS,             /*  4 x04 wait for sync parameters */
  M_WAIT_SYNC_CMD,               /*  5 x05 wait for sync command */
  M_START_SYNC,                  /*  6 x06 start sync */
  M_WAIT_SYNC_READY,             /*  7 x07 wait for sync */
  M_WAIT_SYNC_DONE,              /*  8 x08 wait for sync done */
- M_WAIT_MEASURE_DONE,           /*  9 x09 wait for measurment done */
+ M_WAIT_MEASURE_DONE,           /*  9 x09 wait for measurement done */
  M_WAIT_PROBE,                  /* 10 x0a wait for probe to complete */
  M_WAIT_MEASURE,                /* 11 x0b wait for measurement to complete */
  M_WAIT_SAFE_X,                 /* 12 x0c wait for move to safe x to complete */
@@ -60,12 +60,12 @@ const char *mStatesList[] =
  "M_WAIT_Z",                    /*  1 x01 wait for z to complete */
  "M_WAIT_X",                    /*  2 x02 wait for x to complete */
  "M_WAIT_SPINDLE",              /*  3 x03 wait for spindle start */
- "M_WAIT_SYNC_PARMS",           /*  4 x04 wait for sync paramaters */
+ "M_WAIT_SYNC_PARMS",           /*  4 x04 wait for sync parameters */
  "M_WAIT_SYNC_CMD",             /*  5 x05 wait for sync command */
  "M_START_SYNC",                /*  6 x06 start sync */
  "M_WAIT_SYNC_READY",           /*  7 x07 wait for sync */
  "M_WAIT_SYNC_DONE",            /*  8 x08 wait for sync done */
- "M_WAIT_MEASURE_DONE",         /*  9 x09 wait for measurment done */
+ "M_WAIT_MEASURE_DONE",         /*  9 x09 wait for measurement done */
  "M_WAIT_PROBE",                /* 10 x0a wait for probe to complete */
  "M_WAIT_MEASURE",              /* 11 x0b wait for measurement to complete */
  "M_WAIT_SAFE_X",               /* 12 x0c wait for move to safe x to complete */

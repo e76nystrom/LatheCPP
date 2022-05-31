@@ -63,7 +63,7 @@
 
 // status register
 
-#define S_Z_DONE_INT  (1 << 0)  /* 0x001 z done interrrupt */
+#define S_Z_DONE_INT  (1 << 0)  /* 0x001 z done interrupt */
 #define S_X_DONE_INT  (1 << 1)  /* 0x002 x done interrupt */
 #define S_DBG_DONE    (1 << 2)  /* 0x004 debug done */
 #define S_Z_START     (1 << 3)  /* 0x008 z start */
