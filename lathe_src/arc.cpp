@@ -42,7 +42,7 @@ inline void updZLoc(int dir)
  zPulseTrig();
 }
 
-#define ISR_DEBUG 0
+#define ISR_DEBUG 1
 #define ARC_DEBUG 0
 #define TEST 0
 #define STM_DEBUG 0
@@ -155,6 +155,9 @@ typedef struct sArcData
 
  int zDir;			/* z direction for isr */
  int zPos;			/* z position for isr */
+
+ int qCol;
+ int sCol;
 
  int d;				/* sum accumulator */
  int incr1;			/* incr 1 value */
@@ -382,6 +385,9 @@ void arcQue(unsigned char cmd, unsigned char rpt)
  P_ARC_DATA arc = &arcData;
  unsigned char *fil = arc->fil;
  arc->lastFil = fil;
+#if ISR_DEBUG
+// printf("[%02x%02x", ((unsigned int) fil) & 0xff, cmd);
+#endif
  *fil++ = cmd;
  if (fil >= arc->arcBufEnd)
   fil = arc->arcBuf;
@@ -392,7 +398,20 @@ void arcQue(unsigned char cmd, unsigned char rpt)
   if (fil >= arc->arcBufEnd)
    fil = arc->arcBuf;
   len += 1;
+#if ISR_DEBUG
+//  printf("%02x]", rpt);
+#endif
  }
+#if ISR_DEBUG
+// else
+//  printf("]");
+// arc->qCol += 1;
+// if (arc->qCol >= 10)
+// {
+//  printf("\n");
+//  arc->qCol = 0;
+// }
+#endif
  arc->fil = fil;
  __disable_irq();		/* disable interrupt */
  arc->qCount += len;
@@ -444,6 +463,11 @@ void arcInit(float radius)
 
  arc->xStepsInch = xAxis.stepsInch;
  arc->zStepsInch = zAxis.stepsInch;
+
+#if (ISR_DEBUG != 0)
+ arc->qCol = 0;
+ arc->sCol = 0;
+#endif
 
 #endif	/* LATHE_CPP */
 
@@ -733,6 +757,12 @@ bool arcStep()
 #if defined(LATHE_CPP) && (ISR_DEBUG != 0)
   sndhexIsr((unsigned char *) &rpt, 1);
   putBufCharIsr(')');
+  arc->sCol += 1;
+  if (arc->sCol >= 10)
+  {
+   putBufStrIsr("\n\r");
+   arc->sCol = 0;
+  }
 #endif
     
   arc->emp = emp;
@@ -836,9 +866,6 @@ bool arcStep()
    arc->xPos += arc->xDir;
   }
   break;
-
-  default:
-   break;
  }
 
  arc->rpt = rpt;
@@ -987,7 +1014,19 @@ void makeCommand(int x, int z, int dbg)
  int rpt = 0;
  bool extend = false;
 
- if (xChange == zChange)
+ if (xChange != 0 and zChange == 0)
+ {
+  extend = true;
+  rpt = xChange;
+  cmd = PEXT_INCX;		/* ext 0 */
+ }
+ else if (xChange == 0 and zChange != 0)
+ {
+  extend = true;
+  rpt = zChange;
+  cmd = PEXT_INCZ;		/* ext 1 */
+ }
+ else if (xChange == zChange)
  {
   if (zChange == 0)
    return;
@@ -1021,25 +1060,25 @@ void makeCommand(int x, int z, int dbg)
   rpt = zChange;
   cmd = PEXT_INCX2_INCZ;	/* ext 3 */
  }
- else if (xChange != 0 and zChange == 0)
- {
-  extend = true;
-  rpt = xChange;
-  cmd = PEXT_INCX;		/* ext 0 */
- }
- else if (xChange == 0 and zChange != 0)
- {
-  extend = true;
-  rpt = xChange;
-  cmd = PEXT_INCZ;		/* ext 1 */
- }
  else
  {
   printf("no command\n");
  }
 
+#if ISR_DEBUG
+ printf("[%02x", ((unsigned int) arc->fil) & 0xff);
+#endif
+ 
+ if (rpt == 0)
+ {
+  printf("repeat 0");
+ }
+  
  if (!extend)
  {
+#if ISR_DEBUG
+  printf("%c%02x]", cmd + '0', rpt);
+#endif
   if (rpt < PCMD_RPT_SHORT)
   {
    cmd |= rpt << PCMD_RPT_SHIFT;
@@ -1049,9 +1088,20 @@ void makeCommand(int x, int z, int dbg)
  }
  else
  {
+#if ISR_DEBUG
+  printf("%c%02x]", cmd + 'a', rpt);
+#endif
   cmd = PCMD_EXTEND | (cmd << PCMD_RPT_SHIFT);
  }
-
+#if ISR_DEBUG
+ arc->qCol += 1;
+ if (arc->qCol >= 10)
+ {
+  printf("\n");
+  arc->qCol = 0;
+ }
+#endif
+ 
  arcQue(cmd, rpt);
 
 #if ARC_DEBUG

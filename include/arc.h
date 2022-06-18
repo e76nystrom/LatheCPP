@@ -80,6 +80,9 @@ typedef struct sArcData
  int zDir;			/* z direction for isr */
  int zPos;			/* z position for isr */
 
+ int qCol;
+ int sCol;
+
  int d;				/* sum accumulator */
  int incr1;			/* incr 1 value */
  int incr2;			/* incr 2 value */
