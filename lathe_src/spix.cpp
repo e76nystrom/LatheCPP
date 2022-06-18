@@ -178,12 +178,17 @@ extern "C" void spiISR();
 #endif	// ->
 #ifdef __SPI__
 
-#if defined(SPI_SEL_Pin)
+#if defined(SPI_SEL_Pin) || defined(CS0_Pin)
 
 void spisel()
 {
  SPIn->CR1 |= SPI_CR1_SPE;
+#if defined(SPI_SEL_Pin)
  SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
+#endif
+#if defined(CS0_Pin)
+ CS0_GPIO_Port->BSRR = (CS0_Pin << 16);
+#endif
 }
 
 char spiRelTmp;
@@ -217,7 +222,12 @@ void spirel()
 #endif	/* CYCLE_CTR */
 
  SPIn->CR1 &= ~SPI_CR1_SPE;
- SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
+#if defined(SPI_SEL_Pin)
+ SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin);
+#endif
+#if defined(CS0_Pin)
+ CS0_GPIO_Port->BSRR = (CS0_Pin);
+#endif
 
 #if defined(CYCLE_CTR)
  //printf("spirel %02x t %u\n", (unsigned int) SPIn->SR, (unsigned int) t);
