@@ -1,4 +1,3 @@
-//#if !defined(INCLUDE)
 #define __REMCMD__
 #if !defined(WIN32)
 #ifdef STM32F4
@@ -12,10 +11,11 @@
 #endif
 #endif
 
-#include "remstruct.h"
+#include "remStruct.h"
 #include "lathe.h"
 
 #include "Xilinx.h"
+
 #if !defined(WIN32)
 #include "serialio.h"
 #include "spix.h"
@@ -28,7 +28,10 @@
 
 #define EXT
 #include "remcmd.h"
-//#endif
+
+#if defined(MEGAPORT)
+#include "megaCmdList.h"
+#endif	/* MEGAPORT */
 
 #if defined(__REMCMD_INC__)	// <-
 
@@ -37,34 +40,13 @@
 #endif
 
 #define REM_ISR 1		/* remote port using isr */
-
-#if REM_ISR
-#define putrem putRem
-#define putstrrem putstrRem
-#define sndhexrem sndhexRem
-#define getrem getRem
-#define gethexrem() gethexRem()
-#define getnumrem getnumRem
-#define getstrrem getstrRem
-#else
-#define putrem putx1
-#define putstrrem putstr1
-#define sndhexrem sndhex1
-#define getrem get1
-#define gethexrem gethex1
-#define getnumrem getnum1
-#define getstrrem getstr1
-#endif
-
 #define DBG_LOAD 1
 
-void remcmd(void);
-void loadVal(void);
+void remcmd();
+void loadVal();
 
-EXT int16_t tmpval;
-
-#include "cmdList.h"
-#include "parmList.h"
+#include "remCmdList.h"
+#include "remParmList.h"
 #include "ctlbits.h"
 
 #endif	// ->
@@ -117,86 +99,49 @@ void xMoveRel(int dist)
 {
 }
 
-#endif
+#endif	/* WIN32 */
 
-#include "remparm.h"
+#include "remParm.h"
 
-void loadVal(void)
+void loadVal()
 {
- gethexrem();			/* read the parameter number */
- int parm = valRem;		/* save it */
-
-#if 1
+ int parm;
+ gethexRem(&parm);		/* read the parameter number */
  if (parm < MAX_PARM)		/* if in range */
  {
+  T_INT_FLOAT intFloat;
   T_DATA_UNION parmVal;
-  int type = getnumrem();	/* get the value */
+  int type = getnumRem(&intFloat); /* get the value */
   if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
-   int size = remparm[parm].size; /* value size */
-   printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) valRem);
+   int size = remParm[parm];	/* value size */
+   printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) intFloat.i);
 #endif
-   parmVal.t_int = valRem;
+   parmVal.t_int = intFloat.i;
   }
   else if (type == FLOAT_VAL)	/* if floating value */
   {
-   parmVal.t_float = fValRem;
+   parmVal.t_float = intFloat.f;
 #if DBG_LOAD
-   printf("w parm %2x     val %8.4f\n", parm, fValRem);
+   printf("w parm %2x     val %8.4f\n", parm, intFloat.f);
 #endif
   }
   setRemVar(parm, parmVal);
  }
-#else
- if (parm < MAX_PARM)		/* if in range */
- {
-  P_PARM valptr = &remparm[parm]; /* pointer to parameter info */
-  p = (unsigned char *) (valptr->p); /* destination pointer */
-  int size = valptr->size;	/* value size */
-
-  int type = getnumrem();	/* get the value */
-  if (type == INT_VAL)		/* if integer */
-  {
-#if DBG_LOAD
-   printf("w %2x %d (%08x) =  %8x\n",
-	  parm, size, (unsigned) p, (unsigned) valRem);
-#endif
-   if (size == 4)		/* if a long word */
-   {
-    *(int32_t *) p = valRem;	/* save as a long word */
-   }
-   else if (size == 1)		/* if a character */
-   {
-    *p = valRem;		/* save the character */
-   }
-   else if (size == 2)		/* if a short integer */
-   {
-    *(int16_t *) p = valRem;	/* save the value */
-   }
-  }
-  else if (type == FLOAT_VAL)	/* if floating value */
-  {
-#if DBG_LOAD
-   printf("w %2x f (%08x) =  %8.4f\n", parm, (unsigned) p, fValRem);
-#endif
-   *(float *) p = fValRem;	/* save as a float */
-  }
- }
-#endif
 }
 
-void remcmd(void)
+void remcmd()
 {
  dbgRemCmdSet();
  int parm;
+ int val;
 
  remcmdUpdateTime = millis();
  remcmdTimeout = REMCMD_TIMEOUT;
 
- putrem('-');
- gethexrem();			/* read parameter */
- parm = valRem;
+ putRem('-');
+ gethexRem(&parm);		/* read parameter */
  switch (parm)
  {
  case ZMOVEABS:
@@ -312,7 +257,7 @@ void remcmd(void)
  break;
 
  case CMD_SPSETUP:
-  spindleSetup(rVar.spMaxRpm);
+  spindleSetup((int) rVar.spMaxRpm);
  break;
 
  case CMD_SYNCSETUP:
@@ -344,9 +289,9 @@ void remcmd(void)
 
  case READISTATE:
  {
-  tmpval = zMoveCtl.state;
+  int tmpval = zMoveCtl.state;
   tmpval |= xMoveCtl.state << 4;
-  sndhexrem((unsigned char *) &tmpval, sizeof(tmpval));
+  sndhexRem((unsigned char *) &tmpval, sizeof(tmpval));
  }
  break;
 
@@ -356,8 +301,8 @@ void remcmd(void)
 
  case LOADMULTI:		/* load multiple parameters */
  {
-  gethexrem();
-  int count = valRem;
+  int count;
+  gethexRem(&count);
   while (--count >= 0)
    loadVal();
  }
@@ -365,60 +310,32 @@ void remcmd(void)
 
  case READVAL:			/* read a local parameter */
  {
-  gethexrem();			/* save the parameter number */
-  parm = valRem;		/* save it */
-#if 1
+  gethexRem(&parm);		/* save the parameter number */
   T_DATA_UNION parmVal;
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
-  int size = remparm[parm].size;
+  int size = remParm[parm];
   printf("r p %2x s %d v %8x\n",
 	 (unsigned int) parm, size, parmVal.t_unsigned_int);
-  sndhexrem((unsigned char *) &parmVal.t_char, size); /* send the response */
-#else
-  valptr = &remparm[parm];	/* pointer to parameters */
-  if (DBG_LOAD)
-  {
-   unsigned char *p = (unsigned char *) (valptr->p);
-   char size;
-   unsigned int tmp = 0;
-   size = valptr->size;
-   if (size == 4)
-   {
-    tmp = *(int32_t *) p;
-   }
-   else if (size == 1)
-   {
-    tmp = *p;
-   }
-   else if (size == 2)
-   {
-    tmp = *(int16_t *) p;
-   }
-   printf("r %2x %d (%08x) = %8x\n",
-	  (unsigned int) parm, size, (unsigned int) p, tmp);
-  }
-  sndhexrem((unsigned char *) valptr->p, valptr->size); /* send the response */
-#endif
+  sndhexRem((unsigned char *) &parmVal.t_char, size); /* send the response */
  }
  break;
 
  case LOADXREG:			/* load a xilinx register */
  {
-  gethexrem();			/* save the parameter number */
-  parm = valRem;		/* save it */
-  gethexrem();			/* get the value */
+  gethexRem(&parm);		/* save the parameter number */
+
+  gethexRem(&val);		/* get the value */
   LOAD(parm, val);		/* load value to xilinx register */
  }
  break;
 
  case READXREG:			/* read a xilinx register */
  {
-  gethexrem();			/* save the parameter number */
-  parm = valRem;		/* save it */
-//   read(parm);		/* read the xilinx register */
+  gethexRem(&parm);		/* save the parameter number */
+  //   read(parm);		/* read the xilinx register */
   read1(parm);			/* read the xilinx register */
-  sndhexrem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
+  sndhexRem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
  }
  break;
 
@@ -429,39 +346,39 @@ void remcmd(void)
 //  {
   // sprintf(buf, "%0.4f ", ((float) zLoc) / zAxis.stepsInch);
   sprintf(buf, "%d ", rVar.zLoc);
-  putstrrem(buf);
+  putstrRem(buf);
 //  }
 //  else
-//   putstrrem("# ");
+//   putstrRem("# ");
 
 //  if (xAxis.stepsInch != 0)
 //  {
   // sprintf(buf, "%0.4f ", ((float) xLoc) / xAxis.stepsInch);
   sprintf(buf, "%d ", rVar.xLoc);
-  putstrrem(buf);
+  putstrRem(buf);
 //  }
 //  else
-//   putstrrem("# ");
+//   putstrRem("# ");
 
-  if (rVar.cfgFpga == 0)		/* processor control */
+  if (rVar.cfgFpga == 0)	/* processor control */
   {
    if (rVar.indexPeriod != 0)
    {
     sprintf(buf, "%1.0f ",
-	    ((float) indexFreq / (uint32_t) rVar.indexPeriod) * 60);
-    putstrrem(buf);
+	    ((float) idxTmr.freq / (float) rVar.indexPeriod) * 60);
+    putstrRem(buf);
    }
    else
-    putstrrem("0 ");
+    putstrRem("0 ");
   }
   else				/* xilinx control */
   {
-   putstrrem("0 ");
+   putstrRem("0 ");
   }
 
   sprintf(buf, "%d %d %d %d",
 	  runCtl.pass, rVar.zDroLoc, rVar.xDroLoc, rVar.mvStatus);
-  putstrrem(buf);
+  putstrRem(buf);
  }
  break;
 
@@ -471,17 +388,17 @@ void remcmd(void)
 
  case QUEMOVE:			/* que move operation */
  {
-  gethexrem();			/* save op code and flag */
-  parm = valRem;		/* save input value */
-  char rtn = getnumrem();	/* read parameter */
+  gethexRem(&parm);		/* save op code and flag */
+  T_INT_FLOAT intFloat;
+  char rtn = getnumRem(&intFloat); /* read parameter */
   if (rtn != NO_VAL)		/* if valid number */
   {
    if (rVar.setupDone)		/* if setup complete */
    {
     if (rtn == FLOAT_VAL)	/* if floating */
-     queMoveCmd(parm, fValRem);	/* que command */
+     queMoveCmd(parm, intFloat.f); /* que command */
     else			/* if integer */
-     queIntCmd(parm, valRem);	/* que command */
+     queIntCmd(parm, intFloat.i); /* que command */
    }
   }
  }
@@ -490,7 +407,7 @@ void remcmd(void)
  case MOVEQUESTATUS:		/* get move queue status */
  {
   parm = MAX_CMDS - moveQue.count; /* calculate amount empty */
-  sndhexrem((unsigned char *) &parm, sizeof(parm)); /* send it back */
+  sndhexRem((unsigned char *) &parm, sizeof(parm)); /* send it back */
  }
  break;
 
@@ -498,41 +415,29 @@ void remcmd(void)
 #define MAX_DBG_SIZE (2 + 1 + 1 + 8 + 1)
  case READDBG:
  {
-  gethexrem();
-  parm = valRem;
-  if (dbgcnt > 0)		/* if debug messages */
+  gethexRem(&parm);
+  if (dbgQue.count > 0)		/* if debug messages */
   {
    while (--parm >= 0)		/* while more requested */
    {
-    --dbgcnt;			/* count off a message */
-    P_DBGMSG p = &dbgdata[dbgemp]; /* get pointer to data */
-    dbgemp++;			/* update empty pointer */
-    if (dbgemp >= MAXDBGMSG)	/* if past end */
-     dbgemp = 0;		/* point back to beginning */
+    --dbgQue.count;		/* count off a message */
+    P_DBGMSG p = &dbgQue.data[dbgQue.emp]; /* get pointer to data */
+    dbgQue.emp++;		 /* update empty pointer */
+    if (dbgQue.emp >= MAXDBGMSG) /* if past end */
+     dbgQue.emp = 0;		/* point back to beginning */
 
-#if DBGMSG == 2
-    sndhexrem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
-#else
-    int16_t count = sizeof(p->str); /* get maximum length */
-    char *p1 = p->str;		/* get poninter to string */
-    while (--count >= 0)	/* while not at end of buffer */
-    {
-     char ch = *p1++;		/* read a character */
-     if (ch == 0)		/* if null */
-      break;			/* exit loop */
-     putrem(ch);		/* output character */
-    }
-#endif
-    putrem(' ');		/* output a space */
+    sndhexRem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
+
+    putRem(' ');		/* output a space */
     if (p->val < 0)
     {
-     putrem('-');
+     putRem('-');
      p->val = -p->val;
     }
-    sndhexrem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
-    if ((remCtl.tx_count < (TX_BUF_SIZE - MAX_DBG_SIZE)) /* if space */
-	&&  (dbgcnt != 0))		/* and more data */
-     putrem(' ');		/* output a space */
+    sndhexRem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
+    if ((remCtl.tx_count < (REM_TX_SIZE - MAX_DBG_SIZE)) /* if space */
+    &&  (dbgQue.count != 0))	/* and more data */
+     putRem(' ');		/* output a space */
     else			/* if no more data */
      break;			/* exit loop */
    }
@@ -543,7 +448,7 @@ void remcmd(void)
  case CLRDBG:
   clrDbgBuf();
  break;
-#endif
+#endif	/* DBGMSG */
 
 #if ENCODER
  case ENCSTART:
@@ -553,11 +458,30 @@ void remcmd(void)
  case ENCSTOP:
   encStop();
  break;
-#endif
+#endif	/* ENCODER */
+
+#if defined(MEGAPORT)
+
+ case SET_MEGA_VAL:
+ {
+  putMega(1);
+  char ch = MEGA_SET_VAL;
+  sndhexMega((const unsigned char *) &ch, sizeof(ch), ' ');
+  gethexRem(&parm);		/* read parameter */
+  sndhexMega((const unsigned char *) &parm, sizeof(parm), ' ');
+  gethexRem(&val);		/* read value */
+  sndhexMega((const unsigned char *) &val, sizeof(val), '\r');
  }
+  break;
+
+#endif  /* MEGAPORT */
+  default:
+   printf("remcmd default\n");
+   break;
+ } /* switch */
 
 #if REM_ISR
- while (1)
+ while (true)
  {
   int tmp = getRem();
   if (tmp < 0)
@@ -570,11 +494,11 @@ void remcmd(void)
   printf("extra char %d\n", tmp);
   flushBuf();
  }
-#endif
+#endif	/* REM_ISR */
 
 // flushBuf();
- putrem('*');
+ putRem('*');
  dbgRemCmdClr();
 }
 
-#endif
+#endif	/* __REMCMD__ */

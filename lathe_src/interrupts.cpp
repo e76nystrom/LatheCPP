@@ -46,10 +46,6 @@ x0 - x axis not in sync mode update feed rate
 
 #define jogISR(x) EXTI9_5_IRQHandler(x)
 
-void spIsrStop(void);
-void zIsrStop(char ch);
-void xIsrStop(char ch);
-
 extern "C" void encoderISR(void);
 extern "C" void jogISR(void);
 extern "C" void pwmTmrISR(void);
@@ -59,7 +55,6 @@ extern "C" void indexISR(void);
 extern "C" void spindleTmrISR(void);
 extern "C" void zTmrISR(void);
 extern "C" void xTmrISR(void);
-extern "C" void spEncISR(void);
 extern "C" void encISR(void);
 extern "C" void cmpTmrISR(void);
 extern "C" void intTmrISR(void);
@@ -102,11 +97,19 @@ unsigned int lastZJogMSec;
 unsigned int lastXJogUSec;
 unsigned int lastXJogMSec;
 
+int zCur;
+int zDro;
+int zDelta;
+
 extern "C" void encoderISR(void)
 {
  BITWORD tmp;
  if (EXTI->PR & (ZA_Pin | ZB_Pin)) /* if bit change */
  {
+  if (dbgZDroRead())
+   dbgZDroClr();
+  else
+   dbgZDroSet();
   if (EXTI->PR & ZA_Pin)
    EXTI->PR = ZA_Pin;
   if (EXTI->PR & ZB_Pin)
@@ -215,9 +218,10 @@ extern "C" void encoderISR(void)
  }
 }
 
-extern "C" void jogISR(void)
+extern "C" void jogISR()
 {
  BITWORD tmp;
+ tmp.w = 0;
  dbgJogIsrClr();
  if (EXTI->PR & (JogA1_Pin | JogB1_Pin)) /* if bit change */
  {
@@ -350,7 +354,7 @@ extern "C" void jogISR(void)
 }
 
 #ifdef PWM_TIMER
-extern "C" void pwmTmrISR(void)
+extern "C" void pwmTmrISR()
 {
  if (pwmTmrIF())
  {
@@ -359,7 +363,7 @@ extern "C" void pwmTmrISR(void)
 }
 #endif
 
-extern "C" void TIM1_UP_TIM10_IRQHandler(void)
+extern "C" void TIM1_UP_TIM10_IRQHandler()
 {
  if constexpr (STEP3_TIMER == 1)
  {
@@ -399,7 +403,7 @@ extern "C" void TIM1_UP_TIM10_IRQHandler(void)
  }
 }
 
-extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void)
+extern "C" void TIM1_TRG_COM_TIM11_IRQHandler()
 {
  if constexpr (INT_TIMER == 11)
  {
@@ -410,34 +414,35 @@ extern "C" void TIM1_TRG_COM_TIM11_IRQHandler(void)
  }
 }
 
-extern "C" void indexISR(void)
+extern "C" void indexISR()
 {
  EXTI->PR = INDEX_PIN;		/* clear index interrupt */
 
  static T_INDEX_COUNTER indexTmp;
 
  indexTmrStop();
- indexTmp.overflow = indexOverflow; /* copy overflow value */
+ indexTmp.overflow = idxTmr.overflow; /* copy overflow value */
  indexTmp.count = indexTmrRead(); /* read index timer */
  indexTmrStart();		/* restart counter */
- if (indexStart != 0)		/* if not the first index interrupt */
+ if (idxTmr.start != 0)		/* if not the first index interrupt */
  {
-  rVar.indexPeriod = indexTmp.period - indexStart; /* save to period */
+  rVar.indexPeriod = indexTmp.period - idxTmr.start; /* save to period */
  }
- indexStart = indexTmp.period;	/* set start for next period */
+ idxTmr.start = indexTmp.period; /* set start for next period */
 
  if (trackSpeed)		/* if tracking speed */
   updateFeed = 1;		/* set to update the feed */
 
  if constexpr (DBGTRK1L0)	/* if debug tracking index period */
  {
-  uint32_t tmp = (uint32_t) rVar.indexPeriod;
+  unsigned int tmp = rVar.indexPeriod;
   tmp /= 10;
-  tmp = indexTrkFreq / tmp;
+  tmp = idxTmr.trkFreq / tmp;
   dbgTrk1L(tmp);
  }
- indexUpdateTime = millis();	/* set update time */
- indexTimeout = INDEX_TIMEOUT;	/* and timeout */
+
+ idxTmr.updateTime = millis();	/* set update time */
+ idxTmr.timeout = INDEX_TIMEOUT; /* and timeout */
  rVar.revCounter++;		/* increment revolution counter */
 
  if (rVar.spindleEncoder)	/* *ok* if using spindle encoder */
@@ -446,20 +451,31 @@ extern "C" void indexISR(void)
   {
    zIsr.active = zIsr.syncStart; /* set to active */
    zIsr.syncStart = 0;		/* clear start flag */
-   dbgmsg(D_ZEST, spEncCount);	/* encoder count at start */
+   putBufStrIsr("Sz");
+   dbgmsg(D_ZEST, (int) spEncCount); /* encoder count at start */
   }
 
   if (xIsr.syncStart)		/* if x axis waiting for sync start */
   {
    xIsr.active = xIsr.syncStart; /* set to active */
    xIsr.syncStart = 0;		/* clear start flag */
-   dbgmsg(D_XEST, spEncCount);	/* encoder count at start */
+   putBufStrIsr("Sx");
+   dbgmsg(D_XEST, (int) spEncCount); /* encoder count at start */
   }
  }
 
- if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
+ if (zIsr.dbgPos)		/* if debugging position */
  {
-  dbgmsg(D_ZIDX, rVar.zDroLoc);	/* save dro position */
+  if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
+  {
+   dbgmsg(D_ZIDXD, rVar.zDroLoc); /* save dro position */
+  }
+  dbgmsg(D_ZIDXP, rVar.zLoc);	/* save location */
+ }
+ 
+ if (xIsr.dbgPos)
+ {
+  dbgmsg(D_XIDXP, rVar.xLoc);	/* save location */
  }
 
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
@@ -468,7 +484,7 @@ extern "C" void indexISR(void)
  }
 }
 
-void spIsrStop(void)
+void spIsrStop()
 {
  spindleTmrPWMDis();		/* stop step pulse */
  spindleTmrStop();		/* stop timer */
@@ -479,11 +495,7 @@ void spIsrStop(void)
  putBufCharIsr('s');
 }
 
-#define DBG_SPINDLE 1
-
-int spStep;
-
-extern "C" void spindleTmrISR(void)
+extern "C" void spindleTmrISR()
 {
  dbgSpIsrSet();
  spindleTmrClrIF();		/* clear interrupt flag */
@@ -535,16 +547,16 @@ extern "C" void spindleTmrISR(void)
    EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
   }
 
-  if (spStep < sp.stepsRev)	/* if not at index pulse */
+  if (sp.spStep < sp.stepsRev)	/* if not at index pulse */
   {
-   spStep++;			/* increment step */
+   sp.spStep++;			/* increment step */
    index = 0;			/* clear index */
   }
   else				/* if at index pulse */
   {
-   spStep = 0;			/* reset step counter */
+   sp.spStep = 0;		/* reset step counter */
    index = 1;			/* set index pin */
-   EXTI->SWIER |= Index_Pin;	/* generate software interrupt */
+   EXTI->SWIER |= INDEX_PIN;	/* generate software interrupt */
   }
  }
  else
@@ -610,8 +622,8 @@ extern "C" void spindleTmrISR(void)
   if (sp.accelStep < sp.finalStep) /* if acceleration active */
   {
    sp.accelStep++;		/* count a step */
-   int count = (int) (sp.cFactor * sqrt(sp.accelStep)); /* calc next */
-   int ctr = count - sp.lastCount; /* value to load in timer */
+   auto count = (unsigned int) (sp.cFactor * sqrtf((float) sp.accelStep));
+   unsigned int ctr = count - sp.lastCount; /* value to load in timer */
    if (ctr > 65535)		/* if more than 16 bits */
    {
     int pre = 1;		/* initialize prescaler */
@@ -647,8 +659,8 @@ extern "C" void spindleTmrISR(void)
   if (sp.accelStep > sp.initialStep) /* if decelerating */
   {
   --sp.accelStep;		/* count a step */
-   int count = (int) (sp.cFactor * sqrt(sp.accelStep)); /* calc next */
-   int ctr = sp.lastCount - count; /* value to load in timer */
+   auto count = (unsigned int) (sp.cFactor * sqrtf((float) sp.accelStep));
+   unsigned int ctr = sp.lastCount - count; /* value to load in timer */
    if (ctr > 65535)		/* if more than 16 bits */
    {
     int pre = 1;		/* initialize prescaler */
@@ -702,6 +714,14 @@ extern "C" void spindleTmrISR(void)
    dbgSpCycSet();
   }
 
+  if (arcData.active)		/* if arc move in progress */
+  {
+   if ((zIsr.active & ARC_ACTIVE_STEP) != 0) /* if arc active */
+   {
+    arcStepUpdate();
+   }
+  }
+  
   dbgSlvClr();
   if (sp.startAxis & START_ENA)	/* if start flag set */
   {
@@ -731,7 +751,7 @@ extern "C" void spindleTmrISR(void)
  dbgSpIsrClr();
 }
 
-void inline zCheckStep(void)
+void inline zCheckStep()
 {
  dbgZEncSet();
  dbgZOutClr();
@@ -751,7 +771,7 @@ void inline zCheckStep(void)
  dbgZEncClr();
 }
 
-void inline xCheckStep(void)
+void inline xCheckStep()
 {
  dbgXEncSet();
  dbgXOutClr();
@@ -781,17 +801,17 @@ void zIsrStop(char ch)
  zIsr.dist = 0;			/* clear distance */
  putBufCharIsr(ch);
 
- if (zIsr.active)		/* if synchcronized move */
+ if (zIsr.active)		/* if synchronized move */
  {
   zIsr.active = 0;		/* clear active flag */
   if (rVar.spindleEncoder == 0)	/* *ok* if stepper drive */
-   dbgmsg(D_ZEDN, sp.intCount);	/* send spindle interrupt count */
+   dbgmsg(D_ZEDN, (int) sp.intCount); /* spindle interrupt count */
   else				/* *ok* spindle encoder */
   {
    dbgZOutClr();
-   if (zIsr.encoderDirect != 0)	/* *ok* using encodder directly */
+   if (zIsr.encoderDirect != 0)	/* *ok* using encoder directly */
    {
-    dbgmsg(D_ZEDN, spEncCount);	/* send spindle encoder count */
+    dbgmsg(D_ZEDN, (int) spEncCount); /* spindle encoder count */
     dbgmsg(D_ZX, zIsr.x);
     dbgmsg(D_ZY, zIsr.y);
    }
@@ -815,15 +835,39 @@ void zIsrStop(char ch)
  dbgZAccelClr();
 }
 
-extern "C" void zTmrISR(void)
+extern "C" void zTmrISR()
 {
  dbgZIsrSet();
  zTmrClrIF();			/* clear interrupt flag */
 
- if (!arcData.active)		/* if arc move active */
+ if (!arcData.active)		/* if arc move not active */
  {
   rVar.zLoc += zIsr.dir;	/* update position */
   zIsr.steps++;			/* count a step moved */
+
+  if (rVar.cfgDro)
+  {
+   zCur = ((rVar.zLoc - rVar.zHomeOffset) * 10000) / zAxis.stepsInch;
+   zDro = ((rVar.zDroLoc - rVar.zDroOffset) * 10000) / rVar.zDroCountInch;
+   zDelta = zDro - zCur;
+   if (zIsr.errFlag == 0)
+   {
+    if (abs(zDelta) > 75)
+    {
+     dbgZPosErrSet();
+     putBufCharIsr('$');
+     zIsr.errFlag = 1;
+    }
+   }
+   else
+   {
+    if (abs(zDelta) < 75)
+    {
+     dbgZPosErrClr();
+     zIsr.errFlag = 0;
+    }
+   }
+  }
 
   if (zIsr.home)		/* 1*+ if homing operation */
   {
@@ -868,8 +912,8 @@ extern "C" void zTmrISR(void)
    }
    else				/* if not done */
    {
-    if (zRunoutFlag
-    &&  (zIsr.dist <= zRunoutStart)) /* if time to start runout */
+    if (runout.zFlag
+    &&  (zIsr.dist <= runout.zStart)) /* if time to start runout */
     {
      if (rVar.spindleEncoder == 0) /* *ok* if not using encoder */
      {
@@ -879,10 +923,10 @@ extern "C" void zTmrISR(void)
      }
      else			/* *chk* if using encoder */
      {
-      xIsr.active = xSyncInit;	/* set active flag to proper mode */
+      xIsr.active = syn.xSyncInit; /* set active flag to proper mode */
       putBufStrIsr("R1");
      }
-     zRunoutFlag = 0;		/* clear flag */
+     runout.zFlag = 0;		/* clear flag */
      dbgRunoutSet();
     }
 
@@ -903,7 +947,7 @@ extern "C" void zTmrISR(void)
   if (zIsr.accelStep < zIsr.finalStep) /* if accelerating */
   {
    zIsr.accelStep++;		/* count a step */
-   int count = (int) (zIsr.cFactor * sqrt(zIsr.accelStep)); /* calc next */
+   auto count = (unsigned int) (zIsr.cFactor * sqrtf((float) zIsr.accelStep));
    zIsr.clockSum += zIsr.curCount;
    zIsr.curCount = count - zIsr.lastCount; /* value to load in timer */
    zIsr.lastCount = count;	/* set last count */
@@ -931,7 +975,7 @@ extern "C" void zTmrISR(void)
   if (zIsr.accelStep > zIsr.initialStep) /* if decelerating */
   {
    --zIsr.accelStep;		/* count a step */
-   int count = (int) (zIsr.cFactor * sqrt(zIsr.accelStep)); /* calc next */
+   int count = (int) (zIsr.cFactor * sqrtf((float) zIsr.accelStep));
    zIsr.curCount = zIsr.lastCount - count; /* value to load in timer */
    zIsr.lastCount = count;	/* set last count */
    zTmrMax(zIsr.curCount);	/* load counter value */
@@ -1011,16 +1055,16 @@ void xIsrStop(char ch)
  xIsr.dist = 0;			/* clear distance */
 
  putBufCharIsr(ch);
- if (xIsr.active)		/* if synchrinized move */
+ if (xIsr.active)		/* if synchronized move */
  {
   xIsr.active = 0;		/* clear active flag */
   if (rVar.spindleEncoder == 0)	/* *ok* if no encoder */
-   dbgmsg(D_XEDN, sp.intCount);	/* send spindle interrupt count */
+   dbgmsg(D_XEDN, (int) sp.intCount); /* send spindle interrupt count */
   else				/* *ok* */
   {
    dbgXOutClr();
-   dbgmsg(D_XEDN, spEncCount);	/* send spindle encoder count */
-   if (spindleSync == 0)	/* *ok* using encodder directly */
+   dbgmsg(D_XEDN, (int) spEncCount); /* send spindle encoder count */
+   if (syn.spindle == 0)	/* *ok* using encoder directly */
    {
     dbgmsg(D_XX, xIsr.x);
     dbgmsg(D_XY, xIsr.y);
@@ -1034,7 +1078,7 @@ void xIsrStop(char ch)
   if (xIsr.taper & TAPER_RUNOUT)
   {
    dbgRunoutClr();
-   dbgmsg(D_XSTP, xIsr.steps);
+   dbgmsg(D_XSTP, (int) xIsr.steps);
    dbgmsg(D_ZLOC, rVar.zLoc);
   }
   dbgXTaperClr();
@@ -1056,13 +1100,13 @@ void xIsrStop(char ch)
  dbgXDoneSet();
 }
 
-extern "C" void xTmrISR(void)
+extern "C" void xTmrISR()
 {
  dbgXIsrSet();
  dbgXRemClr();
  xTmrClrIF();			/* clear interrupt flag */
 
- if (!arcData.active)		/* if arc move active */
+ if (!arcData.active)		/* if arc move not active */
  {
   rVar.xLoc += xIsr.dir;	/* update position */
   xIsr.steps++;			/* count a step moved */
@@ -1125,7 +1169,7 @@ extern "C" void xTmrISR(void)
   if (xIsr.accelStep < xIsr.finalStep) /* if accelerating */
   {
    xIsr.accelStep++;		/* count a step */
-   int count = (int) (xIsr.cFactor * sqrt(xIsr.accelStep)); /* calc next */
+   int count = (int) (xIsr.cFactor * sqrtf((float) xIsr.accelStep));
    xIsr.curCount = count - xIsr.lastCount; /* value to load in timer */
    xIsr.lastCount = count;	/* set last count */
    xTmrMax(xIsr.curCount);	/* load counter value */
@@ -1148,7 +1192,7 @@ extern "C" void xTmrISR(void)
   if (xIsr.accelStep > xIsr.initialStep) /* if decelerating */
   {
    --xIsr.accelStep;		/* count a step */
-   int count = (int) (xIsr.cFactor * sqrt(xIsr.accelStep)); /* calc next */
+   int count = (int) (xIsr.cFactor * sqrtf((float) xIsr.accelStep));
    xIsr.curCount = xIsr.lastCount - count; /* value to load in timer */
    xIsr.lastCount = count;	/* set last count */
    xTmrMax(xIsr.curCount);	/* load counter value */
@@ -1205,9 +1249,14 @@ extern "C" void xTmrISR(void)
  dbgXIsrClr();
 }
 
-extern "C" void spSyncISR(void)
+extern "C" void spSyncISR()
 {
  EXTI->PR = ExtInt_Pin;		/* clear encoder interrupt */
+
+ if ((zIsr.active & ARC_ACTIVE_EXT) != 0) /* if arc active */
+ {
+  arcStepUpdate();
+ }
 
  if ((zIsr.active & SYNC_ACTIVE_EXT) != 0) /* if z axis active */
  {
@@ -1232,10 +1281,11 @@ extern "C" void spSyncISR(void)
  }
 }
 
-extern "C" void encISR(void)
+extern "C" void encISR()
 {
  EXTI->PR = encIRQ_Bit;
  dbgEncIsrSet();
+ 
  if ((zIsr.active & ARC_ACTIVE_ENC) != 0) /* if arc active */
  {
   arcStep();
@@ -1272,7 +1322,7 @@ extern "C" void cmpTmrISR(void)
   cmpTmrCap1ClrIF();		/* clear interrupt */
   cmpTmrOCP1Clr();		/* clear over capture flag */
 
-  if (encoderDirect)		/* if encoder direct */
+  if (syn.encoderDirect)	/* if encoder direct */
   {
 //   EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
    encISR();
@@ -1284,7 +1334,7 @@ extern "C" void cmpTmrISR(void)
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */
    cmpTmr.encPulse -= 1;	/* count off a pulse */
 
-   uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycleclocks */
+   uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycle clocks */
    uint16_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
    cycleClocks -= *p;		/* subtract old value */
    cycleClocks += delta;	/* add in new value */
@@ -1303,7 +1353,7 @@ extern "C" void cmpTmrISR(void)
    if (cmpTmr.encPulse <= 0)	/* if end of cycle */
    {
     cmpTmr.encPulse = cmpTmr.encCycLen; /* reset cycle counter */
-    if (cmpTmr.startInt)		/* if time to start internal timer */
+    if (cmpTmr.startInt)	/* if time to start internal timer */
     {
      intTmrStart();		/* start timer */
      cmpTmr.startInt = 0;	/* clear flag */
@@ -1315,7 +1365,7 @@ extern "C" void cmpTmrISR(void)
     }
     else if (cmpTmr.measure)	/* if measure flag set */
     {
-     cmpTmr.measure = 0;		/* indicate measurement done */
+     cmpTmr.measure = 0;	/* indicate measurement done */
      cmpTmrCap1ClrIE();		/* clear capture 1 interrupt enable */
      cmpTmrStop();		/* stop timer */
     }
@@ -1352,7 +1402,7 @@ extern "C" void cmpTmrISR(void)
   }
  }
 
- if constexpr (0)		/* **disabled */
+ if constexpr (false)		/* **disabled */
  {
   if (cmpTmrIF())		/* if update interrupt */
   {
@@ -1372,7 +1422,7 @@ extern "C" void cmpTmrISR(void)
  }
 }
 
-extern "C" void intTmrISR(void)
+extern "C" void intTmrISR()
 {
  dbgIntIsrSet();
  intTmrClrIF();			/* clear interrupt */
@@ -1399,6 +1449,11 @@ extern "C" void intTmrISR(void)
   {
    dbgCycEndSet();
   }
+ }
+
+ if ((zIsr.active & ARC_ACTIVE_TMR) != 0) /* if arc active */
+ {
+  arcStep();
  }
 
  if (zIsr.active & SYNC_ACTIVE_TMR) /* if z axis active */
@@ -1442,17 +1497,17 @@ extern "C" void intTmrISR(void)
  dbgIntIsrClr();
 }
 
-extern "C" void indexTmrISR(void)
+extern "C" void indexTmrISR()
 {
  if (indexTmrIF())		/* if index timer */
  {
   indexTmrClrIF();		/* clear interrupt flag */
-  indexOverflow++;		/* update overflow */
+  idxTmr.overflow++;		/* update overflow */
  }
 }
 
 #ifdef STEP3_TIMER
-extern "C" void step3TmrISR(void)
+extern "C" void step3TmrISR()
 {
  dbgS3IsrSet();
  step3TmrClrIF();		/* clear interrupt flag */
@@ -1462,7 +1517,7 @@ extern "C" void step3TmrISR(void)
 #endif
 
 #ifdef STEP4_TIMER
-extern "C" void step4TmrISR(void)
+extern "C" void step4TmrISR()
 {
  dbgS4IsrSet();
  step4TmrClrIF();		/* clear interrupt flag */
@@ -1472,7 +1527,7 @@ extern "C" void step4TmrISR(void)
 #endif
 
 #ifdef STEP5_TIMER
-extern "C" void step5TmrISR(void)
+extern "C" void step5TmrISR()
 {
  dbgS5IsrSet();
  step5TmrClrIF();		/* clear interrupt flag */

@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python37/Python.exe
+#!/cygdrive/c/Python39/Python.exe
 
 CPP = True
 
@@ -78,6 +78,8 @@ pinList = \
   ("o", "spRev", "Pin1", ""), \
   ("o", "chgPump", "Pin17", ""), \
 
+  ("o", "spiSel", "SPI_SEL", ""), \
+
   ("o", "led1", "Led1", ""), \
   ("o", "led2", "Led2", ""), \
   ("o", "led3", "Led3", ""), \
@@ -87,9 +89,9 @@ pinList = \
 
 dbgList = \
 (\
- ("dbgSpIsr",  "A", "spindle isr time"), \
- ("dbgZIsr",   "B", "z isr time"), \
- ("dbgXIsr",   "C", "x isr time"), \
+ ("dbgSpIsr",  "", "spindle isr time"), \
+ ("dbgZIsr",   "", "z isr time"), \
+ ("dbgXIsr",   "", "x isr time"), \
  ("dbgSpCyc",  "", "spindle cycle counter update"), \
  ("dbgZEnc",   "", "z encoder input"), \
  ("dbgZOut",   "", "z encoder output"), \
@@ -137,10 +139,23 @@ dbgList = \
  ("dbgZStop",   "", "z stop"), \
  ("dbgZDone",   "", "z done"), \
 
- ("dbgArcUpd",  "3", "arc update"), \
- ("dbgArcStep", "4", "arc step"), \
- ("dbgEncIsr",  "5", "encoder isr"), \
- ("dbgRemCmd",  "6", "remote command"), \
+ ("dbgArcUpd",  "", "arc update"), \
+ ("dbgArcStep", "", "arc step"), \
+ ("dbgEncIsr",  "", "encoder isr"), \
+ ("dbgRemCmd",  "", "remote command"), \
+
+ ("dbgZPosErr", "", "z position error"),\
+ ("dbgZJogDir", "", "jog direction change"),\
+ ("dbgMpgBackL","", "jog backlash"),\
+
+ ("dbgSpiIsr",  "", "spi isr"), \
+ ("dbgProcMove","", "debug procMove"), \
+ ("dbgSyncResp","", "sync response"), \
+
+ ("dbgMegaTx",   "0", "mega tx"), \
+ ("dbgMegaRx",   "1", "mega rx"), \
+ ("dbgMegaRsp",  "2", "mega rsp"), \
+ ("dbgMegaWait", "3", "mega wait"), \
  )
  #("","",""), \
 

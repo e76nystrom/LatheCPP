@@ -58,7 +58,7 @@
 #define CTLSLAVE      (1 << 7)  /* 0x080 slave controlled by other axis */
 #define CTLDROEND     (1 << 8)  /* 0x100 use dro to end move */
 #define CTLJOGENA     (1 << 9)  /* 0x200 enable jog */
-#define CTLHOME       (1 << 10) /* 0x400 homeing axis */
+#define CTLHOME       (1 << 10) /* 0x400 homing axis */
 #define CTLIGNORELIM  (1 << 11) /* 0x800 ignore limits */
 #define axisCtlSize  12
 
@@ -78,7 +78,7 @@
 #define CFGXDROINV    (1 << 3)  /* 0x008 x dro direction inverted */
 #define CFGZJOGINV    (1 << 4)  /* 0x010 z jog direction inverted */
 #define CFGXJOGINV    (1 << 5)  /* 0x020 x jog direction inverted */
-#define CFGSPDIRINV   (1 << 6)  /* 0x040 spindle directiion inverted */
+#define CFGSPDIRINV   (1 << 6)  /* 0x040 spindle direction inverted */
 #define CFGZHOMEINV   (1 << 7)  /* 0x080 z home inverted */
 #define CFGZMINUSINV  (1 << 8)  /* 0x100 z minus inverted */
 #define CFGZPLUSINV   (1 << 9)  /* 0x200 z plus inverted */

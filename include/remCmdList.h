@@ -1,4 +1,4 @@
-enum COMMANDS
+enum REM_COMMANDS
 {
 
 // z motion commands
@@ -79,4 +79,9 @@ enum COMMANDS
 
  ENCSTART,                      /* 0x2f encoder start */
  ENCSTOP,                       /* 0x30 encoder stop */
+
+//  mega commands 
+
+ SET_MEGA_VAL,                  /* 0x31 set mega value */
+ READ_MEGA_VAL,                 /* 0x32 get mega value */
 };

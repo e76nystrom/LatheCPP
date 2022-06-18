@@ -1,4 +1,3 @@
-//#if !defined(INCLUDE)
 #define __SPI__
 
 #ifdef STM32F1
@@ -22,7 +21,7 @@
 #define flushBuf flush
 int print;
 
-#else
+#else  /* ! ARDUINO_ARCH_STM32 */
 
 #if defined(STM32MON)
 
@@ -32,14 +31,27 @@ int print;
 #include "cyclectr.h"
 int print;
 
-#else
+#else  /* ! STM32MON */
+
+#if !defined(SYNC)
 
 #include "lathe.h"
 #include "Xilinx.h"
 #include "serialio.h"
+#include "pinDef.h"
 
+#else  /* SYNC */
+
+#include "main.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <config.h>
+#include "serialio.h"
+#include "remcmd.h"
+
+#endif /* SYNC */
 #endif	/* STM32MON */
-#endif	/* ARDUINI_ARCH_STM32 */
+#endif	/* ARDUINO_ARCH_STM32 */
 
 #ifdef EXT
 #undef EXT
@@ -47,7 +59,6 @@ int print;
 
 #define EXT
 #include "spix.h"
-//#endif
 
 #if defined(__SPI_INC__)	// <-
 
@@ -57,7 +68,7 @@ int print;
 
 #if defined(STM32MON) || defined(ARDUINO)
 #define SPIn SPI2
-#endif	/* ARDUINO */
+#endif	/* STM32MON || ARDUINO */
 
 typedef union
 {
@@ -78,8 +89,8 @@ typedef union
 #endif
 
 #ifdef __cplusplus
-void spisel(void);
-void spirel(void);
+void spisel();
+void spirel();
 #endif
 
 #if 1
@@ -94,18 +105,19 @@ void loadb(char addr, char val);
 char readb(char addr);
 int read16(char addr);
 int read24(char addr);
-#else
+#else  /* ! (STM32MON || ARDUINO) */
+void spiSendCmd(char cmd);
 void read1(char addr);
 void read(char addr);
-#endif
+#endif	/* STM32MON || ARDUINO */
 
 unsigned char spisend(unsigned char);
-unsigned char spiread(void);
+unsigned char spiread();
 
 #if defined(STM32MON) || defined(ARDUINO)
-#else
+#else  /* ! (STM32MON || ARDUINO) */
 EXT byte_long readval;
-#endif
+#endif	/* STM32MON || ARDUINO */
 
 EXT int16_t spiw0;
 EXT int16_t spiw1;
@@ -122,12 +134,53 @@ EXT int16_t spiw1;
 #define spirel() SPI_SEL_REG = SPI_SEL_BIT; \
  SPIn->CR1 &= ~SPI_CR1_SPE
 
-#endif
+#endif	/* __cplusplus */
+
+int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize);
+
+#if defined(SPI_ISR)
+
+#define SPI_TX_SIZE 160
+#define SPI_RX_SIZE 80
+
+typedef struct
+{
+ int txFil;
+ int txEmp;
+ int txCount;
+ char txBuf[SPI_TX_SIZE];
+ int rxFil;
+ int rxEmp;
+ int rxCount;
+ char rxBuf[SPI_RX_SIZE];
+ int state;
+ int txEna;
+ int rxReady;
+ uint32_t timer;
+} T_SPICTL, *P_SPICTL;
+
+EXT T_SPICTL spiCtl;
+
+void putSPI(char ch);
+int getSPI();
+
+#if defined(SPI_MASTER)
+
+void spiMasterStart();
+void spiMasterReset();
+
+#endif	/* SPI_MASTER */
+
+extern "C" void spiISR();
+
+#endif	/* SPI_ISR */
 
 #endif	// ->
 #ifdef __SPI__
 
-void spisel(void)
+#if defined(SPI_SEL_Pin)
+
+void spisel()
 {
  SPIn->CR1 |= SPI_CR1_SPE;
  SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
@@ -135,13 +188,15 @@ void spisel(void)
 
 char spiRelTmp;
 
-void spirel(void)
+void spirel()
 {
 #if defined(CYCLE_CTR)
  //uint32_t start = getCycles();
-#endif
+#endif	/* CYCLE_CTR */
+
 // while ((SPIn->SR & SPI_SR_RXNE) == 0) /* wait for receive done */
 //  ;
+
 #if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
  while ((SPIn->SR & SPI_SR_TXE) == 0) /* wait for transmit done */
   ;
@@ -150,29 +205,33 @@ void spirel(void)
   if ((SPIn->SR & SPI_SR_RXNE) != 0)
    spiRelTmp = SPIn->DR;
  }
-#endif
+#endif	/* STM32F1 || STM32F4 || STM32F7 */
+
 #if defined(STM32H7)
  while ((SPIn->SR & SPI_SR_EOT) == 0) /* wait for end of transfer*/
   ;
-#endif
+#endif	/* STM32H7 */
+
 #if defined(CYCLE_CTR)
  //uint32_t t = getCycles() - start;
-#endif
+#endif	/* CYCLE_CTR */
+
  SPIn->CR1 &= ~SPI_CR1_SPE;
  SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
+
 #if defined(CYCLE_CTR)
  //printf("spirel %02x t %u\n", (unsigned int) SPIn->SR, (unsigned int) t);
-#endif
+#endif	/* CYCLE_CTR */
 }
 
 #if 0
 
-void spisel(void)
+void spisel()
 {
  spi1sel = 0;
 }
 
-void spirel(void)
+void spirel()
 {
  SPI_SEL_REG = SPI_SEL_BIT;
  SPIn->CR1 &= ~SPI_CR1_SPE;
@@ -199,6 +258,7 @@ void load(char addr, int32_t val)
  spisend(tmp.b[2]);
  spisend(tmp.b[1]);
  spisend(tmp.b[0]);
+
 #if 0
  while ((SPIn->SR & SPI_SR_BSY) != 0)
   ;
@@ -206,6 +266,7 @@ void load(char addr, int32_t val)
  while (time != HAL_GetTick())
   ;
 #endif
+
  spirel();
 }
 
@@ -238,6 +299,67 @@ void load(char addr, byte_long val)
 }
 
 #endif
+
+void spiSendCmd(char cmd)
+{
+ spisel();
+ spisend(cmd);
+ spirel();
+}
+
+int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize)
+{
+ char ch;
+ int state = 0;
+ int count = 0;
+ int txCount = 0;
+
+ spisel();
+ while (true)
+ {
+  if (txSize != 0)
+  {
+   ch = spisend(*txBuf++);
+   txSize -= 1;
+  }
+  else
+  {
+   ch = spisend(0);
+   txCount += 1;
+  }
+  
+  if (state == 0)
+  {
+   if (ch == '-')
+   {
+    state = 1;
+   }
+  }
+  else
+  {
+   if (ch != 0)
+   {
+    if (count <= bufSize)
+    {
+     *rxBuf++ = ch;
+     count += 1;
+    }
+
+    if (ch == '*')
+    {
+     state = 0;
+     spirel();
+     return(count);
+    }
+   }
+  }
+  if (txCount >= 40)
+  {
+   spirel();
+   return(0);
+  }
+ }
+}
 
 void loadb(char addr, char val)
 {
@@ -294,7 +416,7 @@ int read24(char addr)
  return(rtnVal.i);
 }
 
-#else
+#else  /* ! (STM32MON || ARDUINO) */
 
 void read1(char addr)
 {
@@ -319,6 +441,8 @@ void read1(char addr)
 //	 (unsigned int) addr, (unsigned int) readval.i);
 }
 
+#if defined(XREADREG)
+
 void read(char addr)
 {
  spisel();			/* select */
@@ -338,7 +462,9 @@ void read(char addr)
 //	 (unsigned int) addr, (unsigned int) readval.i);
 }
 
-#endif
+#endif	/* XREADREG */
+
+#endif	/* STM32MON || ARDUINO */
 
 unsigned char spisend(unsigned char c)
 {
@@ -355,7 +481,7 @@ unsigned char spisend(unsigned char c)
   spiw1++;
  c = spi->DR;
 
-#endif
+#endif	/* STM32F1 || STM32F4 || STM32F7 */
 
 #if defined(STM32H7)
  spi->TXDR = c;
@@ -364,12 +490,12 @@ unsigned char spisend(unsigned char c)
  while ((spi->SR & SPI_SR_RXP) == 0)
   spiw1++;
  c = spi->RXDR;
-#endif
+#endif	/* STM32H7 */
 
  return(c);
 }
 
-unsigned char spiread(void)
+unsigned char spiread()
 {
  spiw0 = 0;
  spiw1 = 0;
@@ -383,7 +509,7 @@ unsigned char spiread(void)
  while ((spi->SR & SPI_SR_RXNE) == 0)
   spiw1++;
  char c = spi->DR;
-#endif
+#endif	/* STM32F1 || STM32F4 || STM32F7 */
 
 #if defined(STM32H7)
  spi->TXDR = 0;
@@ -392,9 +518,204 @@ unsigned char spiread(void)
  while ((spi->SR & SPI_SR_RXP) == 0)
   spiw1++;
  char c = spi->RXDR;
-#endif
+#endif	/* STM32H7 */
 
  return(c);
 }
 
+#endif	/* SPI_SEL_Pin */
+
+#if defined(SPI_ISR)
+
+#if defined SPI_SLAVE
+
+extern "C" void spiISR()
+{
+ SPI_TypeDef *spi = SPIn;
+ if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
+ {
+  char ch = spi->DR;
+  if (spiCtl.state == 0)
+  {
+   if (ch == 1)
+   {
+    spiCtl.state = 1;
+    if (spiCtl.txCount != 0)
+    {
+     spiCtl.txCount = 0;
+     spiCtl.txFil = 0;
+     spiCtl.txEmp = 0;
+    }     
+   }
+  }
+
+  if (spiCtl.state != 0)
+  {
+   if (spiCtl.rxCount < SPI_RX_SIZE)
+   {
+    int fil = spiCtl.rxFil;
+    spiCtl.rxBuf[fil] = ch;
+    fil += 1;
+    if (fil >= SPI_RX_SIZE)
+     fil = 0;
+    spiCtl.rxFil = fil;
+    spiCtl.rxCount += 1;
+   }
+ 
+   if (ch == '\r')
+   {
+    spiCtl.state = 0;
+    remcmd(&spiAction);
+    spi->CR2 |= SPI_CR2_TXEIE;
+    spiCtl.txEna = 1;
+   }
+  }
+ }
+
+ if (spi->SR & SPI_SR_TXE)	/* if transmitter empty */
+ {
+  if ((spiCtl.txEna != 0)
+  &&  (spiCtl.txCount > 0))
+  {
+   int emp = spiCtl.txEmp;
+   spi->DR = spiCtl.txBuf[emp];
+   emp += 1;
+   if (emp >= SPI_TX_SIZE)
+    emp = 0;
+   spiCtl.txEmp = emp;
+   spiCtl.txCount -= 1;
+   if (spiCtl.txCount == 0)
+    spiCtl.txEna = 0;
+  }
+  else
+  {
+   spi->DR = 0;
+   spi->CR2 &= ~SPI_CR2_TXEIE;
+  }
+ }
+}
+
+#endif	/* SPI_SLAVE */
+
+#if defined(SPI_MASTER)
+
+void spiMasterStart()
+{
+ spiCtl.state = 0;
+ spiCtl.timer = millis();
+#if defined(STM32F4)
+ SPIn->CR2 |= SPI_CR2_TXEIE | SPI_CR2_RXNEIE;
 #endif
+#if defined(STM32H7)
+#endif
+ SPIn->CR1 |= SPI_CR1_SPE;
+ spiSelClr();
+}
+
+void spiMasterReset()
+{
+ spiSelSet();
+ SPIn->CR1 &= ~SPI_CR1_SPE;
+#if defined(STM32F4)
+ SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
+#endif
+ spiCtl.state = 0;
+}
+
+extern "C" void spiISR()
+{
+ dbgSpiIsrSet();
+ SPI_TypeDef *spi = SPIn;
+#if defined(STM32F4)
+ if (spi->SR & SPI_SR_RXNE)	/* if receive not empty */
+ {
+  char ch = spi->DR;
+  if (spiCtl.state == 0)
+  {
+   if (ch == '-')
+   {
+    spiCtl.state = 1;
+   }
+  }
+
+  if (spiCtl.state != 0)
+  {
+   if (spiCtl.rxCount < SPI_RX_SIZE)
+   {
+    int fil = spiCtl.rxFil;
+    spiCtl.rxBuf[fil] = ch;
+    fil += 1;
+    if (fil >= SPI_RX_SIZE)
+     fil = 0;
+    spiCtl.rxFil = fil;
+    spiCtl.rxCount += 1;
+   }
+ 
+   if (ch == '*')
+   {
+    SPIn->CR1 &= ~SPI_CR1_SPE;
+    SPIn->CR2 &= ~(SPI_CR2_TXEIE | SPI_CR2_RXNEIE);
+    spiSelSet();
+    spiCtl.state = 0;
+    syncResp();
+    //spiCtl.rxReady = 1;
+   }
+  }
+ }
+
+ if (spi->SR & SPI_SR_TXE)	/* if transmitter empty */
+ {
+  if (spiCtl.txCount > 0)
+  {
+   int emp = spiCtl.txEmp;
+   spi->DR = spiCtl.txBuf[emp];
+   emp += 1;
+   if (emp >= SPI_TX_SIZE)
+    emp = 0;
+   spiCtl.txEmp = emp;
+   spiCtl.txCount -= 1;
+  }
+  else
+  {
+   spi->DR = 0;
+  }
+ }
+#endif
+ dbgSpiIsrClr();
+}
+
+#endif	/* SPI_MASTER */
+
+void putSPI(char ch)
+{ 
+ if (spiCtl.txCount < SPI_TX_SIZE)
+ {
+  int fil = spiCtl.txFil;
+  spiCtl.txBuf[fil] = ch;
+  fil += 1;
+  if (fil >= SPI_TX_SIZE)
+   fil = 0;
+  spiCtl.txFil = fil;
+  spiCtl.txCount += 1;
+ }
+}
+
+int getSPI()
+{
+ int ch = -1;
+ if (spiCtl.rxCount != 0)
+ {
+  int emp = spiCtl.rxEmp;
+  ch = spiCtl.rxBuf[emp];
+  emp += 1;
+  if (emp >= SPI_RX_SIZE)
+   emp = 0;
+  spiCtl.rxEmp = emp;
+  spiCtl.rxCount -= 1;
+ }
+ return(ch);
+}
+
+#endif	/* SPI_ISR */
+
+#endif	/* __SPI__ */

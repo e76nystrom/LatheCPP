@@ -14,7 +14,7 @@
 #include "stm32h7xx_hal.h"
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include "i2cx.h"
 
 #ifdef EXT
@@ -50,9 +50,6 @@
 #endif	/* ARDUINO_ARCH_STM32 */
 
 #if defined(__LCD_INC__)	// <-
-
-// LCD Address
-#define ADDRESS 0x27
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -100,7 +97,7 @@
 #define Rw 0b00000010 // Read/Write bit
 #define Rs 0b00000001 // Register select bit
 
-void lcdInit(void);
+void lcdInit();
 void command(uint8_t val);
 void pulseEnable(uint8_t val);
 
@@ -133,10 +130,11 @@ __STATIC_INLINE void delayUSecX(volatile uint32_t microseconds)
 }
 //#endif
 
-void lcdInit(void)
+void lcdInit()
 {
  printf("lcdInit address %2x\n", (unsigned int) SLAVE_ADDRESS);
  startCnt();
+ i2cError = 0;
  setBacklight(0);
 
  pulseEnable(LCD_FUNCTIONSET | LCD_8BITMODE);
@@ -173,11 +171,6 @@ void pulseEnable(uint8_t val)
 void command(uint8_t val)
 {
  // printf("command %02x\n", val);
-//#if defined STM32F4
-// pulseEnable(val & 0xf0);
-// pulseEnable(val << 4);
-//#endif
-//#if defined(STM32H7)
  uint8_t tmp;
  uint8_t buf[4];
  tmp = (val & 0xf0) | LCD_BACKLIGHT;
@@ -188,7 +181,6 @@ void command(uint8_t val)
  buf[3] = tmp & ~En;
  i2cWrite(buf, sizeof(buf));
  i2cWaitBusy();
-//#endif
 }
 
 uint8_t *lcdWrite(uint8_t *buf, uint8_t data)
@@ -238,7 +230,7 @@ void lcdString(const char *str)
  uint8_t buf[80];
  uint8_t ch;
  uint8_t *p = buf;
- while (1)
+ while (true)
  {
   ch = *str++;
   if (ch == 0)

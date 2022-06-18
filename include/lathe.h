@@ -1,15 +1,15 @@
 #if 1	// <-
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <climits>
+#include <cstdint>
+#include <cstdarg>
 
 #include "config.h"
 #include "remvar.h"
+#include "syncCmdList.h"
 
 #if !defined(EXT)
 #define EXT extern
@@ -76,24 +76,25 @@ typedef struct s_spindle
  int dirRev;			/* reverse bit */
 
  /* calculated values */
- int clocksRev;			/* clocks per revolution */
+
+ unsigned int clocksRev;	/* clocks per revolution */
  float stepsSec;		/* steps per second */
- float stepsSec2;		/* acceleration steps per second sqrd */
+ float stepsSec2;		/* accel steps per second sqrd */
  float time;			/* actual acceleration time */
- int steps;			/* acceleration steps */
- int clocks;			/* acceleration clocks */
+ unsigned int steps;		/* acceleration steps */
+ unsigned int clocks;		/* acceleration clocks */
  float revs;			/* acceleration revolutions */
  int64_t clocksCycle;		/* clocks per cycle */
 
  /* control variables for isr */
  float cFactor;			/* factor for computing acceleration */
- int clocksStep;		/* fcy clocks per step */
+ unsigned int clocksStep;	/* fcy clocks per step */
  unsigned int initialStep;	/* accel steps to minimum speed */
  unsigned int finalStep;	/* accel steps to maximum speed */
- int stepsRev;			/* steps per revolution */
- int stepsCycle;		/* steps per cycle */
- int zStart;			/* z start position */
- int xStart;			/* x start position */
+ unsigned int stepsRev;		/* steps per revolution */
+ unsigned int stepsCycle;	/* steps per cycle */
+ unsigned int zStart;		/* z start position */
+ unsigned int xStart;		/* x start position */
 } T_SPINDLE, *P_SPINDLE;
 
 #define STARTZ      (1 << 0)
@@ -116,13 +117,13 @@ typedef struct s_spindleIsr
  /* control variables */
  float cFactor;			/* acceleration constant */
  uint64_t cFactor2;		/* squared cfactor */
- int clocksStep;		/* final clocks per step value */
+ unsigned clocksStep;		/* final clocks per step value */
  unsigned int initialStep;	/* minimum acceleration step */
  unsigned int finalStep;	/* maximum acceleration step */
- int stepsRev;			/* steps per revolution */
- int stepsCycle;		/* steps in a cycle */
- int zStart;			/* z start position */
- int xStart;			/* x start position */
+ unsigned int stepsRev;		/* steps per revolution */
+ unsigned int stepsCycle;	/* steps in a cycle */
+ unsigned int zStart;		/* z start position */
+ unsigned int xStart;		/* x start position */
 
  /* jog variables */
  int iniDist;			/* initial jog distance */
@@ -130,14 +131,15 @@ typedef struct s_spindleIsr
  int jogInc;			/* jog increment */
 
  /* working variables */
- uint32_t intCount;		/* spindle interrupt count */
- int pos;			/* position in revolution */
- int rev;			/* revolutions */
+ unsigned int spStep;		/* spindle step counter */
+ unsigned int intCount;		/* spindle interrupt count */
+ unsigned int pos;		/* position in revolution */
+ unsigned int rev;		/* revolutions */
  unsigned int dist;		/* distance to run */
  unsigned int accelStep;	/* current acceleration step */
- int lastCount;			/* last counter value */
- int curCount;			/* current count value */
- int cycleCounter;		/* cycle step counter */
+ unsigned int lastCount;	/* last counter value */
+ unsigned int curCount;		/* current count value */
+ unsigned int cycleCounter;	/* cycle step counter */
 } T_SPINDLEISR, *P_SPINDLEISR;
 
 typedef struct s_axis
@@ -180,22 +182,22 @@ typedef struct s_accel
    int stepsSec;		/* steps per second */
    float stepsSec2;		/* acceleration in steps per sec^2 */
    float time;			/* acceleration time */
-   int steps;			/* acceleration steps */
+   unsigned int steps;		/* acceleration steps */
    int droTarget;		/* target for dro position */
-   int clocks;			/* acceleration clocks */
+   unsigned int clocks;		/* acceleration clocks */
    float dist;			/* acceleration distance */
 
    int remainder;		/* remainder of spindle cyc div z cyc */
    int initialCount;		/* clocks to first accel step */
    int finalCount;		/* clocks to last accel step */
    int totAccelClocks;		/* accel clocks final minus initial */
-   int accelSpSteps;		/* spindle steps during acceleration */
-   int accelSpRem;		/* spindle steps remainder */
+   unsigned int accelSpSteps;	/* spindle steps during accel */
+   unsigned int accelSpRem;	/* spindle steps remainder */
 
    /* control variables for isr */
 
    float cFactor;		/* factor to get clocks to next step */
-   int clocksStep;		/* clocks per step after acceleration */
+   unsigned int clocksStep;	/* clocks per step after accel */
    unsigned int initialStep;	/* initial accel step number */
    unsigned int finalStep;	/* final accel step number */
    int d;			/* sum initial value */
@@ -242,7 +244,6 @@ typedef struct s_accel
 typedef struct s_zxisr
 {
  /* flags */
- char dir;			/* axis direction */
  char sync;			/* synchronized */
  char accel;			/* accelerating */
  char decel;			/* decelerating */
@@ -253,14 +254,17 @@ typedef struct s_zxisr
  char axis;			/* axis name */
  char encoderDirect;		/* use encoder directly */
  char useDro;			/* use dro for move */
+ char errFlag;
+ char dbgPos;
 
- int16_t syncInit;		/* initialized for sync operation */
- int16_t syncStart;		/* waiting for start */
- int16_t active;		/* axis active */
+ int dir;			/* axis direction */
+ int syncInit;			/* initialized for sync operation */
+ int syncStart;			/* waiting for start */
+ int active;			/* axis active */
 
  /* control variables */
  float cFactor;			/* acceleration factor */
- int clocksStep;		/* final clocks per step */
+ unsigned int clocksStep;	/* final clocks per step */
  unsigned int initialStep;	/* initial accel step number */
  unsigned int finalStep;	/* final accel step number */
  unsigned int counterStep1;	/* counter value for incr1 */
@@ -270,27 +274,27 @@ typedef struct s_zxisr
  int incr2;			/* incr 2 value */
  int delta;			/* update on direction change */
  int stepsCycle;		/* steps in a cycle */
- int accelSpSteps;		/* spindle steps during acceleration */
- int finalCtr;			/* final counter value */
+ unsigned int accelSpSteps;    /* spindle steps during acceleration */
+ unsigned int finalCtr;			/* final counter value */
 
  /* working variables */
  int pos;			/* position */
  unsigned int dist;		/* distance to move */
  int droTarget;			/* dro target value */
  unsigned int accelStep;	/* current step in accel */
- int lastCount;			/* last count value */
- int curCount;			/* current count value */
+ unsigned int lastCount;	/* last count value */
+ unsigned int curCount;		/* current count value */
  int sum;			/* sum for distributing remainder */
  int lastRemCount;		/* last remainder count */
  int remCount;			/* remainder count */
  int cycleCounter;		/* step cycle counter */
- int clockSum;
- int startRev;			/* start revolution */
- int startPos;			/* start position */
- int stopRev;			/* stop revolution */
- int stopPos;			/* stop position */
+ unsigned int clockSum;
+ unsigned int startRev;		/* start revolution */
+ unsigned int startPos;		/* start position */
+ unsigned int stopRev;		/* stop revolution */
+ unsigned int stopPos;		/* stop position */
 
- int steps;			/* steps moved */
+ unsigned int steps;		/* steps moved */
 
  int curDir;			/* current direction */
  int x;				/* input pulses */
@@ -308,12 +312,20 @@ EXT T_SPINDLEISR sp;		/* spindle isr variables */
 
 EXT T_AXIS zAxis;		/* z axis info */
 
-EXT int zRunoutFlag;		/* z axis runout flag */
-EXT float zRunoutDist;		/* z runout distance */
-EXT unsigned int zRunoutStart;	/* z runout start step */
-EXT int zRunoutSteps;		/* z runout steps */
-
 EXT T_AXIS xAxis;		/* x axis info */
+
+typedef struct s_runout
+{
+ boolean active;		/* runout active */
+ boolean zFlag;			/* z axis runout flag */
+ boolean xFlag;			/* x runout in progress */
+ unsigned int zStart;		/* z runout start step */
+ float zDist;			/* z runout distance */
+ int zSteps;			/* z runout steps */
+ int xSteps;			/* x runout steps */
+} T_RUNOUT, *P_RUNOUT;
+
+EXT T_RUNOUT runout;
 
 EXT T_ACCEL zTA;		/* z threading accel */
 EXT T_ACCEL zPA;		/* z taper accel */
@@ -322,12 +334,7 @@ EXT T_ACCEL zJA;		/* z jog accel */
 EXT T_ACCEL zJSA;		/* z jog speed accel */
 EXT T_ACCEL zSA;		/* z slow jog accel */
 
-EXT boolean xRunoutFlag;	/* x runout in progress */
-EXT int xRunoutSteps;		/* x runout steps */
-
 EXT T_ZXISR zIsr;		/* z isr variables */
-
-EXT int16_t zSyncInit;		/* z sync init */
 
 EXT T_ACCEL xTA;		/* x threading accel */
 EXT T_ACCEL xPA;		/* x taper accel */
@@ -339,30 +346,36 @@ EXT T_ACCEL xSA;		/* x slow jog accel */
 
 EXT T_ZXISR xIsr;		/* x isr variables */
 
-EXT int16_t xSyncInit;		/* x sync init */
+enum eActive
+{
+ INACTIVE,
+ Z_ACTIVE,			/* z axis active */
+ X_ACTIVE,			/* x axis active */
+};
 
-#define Z_ACTIVE 1		/* z axis active */
-#define X_ACTIVE 2		/* x axis active */
+typedef struct s_sync
+{
+ char spindle;
+ char useEncoder;
+ char encoderDirect;
 
-EXT char runoutActive;		/* runout active */
-EXT char active;		/* axis driven by spindle */
-EXT char stepActive;		/* stepper active */
-EXT char encActive;		/* encoder active */
-EXT char synIntActive;		/* sync internal active */
-EXT char synExtActive;		/* sync external active */
+ int zSyncInit;			/* z sync init */
+ int xSyncInit;			/* x sync init */
 
-EXT int32_t tmrStepWidth;	/* step width */
-EXT int32_t tmrMin;		/* timer minimum width */
+// char active;			/* axis driven by spindle */
+ char stepActive;		/* stepper active */
+ char encActive;		/* encoder active */
+ char intActive;		/* sync internal active */
+ char extActive;		/* sync external active */
+} T_SYN_CTL, *P_SYN_CTL;
+
+EXT T_SYN_CTL syn;
 
 EXT int trackSpeed;		/* external motor track speed */
 EXT int updateFeed;		/* time to update feed */
 
-EXT unsigned int wdUpdateTime;	/* watchdog update time */
-EXT unsigned int wdTimeout;	/* watchdog timeout */
-EXT int wdState;		/* watchdog state */
-
-#define WD_INTERVAL 8		/* interval between watchdog pulses */
-#define WD_PULSE 2		/* watchdog pulse width */
+EXT unsigned int tmrStepWidth;	/* step width */
+EXT unsigned int  tmrMin;	/* timer minimum width */
 
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
@@ -378,7 +391,7 @@ typedef struct
  int missedStart;		/* start flag missed */
 
  unsigned int encCycLen;	/* encoder cycle length */
- int encPulse;			/* encoder pulse number */
+ unsigned int  encPulse;	/* encoder pulse number */
  uint16_t lastEnc;		/* last encoder capture */
  uint32_t encClocks;		/* clocks in current encoder cycle */
  uint32_t cycleClocks;		/* estimated clocks in cycle */
@@ -393,7 +406,7 @@ typedef struct
  boolean measure;		/* measure flag */
  boolean stop;			/* stop flag */
 
- int16_t startDelay;		/* initial delay */
+ uint16_t startDelay;		/* initial delay */
  uint16_t delta[ARRAY_LEN];	/* saved delta values */
 } T_CMP_TMR, *P_CMP_TMR;
 
@@ -423,8 +436,11 @@ typedef struct s_movectl
  char wait;			/* waiting for done fpga */
  char ctlreg;			/* control register fpga */
  char axisName;			/* axis name */
- char mpgFlag;			/* mpg direction flag */
+ char mpgFlag;			/* mpg direction inverted */
+ char mpgDirCh;			/* mpg direction change */
  char mpgBackWait;		/* mpg backlash wait */
+ char mpgState;			/* mpg current state */
+ char mpgLastState;		/* mpg last state */
  char limitsEna;		/* limits enabled */
  char limitMove;		/* move off limits in progress */
  unsigned int delayStart;	/* delay start time */
@@ -445,6 +461,7 @@ typedef struct s_movectl
  int *mpgJogMax;		/* mpg jog maximum distance */
  int mpgStepsCount;		/* mpg jog steps per mpg count */
  int mpgBackDist;		/* mpg backlash counter */
+ unsigned int mpgDirChTim;	/* mpg direction change timer */
  unsigned int mpgUSecSlow;	/* time limit for slow jog  */
  int16_t jogCmd;		/* command for jog */
  int16_t speedCmd;		/* command for jog speed */
@@ -456,18 +473,22 @@ typedef struct s_movectl
  P_ACCEL acMove;		/* unsynchronized movement */
  P_ACCEL acJog;			/* jog */
  P_ACCEL acJogSpeed;		/* jog at speed */
+ int stepsInch;			/* steps per inch */
+ int droCountInch;		/* dro count inch */
  TIM_TypeDef *timer;		/* axis timer */
  void (*isrStop) (char ch);	/* isr stop routine */
  void (*move) (int pos, int cmd); /* move absolute function */
  void (*moveRel) (int pos, int cmd); /* move relative function */
- void (*moveInit) (P_ACCEL ac, char dir, int dist); /* move initialization */
- void (*dirFwd) (void);		/* direction forward */
- void (*dirRev) (void);		/* direction rev */
- void (*hwEnable) (int ctr);	/* hardware enable */
- void (*start) (void);		/* axis start */
- void (*pulse) (void);		/* axis pulse */
+ void (*moveInit) (P_ACCEL ac, int dir, unsigned int dist); /* move init */
+ void (*dirFwd) ();		/* direction forward */
+ void (*dirRev) ();		/* direction rev */
+ void (*hwEnable) (unsigned int ctr); /* hardware enable */
+ void (*start) ();		/* axis start */
+ void (*pulse) ();		/* axis pulse */
  int *locPtr;			/* pointer to location */
  int *droLocPtr;		/* pointer to dro location */
+ int *homeOffset;		/* pointer to home offset */
+ int *droOffset;		/* pointer to dro offset */
 } T_MOVECTL, *P_MOVECTL;
 
 EXT T_MOVECTL zMoveCtl;
@@ -489,8 +510,8 @@ typedef struct s_homectl
  int findDistRev;
  int backoffDist;
  int slowDist;
- uint16_t (*homeIsSet) (void);
- uint16_t (*homeIsClr) (void);
+ uint16_t (*homeIsSet) ();
+ uint16_t (*homeIsClr) ();
  void (*moveRel) (int pos, int cmd); /* move relative function */
 } T_HOMECTL, *P_HOMECTL;
 
@@ -559,18 +580,19 @@ EXT T_MOVEQUE moveQue;
 
 EXT int16_t springInfo;
 
+#define WD_INTERVAL 8		/* interval between watchdog pulses */
+#define WD_PULSE 2		/* watchdog pulse width */
+
 #define MAX_TIMEOUT UINT_MAX
 #define REMCMD_TIMEOUT 1000U
 #define INDEX_TIMEOUT 1500U
 
+EXT unsigned int wdUpdateTime;	/* watchdog update time */
+EXT unsigned int wdTimeout;	/* watchdog timeout */
+EXT int wdState;		/* watchdog state */
+
 EXT unsigned int remcmdUpdateTime;
 EXT unsigned int remcmdTimeout;
-
-EXT unsigned int indexUpdateTime;
-
-EXT char spindleSync;
-EXT char useEncoder;
-EXT char encoderDirect;
 
 typedef struct
 {
@@ -588,15 +610,22 @@ typedef struct
  };
 } T_INDEX_COUNTER;
 
-EXT int indexTmrPreScale;	/* index timer prescaler */
-EXT int indexTmrCount;		/* index timer count */
-EXT int indexTmrAct;		/* index timer active */
-EXT unsigned int indexTimeout;
+typedef struct s_indexTmr
+{
+ int indexTmrPreScale;		/* index timer prescaler */
 
-EXT uint16_t indexOverflow;	/* index counter overflow */
-EXT uint32_t indexStart;	/* index period start count */
-EXT uint32_t indexTrkFreq;	/* freq for dbgTrk rpm calculation */
-EXT uint32_t indexFreq;		/* freq for remcmd rpm calculation */
+ int tmrCount;			/* index timer count */
+ int tmrAct;			/* index timer active */
+ unsigned int timeout;
+ unsigned int updateTime;
+
+ uint16_t overflow;		/* index counter overflow */
+ uint32_t start;		/* index period start count */
+ uint32_t trkFreq;		/* freq for dbgTrk rpm calculation */
+ uint32_t freq;			/* freq for remcmd rpm calculation */
+} T_INDEX_TMR, *P_INDEX_TMR;
+
+EXT T_INDEX_TMR idxTmr;
 
 EXT int lcdRow;
 EXT int lcdActive;
@@ -612,140 +641,141 @@ EXT int16_t trkbuf[TRKBUFSIZE];
 
 void delay(unsigned int delay);
 void delayUSec(unsigned short delay);
-extern "C" unsigned int getSP(void);
+extern "C" unsigned int getSP();
 
-void mainLoopSetup(void);
-void mainLoopSetupX(void);
+void mainLoopSetup();
+void mainLoopSetupX();
 
-unsigned int millis(void);
-void wdUpdate(void);
+unsigned int millis();
+void wdUpdate();
 
-void pauseCmd(void);
-void resumeCmd(void);
-void stopCmd(void);
-void doneCmd(void);
-void measureCmd(void);
-void clearCmd(void);
+void pauseCmd();
+void resumeCmd();
+void stopCmd();
+void doneCmd();
+void measureCmd();
+void clearCmd();
 
-void allStop(void);			/* stop all */
+void allStop();			/* stop all */
 
 void zIsrStop(char ch);
 void xIsrStop(char ch);
-void spIsrStop(void);
+void spIsrStop();
 
-void clearAll(void);
-void setup(void);
+void clearAll();
+void setup();
 
 void setSpindleSpeed(int rpm);	/* set spindle speed */
 void spindleSetup(int rpm);
 void spindleInit(P_SPINDLE spa, int dist, int dir); /* init spindle */
-void spindleStart(void);	/* start spindle */
-void spindleStop(void);		/* stop spindle */
-void spindleUpdate(void);	/* update spindle speed */
-void spindleJog(void);		/* spindle jog */
-void spindleJogSpeed(void);	/* spindle jog at speed */
-float stepTime(float cFactor, int step);
+void spindleStart();		/* start spindle */
+void spindleStop();		/* stop spindle */
+void spindleUpdate();		/* update spindle speed */
+void spindleJog();		/* spindle jog */
+void spindleJogSpeed();		/* spindle jog at speed */
+float stepTime(float cFactor, unsigned int step);
 void spindleAccelCalc(P_SPINDLE sp); /* calculate spindle acceleration */
 void spindleSpeedCalc(float finalRPM);
 
-void slaveEna(void);		/* enable slave */
+void slaveEna();		/* enable slave */
 
 void accelInit(P_AXIS ax, P_ACCEL ac);
-int turnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
-void encTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
-void syncTurnInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
-int taperInit(P_ZXISR isr, P_ACCEL ac, char dir);
-void encTaperInit(P_ZXISR isr, P_ACCEL ac, char dir);
-int moveInit(P_ZXISR isr, P_ACCEL ac, char dir, int dist);
+unsigned int turnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
+void encTurnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
+void syncTurnInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
+unsigned int taperInit(P_ZXISR isr, P_ACCEL ac, int dir);
+void encTaperInit(P_ZXISR isr, P_ACCEL ac, int dir, int syncInit);
+unsigned int moveInit(P_ZXISR isr, P_ACCEL ac, int dir, unsigned int dist);
 
-void cmpTmrSetup(void);
+void cmpTmrSetup();
 
-void syncMoveSetup(void);
+void syncMoveSetup();
 
-void syncSetup(void);
-void syncMeasure(void);
-void syncCalculate(void);
-void syncStart(void);		/* start pulse encoder */
-void syncStop(void);		/* stop pulse encoder */
+void syncSetup();
+void syncMeasure();
+void syncCalculate();
+void syncStart();		/* start pulse encoder */
+void syncStop();		/* stop pulse encoder */
 void encoderSWIEnable(int enable);
 
-void encoderStart(void);
+void encoderStart();
 
 void jogMove(P_MOVECTL mov, int dir);
 void jogMpg(P_MOVECTL mov);
 void jogMpg1(P_MOVECTL mov);
 void jogMpg2(P_MOVECTL mov);
+void jogMpg3(P_MOVECTL mov);
 void jogSpeed(P_MOVECTL mov, float speed);
 
 void zInit(P_AXIS ax);
-void zReset(void);
-void zHwEnable(int ctr);
-void zTurnInit(P_ACCEL ac, char dir, int dist);
-void zTaperInit(P_ACCEL ac, char dir);
-void zMoveInit(P_ACCEL ac, char dir, int dist);
-void zStart(void);
-void zPulseSetup(void);
-void zPulseTrig(void);
-void zPulse(void);
-void zStartSlave(void);
+void zReset();
+void zHwEnable(unsigned int ctr);
+void zTurnInit(P_ACCEL ac, int dir, unsigned int dist);
+void zTaperInit(P_ACCEL ac, int dir);
+void zMoveInit(P_ACCEL ac, int dir, unsigned int dist);
+void zStart();
+void zPulseSetup();
+void zPulseTrig();
+void zPulse();
+void zStartSlave();
 
-void zMoveAbsCmd(void);
-void zMoveRelCmd(void);
-void zJogCmd(void);
-void zJogSpeedCmd(void);
-void zLocCmd(void);
+void zMoveAbsCmd();
+void zMoveRelCmd();
+void zJogCmd();
+void zJogSpeedCmd();
+void zLocCmd();
 
-void zStop(void);
-void zSetup(void);
-void zMoveSetup(void);
+void zStop();
+void zSetup();
+void zMoveSetup();
 void zSynSetup(int feedType, float feed, float runout, float runoutDepth);
 void zInfo(char flag);
 void zMove(int pos, int cmd);
 void zMoveRel(int pos, int cmd);
-void zControl(void);
-void zHomeSetup(void);
+void zControl();
+void zHomeSetup();
 
 void xInit(P_AXIS ax);
-void xReset(void);
-void xHwEnable(int ctr);
-void xTurnInit(P_ACCEL ac, char dir, int dist);
-void xTaperInit(P_ACCEL ac, char dir);
-void xRunoutInit(void);
-void xSyncRunoutInit(void);
-void xEncRunoutInit(void);
-void xMoveInit(P_ACCEL ac, char dir, int dist);
-void xStart(void);
-void xPulseSetup(void);
-void xPulseTrig(void);
-void xPulse(void);
-void xStartSlave(void);
+void xReset();
+void xHwEnable(unsigned int ctr);
+void xTurnInit(P_ACCEL ac, int dir, unsigned int dist);
+void xTaperInit(P_ACCEL ac, int dir);
+void xRunoutInit();
+void xSyncRunoutInit();
+void xEncRunoutInit();
+void xMoveInit(P_ACCEL ac, int dir, unsigned int dist);
+void xStart();
+void xPulseSetup();
+void xPulseTrig();
+void xPulse();
+void xStartSlave();
 
-void xMoveAbsCmd(void);
-void xMoveRelCmd(void);
-void xJogCmd(void);
-void xJogSpeedCmd(void);
-void xLocCmd(void);
+void xMoveAbsCmd();
+void xMoveRelCmd();
+void xJogCmd();
+void xJogSpeedCmd();
+void xLocCmd();
 
-void xStop(void);
-void xSetup(void);
-void xMoveSetup(void);
+void xStop();
+void xSetup();
+void xMoveSetup();
 void xSynSetup(int feedType, float feed);
 void xInfo(char flag);
 void xMove(int pos, int cmd);
 void xMoveDro(int pos, int cmd);
 void xMoveRel(int pos, int cmd);
-void xControl(void);
-void xHomeSetup(void);
+void xControl();
+void xHomeSetup();
 
-void axisCtl(void);
+void axisCtl();
 void homeAxis(P_HOMECTL home, int homeCmd);
 void homeControl(P_HOMECTL home);
 
-void runInit(void);
+void runInit();
 char queMoveCmd(uint32_t op, float val);
 char queIntCmd(uint32_t op, int val);
-void stopMove(void);
-void procMove(void);
+void stopMove();
+void procMove();
 
 void moveZX(int zLoc, int xLoc);
 void moveXZ(int xLoc, int ZLoc);
@@ -770,8 +800,8 @@ void taperCalc(P_ACCEL a0, P_ACCEL a1, float taper);
 void runoutCalc(P_ACCEL a0, P_ACCEL a1, float runout, float depth);
 void encRunoutCalc(P_ACCEL a0, P_ACCEL a1, float runout, float depth);
 
-void TIM3_Init(void);
-void TIM8_Init(void);
+void TIM3_Init();
+void TIM8_Init();
 
 void enaDbgPins(int flag);
 
@@ -780,14 +810,14 @@ T_PIN_NAME pinName(char *buf, GPIO_TypeDef *port, int pin);
 char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo);
 void gpioInfo(GPIO_TypeDef *gpio);
 void tmrInfo(TIM_TypeDef *tmr);
-void extiInfo(void);
+void extiInfo();
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
-void rccInfo(void);
+void rccInfo();
 #endif
 
 void testOutputs(int inputTest);
-void pinDisplay(void);
+void pinDisplay();
 
 typedef union
 {
@@ -850,6 +880,35 @@ inline int xDro()
 {
  return(rVar.xDroLoc - rVar.xDroOffset);
 }
+
+#if defined(MEGAPORT)
+
+void megaPoll();
+void megaRsp();
+
+#endif	/* MEGAPORT */
+
+#if defined(SYNC_SPI)
+
+typedef struct sSyncMultiParm
+{
+ int16_t syncParm;
+ int16_t remParm;
+} T_SYNC_MULTI_PARM, *P_SYNC_MULTI_PARM;
+
+void initSync();
+void syncResp();
+
+void syncCommand(uint8_t cmd);
+void syncSendMulti(P_SYNC_MULTI_PARM p);
+void syncPoll();
+
+EXT bool syncCmdDone;
+EXT bool syncLoadDone;
+EXT bool syncReadDone;
+EXT bool syncPollDone;
+
+#endif	/* SYNC_SPI */
 
 #include "main.h"
 #include "pinDef.h"

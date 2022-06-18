@@ -1,7 +1,7 @@
 //#if !defined(INCLUDE)
 #define __I2C__
-#include <stdio.h>
-#include <limits.h>
+#include <cstdio>
+#include <climits>
 
 #ifdef STM32F1
 #include "stm32f1xx_hal.h"
@@ -22,14 +22,14 @@
 
 #include "monitorSTM32.h"
 #define flushBuf flush
-#define SLAVE_ADDRESS 0x3f
+#define SLAVE_ADDRESS 0x7e
 
 #else  /* ARDUINO_ARCH_STM32 */
 
 #if defined(STM32MON)
 
-unsigned int millis(void);
-#define SLAVE_ADDRESS 0x3f
+unsigned int millis();
+#define SLAVE_ADDRESS 0x7e
 
 #else  /* STM32MON */
 
@@ -64,11 +64,11 @@ void i2cWrite(uint8_t);
 #endif	/* STM32F1 || STM32F4 */
 void i2cWrite(uint8_t *data, uint16_t size);
 
-void i2cWaitBusy(void);
+void i2cWaitBusy();
 void i2cPut(uint8_t ch);
 void i2cPutString(uint8_t *p, int size);
-void i2cSend(void);
-void i2cControl(void);
+void i2cSend();
+void i2cControl();
 
 enum I2C_STATES
 {
@@ -96,6 +96,7 @@ typedef struct
  int state;
  int lastState;
  int status;
+ int errCount;
  unsigned int startTime;
  unsigned int timeout;
  unsigned int maxTime;
@@ -106,6 +107,7 @@ typedef struct
 } T_I2C_CTL, *P_I2C_CTL;
 
 EXT T_I2C_CTL i2cCtl;
+EXT int i2cError;
 
 #endif	// ->
 #ifdef __I2C__
@@ -181,6 +183,7 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
   if ((getCycles() - start) > timeout)
   {
    printf("i2c_start busy timeout\n");
+   i2cError = 1;
    return;
   }
  }
@@ -192,6 +195,7 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
   if ((getCycles() - start) > timeout)
   {
    printf("i2c_start master mode failed\n");
+   i2cError = 1;
    return;
   }
  }
@@ -210,7 +214,7 @@ void i2c_start(I2C_TypeDef* I2Cx, uint8_t address)
 
 void i2cWrite(uint8_t data)
 {
- i2c_start(I2C_DEV, SLAVE_ADDRESS<<1);
+ i2c_start(I2C_DEV, SLAVE_ADDRESS);
 
  i2c_SendData(I2C_DEV, data);
 
@@ -239,6 +243,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite busy timeout\n");
+   i2cError = 1;
    return;
   }
  }
@@ -250,14 +255,14 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite master mode timeout\n");
+   i2cError = 1;
    return;
   }
  }
 
+ I2C_DEV->DR = SLAVE_ADDRESS;
 
- I2C_DEV->DR = SLAVE_ADDRESS<<1;
-
- while (1)
+ while (true)
  {
   if ((I2C_DEV->SR1 == (I2C_SR1_ADDR | I2C_SR1_TXE))
   &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
@@ -267,6 +272,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite address timeout\n");
+   i2cError = 1;
    return;
   }
  }
@@ -276,7 +282,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
   size -= 1;
   i2c_SendData(I2C_DEV, *data++);
 
-  while (1)
+  while (true)
   {
    if ((I2C_DEV->SR1 == (I2C_SR1_BTF | I2C_SR1_TXE))
    &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
@@ -286,6 +292,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
    if ((millis() - start) > timeout)
    {
     printf("i2cWrite data timeout\n");
+    i2cError = 1;
     return;
    }
   }
@@ -307,13 +314,14 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite BUSY timeout\n");
+   i2cError = 1;
    dbg4Clr();
    return;
   }
  }
 
  I2C_DEV->CR2 = (I2C_CR2_AUTOEND | (size << I2C_CR2_NBYTES_Pos) |
-		 I2C_CR2_START | (SLAVE_ADDRESS<<1));
+		 I2C_CR2_START | (SLAVE_ADDRESS));
 
  while (size > 0U)
  {
@@ -323,6 +331,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
    if ((millis() - start) > timeout)
    {
     printf("i2cWrite TXIS %08x\n", (unsigned int) I2C_DEV->ISR);
+    i2cError = 1;
     dbg4Clr();
     return;
    }
@@ -336,6 +345,7 @@ void i2cWrite(uint8_t *data, uint16_t size)
   if ((millis() - start) > timeout)
   {
    printf("i2cWrite STOPF %08x\n", (unsigned int) I2C_DEV->ISR);
+   i2cError = 1;
    dbg4Clr();
    return;
   }
@@ -348,16 +358,17 @@ void i2cWrite(uint8_t *data, uint16_t size)
 
 #endif	/* STM32H7 */
 
-void i2cWaitBusy(void)
+void i2cWaitBusy()
 {
  unsigned int timeout = 20;
  unsigned int start = millis();
- while (1)
+ while (true)
  {
   if (i2cNotBusy())
    break;
   if ((millis() - start) > timeout)
   {
+   i2cError = 1;
    printf("i2cWait BUSY timeout\n");
    return;
   }
@@ -386,7 +397,7 @@ void i2cPutString(uint8_t *p, int size)
   int fill = i2c->fil;		/* temp copy of fill pointer */
   uint8_t *dst = &i2c->buffer[fill]; /* get pointer to data buffer */
   // while (i2c->count < I2C_BUF_SIZE) /* if room */
-  while (1)
+  while (true)
   {
    --size;			/* count of size */
    if (size < 0)		/* if done */
@@ -404,7 +415,7 @@ void i2cPutString(uint8_t *p, int size)
  }
 }
 
-void i2cSend(void)
+void i2cSend()
 {
  P_I2C_CTL i2c = &i2cCtl;
  i2c->timeout = I2CX_TIMEOUT;
@@ -414,7 +425,7 @@ void i2cSend(void)
  i2c->lastState = I_IDLE;
 }
 
-void i2cControl(void)
+void i2cControl()
 {
  P_I2C_CTL i2c = &i2cCtl;
 
@@ -423,66 +434,65 @@ void i2cControl(void)
   unsigned int delta = millis() - i2c->startTime;
   if (delta > i2c->timeout)
   {
-   printf("timeout\n");
-   flushBuf();
+   printf("timeout %d\n", i2c->errCount);
+
 #if defined(STM32F1) || defined(STM32F4)
    printf("state %d count %3d sr2 %08x sr1 %08x*\n",
 	  i2c->state, i2c->count,
 	  (unsigned int) I2C_DEV->SR2, (unsigned int) I2C_DEV->SR1);
 #endif	/* STM32F1 || STM32F4 */
+
 #if defined(STM32H7) || defined(STM32F7)
   printf("state %d count %3d isr %08x*\n", i2c->state, i2c->count,
 	 (unsigned int) I2C_DEV->ISR);
-#endif
-   flushBuf();
+#endif	/* STM32H7 || STM32F7 */
+
 #if defined(STM32F1) || defined(STM32F4)
    i2c_stop(I2C_DEV);
 #endif	/* STM32F1 || STM32F4 */
+
    i2c->emp = 0;
    i2c->fil = 0;
    i2c->count = 0;
    i2c->state = I_IDLE;
    i2c->lastState = I_IDLE;
    i2c->status = IS_TIMEOUT;
+
+   i2c->errCount += 1;		/* count error */
+   if (i2c->errCount > 3)	/* if too many errors */
+   {
+    printf("i2c disabled\n");
+    i2cError = 1;		/* indicate failed */
+   }
+   flushBuf();
    return;
   }
+  i2c->errCount = 0;		/* reset error counter */
+
   if (delta > i2c->maxTime)
    i2c->maxTime = delta;
  }
-
-#if 0
- if (i2c->state != i2c->lastState)
- {
-  i2c->lastState = i2c->state;
-#if defined(STM32F1) || defined(STM32F4)
-  printf("state %d count %d sr2 %08x sr1 %08x\n", i2c->state, i2c->count,
-	 (unsigned int) I2C_DEV->SR2, (unsigned int) I2C_DEV->SR1);
-#endif	/* STM32F1 || STM32F4 */
-#if defined(STM32H7) || defined(STM32F7)
-  printf("state %d count %d isr %08x*\n", i2c->state, i2c->count,
-	 (unsigned int) I2C_DEV->ISR);
-#endif
-  flushBuf();
- }
-#endif
+ 
  switch(i2c->state)		/* dispatch on state */
  {
  case I_IDLE:			/* 0x00 idle state */
   break;
 
  case I_WAIT_START:		/* 0x01 wait to start */
-//  if ((I2C_DEV->SR2 & I2C_SR2_BUSY) == 0)
   if (i2cNotBusy())
   {
+
 #if defined(STM32F1) || defined(STM32F4)
    I2C_DEV->CR1 |= I2C_CR1_START;
    i2c->state = I_START;
 #endif	/* STM32F1 || STM32F4 */
+
 #if defined(STM32H7) || defined(STM32F7)
    I2C_DEV->CR2 = (I2C_CR2_AUTOEND | (i2c->count << I2C_CR2_NBYTES_Pos) |
-		   I2C_CR2_START | (SLAVE_ADDRESS<<1));
+		   I2C_CR2_START | (SLAVE_ADDRESS));
    i2c->state = I_WAIT_DATA;
-#endif
+#endif	/* STM32H7 || STM32F7 */
+
    i2c->startTime = millis();
   }
   break;
@@ -492,7 +502,7 @@ void i2cControl(void)
   if ((I2C_DEV->SR1 == I2C_SR1_SB)
   &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY)))
   {
-   I2C_DEV->DR = SLAVE_ADDRESS << 1;
+   I2C_DEV->DR = SLAVE_ADDRESS;
    i2c->state = I_ADDRESS;
    i2c->startTime = millis();
   }
@@ -514,26 +524,32 @@ void i2cControl(void)
   {
    --i2c->count;
    int emp = i2c->emp;
+
 #if defined(STM32F1) || defined(STM32F4)
    I2C_DEV->DR = i2c->buffer[emp++];
 #endif	/* STM32F1 || STM32F4 */
+
 #if defined(STM32H7) || defined(STM32F7)
    I2C_DEV->TXDR = i2c->buffer[emp++];
-#endif
+#endif	/* STM32H7 || STM32F7 */
+
    if (emp >= I2C_BUF_SIZE)
     emp = 0;
    i2c->emp = emp;
    i2c->startTime = millis();
+
 #if defined(STM32F1) || defined(STM32F4)
    i2c->state = I_WAIT_DATA;
 #endif	/* STM32F1 || STM32F4 */
+
 #if defined(STM32H7) || defined(STM32F7)
    if (i2c->count == 0)
     i2c->state = I_WAIT_STOP;
    else
     i2c->state = I_WAIT_DATA;
-#endif
+#endif	/* STM32H7 || STM32F7 */
   }
+
 #if defined(STM32F1) || defined(STM32F4)
   else
   {
@@ -545,9 +561,7 @@ void i2cControl(void)
 #endif	/* STM32F1 || STM32F4 */
   break;
 
- case I_WAIT_DATA:		/* 0x05 wait for data to be send */
-//  if ((I2C_DEV->SR1 == (I2C_SR1_BTF | I2C_SR1_TXE))
-//  &&  ((I2C_DEV->SR2 & 0xff) == (I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA)))
+ case I_WAIT_DATA:		/* 0x05 wait for data to be sent */
   if (i2cDataSent())
   {
    i2c->state = I_SEND_DATA;
@@ -563,7 +577,7 @@ void i2cControl(void)
    i2c->timeout = MAX_TIMEOUT;
    i2c->state = I_IDLE;
   }
-#endif
+#endif	/* STM32H7 || STM32F7 */
   break;
  }
 }

@@ -52,7 +52,7 @@ enum XILINX
  XRDZXPOS,                      /* 0x1c read z sync x pos */
  XRDZYPOS,                      /* 0x1d read z sync y pos */
  XRDZACLSUM,                    /* 0x1e read z acl sum */
- XRDZASTP,                      /* 0x1f read z acl stps */
+ XRDZASTP,                      /* 0x1f read z acl steps */
 
 // read x motion
 
@@ -60,7 +60,7 @@ enum XILINX
  XRDXXPOS,                      /* 0x21 read x sync x pos */
  XRDXYPOS,                      /* 0x22 read x sync y pos */
  XRDXACLSUM,                    /* 0x23 read x acl sum */
- XRDXASTP,                      /* 0x24 read z acl stps */
+ XRDXASTP,                      /* 0x24 read z acl steps */
 
 // read distance
 
@@ -95,6 +95,6 @@ enum XILINX
 
 // read control regs
 
- XRDZCTL,                       /* 0x32 read control regiisters */
- XRDXCTL,                       /* 0x33 read control regiisters */
+ XRDZCTL,                       /* 0x32 read control registers */
+ XRDXCTL,                       /* 0x33 read control registers */
 };

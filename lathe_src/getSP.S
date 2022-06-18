@@ -5,7 +5,4 @@ getSP:
 	mov r0,sp
 	bx lr
 
-	.globl _exit
-
-_exit:	nop
 	

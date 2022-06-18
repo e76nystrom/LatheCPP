@@ -9,25 +9,29 @@
 #define WD_ENA 1		/* watchdog enable */
 
 #define REMPORT UART7
+#define DBGPORT USART3
+#define MEGAPORT UART5
 
 #define RemRx_Pin Uart7Rx_Pin
 #define RemRx_GPIO_Port Uart7Rx_GPIO_Port
 #define RemTx_Pin Uart7Tx_Pin
 #define RemTx_GPIO_Port Uart7Tx_GPIO_Port
 
-#define DBGPORT USART3
+#define remoteISR(x) UART7_IRQHandler(x)
+#define REMOTE_IRQn UART7_IRQn
 
 #define DbgRx_Pin Usart3Rx_Pin 
 #define DbgRx_GPIO_Port Usart3Rx_GPIO_Port 
 #define DbgTx_Pin Usart3Tx_Pin
 #define DbgTx_GPIO_Port Usart3Tx_GPIO_Port
 
-#define remoteISR(x) UART7_IRQHandler(x)
-#define REMOTE_IRQn UART7_IRQn
+#define megaISR(x) UART5_IRQHandler(x)
+#define MEGA_IRQn UART5_IRQn
 
 #define indexISR(x) EXTI0_IRQHandler(x)
 #define indexIRQn EXTI0_IRQn
 #define INDEX_PIN indexIRQn
+#define INDEX_GPIO_PORT Index_GPIO_Port
 
 #define encISR(x) EXTI2_IRQHandler(x)
 #define encIRQn EXTI2_IRQn
@@ -49,7 +53,13 @@ inline void mxI2CInit()
 }
 
 #define SPI 1
+#define SPI_ISR
+#define SPI_MASTER
 #define SPIn SPI3
+#define SPI_NAME "SPI3"
+#define spiISR(x) SPI3_IRQHandler(x)
+#define SPI_IRQn SPI3_IRQn
+
 #define I2C 1
 #define I2Cn I2C4
 

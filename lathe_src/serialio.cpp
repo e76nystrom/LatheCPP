@@ -1,5 +1,5 @@
-//#if !defined(INCLUDE)
 #define __SERIALIO__
+
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
 #endif
@@ -10,14 +10,12 @@
 #include "stm32h7xx_hal.h"
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
 
-#include "main.h"
 #include "config.h"
 #include "dbg.h"
 
@@ -32,7 +30,6 @@
 
 #define EXT
 #include "serialio.h"
-//#endif /* !defined(INCLUDE) */
 
 #if defined(__SERIALIO_INC__)	// <-
 
@@ -42,8 +39,6 @@
 
 #define DBGMSG 2
 
-void wdUpdate(void);
-
 enum RTN_VALUES
 {
  NO_VAL,
@@ -51,7 +46,13 @@ enum RTN_VALUES
  FLOAT_VAL,
 };
 
-void newline(void);
+typedef union s_intFloat
+{
+ int i;
+ float f;
+} T_INT_FLOAT, *P_INT_FLOAT;
+
+void newline();
 
 #define MAXDIG 10		/* maximum input digits */
 
@@ -63,15 +64,23 @@ write (int handle, const char *buffer, int len);
 void putx(char c);
 void putstr(const char *p);
 void sndhex(unsigned char *p, int size);
-char getx(void);
-unsigned char gethex(void);
+char getx();
+unsigned char gethex();
 char getstr(char *buf, int bufLen);
-unsigned char getnum(void);
-unsigned char getnumAll(void);
-unsigned char getfloat(void);
+unsigned char getnum();
+unsigned char getnumAll();
+unsigned char getfloat();
+
+unsigned char gethex(int *val);
+unsigned char getnum(int *val);
+unsigned char getnumAll(T_INT_FLOAT *val);
+unsigned char getfloat(float *val);
 
 char query(const char *format, ...);
 char query(unsigned char (*get)(), const char *format, ...);
+char query(unsigned char (*get)(int *), int *val, const char *format, ...);
+char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
+	   const char *format, ...);
 
 void prtbuf(unsigned char *p, int size);
 void prtibuf(int16_t *p, int size);
@@ -82,35 +91,33 @@ void prtibuf(int16_t *p, int size);
 
 void putx1(char c);
 void putstr1(const char *p);
+
+#if 0
 void sndhex1(unsigned char *p, int size);
-char gethex1(void);
-char getx1(void);
+char gethex1();
+char getx1();
 char getstr1(char *buf, int bufLen);
-unsigned char getnum1(void);
+unsigned char getnum1();
+#endif
 
 /* interrupt remote port routines */
 
-void initRem(void);
+void initRem();
 void putRem(char ch);
 void putstrRem(const char *p);
 void sndhexRem(const unsigned char *p, int size);
-int getRem(void);
-char gethexRem(void);
+int getRem();
+char gethexRem(int *val);
 char getstrRem(char *buf, int bufLen);
-unsigned char getnumRem(void);
+unsigned char getnumRem(T_INT_FLOAT *val);
 
 //#endif
 
 /* debug message routines */
 
 #if DBGMSG
-#if DBGMSG == 2
-void dbgmsg(char dbg, int32_t val);
-#else
-void dbgmsg(char *str, int32_t val);
-void dbgmsgx(char *str, char reg, int32_t val);
-#endif
-void clrDbgBuf(void);
+void dbgmsg(char dbg, int val);
+void clrDbgBuf();
 #else
 #define dbgmsg(a, b)
 #define dbgmsgx(a, b, c)
@@ -118,9 +125,9 @@ void clrDbgBuf(void);
 
 /* debug port buffered character routines */
 
-extern "C" void remoteISR(void);
+extern "C" void remoteISR();
 
-void initCharBuf(void);
+void initCharBuf();
 void putBufChar(char ch);
 void putBufCharIsr(char ch);
 void putBufCharX(char ch);
@@ -128,26 +135,40 @@ void putBufStr(const char *s);
 void putBufStrX(const char *s);
 void sndhexIsr(unsigned char *p, int size);
 void putBufStrIsr(const char *s);
-int pollBufChar(void);
-void flushBuf(void);
+int pollBufChar();
+void flushBuf();
 
 /* printf output */
 
 extern "C" ssize_t _write (int fd  __attribute__((unused)),
 			   const char* buf, size_t nbyte);
 
-EXT unsigned char *p;
-EXT int32_t val;
-EXT float fVal;
+typedef struct s_serVar
+{
+ char dbgBuffer;
 
-EXT int32_t valRem;
-EXT float fValRem;
+ char lineStart;
+ char lineLen;
+ char eolFlag;
+ char remCmdRcv;
 
-EXT char dbgBuffer;
+#if defined(MEGAPORT)
+ char megaRspRcv;
+#endif	/* MEGAPORT */
+} T_SER_VAR, *P_SER_VAR;
 
-EXT char lineStart;
-EXT char lineLen;
-EXT char eolFlag;
+EXT T_SER_VAR serial;
+
+#if defined(MEGAPORT)
+
+void initMega();
+void putMega(char ch);
+void putstrMega(const char *p);
+void sndhexMega(const unsigned char *p, int size, unsigned char end);
+int getMega();
+char gethexMega(int *val);
+
+#endif	/* MEGAPORT */
 
 #if defined(STM32F4)
 
@@ -213,7 +234,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->SR & USART_SR_RXNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->DR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->SR & USART_SR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->SR & USART_SR_TXE);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->DR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32F4 */
 
 #if defined(STM32F7)
 
@@ -279,7 +337,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->ISR & USART_ISR_RXNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->RDR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->ISR & USART_ISR_TXE);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->TDR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32F7 */
 
 #if defined(STM32H7)
 
@@ -345,7 +440,44 @@ inline void remTxIntDis()
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
-#endif
+#if defined(MEGAPORT)
+
+inline uint32_t megaRxReady()
+{
+ return(MEGAPORT->ISR & USART_ISR_RXNE_RXFNE);
+}
+inline uint32_t megaRxRead()
+{
+ return(MEGAPORT->RDR);
+}
+inline void megaRxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_RXNEIE;
+}
+inline uint32_t megaRxOverrun()
+{
+ return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline uint32_t megaTxEmpty()
+{
+ return(MEGAPORT->ISR & USART_ISR_TXE_TXFNF);
+}
+inline void megaTxSend(char ch)
+{
+ MEGAPORT->TDR = ch;
+}
+inline void megaTxIntEna()
+{
+ MEGAPORT->CR1 |= USART_CR1_TXEIE; /* enable transmit interrupt */
+}
+inline void megaTxIntDis()
+{
+ MEGAPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
+}
+
+#endif	/* MEGAPORT */
+
+#endif	/* STM32H7 */
 
 // #define SNDHEX(val) sndhex((unsigned char *) &val, sizeof(val))
 
@@ -353,62 +485,87 @@ inline void remTxIntDis()
 
 #define MAXDBGMSG 200
 
-#if DBGMSG == 2
-
 typedef struct
 {
  char dbg;
  int32_t val;
- int32_t time;
+ uint32_t time;
 } T_DBGMSG, *P_DBGMSG;
 
-#else
-
-typedef struct
+typedef struct s_dbgQue
 {
- char str[12];
- int32_t val;
- int32_t time;
-} T_DBGMSG, *P_DBGMSG;
+ int16_t count;
+ uint16_t fil;
+ uint16_t emp;
+ T_DBGMSG data[MAXDBGMSG];
+} T_DBG_QUE, *P_DBG_QUE;
 
-#endif
-
-EXT T_DBGMSG dbgdata[MAXDBGMSG];
-
-EXT int16_t dbgcnt;
-EXT uint16_t dbgfil;
-EXT uint16_t dbgemp;
+EXT T_DBG_QUE dbgQue;
 
 #endif	/* DBGMSG */
 
 /* remote port interrupt driven routines */
 
-#define TX_BUF_SIZE 140
-#define RX_BUF_SIZE 80
+#define REM_TX_SIZE 140
+#define REM_RX_SIZE 80
 
 typedef struct
 {
  int tx_fil;
  int tx_emp;
  int tx_count;
- char tx_buffer[TX_BUF_SIZE];
+ char tx_buffer[REM_TX_SIZE];
  int rx_fil;
  int rx_emp;
  int rx_count;
- char rx_buffer[RX_BUF_SIZE];
+ char rx_buffer[REM_RX_SIZE];
  int state;
 } T_REMCTL, *P_REMCTL;
 
 EXT T_REMCTL remCtl;
 
+#if defined(MEGAPORT)
+
+#define MEGA_TX_SIZE 40
+#define MEGA_RX_SIZE 40
+
+enum MEGA_STATE
+{
+ MEGA_ST_IDLE,
+ MEGA_ST_START,
+ MEGA_ST_DATA,
+};
+
+typedef struct
+{
+ int tx_fil;
+ int tx_emp;
+ int tx_count;
+ char tx_buffer[MEGA_TX_SIZE];
+ int rx_fil;
+ int rx_emp;
+ int rx_count;
+ char rx_buffer[MEGA_RX_SIZE];
+ int state;
+ int txWait;
+ uint32_t timer;
+} T_MEGACTL, *P_MEGACTL;
+
+EXT T_MEGACTL megaCtl;
+
+#endif	/* MEGAPORT */
+
 #endif	// ->
 #ifdef __SERIALIO__
 
+void wdUpdate();
+unsigned int millis();
+
 /* polled debug port routines */
 
-void newline(void)
+void newline()
 {
- if (dbgBuffer)
+ if (serial.dbgBuffer)
  {
   putBufChar('\n');
   putBufChar('\r');
@@ -429,7 +586,7 @@ void putx(char c)
 
 void putstr(const char *p)
 {
- while (1)
+ while (true)
  {
   char ch = *p++;
   if (ch == 0)
@@ -473,7 +630,7 @@ void sndhex(unsigned char *p, int size)
  }
 }
 
-char getx(void)
+char getx()
 {
  while (dbgRxReady() == 0)
  {
@@ -482,12 +639,12 @@ char getx(void)
  return(dbgRxRead());
 }
 
-unsigned char gethex(void)
+unsigned char gethex(int *val)
 {
  char ch;
  int count;
 
- val = 0;
+ int tmpVal = 0;
  count = 0;
  while (count <= 8)
  {
@@ -512,7 +669,7 @@ unsigned char gethex(void)
    if (count > 0)
    {
     --count;
-    val >>= 4;
+    tmpVal >>= 4;
     putBufChar(8);
     putBufChar(' ');
     putBufChar(8);
@@ -527,9 +684,10 @@ unsigned char gethex(void)
    break;
   else
    continue;
-  val <<= 4;
-  val += ch;
+  tmpVal <<= 4;
+  tmpVal += ch;
  }
+ *val = tmpVal;
  return(count != 0);
 }
 
@@ -539,7 +697,7 @@ char getstr(char *buf,  int bufLen)
  char *p;
  char ch;
  p = buf;
- while (1)
+ while (true)
  {
   ch = getx();
   if ((ch == '\n') || (ch == '\r'))
@@ -575,7 +733,7 @@ char getstr(char *buf,  int bufLen)
  return(len);
 }
 
-unsigned char getnum(void)
+unsigned char getnum(int *val)
 {
  char ch;			/* input character */
  char chbuf[MAXDIG];		/* input digit buffer */
@@ -586,10 +744,10 @@ unsigned char getnum(void)
 
  neg = 0;
  hex = 0;
- val = 0;
+ int tmpVal = 0;
  chidx = 0;
  count = 0;
- while (1)
+ while (true)
  {
   ch = getx();
   if ((ch >= '0')
@@ -631,7 +789,7 @@ unsigned char getnum(void)
    {
     while (count < chidx)
     {
-     val = (val << 4) + chbuf[count];
+     tmpVal = (tmpVal << 4) + chbuf[count];
      count++;
     }
    }
@@ -639,12 +797,13 @@ unsigned char getnum(void)
    {
     while (count < chidx)
     {
-     val = val * 10 + chbuf[count];
+     tmpVal = tmpVal * 10 + chbuf[count];
      count++;
     }
    }
    if (neg)
-    val = -val;
+    tmpVal = -tmpVal;
+   *val = tmpVal;
    return(count);
   }
   else if (chidx == 0)
@@ -665,20 +824,20 @@ unsigned char getnum(void)
  }
 }
 
-unsigned char getfloat(void)
+unsigned char getfloat(float *val)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
 
  char len = getstr(chbuf, sizeof(chbuf));
  if (len != 0)
  {
-  fVal = atof(chbuf);
+  *val = strtof((const char *) chbuf, nullptr);
   return(1);
  }
  return(0);
 }
 
-unsigned char getnumAll(void)
+unsigned char getnumAll(T_INT_FLOAT *val)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
 
@@ -692,17 +851,16 @@ unsigned char getnumAll(void)
    char ch = *p++;
    if (ch == '.')
    {
-    fVal = atof(chbuf);
+    val->f = strtof((const char *) chbuf, nullptr);
     return(FLOAT_VAL);
    }
    if ((ch == 'x') || (ch == 'X'))
    {
-    char *endptr;
-    val = strtol(p, &endptr, 16);
+    val->i = strtol(p, nullptr, 16);
     return(INT_VAL);
    }
   }
-  val = atoi(chbuf);
+  val->i = strtol((const char *) chbuf, nullptr, 10);
   return(INT_VAL);
  }
  return(NO_VAL);
@@ -729,6 +887,31 @@ char query(unsigned char (*get)(), const char *format, ...)
  va_end(args);
  flushBuf();
  char ch = get();
+ newline();
+ return(ch);
+}
+
+char query(unsigned char (*get)(int *), int *val, const char *format, ...)
+{
+ va_list args;
+ va_start(args, format);
+ vprintf(format, args);
+ va_end(args);
+ flushBuf();
+ char ch = get(val);
+ newline();
+ return(ch);
+}
+
+char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
+	   const char *format, ...)
+{
+ va_list args;
+ va_start(args, format);
+ vprintf(format, args);
+ va_end(args);
+ flushBuf();
+ char ch = get(val);
  newline();
  return(ch);
 }
@@ -787,7 +970,7 @@ void prtibuf(int16_t *p, int size)
  }
 }
 
-#ifdef REMPORT
+#if defined(REMPORT)
 
 /* polled remote port routines */
 
@@ -800,7 +983,7 @@ void putx1(char c)
 
 void putstr1(const char *p)
 {
- while (1)
+ while (true)
  {
   char ch = *p++;
   if (ch == 0)
@@ -811,6 +994,7 @@ void putstr1(const char *p)
  }
 }
 
+#if 0
 void sndhex1(unsigned char *p, int size)
 {
  char tmp;
@@ -840,7 +1024,7 @@ void sndhex1(unsigned char *p, int size)
  }
 }
 
-char getx1(void)
+char getx1()
 {
  while (remRxReady() == 0)
   pollBufChar();
@@ -853,7 +1037,7 @@ char getstr1(char *buf, int bufLen)
  char *p;
  char ch;
  p = buf;
- while (1)
+ while (true)
  {
   ch = getx1();
   if ((ch == ' ') || (ch == '\n'))
@@ -891,12 +1075,12 @@ char getstr1(char *buf, int bufLen)
  return(len);
 }
 
-char gethex1(void)
+char gethex1(int *val)
 {
  char ch;
  int count;
 
- valRem = 0;
+ int tmpVal = 0;
  count = 0;
  while (count <= 8)
  {
@@ -921,7 +1105,7 @@ char gethex1(void)
    if (count > 0)
    {
     --count;
-    valRem >>= 4;
+    tmpVal >>= 4;
     putx1(8);
     putx1(' ');
     putx1(8);
@@ -936,13 +1120,14 @@ char gethex1(void)
    break;
   else
    continue;
-  valRem <<= 4;
-  valRem += ch;
+  tmpVal <<= 4;
+  tmpVal += ch;
  }
+ *val = tmpVal;
  return(count != 0);
 }
 
-unsigned char getnum1(void)
+unsigned char getnum1(T_INT_FLOAT *val)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
 
@@ -956,29 +1141,29 @@ unsigned char getnum1(void)
    char ch = *p++;
    if (ch == '.')
    {
-    fValRem = atof(chbuf);
+    val->f = strtof((const char *) chbuf, 0);
     return(FLOAT_VAL);
    }
    if ((ch == 'x') || (ch == 'X'))
    {
-    char *endptr;
-    valRem = strtol(p, &endptr, 16);
+    val->i = strtol(p, nullptr, 16);
     return(INT_VAL);
    }
   }
-  valRem = atoi(chbuf);
+  val->i = atoi(chbuf);
   return(INT_VAL);
  }
  return(NO_VAL);
 }
+#endif
 
-void initRem(void)
+void initRem()
 {
  memset(&remCtl, 0, sizeof(remCtl));
  remRxIntEna();
 }
 
-extern "C" void remoteISR(void)
+extern "C" void remoteISR()
 {
  P_REMCTL u = &remCtl;
  if (remRxReady())		/* if received character */
@@ -993,11 +1178,11 @@ extern "C" void remoteISR(void)
   }
   else				/* if receiving data */
   {
-   if (u->rx_count < RX_BUF_SIZE) /* if room in buffer */
+   if (u->rx_count < REM_RX_SIZE) /* if room in buffer */
    {
     int fill = u->rx_fil;	/* temp copy of fill pointer */
     u->rx_buffer[fill++] = ch;	/* put character in buffer */
-    if (fill >= RX_BUF_SIZE)	/* if past end of buffer */
+    if (fill >= REM_RX_SIZE)	/* if past end of buffer */
      fill = 0;			/* reset to zero */
     u->rx_fil = fill;		/* save fill pointer */
     u->rx_count++;		/* update count */
@@ -1005,25 +1190,31 @@ extern "C" void remoteISR(void)
     if (ch == '\r')		/* if end of command */
     {
      u->state = 0;		/* set to waiting for start */
+#if 1
      NVIC_ClearPendingIRQ(REMOTE_IRQn); /* clear pending interrupt */
      remcmd();			/* process remote command */
+#else
+     serial.remCmdRcv = 1;
+#endif
     }
    }
   }
  }
- if (remRxOverrun())		/* if overrun errror */
+
+ if (remRxOverrun())		/* if overrun error */
  {
   if (remRxRead())		/* read character */
   {
   }
  }
+
  if (remTxEmpty())		/* if transmit empty */
  {
   if (u->tx_count != 0)		/* if anything in buffer */
   {
    int emp = u->tx_emp;		/* temp copy of empty pointer */
    remTxSend(u->tx_buffer[emp++]); /* send character */
-   if (emp >= TX_BUF_SIZE)	/* if at buffer end */
+   if (emp >= REM_TX_SIZE)	/* if at buffer end */
     emp = 0;			/* reset to start */
    u->tx_emp = emp;		/* save empty pointer */
    --u->tx_count;		/* count it off */
@@ -1036,21 +1227,24 @@ extern "C" void remoteISR(void)
 void putRem(char ch)
 {
  P_REMCTL u = &remCtl;
- if (u->tx_count < TX_BUF_SIZE) /* if room for data */
+ if (u->tx_count < REM_TX_SIZE) /* if room for data */
  {
   int fill = u->tx_fil;		/* temp copy of fill pointer */
   u->tx_buffer[fill++] = ch;	/* put character in buffer */
-  if (fill >= TX_BUF_SIZE)	/* if past end of buffer */
+  if (fill >= REM_TX_SIZE)	/* if past end of buffer */
    fill = 0;			/* reset to zero */
   u->tx_fil = fill;		/* save fill pointer */
+
+  __disable_irq();
   u->tx_count++;		/* update count */
+  __enable_irq();
   remTxIntEna();		/* enable transmit interrupt */
  }
 }
 
 void putstrRem(const char *p)
 {
- while (1)
+ while (true)
  {
   char ch = *p++;
   if (ch == 0)
@@ -1103,28 +1297,31 @@ void sndhexRem(const unsigned char *p, int size)
   putRem('0');
 }
 
-int getRem(void)
+int getRem()
 {
  P_REMCTL u = &remCtl;
  if (u->rx_count != 0)		/* if anything in buffer */
  {
   int emp = u->rx_emp;		/* temp copy of empty pointer */
   unsigned char ch = u->rx_buffer[emp++]; /* send character */
-  if (emp >= RX_BUF_SIZE)	/* if at buffer end */
+  if (emp >= REM_RX_SIZE)	/* if at buffer end */
    emp = 0;			/* reset to start */
   u->rx_emp = emp;		/* save empty pointer */
+
+  __disable_irq();
   --u->rx_count;		/* count it off */
+  __enable_irq();
   return(ch);
  }
  return(-1);			/* nothing in buffer */
 }
 
-char gethexRem(void)
+char gethexRem(int *val)
 {
  char ch;
  int count;
 
- valRem = 0;
+ int tmpVal = 0;
  count = 0;
  while (count <= 8)
  {
@@ -1155,12 +1352,13 @@ char gethexRem(void)
     break;
    else
     continue;
-   valRem <<= 4;
-   valRem += ch;
+   tmpVal <<= 4;
+   tmpVal += ch;
   }
   else
    return(0);
  }
+ *val = tmpVal;
  return(count != 0);
 }
 
@@ -1170,7 +1368,7 @@ char getstrRem(char *buf, int bufLen)
  char *p;
  char ch;
  p = buf;
- while (1)
+ while (true)
  {
   int tmp = getRem();
   if (tmp > 0)
@@ -1206,7 +1404,7 @@ char getstrRem(char *buf, int bufLen)
  return(len);
 }
 
-unsigned char getnumRem(void)
+unsigned char getnumRem(T_INT_FLOAT *val)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
 
@@ -1220,17 +1418,16 @@ unsigned char getnumRem(void)
    char ch = *p++;
    if (ch == '.')
    {
-    fValRem = atof(chbuf);
+    val->f = strtof((const char *) chbuf, nullptr);
     return(FLOAT_VAL);
    }
    if ((ch == 'x') || (ch == 'X'))
    {
-    char *endptr;
-    valRem = strtol(p, &endptr, 16);
+    val->i = strtol(p, nullptr, 16);
     return(INT_VAL);
    }
   }
-  valRem = atoi(chbuf);
+  val->i = strtol((const char *) chbuf, nullptr, 10);
   return(INT_VAL);
  }
  return(NO_VAL);
@@ -1239,11 +1436,16 @@ unsigned char getnumRem(void)
 /* debug output buffer routines */
 
 #define CHAR_BUF_SIZE 4096
-int charFil;
-int charEmp;
-int charCount;
-unsigned int charOverflow;
-char charBuf[CHAR_BUF_SIZE];
+typedef struct sCharBuf
+{
+ int fil;
+ int emp;
+ int count;
+ unsigned int overflow;
+ char buf[CHAR_BUF_SIZE];
+} T_CHAR_BUF, *P_CHAR_BUF;
+
+T_CHAR_BUF charBuf;
 
 #define ISR_BUF_SIZE 1024
 int isrFil;
@@ -1252,18 +1454,251 @@ int isrCount;
 unsigned int isrOverflow;
 char isrBuf[ISR_BUF_SIZE];
 
-#endif
+#endif	/* REMPORT */
 
-void initCharBuf(void)
+#if defined(MEGAPORT)
+
+void megaRsp();
+
+void initMega()
 {
- dbgBuffer = 1;
- charFil = 0;
- charEmp = 0;
- charCount = 0;
- charOverflow = 0;
- lineStart = 1;
- lineLen = 0;
- eolFlag = 1;
+ memset(&megaCtl, 0, sizeof(megaCtl));
+ megaCtl.state = MEGA_ST_IDLE;
+ megaRxIntEna();
+}
+
+extern "C" void megaISR()
+{
+ P_MEGACTL u = &megaCtl;
+ if (megaRxReady())		/* if received character */
+ {
+  dbgMegaRxSet();
+  char ch = megaRxRead();	/* read character */
+  if (u->state == MEGA_ST_IDLE) /* if waiting for start */
+  {
+   if (ch == '-')		/* if start of message received */
+   {
+    putBufStrIsr("da");
+    u->state = MEGA_ST_DATA;	/* set to start receiving */
+   }
+  }
+  else if (u->state == MEGA_ST_DATA) /* if receiving data */
+  {
+   if (u->rx_count < MEGA_RX_SIZE) /* if room in buffer */
+   {
+    int fill = u->rx_fil;	/* temp copy of fill pointer */
+    u->rx_buffer[fill++] = ch;	/* put character in buffer */
+    if (fill >= MEGA_RX_SIZE)	/* if past end of buffer */
+     fill = 0;			/* reset to zero */
+    u->rx_fil = fill;		/* save fill pointer */
+    u->rx_count++;		/* update count */
+
+    if (ch == '*')		/* if end of command */
+    {
+     u->state = MEGA_ST_IDLE;	/* set to waiting for start */
+#if 0     
+     NVIC_ClearPendingIRQ(MEGA_IRQn); /* clear pending interrupt */
+     megaRsp();			/* process mega command */
+#else
+     serial.megaRspRcv = 1;
+#endif
+    }
+   }
+  }
+  dbgMegaRxClr();
+ }
+
+ if (megaRxOverrun())		/* if overrun error */
+ {
+  if (megaRxRead())		/* read character */
+  {
+  }
+ }
+
+ if (megaTxEmpty())		/* if transmit empty */
+ {
+  dbgMegaTxSet();
+  if ((u->tx_count != 0)	/* if characters in buffer */
+  &&  (u->txWait == 0))		/* and not waiting */
+  {
+   int emp = u->tx_emp;		/* temp copy of empty pointer */
+   char ch = u->tx_buffer[emp++]; /* read character */
+   megaTxSend(ch);		/* send character */
+   if (emp >= MEGA_TX_SIZE)	/* if at buffer end */
+    emp = 0;			/* reset to start */
+   u->tx_emp = emp;		/* save empty pointer */
+   --u->tx_count;		/* count it off */
+   if (ch == '\r')		/* if end of message */
+   {
+    u->timer = millis();	/* set message timeout */
+    if (u->tx_count != 0)	/* if more data */
+    {
+     putBufStrIsr("ws");
+     u->txWait = true;		/* set transmit wait */
+     dbgMegaWaitSet();
+    }
+   }
+  }
+  else				/* if nothing to send */
+   megaTxIntDis();		/* disable transmit interrupt */
+  dbgMegaTxClr();
+ }
+}
+
+void putMega(char ch)
+{
+ P_MEGACTL u = &megaCtl;
+ if (u->tx_count < MEGA_TX_SIZE) /* if room for data */
+ {
+  int fill = u->tx_fil;		/* temp copy of fill pointer */
+  u->tx_buffer[fill++] = ch;	/* put character in buffer */
+  if (fill >= MEGA_TX_SIZE)	/* if past end of buffer */
+   fill = 0;			/* reset to zero */
+  u->tx_fil = fill;		/* save fill pointer */
+
+  __disable_irq();
+  u->tx_count++;		/* update count */
+  if (!u->txWait)		/* if not waiting */
+   megaTxIntEna();		/* enable transmit interrupt */
+  __enable_irq();
+ }
+}
+
+void putstrMega(const char *p)
+{
+ while (true)
+ {
+  char ch = *p++;
+  if (ch == 0)
+   break;
+  putMega(ch);
+  if (ch == '\n')
+   putMega('\r');
+ }
+}
+
+void sndhexMega(const unsigned char *p, int size, unsigned char end)
+{
+ char tmp;
+ char ch;
+ int zeros = 0;
+
+ p += size;
+ while (size != 0)
+ {
+  --size;
+  p--;
+  tmp = *p;
+  ch = tmp;
+  ch >>= 4;
+  ch &= 0xf;
+  if ((ch != 0)
+  ||  zeros)
+  {
+   zeros = 1;
+   if (ch < 10)
+    ch += '0';
+   else
+    ch += 'a' - 10;
+   putMega(ch);
+  }
+
+  tmp &= 0xf;
+  if ((tmp != 0)
+  ||  zeros)
+  {
+   zeros = 1;
+   if (tmp < 10)
+    tmp += '0';
+   else
+    tmp += 'a' - 10;
+   putMega(tmp);
+  }
+ }
+ if (zeros == 0)
+  putMega('0');
+ putMega(end);
+}
+
+int getMega()
+{
+ P_MEGACTL u = &megaCtl;
+ if (u->rx_count != 0)		/* if anything in buffer */
+ {
+  int emp = u->rx_emp;		/* temp copy of empty pointer */
+  unsigned char ch = u->rx_buffer[emp++]; /* send character */
+  if (emp >= MEGA_RX_SIZE)	/* if at buffer end */
+   emp = 0;			/* reset to start */
+  u->rx_emp = emp;		/* save empty pointer */
+
+  __disable_irq();
+  --u->rx_count;		/* count it off */
+  __enable_irq();
+  return(ch);
+ }
+ return(-1);			/* nothing in buffer */
+}
+
+char gethexMega(int *val)
+{
+ char ch;
+ int count;
+
+ int tmpVal = 0;
+ count = 0;
+ while (count <= 8)
+ {
+  int tmp = getMega();
+  if (tmp > 0)
+  {
+   ch = (char) tmp;
+   if ((ch >= '0')
+   &&  (ch <= '9'))
+   {
+    //putMega(ch);
+    ch -= '0';
+   }
+   else if ((ch >= 'a')
+   &&       (ch <= 'f'))
+   {
+    //putMega(ch);
+    ch -= 'a' - 10;
+   }
+   else if ((ch == ' ') || (ch == '\r'))
+    break;
+//   else if (ch == ' ')
+//   {
+//    //putMega(ch);
+//    break;
+//   }
+//   else if (ch == '\r')
+//    break;
+   else
+    continue;
+
+   count++;
+   tmpVal <<= 4;
+   tmpVal += ch;
+  }
+  else
+   return(0);
+ }
+ *val = tmpVal;
+ return(count != 0);
+}
+
+#endif	/* MEGAPORT */
+
+void initCharBuf()
+{
+ serial.dbgBuffer = 1;
+ charBuf.fil = 0;
+ charBuf.emp = 0;
+ charBuf.count = 0;
+ charBuf.overflow = 0;
+ serial.lineStart = 1;
+ serial.lineLen = 0;
+ serial.eolFlag = 1;
 
  isrFil = 0;
  isrEmp = 0;
@@ -1336,19 +1771,19 @@ void putBufStrIsr(const char *s)
 void putBufChar(char ch)
 {
  __disable_irq();
- if (charCount < CHAR_BUF_SIZE)
+ if (charBuf.count < CHAR_BUF_SIZE)
  {
-  charCount++;
+  charBuf.count++;
   __enable_irq();
-  charBuf[charFil] = ch;
-  charFil++;
-  if (charFil >= CHAR_BUF_SIZE)
-   charFil = 0;
+  charBuf.buf[charBuf.fil] = ch;
+  charBuf.fil++;
+  if (charBuf.fil >= CHAR_BUF_SIZE)
+   charBuf.fil = 0;
  }
  else
  {
   __enable_irq();
-  charOverflow++;
+  charBuf.overflow++;
  }
 
  pollBufChar();
@@ -1382,29 +1817,47 @@ void putBufCharX(char ch)
  }
 }
 
-int pollBufChar(void)
+int pollBufChar()
 {
  if (WD_ENA)
   IWDG->KR = 0xAAAA;		/* update hardware watchdog */
+
+#if 0
+ if (serial.remCmdRcv != 0)
+ {
+  remcmd();
+  serial.remCmdRcv = 0;
+ }
+#endif
+
+#if defined(MEGAPORT)
+ if (serial.megaRspRcv != 0)
+ {
+  dbgMegaRspSet();
+  megaRsp();
+  serial.megaRspRcv = 0;
+  dbgMegaRspClr();
+ }
+#endif	 /* MEGAPORT */
 
  if (rVar.setupDone)
   wdUpdate();
 
  if (dbgTxEmpty() != 0)
  {
-  if (lineStart)
+  if (serial.lineStart)
   {
-   switch (lineStart)
+   switch (serial.lineStart)
    {
    case 1:
     if (isrCount != 0)
     {
      dbgTxSend('*');
-     lineStart = 2;
-     lineLen = 0;
+     serial.lineStart = 2;
+     serial.lineLen = 0;
     }
     else
-     lineStart = 0;
+     serial.lineStart = 0;
     break;
 
    case 2:
@@ -1417,72 +1870,72 @@ int pollBufChar(void)
      __disable_irq();
      --isrCount;
      __enable_irq();
-     lineLen += 1;
-     if (lineLen >= 80)
+     serial.lineLen += 1;
+     if (serial.lineLen >= 80)
      {
-      lineLen = 0;
-      lineStart = 3;
+      serial.lineLen = 0;
+      serial.lineStart = 3;
      }
     }
     else
-     lineStart = 3;
+     serial.lineStart = 3;
     break;
 
    case 3:
     dbgTxSend('\n');
-     lineStart = 4;
+     serial.lineStart = 4;
      break;
 
    case 4:
     dbgTxSend('\r');
-     lineStart = 1;
+     serial.lineStart = 1;
      break;
    }
   }
   else
   {
    __disable_irq();
-   if (charCount > 0)
+   if (charBuf.count > 0)
    {
-    --charCount;
+    --charBuf.count;
      __enable_irq();
-    char ch = charBuf[charEmp];
+    char ch = charBuf.buf[charBuf.emp];
     dbgTxSend(ch);
     if (ch == '\r')
-     eolFlag = 1;
+     serial.eolFlag = 1;
     else
-     eolFlag = 0;
-    charEmp++;
-    if (charEmp >= CHAR_BUF_SIZE)
-     charEmp = 0;
+     serial.eolFlag = 0;
+    charBuf.emp++;
+    if (charBuf.emp >= CHAR_BUF_SIZE)
+     charBuf.emp = 0;
    }
    else
    {
-    lineStart = eolFlag;
-    if (charFil != charEmp)
+    serial.lineStart = serial.eolFlag;
+    if (charBuf.fil != charBuf.emp)
     {
      __enable_irq();
-     dbgBuffer = 0;
+     serial.dbgBuffer = 0;
      printf("**charOverflow %u charCount %d charFil %d charEmp %d\n",
-	    charOverflow, charCount, charFil, charEmp);
-     charEmp = 0;
-     charFil = 0;
-     charOverflow = 0;
-     dbgBuffer = 1;
+	    charBuf.overflow, charBuf.count, charBuf.fil, charBuf.emp);
+     charBuf.emp = 0;
+     charBuf.fil = 0;
+     charBuf.overflow = 0;
+     serial.dbgBuffer = 1;
     }
     else
      __enable_irq();
    }
   }
-  return(charCount);
+  return(charBuf.count);
  }
  return(-1);
 }
 
-void flushBuf(void)
+void flushBuf()
 {
  fflush(stdout);
- while (charCount != 0)
+ while (charBuf.count != 0)
   pollBufChar();
 }
 
@@ -1490,20 +1943,18 @@ void flushBuf(void)
 
 #if DBGMSG
 
-#if DBGMSG == 2
-
-void dbgmsg(char dbg, int32_t val)
+void dbgmsg(char dbg, int val)
 {
  P_DBGMSG p;
 
- if (dbgcnt < MAXDBGMSG)	/* if buffer not full */
+ if (dbgQue.count < MAXDBGMSG)	/* if buffer not full */
  {
-  dbgcnt++;			/* update message count */
-  p = &dbgdata[dbgfil];		/* get place to put msg */
-  dbgfil++;			/* update fill pointer */
-  if (dbgfil >= MAXDBGMSG)	/* if at end */
+  dbgQue.count++;		/* update message count */
+  p = &dbgQue.data[dbgQue.fil];	/* get place to put msg */
+  dbgQue.fil++;			/* update fill pointer */
+  if (dbgQue.fil >= MAXDBGMSG)	/* if at end */
   {
-   dbgfil = 0;			/* set to zero */
+   dbgQue.fil = 0;		/* set to zero */
   }
   p->time = HAL_GetTick();	/* save time */
   p->dbg = dbg;			/* save message type */
@@ -1511,75 +1962,12 @@ void dbgmsg(char dbg, int32_t val)
  }
 }
 
-#else
-
-void dbgmsg(char *str, int32_t val)
+void clrDbgBuf()
 {
- P_DBGMSG p;
-
- if (dbgcnt < MAXDBGMSG)	/* if buffer not full */
- {
-  dbgcnt++;			/* update message count */
-  p = &dbgdata[dbgfil];		/* get place to put msg */
-  dbgfil++;			/* update fill pointer */
-  if (dbgfil >= MAXDBGMSG)	/* if at end */
-  {
-   dbgfil = 0;			/* set to zero */
-  }
-  p->time = HAL_GetTick();	/* save time */
-  strncpy(p->str, str, sizeof(p->str)); /* save string */
-  p->val = val;			/* save value */
- }
-}
-
-void dbgmsgx(char *str, char reg, int32_t val)
-{
- P_DBGMSG p;
-
- if (dbgcnt < MAXDBGMSG)	/* if buffer not full */
- {
-  dbgcnt++;			/* update message count */
-  p = &dbgdata[dbgfil];		/* get place to put msg */
-  dbgfil++;			/* update fill pointer */
-  if (dbgfil >= MAXDBGMSG)	/* if at end */
-  {
-   dbgfil = 0;			/* set to zero */
-  }
-  char *d = p->str;
-  int size = sizeof(p->str);
-  while (--size >= 0)
-   *d++ = *str++;
-  *d++ = ' ';
-
-  char tmp = reg;
-  tmp >>= 4;
-  tmp &= 0xf;
-  if (tmp < 10)
-   tmp += '0';
-  else
-   tmp += 'a' - 10;
-  *d++ = tmp;
-
-  reg &= 0xf;
-  if (reg < 10)
-   reg += '0';
-  else
-   reg += 'a' - 10;
-  *d++ = reg;
-  *d++ = 0;
-
-  p->val = val;			/* save value */
- }
-}
-
-#endif
-
-void clrDbgBuf(void)
-{
- memset(&dbgdata, 0, sizeof(dbgdata));
- dbgcnt = 0;
- dbgfil = 0;
- dbgemp = 0;
+ memset(&dbgQue.data, 0, sizeof(dbgQue.data));
+ dbgQue.count = 0;
+ dbgQue.fil = 0;
+ dbgQue.emp = 0;
 }
 
 #endif	/* DBGMSG */
@@ -1588,9 +1976,9 @@ void clrDbgBuf(void)
 
 ssize_t _write(int fd  __attribute__((unused)), const char* buf, size_t nbyte)
 {
- int count = (int) nbyte;
+ auto count = (ssize_t) nbyte;
 
- if (dbgBuffer)
+ if (serial.dbgBuffer)
  {
   while (--count >= 0)
   {
@@ -1610,7 +1998,7 @@ ssize_t _write(int fd  __attribute__((unused)), const char* buf, size_t nbyte)
     putx('\r');
   }
  }
- return(nbyte);
+ return((ssize_t) nbyte);
 }
 
 #define STDIN   0
@@ -1625,7 +2013,7 @@ write (int handle, const char *buffer, int len)
  {
  case STDOUT:
  case STDERR:
-  if (dbgBuffer)
+  if (serial.dbgBuffer)
   {
    while (--i >= 0)
     putBufChar(*buffer++);
@@ -1636,8 +2024,11 @@ write (int handle, const char *buffer, int len)
     putx(*buffer++);
   }
   break;
+
+  default:
+   break;
  }
  return (len);
 }
 
-#endif	/* INCLUDE */
+#endif	/* __SERIALIO__ */

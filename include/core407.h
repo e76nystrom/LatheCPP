@@ -34,13 +34,18 @@
 
 #define REMPORT USART6
 #define DBGPORT USART3
+#define MEGAPORT UART5
 
 #define remoteISR(x) USART6_IRQHandler(x)
 #define REMOTE_IRQn USART6_IRQn
 
+#define megaISR(x) UART5_IRQHandler(x)
+#define MEGA_IRQn UART5_IRQn
+
 #define indexISR(x) EXTI2_IRQHandler(x)
-#define indexIRQn EXTI2_IRQn
+#define indexIRQn Index2_EXTI_IRQn
 #define INDEX_PIN Index2_Pin
+#define INDEX_GPIO_PORT Index2_GPIO_Port
 
 #define encISR(x) EXTI0_IRQHandler(x)
 #define encIRQn EXTI0_IRQn
@@ -49,21 +54,30 @@
 #define spSyncISR(x) EXTI4_IRQHandler(x)
 #define spSyncIRQn EXTI4_IRQn
 
+#define SPI 1
+#define SPI_ISR
+#define SPI_MASTER
+#define SPIn SPI3
+#define SPI_NAME "SPI3"
+#define spiISR(x) SPI3_IRQHandler(x)
+#define SPI_IRQn SPI3_IRQn
+
+#define SYNC_SPI
+
+#define ENC_TEST 0		/* encoder test */
+
 #include "i2c.h"
+#define I2C 1
+#define I2Cn I2C1
 #define I2C_DEV I2C1
 #define I2C_NAME "I2C1"
 #define I2C_GPIO GPIOB
-#define SLAVE_ADDRESS 0x3f
+
+#define SLAVE_ADDRESS 0x7e
+
 inline void mxI2CInit()
 {
  MX_I2C1_Init();
 }
-
-#define ENC_TEST 0		/* encoder test */
-
-#define SPI 1
-#define SPIn SPI3
-#define I2C 1
-#define I2Cn I2C1
 
 #endif	/* defined(CORE407V) */

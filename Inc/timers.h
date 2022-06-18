@@ -52,7 +52,7 @@ pwmTmrIsr   TIM8_BRK_TIM12
 
 constexpr auto SP_FWD = 1;
 constexpr auto SP_REV = -1;
-constexpr auto STEP_WIDTH = 10;
+constexpr unsigned int STEP_WIDTH = 10;
 
 #define DIR_SPIN_PORT (Dir5_GPIO_Port)
 constexpr uint32_t DIR_SPIN_BIT = Dir5_Pin;
@@ -63,7 +63,7 @@ inline void dirZFwd() {Dir1_GPIO_Port->BSRR = zAxis.dirFwd;}
 inline void dirZRev() {Dir1_GPIO_Port->BSRR = zAxis.dirRev;}
 inline void dirXFwd() {Dir2_GPIO_Port->BSRR = xAxis.dirFwd;}
 inline void dirXRev() {Dir2_GPIO_Port->BSRR = xAxis.dirRev;}
-inline uint32_t CALC_STEP_WIDTH(uint32_t x) {return((rVar.cfgFcy * x) / 1000000l);}
+inline uint32_t CALC_STEP_WIDTH(unsigned int x) {return((rVar.cfgFcy * x) / 1000000l);}
 
 /* zTmr timer 2 pwm 3 */
 
