@@ -79,6 +79,9 @@ typedef struct sArcData
 
  int zDir;			/* z direction for isr */
  int zPos;			/* z position for isr */
+
+ int qCol;
+ int sCol;
 } T_ARC_DATA, *P_ARC_DATA;
 
 EXT T_ARC_DATA arcData;
