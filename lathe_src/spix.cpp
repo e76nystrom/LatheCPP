@@ -99,6 +99,7 @@ void load(char addr, int32_t val);
 void load(char addr, byte_long val);
 #endif
 
+#if defined(SPI_SEL_Pin) && !defined(Sel_Pin)
 void loadb(char addr, char val);
 
 #if defined(STM32MON) || defined(ARDUINO)
@@ -111,8 +112,38 @@ void read1(char addr);
 void read(char addr);
 #endif	/* STM32MON || ARDUINO */
 
+#endif	/* SPI_SEL_Pin && !Sel_Pin*/
+
 unsigned char spisend(unsigned char);
 unsigned char spiread();
+
+#if defined(CS0_Pin) || defined(Sel_Pin)
+
+void loadb(int dev, char addr, char val);
+char readb(int dev, char addr);
+int read16(int dev, char addr);
+int read24(int dev, char addr);
+
+void spiSel(int dev);
+void spiRel(int dev);
+void load(int dev, char addr, int32_t val);
+void loadb(int dev, char addr, char val);
+char readb(int dev, char addr);
+int read16(int dev, char addr);
+
+#endif	/* CS0_Pin || Sel_Pin */
+
+#if defined(CS0_Pin)
+
+typedef struct sSpiSel
+{
+ GPIO_TypeDef *port;
+ uint16_t pin;
+} T_SPI_SEL, *P_SPI_SEL;
+
+extern T_SPI_SEL spiPin[];
+
+#endif	/* CS0_Pin */
 
 #if defined(STM32MON) || defined(ARDUINO)
 #else  /* ! (STM32MON || ARDUINO) */
@@ -178,17 +209,33 @@ extern "C" void spiISR();
 #endif	// ->
 #ifdef __SPI__
 
-#if defined(SPI_SEL_Pin) || defined(CS0_Pin)
+#if defined(CS0_Pin)
+
+T_SPI_SEL spiPin[] =
+{
+ CS0_GPIO_Port, CS0_Pin,
+
+#if defined(CS1_Pin)
+ CS1_GPIO_Port, CS1_Pin,
+#endif	/* CS1_Pin */
+
+#if defined(CS2_Pin)
+ CS2_GPIO_Port, CS2_Pin,
+#endif	/* CS2_Pin */
+
+#if defined(CS3_Pin)
+ CS3_GPIO_Port, CS3_Pin,
+#endif	/* CS3_Pin */
+};
+
+#endif	/* CS0_Pin */
+
+#if defined(SPI_SEL_Pin) && !defined(Sel_Pin)
 
 void spisel()
 {
  SPIn->CR1 |= SPI_CR1_SPE;
-#if defined(SPI_SEL_Pin)
  SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
-#endif
-#if defined(CS0_Pin)
- CS0_GPIO_Port->BSRR = (CS0_Pin << 16);
-#endif
 }
 
 char spiRelTmp;
@@ -222,12 +269,7 @@ void spirel()
 #endif	/* CYCLE_CTR */
 
  SPIn->CR1 &= ~SPI_CR1_SPE;
-#if defined(SPI_SEL_Pin)
  SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin);
-#endif
-#if defined(CS0_Pin)
- CS0_GPIO_Port->BSRR = (CS0_Pin);
-#endif
 
 #if defined(CYCLE_CTR)
  //printf("spirel %02x t %u\n", (unsigned int) SPIn->SR, (unsigned int) t);
@@ -345,6 +387,7 @@ int spiSendRecv(char *txBuf, int txSize, char *rxBuf, int bufSize)
     state = 1;
    }
   }
+  
   else
   {
    if (ch != 0)
@@ -476,6 +519,8 @@ void read(char addr)
 
 #endif	/* STM32MON || ARDUINO */
 
+#endif	/* SPI_SEL_Pin && !Sel_Pin */
+
 unsigned char spisend(unsigned char c)
 {
  spiw0 = 0;
@@ -533,7 +578,193 @@ unsigned char spiread()
  return(c);
 }
 
-#endif	/* SPI_SEL_Pin */
+#if defined(CS0_Pin)
+
+void spisel(int dev)
+{
+ SPIn->CR1 |= SPI_CR1_SPE;
+ P_SPI_SEL sel = &spiPin[dev];
+ GPIO_TypeDef *port = sel->port;
+ port->BSRR = (sel->pin << 16);
+}
+
+char spiRelTmp;
+
+void spirel(int dev)
+{
+#if defined(CYCLE_CTR)
+ //uint32_t start = getCycles();
+#endif	/* CYCLE_CTR */
+
+#if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
+ while ((SPIn->SR & SPI_SR_TXE) == 0) /* wait for transmit done */
+  ;
+ while ((SPIn->SR & SPI_SR_BSY) != 0) /* wait for not busy */
+ {
+  if ((SPIn->SR & SPI_SR_RXNE) != 0)
+   spiRelTmp = SPIn->DR;
+ }
+#endif	/* STM32F1 || STM32F4 || STM32F7 */
+
+#if defined(STM32H7)
+ while ((SPIn->SR & SPI_SR_EOT) == 0) /* wait for end of transfer*/
+  ;
+#endif	/* STM32H7 */
+
+#if defined(CYCLE_CTR)
+ //uint32_t t = getCycles() - start;
+#endif	/* CYCLE_CTR */
+
+ SPIn->CR1 &= ~SPI_CR1_SPE;
+
+ SPIn->CR1 |= SPI_CR1_SPE;
+ P_SPI_SEL sel = &spiPin[dev];
+ GPIO_TypeDef *port = sel->port;
+ port->BSRR = sel->pin;
+
+#if defined(CYCLE_CTR)
+ //printf("spirel %02x t %u\n", (unsigned int) SPIn->SR, (unsigned int) t);
+#endif	/* CYCLE_CTR */
+}
+
+#endif	/* CS0_Pin */
+
+#if defined(Sel_Pin)
+
+void spisel(int dev)
+{
+ SPIn->CR1 |= SPI_CR1_SPE;
+ if (dev == 0)
+  Sel_GPIO_Port->BSRR = (Sel_Pin << 16);
+ else
+  Sel_GPIO_Port->BSRR = Sel_Pin;
+ SPI_SEL_GPIO_Port->BSRR = (SPI_SEL_Pin << 16);
+}
+
+char spiRelTmp;
+
+void spirel(int dev)
+{
+#if defined(CYCLE_CTR)
+ //uint32_t start = getCycles();
+#endif	/* CYCLE_CTR */
+
+#if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
+ while ((SPIn->SR & SPI_SR_TXE) == 0) /* wait for transmit done */
+  ;
+ while ((SPIn->SR & SPI_SR_BSY) != 0) /* wait for not busy */
+ {
+  if ((SPIn->SR & SPI_SR_RXNE) != 0)
+   spiRelTmp = SPIn->DR;
+ }
+#endif	/* STM32F1 || STM32F4 || STM32F7 */
+
+#if defined(STM32H7)
+ while ((SPIn->SR & SPI_SR_EOT) == 0) /* wait for end of transfer*/
+  ;
+#endif	/* STM32H7 */
+
+#if defined(CYCLE_CTR)
+ //uint32_t t = getCycles() - start;
+#endif	/* CYCLE_CTR */
+
+ SPIn->CR1 &= ~SPI_CR1_SPE;
+
+ SPIn->CR1 |= SPI_CR1_SPE;
+
+ SPI_SEL_GPIO_Port->BSRR = SPI_SEL_Pin;
+
+#if defined(CYCLE_CTR)
+ //printf("spirel %02x t %u\n", (unsigned int) SPIn->SR, (unsigned int) t);
+#endif	/* CYCLE_CTR */
+}
+
+#endif	/* Sel_Pin */
+
+#if defined(CS0_Pin) || defined(Sel_Pin)
+
+void load(int dev, char addr, int32_t val)
+{
+// if (print & 8)
+//  printf("load %x %x\n", (unsigned int) addr, (unsigned int) val);
+//  char buf[8];
+//  sprintf(buf, "lx %02x", addr);
+//  dbgmsg(buf, val);
+ spisel(dev);
+ spisend(addr);
+ byte_long tmp;
+ tmp.i = val;
+ spisend(tmp.b[3]);
+ spisend(tmp.b[2]);
+ spisend(tmp.b[1]);
+ spisend(tmp.b[0]);
+
+#if 0
+ while ((SPIn->SR & SPI_SR_BSY) != 0)
+  ;
+ unsigned int time = HAL_GetTick() + 2;	/* save time */
+ while (time != HAL_GetTick())
+  ;
+#endif
+
+ spirel(dev);
+}
+
+void loadb(int dev, char addr, char val)
+{
+// if (print & 8)
+//  printf("load %02x %02x\n",
+//  (unsigned int) addr, (unsigned int) val);
+ spisel(dev);
+ spisend(addr);
+ spisend(val);
+ spirel(dev);
+}
+
+char readb(int dev, char addr)
+{
+ spisel(dev);			/* select again */
+ spisend(addr);			/* set read address */
+ char rtnVal = spiread();
+ spirel(dev);			/* and release */
+ if (print & 8)
+  printf("read %02x %02x\n",
+	 (unsigned int) addr, (unsigned int) rtnVal);
+ return(rtnVal);
+}
+
+int read16(int dev, char addr)
+{
+ spisel(dev);			/* select again */
+ spisend(addr);			/* set read address */
+ byte_long rtnVal;
+ rtnVal.i = 0;
+ rtnVal.b[1] = spiread();
+ rtnVal.b[0] = spiread();
+ spirel(dev);
+ if (print & 8)
+  printf("read %02x %04x\n",
+	 (unsigned int) addr, (unsigned int) rtnVal.i);
+ return(rtnVal.i);
+}
+
+int read24(int dev, char addr)
+{
+ spisel(dev);			/* select again */
+ spisend(addr);			/* set read address */
+ byte_long rtnVal;
+ rtnVal.i = 0;
+ rtnVal.b[2] = spiread();
+ rtnVal.b[1] = spiread();
+ rtnVal.b[0] = spiread();
+ spirel(dev);
+ if (print & 8)
+  printf("read %02x %06x\n",
+	 (unsigned int) addr, (unsigned int) rtnVal.i);
+ return(rtnVal.i);
+}
+
+#endif	/* CS0_Pin || Sel_Pin */
 
 #if defined(SPI_ISR)
 

@@ -37,6 +37,7 @@ void load(char addr, int32_t val);
 void load(char addr, byte_long val);
 #endif
 
+#if defined(SPI_SEL_Pin) && !defined(Sel_Pin)
 void loadb(char addr, char val);
 
 #if defined(STM32MON) || defined(ARDUINO)
@@ -49,8 +50,38 @@ void read1(char addr);
 void read(char addr);
 #endif	/* STM32MON || ARDUINO */
 
+#endif	/* SPI_SEL_Pin && !Sel_Pin*/
+
 unsigned char spisend(unsigned char);
 unsigned char spiread();
+
+#if defined(CS0_Pin) || defined(Sel_Pin)
+
+void loadb(int dev, char addr, char val);
+char readb(int dev, char addr);
+int read16(int dev, char addr);
+int read24(int dev, char addr);
+
+void spiSel(int dev);
+void spiRel(int dev);
+void load(int dev, char addr, int32_t val);
+void loadb(int dev, char addr, char val);
+char readb(int dev, char addr);
+int read16(int dev, char addr);
+
+#endif	/* CS0_Pin || Sel_Pin */
+
+#if defined(CS0_Pin)
+
+typedef struct sSpiSel
+{
+ GPIO_TypeDef *port;
+ uint16_t pin;
+} T_SPI_SEL, *P_SPI_SEL;
+
+extern T_SPI_SEL spiPin[];
+
+#endif	/* CS0_Pin */
 
 #if defined(STM32MON) || defined(ARDUINO)
 #else  /* ! (STM32MON || ARDUINO) */
