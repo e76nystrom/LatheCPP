@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python39/Python.exe
+#!/cygdrive/c/Python310/Python.exe
 
 import re
 import sys
