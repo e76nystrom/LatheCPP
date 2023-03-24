@@ -40,6 +40,7 @@ src/test.cpp
 STM32CubeIDE/*
 SrcNew/*
 cmake-build-debug/*
+cmake-build-debug-gnu-arm/*
 build/*
 guild/*
 Lathe.txt
