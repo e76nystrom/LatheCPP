@@ -16,7 +16,11 @@
 #include "stm32f7xx_hal.h"
 #endif
 
-#include "main.h"
+//#include "main.h"
+
+#if defined(STM32H7) || defined(STM32F7)
+
+#endif	/* STM32H7 || STM32F7 */
 
 #if defined(ARDUINO_ARCH_STM32)
 
@@ -62,7 +66,7 @@ unsigned int millis();
 #if defined(STM32F1) || defined(STM32F4)
 void i2cWrite(uint8_t);
 #endif	/* STM32F1 || STM32F4 */
-void i2cWrite(uint8_t *data, uint16_t size);
+void i2cWrite(uint8_t *data, uint32_t size);
 
 void i2cWaitBusy();
 void i2cPut(uint8_t ch);
@@ -170,7 +174,7 @@ inline bool i2cDataSent()
 {
  return((I2C_DEV->ISR & I2C_ISR_TXIS) != 0);
 }
-#endif	/* STM32H7 */
+#endif	/* STM32H7 || STM32F7 */
 
 #if defined(STM32F1) || defined(STM32F4)
 #if 0
@@ -304,10 +308,13 @@ void i2cWrite(uint8_t *data, uint16_t size)
 #endif	/* STM32F1 || STM32F4 */
 
 #if defined(STM32H7) || defined(STM32F7)
-void i2cWrite(uint8_t *data, uint16_t size)
+#if 1
+
+void i2cWrite(uint8_t *data, uint32_t size)
 {
  dbg4Set();
  unsigned int timeout = 20;
+
  unsigned int start = millis();
  while ((I2C_DEV->ISR & I2C_ISR_BUSY) != 0)
  {
@@ -320,8 +327,17 @@ void i2cWrite(uint8_t *data, uint16_t size)
   }
  }
 
- I2C_DEV->CR2 = (I2C_CR2_AUTOEND | (size << I2C_CR2_NBYTES_Pos) |
-		 I2C_CR2_START | (SLAVE_ADDRESS));
+ uint32_t val = I2C_DEV->CR2 & ~(I2C_CR2_SADD |
+                                 I2C_CR2_NBYTES |
+                                 I2C_CR2_RELOAD |
+                                 I2C_CR2_AUTOEND |
+                                 I2C_CR2_RD_WRN |
+                                 I2C_CR2_START |
+                                 I2C_CR2_STOP);
+ I2C_DEV->CR2 = val |  ((SLAVE_ADDRESS & I2C_CR2_SADD) |
+                        ((size << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES) |
+                        I2C_CR2_AUTOEND |
+                        I2C_CR2_START);
 
  while (size > 0U)
  {
@@ -355,6 +371,29 @@ void i2cWrite(uint8_t *data, uint16_t size)
 
  dbg4Clr();
 }
+
+#else
+
+/*
+HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c,
+					  uint16_t DevAddress,
+					  uint8_t *pData,
+                                          uint16_t Size,
+					  uint32_t Timeout)
+*/
+
+void i2cWrite(uint8_t *data, uint16_t size)
+{
+ uint32_t timeout = 20;
+ dbg4Set();
+
+ HAL_StatusTypeDef val =
+         HAL_I2C_Master_Transmit(&hi2c4, SLAVE_ADDRESS,
+                                 data, size, timeout);
+ printf("i2cWrite status %x\n", val);
+ flushBuf();
+}
+#endif
 
 #endif	/* STM32H7 */
 
@@ -507,6 +546,9 @@ void i2cControl()
    i2c->startTime = millis();
   }
 #endif	/* STM32F1 || STM32F4 */
+  
+#if defined(STM32F1) || defined(STM32F4)
+#endif	/* STM32H7 || STM32F7 */
   break;
 
  case I_ADDRESS:		/* 0x03 wait for address and send data */
@@ -517,6 +559,9 @@ void i2cControl()
    i2c->state = I_SEND_DATA;
   }
 #endif	/* STM32F1 || STM32F4 */
+  
+#if defined(STM32F1) || defined(STM32F4)
+#endif	/* STM32H7 || STM32F7 */
   break;
 
  case I_SEND_DATA:		/* 0x04 send data */

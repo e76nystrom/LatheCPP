@@ -1387,6 +1387,11 @@ void allStop()
 
 void setSpindleSpeed(int rpm)
 {
+ if (DBG_SETUP)
+ {
+  printf("\nsetSpindleSpeed %d\n", rpm);
+ }
+
  if (rVar.cfgMega == 0)
  {
   if constexpr (PWM_TIMER != INDEX_TIMER) /* if pwm and idx tmrs different */

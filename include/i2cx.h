@@ -7,7 +7,7 @@
 #if defined(STM32F1) || defined(STM32F4)
 void i2cWrite(uint8_t);
 #endif	/* STM32F1 || STM32F4 */
-void i2cWrite(uint8_t *data, uint16_t size);
+void i2cWrite(uint8_t *data, uint32_t size);
 
 void i2cWaitBusy();
 void i2cPut(uint8_t ch);

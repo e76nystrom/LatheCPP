@@ -16,6 +16,8 @@
 
 #include <cstdio>
 #include "i2cx.h"
+#include "config.h"
+#include "serialio.h"
 
 #ifdef EXT
 #undef EXT
@@ -133,6 +135,7 @@ __STATIC_INLINE void delayUSecX(volatile uint32_t microseconds)
 void lcdInit()
 {
  printf("lcdInit address %2x\n", (unsigned int) SLAVE_ADDRESS);
+ flushBuf();
  startCnt();
  i2cError = 0;
  setBacklight(0);

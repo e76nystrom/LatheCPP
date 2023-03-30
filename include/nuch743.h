@@ -46,7 +46,7 @@
 #define I2C_DEV I2C4
 #define I2C_NAME "I2C4"
 #define I2C_GPIO GPIOD
-#define SLAVE_ADDRESS 0x3f
+#define SLAVE_ADDRESS 0x7e
 inline void mxI2CInit()
 {
  MX_I2C4_Init();
