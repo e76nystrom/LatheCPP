@@ -101,6 +101,12 @@ int zCur;
 int zDro;
 int zDelta;
 
+#if defined(INT_ENCODER)
+int lastDecode;
+BITWORD decode;
+void encoder();
+#endif	/* INT_ENCODER */
+
 extern "C" void encoderISR(void)
 {
  BITWORD tmp;
@@ -361,7 +367,7 @@ extern "C" void pwmTmrISR()
   pwmTmrClrIF();
  }
 }
-#endif
+#endif	/* PWM_TIMER */
 
 extern "C" void TIM1_UP_TIM10_IRQHandler()
 {
@@ -414,9 +420,16 @@ extern "C" void TIM1_TRG_COM_TIM11_IRQHandler()
  }
 }
 
+uint32_t indexCycles;
+
 extern "C" void indexISR()
 {
  EXTI->PR = INDEX_PIN;		/* clear index interrupt */
+
+ stopCnt();
+ indexCycles = getCycles();
+ resetCnt();
+ startCnt();
 
  static T_INDEX_COUNTER indexTmp;
 
@@ -1122,6 +1135,7 @@ extern "C" void xTmrISR()
      xIsr.doneHome = 1;		/* indicate probe done */
      xIsrStop('1');		/* stop movement */
     }
+
    }
 
    if (xIsr.home & HOME_SET)	/* if looking for home */
@@ -1249,6 +1263,32 @@ extern "C" void xTmrISR()
  dbgXIsrClr();
 }
 
+#if defined(INT_ENCODER)
+
+extern "C" void encAISR()
+{
+ BITWORD tmp;
+ EXTI->PR1 = encA_Pin;		/* clear interrupt */
+ tmp.w - (lastDecode >> 2);	/* read last decode */
+ tmp.b2 = 1;			/* set a bit */
+ lastDecode = tmp.w;		/* update last decode */
+ encoder();			/* call encoderr */
+}
+
+extern "C" void encBISR()
+{
+ BITWORD tmp;
+ EXTI->PR1 = encB_Pin;		/* clear interrupt */
+ tmp.w - (lastDecode >> 2);	/* read last decode */
+ tmp.b3 = 1;			/* set b bit */
+ lastDecode = tmp.w;		/* update last decode */
+ encoder();			/* call encoder */
+}
+
+#endif	/* INT_ENCODER */
+
+#if defined(spSyncISR)
+
 extern "C" void spSyncISR()
 {
  EXTI->PR = ExtInt_Pin;		/* clear encoder interrupt */
@@ -1281,9 +1321,18 @@ extern "C" void spSyncISR()
  }
 }
 
+#endif  /* spSyncIsr */
+
+#if !defined(INT_ENCODER)
 extern "C" void encISR()
 {
  EXTI->PR = encIRQ_Bit;
+#endif	/* ! INT_ENCODER */
+
+#if defined(INT_ENCODER)
+void encoder()
+{
+#endif	/* INT_ENCODER */
  dbgEncIsrSet();
  
  if ((zIsr.active & ARC_ACTIVE_ENC) != 0) /* if arc active */
@@ -1325,7 +1374,8 @@ extern "C" void cmpTmrISR(void)
   if (syn.encoderDirect)	/* if encoder direct */
   {
 //   EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
-   encISR();
+//   encISR();
+   encoder();
   }
 
   if (rVar.capTmrEnable)	/* if capture timer enabled */
@@ -1514,7 +1564,7 @@ extern "C" void step3TmrISR()
 
  dbgS3IsrClr();
 }
-#endif
+#endif	/* STEP3_TIMER */
 
 #ifdef STEP4_TIMER
 extern "C" void step4TmrISR()
@@ -1524,7 +1574,7 @@ extern "C" void step4TmrISR()
 
  dbgS4IsrClr();
 }
-#endif
+#endif	/* STEP4_TIMER */
 
 #ifdef STEP5_TIMER
 extern "C" void step5TmrISR()
@@ -1534,4 +1584,4 @@ extern "C" void step5TmrISR()
 
  dbgS5IsrClr();
 }
-#endif
+#endif	/* STEP5_TIMER */

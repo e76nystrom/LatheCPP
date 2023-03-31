@@ -80,14 +80,11 @@
  PIN(DbgA13, DbgA13),
 #endif
 #ifdef Dbg0_Pin
- PIN(dbgMegaTx, Dbg0),
+ PIN(dbgZIsr, Dbg0),
 #endif
 #ifdef Dbg1_Pin
- PIN(dbgMegaRx, Dbg1),
+ PIN(dbgXIsr, Dbg1),
 #endif
 #ifdef Dbg2_Pin
- PIN(dbgMegaRsp, Dbg2),
-#endif
-#ifdef Dbg3_Pin
- PIN(dbgMegaWait, Dbg3),
+ PIN(dbgEncIsr, Dbg2),
 #endif

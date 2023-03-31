@@ -306,14 +306,26 @@ inline void dbgSpIsrClr() {}
 inline uint16_t dbgSpIsrRead() {return(0);}
 
 /* z isr time */
+#ifdef Dbg0_Pin
+inline void dbgZIsrSet() {Dbg0_GPIO_Port->BSRR = Dbg0_Pin;}
+inline void dbgZIsrClr() {Dbg0_GPIO_Port->BSRR = (Dbg0_Pin << 16);}
+inline uint16_t dbgZIsrRead() {return((Dbg0_GPIO_Port->IDR & Dbg0_Pin) != 0);}
+#else
 inline void dbgZIsrSet() {}
 inline void dbgZIsrClr() {}
 inline uint16_t dbgZIsrRead() {return(0);}
+#endif
 
 /* x isr time */
+#ifdef Dbg1_Pin
+inline void dbgXIsrSet() {Dbg1_GPIO_Port->BSRR = Dbg1_Pin;}
+inline void dbgXIsrClr() {Dbg1_GPIO_Port->BSRR = (Dbg1_Pin << 16);}
+inline uint16_t dbgXIsrRead() {return((Dbg1_GPIO_Port->IDR & Dbg1_Pin) != 0);}
+#else
 inline void dbgXIsrSet() {}
 inline void dbgXIsrClr() {}
 inline uint16_t dbgXIsrRead() {return(0);}
+#endif
 
 /* spindle cycle counter update */
 inline void dbgSpCycSet() {}
@@ -526,9 +538,15 @@ inline void dbgArcStepClr() {}
 inline uint16_t dbgArcStepRead() {return(0);}
 
 /* encoder isr */
+#ifdef Dbg2_Pin
+inline void dbgEncIsrSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
+inline void dbgEncIsrClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
+inline uint16_t dbgEncIsrRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
+#else
 inline void dbgEncIsrSet() {}
 inline void dbgEncIsrClr() {}
 inline uint16_t dbgEncIsrRead() {return(0);}
+#endif
 
 /* remote command */
 inline void dbgRemCmdSet() {}
@@ -566,48 +584,24 @@ inline void dbgSyncRespClr() {}
 inline uint16_t dbgSyncRespRead() {return(0);}
 
 /* mega tx */
-#ifdef Dbg0_Pin
-inline void dbgMegaTxSet() {Dbg0_GPIO_Port->BSRR = Dbg0_Pin;}
-inline void dbgMegaTxClr() {Dbg0_GPIO_Port->BSRR = (Dbg0_Pin << 16);}
-inline uint16_t dbgMegaTxRead() {return((Dbg0_GPIO_Port->IDR & Dbg0_Pin) != 0);}
-#else
 inline void dbgMegaTxSet() {}
 inline void dbgMegaTxClr() {}
 inline uint16_t dbgMegaTxRead() {return(0);}
-#endif
 
 /* mega rx */
-#ifdef Dbg1_Pin
-inline void dbgMegaRxSet() {Dbg1_GPIO_Port->BSRR = Dbg1_Pin;}
-inline void dbgMegaRxClr() {Dbg1_GPIO_Port->BSRR = (Dbg1_Pin << 16);}
-inline uint16_t dbgMegaRxRead() {return((Dbg1_GPIO_Port->IDR & Dbg1_Pin) != 0);}
-#else
 inline void dbgMegaRxSet() {}
 inline void dbgMegaRxClr() {}
 inline uint16_t dbgMegaRxRead() {return(0);}
-#endif
 
 /* mega rsp */
-#ifdef Dbg2_Pin
-inline void dbgMegaRspSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
-inline void dbgMegaRspClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
-inline uint16_t dbgMegaRspRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
-#else
 inline void dbgMegaRspSet() {}
 inline void dbgMegaRspClr() {}
 inline uint16_t dbgMegaRspRead() {return(0);}
-#endif
 
 /* mega wait */
-#ifdef Dbg3_Pin
-inline void dbgMegaWaitSet() {Dbg3_GPIO_Port->BSRR = Dbg3_Pin;}
-inline void dbgMegaWaitClr() {Dbg3_GPIO_Port->BSRR = (Dbg3_Pin << 16);}
-inline uint16_t dbgMegaWaitRead() {return((Dbg3_GPIO_Port->IDR & Dbg3_Pin) != 0);}
-#else
 inline void dbgMegaWaitSet() {}
 inline void dbgMegaWaitClr() {}
 inline uint16_t dbgMegaWaitRead() {return(0);}
-#endif
 
 #endif /* __DBG_H */
 #endif /* __STM32F4xx_HAL_H */

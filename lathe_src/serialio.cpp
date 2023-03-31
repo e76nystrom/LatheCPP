@@ -423,6 +423,10 @@ inline uint32_t remRxOverrun()
 {
  return(REMPORT->ISR & USART_ISR_ORE);
 }
+inline void remClrRxOverrun()
+{
+ REMPORT->ICR = USART_ICR_ORECF;
+}
 inline uint32_t remTxEmpty()
 {
  return(REMPORT->ISR & USART_ISR_TXE_TXFNF);
@@ -1203,9 +1207,14 @@ extern "C" void remoteISR()
 
  if (remRxOverrun())		/* if overrun error */
  {
+#if defined(STM32F4)
   if (remRxRead())		/* read character */
   {
   }
+#endif /* STM32F4 */
+#if defined(STM32H7)
+  remClrRxOverrun();
+#endif /* STM32H7 */
  }
 
  if (remTxEmpty())		/* if transmit empty */

@@ -390,6 +390,10 @@ inline uint32_t remRxOverrun()
 {
  return(REMPORT->ISR & USART_ISR_ORE);
 }
+inline void remClrRxOverrun()
+{
+ REMPORT->ICR = USART_ICR_ORECF;
+}
 inline uint32_t remTxEmpty()
 {
  return(REMPORT->ISR & USART_ISR_TXE_TXFNF);

@@ -15,6 +15,7 @@
 #endif
 #if defined(STM32H7)
 #include "stm32h7xx_hal.h"
+#include "core_cm7.h"
 #endif
 
 #include "stm32Info.h"
@@ -171,6 +172,7 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
    unsigned int afr = (port->AFR[pin >> 3] >> ((pin << 2) & 0x1f)) & 0xf;
 
    char interrupt = ' ';
+   char nvic = ' ';
    if (mode == GPIO_MODE_INPUT)
    {
     outType = (sizeof(typeInfo) / sizeof(char *)) - 1;
@@ -179,11 +181,24 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
     if ((EXTI->IMR >> pin) & 1)
     {
      unsigned int exti =
-             (SYSCFG->EXTICR[pin >> 2] >> ((pin << 2) & 0xf)) & 0xf;
-     if ((unsigned int) (pinInfo->port - 'A') == exti)
+         (SYSCFG->EXTICR[pin >> 2] >> ((pin << 2) & 0xf)) & 0xf;
+     if ((unsigned int) (pinInfo->port - 'A') == exti) {
       interrupt = 'I';
+
+      if (pin <= 4) {
+       if (NVIC_GetEnableIRQ((IRQn_Type) (EXTI0_IRQn + pin)))
+        nvic = '*';
+      } else if (pin <= 9) {
+       if (NVIC_GetEnableIRQ((IRQn_Type) (EXTI9_5_IRQn)))
+        nvic = '*';
+      } else if (pin <= 15) {
+       if (NVIC_GetEnableIRQ((IRQn_Type) (EXTI15_10_IRQn)))
+        nvic = '*';
+      }
+
 //     printf("exti %2d pinInfo->port - 'A' %d pin >> 2 %d pin << 2 %d\n",
 //	    exti, pinInfo->port - 'A', pin >> 2, pin << 2);
+     }
     }
    }
 
@@ -192,8 +207,8 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
 //	  (pin >> 3), ((pin << 2) & 0x1f));
 //   flushBuf();
 
-   snprintf(buf, size, "%c %c %2s %2s %2s %2d",
-	    interrupt, modeInfo[mode], typeInfo[outType],
+   snprintf(buf, size, "%c%c %c %2s %2s %2s %2d",
+	    interrupt, nvic, modeInfo[mode], typeInfo[outType],
 	    speedInfo[outSpeed], pupdInfo[pupd], afr);
    break;
   }

@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python39/Python.exe
+#!/cygdrive/c/Python310/Python.exe
 
 CPP = True
 
@@ -90,8 +90,8 @@ pinList = \
 dbgList = \
 (\
  ("dbgSpIsr",  "", "spindle isr time"), \
- ("dbgZIsr",   "", "z isr time"), \
- ("dbgXIsr",   "", "x isr time"), \
+ ("dbgZIsr",   "0", "z isr time"), \
+ ("dbgXIsr",   "1", "x isr time"), \
  ("dbgSpCyc",  "", "spindle cycle counter update"), \
  ("dbgZEnc",   "", "z encoder input"), \
  ("dbgZOut",   "", "z encoder output"), \
@@ -141,7 +141,7 @@ dbgList = \
 
  ("dbgArcUpd",  "", "arc update"), \
  ("dbgArcStep", "", "arc step"), \
- ("dbgEncIsr",  "", "encoder isr"), \
+ ("dbgEncIsr",  "2", "encoder isr"), \
  ("dbgRemCmd",  "", "remote command"), \
 
  ("dbgZPosErr", "", "z position error"),\
@@ -152,10 +152,10 @@ dbgList = \
  ("dbgProcMove","", "debug procMove"), \
  ("dbgSyncResp","", "sync response"), \
 
- ("dbgMegaTx",   "0", "mega tx"), \
- ("dbgMegaRx",   "1", "mega rx"), \
- ("dbgMegaRsp",  "2", "mega rsp"), \
- ("dbgMegaWait", "3", "mega wait"), \
+ ("dbgMegaTx",   "", "mega tx"), \
+ ("dbgMegaRx",   "", "mega rx"), \
+ ("dbgMegaRsp",  "", "mega rsp"), \
+ ("dbgMegaWait", "", "mega wait"), \
  )
  #("","",""), \
 

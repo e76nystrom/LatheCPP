@@ -1233,16 +1233,16 @@ void setup()
 {
  if (rVar.cfgMpg)
  {
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); /* enable mpg interrupts */
   EXTI->PR = JogA1_Pin | JogA2_Pin | JogB1_Pin | JogB2_Pin;
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn); /* enable mpg interrupts */
  }
  else
   HAL_NVIC_DisableIRQ(EXTI9_5_IRQn); /* disable mpg interrupts */
 
  if (rVar.cfgDro)
  {
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn); /* enable dro interrupts */
   EXTI->PR = ZA_Pin | ZB_Pin | XA_Pin | XB_Pin;
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn); /* enable dro interrupts */
  }
  else
   HAL_NVIC_DisableIRQ(EXTI15_10_IRQn); /* enable dro interrupts */
@@ -1496,9 +1496,16 @@ void spindleSetup(int rpm)
    HAL_GPIO_Init(INDEX_GPIO_PORT, &gpio);
   }
 
-  HAL_NVIC_EnableIRQ(indexIRQn); /* enable index 2 interrupt */
+  printf("enable index interrupt");
   EXTI->PR = Index_Pin;
+  HAL_NVIC_EnableIRQ(indexIRQn); /* enable index  interrupt */
 #endif	/* Index_Pin */
+
+#if defined(INT_ENCODER)
+  EXTI->PR = encA_Pin | encB_Pin;
+  HAL_NVIC_EnableIRQ(encA_IRQn); /* enable encoder a interrupt */
+  HAL_NVIC_EnableIRQ(encB_IRQn); /* enable encoder b interrupt */
+#endif  /* INT_ENCODER */
 
   spa->label = "spA";
   if (rVar.stepperDrive		/* if using stepper drive */
@@ -1937,6 +1944,8 @@ void encoderStart()
  cmpTmr.preScale = 1;
 }
 
+#if defined(encISR)
+
 void encoderSWIEnable(int enable)
 {
  if (enable)			/* if enabling interrupt */
@@ -1952,6 +1961,8 @@ void encoderSWIEnable(int enable)
   NVIC_DisableIRQ(encIRQn);	/* disable encoder interrupts */
  }
 }
+
+#endif  /* encISR */
 
 void spindleJog()
 {
@@ -3799,6 +3810,7 @@ void syncMoveSetup()
 	 active, syn.encActive, syn.intActive, syn.encActive, runout.active);
  }
 
+#if defined(spSyncIRQn)
  if (rVar.spindleEncoder)	/* *ok* */
  {
   HAL_NVIC_EnableIRQ(spSyncIRQn); /* enable spindle sync interrupt */
@@ -3806,6 +3818,7 @@ void syncMoveSetup()
  }
  else
   HAL_NVIC_DisableIRQ(spSyncIRQn); /* disable spindle sync interrupt */
+#endif  /* spSyncIRQn */
 }
 
 void zMoveRel(int dist, int cmd)
@@ -5984,7 +5997,9 @@ void procMove()
      if (rVar.capTmrEnable || syn.encoderDirect)
      {
       syncStop();		/* stop x encoder */
+#if defined(encISR)
       encoderSWIEnable(0);	/* disable software interrupt for encoder */
+#endif  /* encISR */
      }
     }
     break;

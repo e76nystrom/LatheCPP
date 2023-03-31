@@ -167,7 +167,7 @@ void pulseEnable(uint8_t val)
  uint8_t buf[2];
  buf[0] = tmp | En;
  buf[1] = tmp & ~En;
- i2cWrite(buf, sizeof(buf));
+ i2cWrite(buf, (unsigned long) sizeof(buf));
  i2cWaitBusy();
  }
 
@@ -182,7 +182,7 @@ void command(uint8_t val)
  tmp = (val << 4) | LCD_BACKLIGHT;;
  buf[2] = tmp | En;
  buf[3] = tmp & ~En;
- i2cWrite(buf, sizeof(buf));
+ i2cWrite(buf, (unsigned long) sizeof(buf));
  i2cWaitBusy();
 }
 

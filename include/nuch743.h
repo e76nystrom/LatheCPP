@@ -30,15 +30,25 @@
 
 #define indexISR(x) EXTI0_IRQHandler(x)
 #define indexIRQn EXTI0_IRQn
-#define INDEX_PIN indexIRQn
+#define INDEX_PIN Index_Pin
 #define INDEX_GPIO_PORT Index_GPIO_Port
 
-#define encISR(x) EXTI2_IRQHandler(x)
-#define encIRQn EXTI2_IRQn
-#define encIRQ_Bit (1 << 0)
+//#define encISR(x) EXTI2_IRQHandler(x)
+//#define encIRQn EXTI2_IRQn
+//#define encIRQ_Bit (1 << 0)
 
-#define spSyncISR(x) EXTI1_IRQHandler(x)
-#define spSyncIRQn EXTI1_IRQn
+//#define spSyncISR(x) EXTI1_IRQHandler(x)
+//#define spSyncIRQn EXTI1_IRQn
+
+#define INT_ENCODER
+
+#define encAISR(x) EXTI3_IRQHandler(x)
+#define encA_Pin ZFlag_Pin
+#define encBISR(x) EXTI4_IRQHandler(x)
+#define encB_Pin XFlag_Pin
+
+#define encA_IRQn EXTI3_IRQn
+#define encB_IRQn EXTI4_IRQn
 
 #define ENC_TEST 0		/* encoder test */
 
