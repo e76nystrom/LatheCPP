@@ -1373,9 +1373,13 @@ extern "C" void cmpTmrISR(void)
 
   if (syn.encoderDirect)	/* if encoder direct */
   {
-//   EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
-//   encISR();
+#if defined(STM32F4)
+   EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
+   encISR();
+#endif  /* STM32F4 */
+#if defined(STM32H7)
    encoder();
+#endif  /* STM32H7 */
   }
 
   if (rVar.capTmrEnable)	/* if capture timer enabled */

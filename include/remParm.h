@@ -315,5 +315,6 @@ char remParm[] =
  sizeof(rVar.arcZEnd),          /* 0xb7 arc z center */
  sizeof(rVar.megaVfd),          /* 0xb8 mega vfd speed mode */
  sizeof(rVar.megaSim),          /* 0xb9 mega encoder lines */
- sizeof(rVar.maxParm),          /* 0xba maximum parameter */
+ sizeof(rVar.usbEna),           /* 0xba enable usb */
+ sizeof(rVar.maxParm),          /* 0xbb maximum parameter */
 };

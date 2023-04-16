@@ -24,6 +24,8 @@
 #include <errno.h>
 #include <stdint.h>
 
+void *_sbrk(ptrdiff_t incr);
+
 /**
  * Pointer to the current high watermark of the heap usage
  */

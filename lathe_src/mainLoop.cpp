@@ -26,11 +26,19 @@
 #include "latheX.h"
 #include "condef.h"
 
-extern "C" int16_t mainLoop();
+#if defined(USB)
+extern "C" void trcInit();
+extern "C" bool tud_init(uint8_t port);
+extern "C" void trcDisplay(void);
+extern "C" void cdc_task(void);
+
+#include "device/usbd.h"
+#endif  /* USB */
+
+extern "C" [[noreturn]] int16_t mainLoop();
 extern "C" void hard_fault_handler_c (const unsigned int * hardfault_args);
 
 void lcdDisplay();
-void pinDisplay();
 
 typedef struct
 {
@@ -201,20 +209,12 @@ unsigned int lcdDelayStart;
 #define DATA_SIZE 1
 
 #if DATA_SIZE
-#if defined(CLION)
-#define __bss_start__ _sbss
-#define __bss_end__ _ebss
-#define __data_start__ _sdata
-#define __data_end__ _edata
-#define __stack _estack
-#define __Main_Stack_Limit _end
-#endif	/* CLION */
-extern char __bss_start__;
-extern char __bss_end__;
-extern char __data_start__;
-extern char __data_end__;
-extern char __stack;
-extern char __Main_Stack_Limit;
+extern char _sbss;
+extern char _ebss;
+extern char _sdata;
+extern char _edata;
+extern char _estack;
+extern char _end;
 #endif	/* DATA_SIZE */
 
 #if defined(MEGAPORT)
@@ -344,7 +344,7 @@ void dwtAccessEnable(unsigned ena)
 
 //#define main mainLoop
 
-int16_t mainLoop()
+[[noreturn]] int16_t mainLoop()
 {
  unsigned char ch;
  IRQn_Type extInt[] =
@@ -418,11 +418,11 @@ int16_t mainLoop()
 
  putstr("start mainLoop\n");
  #if DATA_SIZE
- auto  bss = (unsigned int) (&__bss_end__ - &__bss_start__);
- auto data = (unsigned int) (&__data_end__ - &__data_start__);
+ auto  bss = (unsigned int) (&_ebss - &_sbss);
+ auto data = (unsigned int) (&_edata - &_sdata);
  printf("data %u bss %u total %u\n", data, bss, data + bss);
- printf("stack %08x stackLimit %08x sp %08x\n",
-	(unsigned int) &__stack, (unsigned int) &__Main_Stack_Limit,
+ printf("stack %08x end %08x sp %08x\n",
+	(unsigned int) &_estack, (unsigned int) &_end,
 	getSP());
  #endif
 
@@ -440,6 +440,15 @@ int16_t mainLoop()
  printf("sys clock %u clock frequency %u FCY %u %x\n",
 	sysClock, clockFreq, FCY, (unsigned int) &rVar.cfgFcy);
  printf("sysTick load %d\n", (int) SysTick->LOAD);
+
+#if defined(USB) && defined(STM32H7)
+ printf("SYSCFG->PWRCR %08x RCC->APB4ENR %08x PWR->D3CR %08x\n",
+        (unsigned int) SYSCFG->PWRCR, (unsigned int) RCC->APB4ENR,
+        (unsigned int) PWR->D3CR);
+
+ printf("RCC->D2CCIP2R %x\n", (unsigned int)
+     (RCC->D2CCIP2R & RCC_D2CCIP2R_USBSEL) >> RCC_D2CCIP2R_USBSEL_Pos);
+#endif  /* USB && STM32H& */
 
 #if 1
  printf("spindle timer %d pwm %d\n", SPINDLE_TIMER, SPINDLE_TMR_PWM);
@@ -485,11 +494,23 @@ int16_t mainLoop()
  syncPollTime = millis();
 #endif
 
+#if (USB)
+ startCnt();
+ trcInit();
+ tud_init(BOARD_TUD_RHPORT);
+#endif  /* USB */
+
  while (true)			/* main loop */
  {
   newline();
   while (true)			/* input background loop */
   {
+#if defined(USB)
+   tud_task();
+   cdc_task();
+   trcDisplay();
+#endif  /* USB */
+
 #if defined(Led1_Pin)
    uint32_t t = millis();
    if ((t - ledUpdTime) > LED_DELAY) /* if time to flash led */

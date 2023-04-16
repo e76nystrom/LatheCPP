@@ -757,7 +757,11 @@ void setRemVar(int parm, T_DATA_UNION val)
   rVar.megaSim = val.t_char;
   break;
 
- case MAX_PARM:                  /* 186 0xba maximum parameter */
+ case USB_ENA:                   /* 186 0xba enable usb */
+  rVar.usbEna = val.t_char;
+  break;
+
+ case MAX_PARM:                  /* 187 0xbb maximum parameter */
   rVar.maxParm = val.t_int16_t;
   break;
 
@@ -1512,7 +1516,11 @@ void getRemVar(int parm, P_DATA_UNION val)
   val->t_char = rVar.megaSim;
   break;
 
- case MAX_PARM:                  /* 186 0xba maximum parameter */
+ case USB_ENA:                   /* 186 0xba enable usb */
+  val->t_char = rVar.usbEna;
+  break;
+
+ case MAX_PARM:                  /* 187 0xbb maximum parameter */
   val->t_int16_t = rVar.maxParm;
   break;
 

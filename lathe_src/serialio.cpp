@@ -62,7 +62,7 @@ int __attribute__((__weak__, __section__(".libc")))
 write (int handle, const char *buffer, int len);
 
 void putx(char c);
-void putstr(const char *p);
+extern "C" void putstr(const char *p);
 void sndhex(unsigned char *p, int size);
 char getx();
 unsigned char gethex();

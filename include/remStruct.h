@@ -339,7 +339,8 @@ typedef struct sRemVar
  int arcZEnd;                   /* 0xb7 arc z center */
  char megaVfd;                  /* 0xb8 mega vfd speed mode */
  char megaSim;                  /* 0xb9 mega encoder lines */
- int16_t maxParm;               /* 0xba maximum parameter */
+ char usbEna;                   /* 0xba enable usb */
+ int16_t maxParm;               /* 0xbb maximum parameter */
 } T_REM_VAR, *P_REM_VAR;
 
 extern T_REM_VAR rVar;
