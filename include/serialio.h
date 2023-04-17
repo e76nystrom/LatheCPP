@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(SERIALIO_INC)	// <-
+#define SERIALIO_INC
 
 #if !defined(EXT)
 #define EXT extern
@@ -29,7 +30,11 @@ int __attribute__((__weak__, __section__(".libc")))
 write (int handle, const char *buffer, int len);
 
 void putx(char c);
+#if defined(__cplusplus)
 extern "C" void putstr(const char *p);
+#else
+extern void putstr(const char *p);
+#endif
 void sndhex(unsigned char *p, int size);
 char getx();
 unsigned char gethex();
@@ -374,6 +379,7 @@ inline void dbgTxIntDis()
  DBGPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
+#if !defined(USB)
 inline uint32_t remRxReady()
 {
  return(REMPORT->ISR & USART_ISR_RXNE_RXFNE);
@@ -410,6 +416,15 @@ inline void remTxIntDis()
 {
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
+
+#else
+inline void remRxIntEna()
+{
+}
+inline void remTxIntEna()
+{
+}
+#endif	/* USB */
 
 #if defined(MEGAPORT)
 
@@ -526,4 +541,4 @@ EXT T_MEGACTL megaCtl;
 
 #endif	/* MEGAPORT */
 
-#endif	// ->
+#endif  /* SERIALIO_INC */	// ->

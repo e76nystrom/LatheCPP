@@ -2,6 +2,7 @@
 
 import re
 import sys
+import os
 
 argLen = len(sys.argv)
 if argLen >= 2:
@@ -13,20 +14,31 @@ if argLen >= 3:
     outFile = sys.argv[2]
 else:
     sys.exit()
+
+baseName = os.path.basename(inpFile)
+name = baseName.split(".")[0]
+inc = name.upper() + "_INC"
     
 inp = open(inpFile, 'r')
 fOut = open(outFile, 'wb')
+
+def fWrite(txt):
+    fOut.write(txt.encode())
+
 out = False
 for l in inp:
     if not out:
         if re.search(r".*?// <-", l):
             out = True
-            fOut.write(b"#if 1	// <-\n")
+            fWrite("#if !defined(" + inc + ")\t// <-\n")
+            fWrite("#define " + inc + "\n")
     else:
         if re.search(r"#define *INCLUDE", l):
             continue
-        fOut.write(l.encode('utf-8'))
         if re.search(r".*?// ->", l):
             out = False
+            fWrite("#endif  /* " + inc + " */\t// ->\n")
+            break
+        fWrite(l)
 inp.close()
 fOut.close()

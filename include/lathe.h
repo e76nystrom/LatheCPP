@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(LATHE_INC)	// <-
+#define LATHE_INC
 
 #include <cstdio>
 #include <cstring>
@@ -584,7 +585,7 @@ EXT int16_t springInfo;
 #define WD_PULSE 2		/* watchdog pulse width */
 
 #define MAX_TIMEOUT UINT_MAX
-#define REMCMD_TIMEOUT 1000U
+#define REMCMD_TIMEOUT 1500U
 #define INDEX_TIMEOUT 1500U
 
 EXT unsigned int wdUpdateTime;	/* watchdog update time */
@@ -918,4 +919,4 @@ EXT bool syncPollDone;
 #include "dbgtrk.h"
 #include "dbg.h"
 
-#endif	// ->
+#endif  /* LATHE_INC */	// ->

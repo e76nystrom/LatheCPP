@@ -30,7 +30,7 @@
 extern "C" void trcInit();
 extern "C" bool tud_init(uint8_t port);
 extern "C" void trcDisplay(void);
-extern "C" void cdc_task(void);
+extern void cdc_task(void);
 
 #include "device/usbd.h"
 #endif  /* USB */
@@ -431,7 +431,9 @@ void dwtAccessEnable(unsigned ena)
  HAL_UART_Transmit(&huart7, remMsg, sizeof(remMsg), HAL_MAX_DELAY);
 #endif	/* STM32H7 */
 
+#if !defined(USB)
  putstr1("start remcmd\n");
+#endif  /* USB */
  unsigned int sysClock = HAL_RCC_GetSysClockFreq();
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
  unsigned int FCY = HAL_RCC_GetPCLK2Freq() * 2;
@@ -552,7 +554,6 @@ void dwtAccessEnable(unsigned ena)
 #endif  /* MEGAPORT */
 
 #if defined(SYNC_SPI)
-
 //   if (spiCtl.rxReady)
 //   {
 //    spiCtl.rxReady = 0;
@@ -574,18 +575,19 @@ void dwtAccessEnable(unsigned ena)
     }
    }
 #endif	/* SPI_MASTER */
-#endif	/* SYNC_SPI */
+ #endif	/* SYNC_SPI */
 
    if (rVar.setupDone)		/* setup complete */
    {
-    if ((millis() - remcmdUpdateTime) > remcmdTimeout) /* if timed out */
+    unsigned int t0 = millis() - remcmdUpdateTime;
+    if (t0 > remcmdTimeout) /* if timed out */
     {
      remcmdTimeout = MAX_TIMEOUT; /* set to maximum */
 #if 0
      allStop();			/* stop everything */
      clearAll();		/* clear everything */
 #endif
-     printf("remcmd timeout expired\n");
+     printf("remcmd timeout expired %d\n", t0);
     }
 
     if (eStopIsSet())		/* if emergency stop */
@@ -615,6 +617,7 @@ void dwtAccessEnable(unsigned ena)
    }
 
    pollBufChar();		/* check for data to output */
+
    if (dbgRxReady())		/* if character available */
    {
     ch = dbgRxRead();		/* return it */

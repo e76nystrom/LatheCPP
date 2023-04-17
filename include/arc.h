@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(ARC_INC)	// <-
+#define ARC_INC
 
 #define UPDATE_DEBUG false
 
@@ -107,4 +108,4 @@ void arcStepSetup(int inCount, int outCount);
 void arcStepUpdate();
 #endif	/* LATHE_CPP */
 
-#endif	// ->
+#endif  /* ARC_INC */	// ->

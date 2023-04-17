@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(LATHEX_INC)	// <-
+#define LATHEX_INC
 
 #ifdef WIN32
 #define DBG_DETAIL 1
@@ -45,4 +46,4 @@ char *i64toa(long long val, char *buf, int buflen);
 
 int tmp(int x);
 
-#endif	// ->
+#endif  /* LATHEX_INC */	// ->

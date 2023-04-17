@@ -642,7 +642,7 @@ EXT int16_t springInfo;
 #define WD_PULSE 2		/* watchdog pulse width */
 
 #define MAX_TIMEOUT UINT_MAX
-#define REMCMD_TIMEOUT 1000U
+#define REMCMD_TIMEOUT 1500U
 #define INDEX_TIMEOUT 1500U
 
 EXT unsigned int wdUpdateTime;	/* watchdog update time */
@@ -7711,8 +7711,8 @@ void testOutputs(int flag)
  int inputMask = 0;
  while (true)
  {
-  if ((dbgRxReady() != 0)
-  ||  (remRxReady() != 0))
+  if (dbgRxReady() != 0)
+  // ||  (remRxReady() != 0))
    break;
   pollBufChar();
   if ((millis() - tmp) >= 10U)	/* if time elapsed */

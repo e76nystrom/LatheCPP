@@ -1,4 +1,4 @@
-#define __REMCMD__
+#define LATHECPP_REMCMD
 #if !defined(WIN32)
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
@@ -7,37 +7,42 @@
 #include "stm32f7xx_hal.h"
 #endif
 #ifdef STM32H7
-#include "stm32h7xx_hal.h"
+//#include "stm32h7xx_hal.h"
 #endif
 #endif
 
-#include "remStruct.h"
 #include "lathe.h"
+//#include "remStruct.h"
 
 #include "Xilinx.h"
 
 #if !defined(WIN32)
 #include "serialio.h"
 #include "spix.h"
-#include "encoder.h"
+//#include "encoder.h"
 #endif
 
-#ifdef EXT
-#undef EXT
-#endif
-
+#if !defined(EXT)
 #define EXT
+#endif  /* EXT */
+
 #include "remcmd.h"
+#include "remParm.h"
+#include "class/cdc/cdc_device.h"
 
 #if defined(MEGAPORT)
 #include "megaCmdList.h"
 #endif	/* MEGAPORT */
 
-#if defined(__REMCMD_INC__)	// <-
+#if defined(REMCMD_INCLUDE)	// <-
 
 #if !defined(EXT)
 #define EXT extern
 #endif
+
+#if defined(USB)
+#define REM_USB 0
+#endif  /* USB */
 
 #define REM_ISR 1		/* remote port using isr */
 #define DBG_LOAD 1
@@ -49,8 +54,8 @@ void loadVal();
 #include "remParmList.h"
 #include "ctlbits.h"
 
-#endif	// ->
-#ifdef __REMCMD__
+#endif	/* REMCMD_INCLUDE*/ // ->
+#ifdef LATHECPP_REMCMD
 
 #if defined(WIN32)
 
@@ -101,8 +106,6 @@ void xMoveRel(int dist)
 
 #endif	/* WIN32 */
 
-#include "remParm.h"
-
 void loadVal()
 {
  int parm;
@@ -136,6 +139,11 @@ void remcmd()
  dbgRemCmdSet();
  int parm;
  int val;
+
+#if defined(USB)
+ remCtl.tx_fil = 0;
+ remCtl.tx_count = 0;
+#endif  /* USB */
 
  remcmdUpdateTime = millis();
  remcmdTimeout = REMCMD_TIMEOUT;
@@ -498,7 +506,8 @@ void remcmd()
 
 // flushBuf();
  putRem('*');
+
  dbgRemCmdClr();
 }
 
-#endif	/* __REMCMD__ */
+#endif	/* LATHECPP_REMCMD */

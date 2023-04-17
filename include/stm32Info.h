@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(STM32INFO_INC)	// <-
+#define STM32INFO_INC
 
 typedef struct
 {
@@ -45,4 +46,4 @@ void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
 char query(unsigned char (*get)(), const char *format, ...);
 #endif	/* ARDUINO_ARCH_STM32 */
 
-#endif	// ->
+#endif  /* STM32INFO_INC */	// ->

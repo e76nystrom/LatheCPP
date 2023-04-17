@@ -1,4 +1,4 @@
-#define __SERIALIO__
+#define LATHECPP_SERIALIO
 
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
@@ -28,10 +28,12 @@
 #undef EXT
 #endif
 
+
+
 #define EXT
 #include "serialio.h"
 
-#if defined(__SERIALIO_INC__)	// <-
+#if defined(SERIALIO_INCLUDE)	// <-
 
 #if !defined(EXT)
 #define EXT extern
@@ -62,7 +64,11 @@ int __attribute__((__weak__, __section__(".libc")))
 write (int handle, const char *buffer, int len);
 
 void putx(char c);
+#if defined(__cplusplus)
 extern "C" void putstr(const char *p);
+#else
+extern void putstr(const char *p);
+#endif
 void sndhex(unsigned char *p, int size);
 char getx();
 unsigned char gethex();
@@ -407,6 +413,7 @@ inline void dbgTxIntDis()
  DBGPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
 
+#if !defined(USB)
 inline uint32_t remRxReady()
 {
  return(REMPORT->ISR & USART_ISR_RXNE_RXFNE);
@@ -443,6 +450,15 @@ inline void remTxIntDis()
 {
  REMPORT->CR1 &= ~USART_CR1_TXEIE; /* disable transmit interrupt */
 }
+
+#else
+inline void remRxIntEna()
+{
+}
+inline void remTxIntEna()
+{
+}
+#endif	/* USB */
 
 #if defined(MEGAPORT)
 
@@ -559,8 +575,8 @@ EXT T_MEGACTL megaCtl;
 
 #endif	/* MEGAPORT */
 
-#endif	// ->
-#ifdef __SERIALIO__
+#endif	/* SERIALIO_INCLUDE */ // ->
+#ifdef LATHECPP_SERIALIO
 
 void wdUpdate();
 unsigned int millis();
@@ -936,7 +952,7 @@ void prtbuf(unsigned char *p, int size)
    --col;			/* count off a column */
   if (col)			/* if not end of line */
   {
-   if ((col & 1) == 0)		/* if even column */
+//   if ((col & 1) == 0)		/* if even column */
     printf(" ");		/* output a space */
   }
   else				/* if end of line */
@@ -946,6 +962,8 @@ void prtbuf(unsigned char *p, int size)
     printf("\n");
   }
  }
+ if (col != 0)
+  printf("\n");
 }
 
 void prtibuf(int16_t *p, int size)
@@ -978,6 +996,8 @@ void prtibuf(int16_t *p, int size)
 
 /* polled remote port routines */
 
+#if !defined(USB)
+
 void putx1(char c)
 {
  while (remTxEmpty() == 0)
@@ -997,6 +1017,8 @@ void putstr1(const char *p)
    putx1('\r');
  }
 }
+
+#endif  /* USB */
 
 #if 0
 void sndhex1(unsigned char *p, int size)
@@ -1164,8 +1186,12 @@ unsigned char getnum1(T_INT_FLOAT *val)
 void initRem()
 {
  memset(&remCtl, 0, sizeof(remCtl));
+#if !defined(USB)
  remRxIntEna();
+#endif  /* USB */
 }
+
+#if !defined(USB)
 
 extern "C" void remoteISR()
 {
@@ -1233,6 +1259,16 @@ extern "C" void remoteISR()
  }
 }
 
+#endif  /* USB */
+
+#if defined(USB)
+#define remDisable()
+#define remEnable()
+#else
+#define remDisable() NVIC_DisableIRQ(REMOTE_IRQn)
+#define remEnable() NVIC_EnableIRQ(REMOTE_IRQn)
+#endif  /* USB */
+
 void putRem(char ch)
 {
  P_REMCTL u = &remCtl;
@@ -1244,9 +1280,9 @@ void putRem(char ch)
    fill = 0;			/* reset to zero */
   u->tx_fil = fill;		/* save fill pointer */
 
-  __disable_irq();
+  remDisable();
   u->tx_count++;		/* update count */
-  __enable_irq();
+  remEnable();
   remTxIntEna();		/* enable transmit interrupt */
  }
 }
@@ -1317,9 +1353,9 @@ int getRem()
    emp = 0;			/* reset to start */
   u->rx_emp = emp;		/* save empty pointer */
 
-  __disable_irq();
+  remDisable();
   --u->rx_count;		/* count it off */
-  __enable_irq();
+  remEnable();
   return(ch);
  }
  return(-1);			/* nothing in buffer */
@@ -2040,4 +2076,4 @@ write (int handle, const char *buffer, int len)
  return (len);
 }
 
-#endif	/* __SERIALIO__ */
+#endif	/* LATHECPP_SERIALIO */
