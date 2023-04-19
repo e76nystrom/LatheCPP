@@ -134,6 +134,24 @@ void loadVal()
  }
 }
 
+void queMove()
+{
+ int parm;
+ gethexRem(&parm);		/* save op code and flag */
+ T_INT_FLOAT intFloat;
+ char rtn = getnumRem(&intFloat); /* read parameter */
+ if (rtn != NO_VAL)		  /* if valid number */
+ {
+  if (rVar.setupDone)		/* if setup complete */
+  {
+   if (rtn == FLOAT_VAL)	  /* if floating */
+    queMoveCmd(parm, intFloat.f); /* que command */
+   else				  /* if integer */
+    queIntCmd(parm, intFloat.i);  /* que command */
+  }
+ }
+}
+
 void remcmd()
 {
  dbgRemCmdSet();
@@ -170,130 +188,130 @@ void remcmd()
 
  case ZSTOP:
   zStop();
- break;
+  break;
 
  case ZSETLOC:
   zLocCmd();
- break;
+  break;
 
  case ZHOMEFWD:
   homeAxis(&zHomeCtl, HOME_FWD);
- break;
+  break;
 
  case ZHOMEREV:
   homeAxis(&zHomeCtl, HOME_REV);
- break;
+  break;
 
  case XMOVEABS:
   xMoveAbsCmd();
- break;
+  break;
 
  case XMOVEREL:
   xMoveRelCmd();
- break;
+  break;
 
  case XJMOV:
   xJogCmd();
- break;
+  break;
 
  case XJSPEED:
   xJogSpeedCmd();
- break;
+  break;
 
  case XSTOP:
   xStop();
- break;
+  break;
 
  case XSETLOC:
   xLocCmd();
- break;
+  break;
 
  case XHOMEFWD:
   homeAxis(&xHomeCtl, HOME_FWD);
- break;
+  break;
 
  case XHOMEREV:
   homeAxis(&xHomeCtl, HOME_REV);
- break;
+  break;
 
  case SPINDLE_START:
   spindleStart();
- break;
+  break;
 
  case SPINDLE_STOP:
   spindleStop();
- break;
+  break;
 
  case SPINDLE_UPDATE:
   spindleUpdate();
- break;
+  break;
 
  case SPINDLE_JOG:
   spindleJog();
- break;
+  break;
 
  case SPINDLE_JOG_SPEED:
   spindleJogSpeed();
- break;
+  break;
 
  case CMD_PAUSE:
   pauseCmd();
- break;
+  break;
 
  case CMD_RESUME:
   resumeCmd();
- break;
+  break;
 
  case CMD_STOP:
   stopCmd();
- break;
+  break;
 
  case CMD_DONE:
   doneCmd();
- break;
+  break;
 
  case CMD_MEASURE:
   measureCmd();
- break;
+  break;
 
  case CMD_CLEAR:
   clearCmd();
- break;
+  break;
 
  case CMD_SETUP:
   setup();
- break;
+  break;
 
  case CMD_SPSETUP:
   spindleSetup((int) rVar.spMaxRpm);
- break;
+  break;
 
  case CMD_SYNCSETUP:
   syncMoveSetup();
- break;
+  break;
 
  case CMD_ZSETUP:
   zSetup();
- break;
+  break;
 
 #if 0
  case CMD_ZTAPERSETUP:
   zTaperSetup();
- break;
+  break;
 #endif
 
  case CMD_XSETUP:
   xSetup();
- break;
+  break;
 
 #if 0
  case CMD_XTAPERSETUP:
   xTaperSetup();
- break;
+  break;
 #endif
 
  case READSTAT:
- break;
+  break;
 
  case READISTATE:
  {
@@ -305,7 +323,7 @@ void remcmd()
 
  case LOADVAL:			/* load a local parameter */
   loadVal();
- break;
+  break;
 
  case LOADMULTI:		/* load multiple parameters */
  {
@@ -329,7 +347,7 @@ void remcmd()
  }
  break;
 
- case LOADXREG:			/* load a xilinx register */
+ case LOADXREG:		/* load a xilinx register */
  {
   gethexRem(&parm);		/* save the parameter number */
 
@@ -338,7 +356,7 @@ void remcmd()
  }
  break;
 
- case READXREG:			/* read a xilinx register */
+ case READXREG:		/* read a xilinx register */
  {
   gethexRem(&parm);		/* save the parameter number */
   //   read(parm);		/* read the xilinx register */
@@ -368,7 +386,7 @@ void remcmd()
 //  else
 //   putstrRem("# ");
 
-  if (rVar.cfgFpga == 0)	/* processor control */
+  if (rVar.cfgFpga == 0)        /* processor control */
   {
    if (rVar.indexPeriod != 0)
    {
@@ -387,28 +405,26 @@ void remcmd()
   sprintf(buf, "%d %d %d %d",
 	  runCtl.pass, rVar.zDroLoc, rVar.xDroLoc, rVar.mvStatus);
   putstrRem(buf);
+
+  sprintf(buf, " %d %d", MAX_CMDS - moveQue.count, dbgQue.count);
+  putstrRem(buf);
  }
  break;
 
- case CLEARQUE:			/* clear move que */
+ case CLEARQUE:		/* clear move que */
   runInit();
- break;
+  break;
 
  case QUEMOVE:			/* que move operation */
+  queMove();
+  break;
+
+ case MOVEMULTI:		/* add multiple items to move que */
  {
-  gethexRem(&parm);		/* save op code and flag */
-  T_INT_FLOAT intFloat;
-  char rtn = getnumRem(&intFloat); /* read parameter */
-  if (rtn != NO_VAL)		/* if valid number */
-  {
-   if (rVar.setupDone)		/* if setup complete */
-   {
-    if (rtn == FLOAT_VAL)	/* if floating */
-     queMoveCmd(parm, intFloat.f); /* que command */
-    else			/* if integer */
-     queIntCmd(parm, intFloat.i); /* que command */
-   }
-  }
+  int count;
+  gethexRem(&count);
+  while (--count >= 0)
+   queMove();
  }
  break;
 
@@ -444,7 +460,7 @@ void remcmd()
     }
     sndhexRem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
     if ((remCtl.tx_count < (REM_TX_SIZE - MAX_DBG_SIZE)) /* if space */
-    &&  (dbgQue.count != 0))	/* and more data */
+	&&  (dbgQue.count != 0))	/* and more data */
      putRem(' ');		/* output a space */
     else			/* if no more data */
      break;			/* exit loop */
@@ -455,17 +471,17 @@ void remcmd()
 
  case CLRDBG:
   clrDbgBuf();
- break;
+  break;
 #endif	/* DBGMSG */
 
 #if ENCODER
  case ENCSTART:
   encStart(true);
- break;
+  break;
 
  case ENCSTOP:
   encStop();
- break;
+  break;
 #endif	/* ENCODER */
 
 #if defined(MEGAPORT)
@@ -480,12 +496,12 @@ void remcmd()
   gethexRem(&val);		/* read value */
   sndhexMega((const unsigned char *) &val, sizeof(val), '\r');
  }
-  break;
+ break;
 
 #endif  /* MEGAPORT */
-  default:
-   printf("remcmd default\n");
-   break;
+ default:
+  printf("remcmd default\n");
+  break;
  } /* switch */
 
 #if REM_ISR

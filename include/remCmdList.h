@@ -67,21 +67,22 @@ enum REM_COMMANDS
 
  CLEARQUE,                      /* 0x29 clear move que */
  QUEMOVE,                       /* 0x2a que move command */
- MOVEQUESTATUS,                 /* 0x2b read move queue status */
+ MOVEMULTI,                     /* 0x2b que move command */
+ MOVEQUESTATUS,                 /* 0x2c read move queue status */
 
 // location and debug info
 
- READALL,                       /* 0x2c read all status info */
- READDBG,                       /* 0x2d read debug message */
- CLRDBG,                        /* 0x2e clear debug message buffer */
+ READALL,                       /* 0x2d read all status info */
+ READDBG,                       /* 0x2e read debug message */
+ CLRDBG,                        /* 0x2f clear debug message buffer */
 
 // encoder commands
 
- ENCSTART,                      /* 0x2f encoder start */
- ENCSTOP,                       /* 0x30 encoder stop */
+ ENCSTART,                      /* 0x30 encoder start */
+ ENCSTOP,                       /* 0x31 encoder stop */
 
 //  mega commands 
 
- SET_MEGA_VAL,                  /* 0x31 set mega value */
- READ_MEGA_VAL,                 /* 0x32 get mega value */
+ SET_MEGA_VAL,                  /* 0x32 set mega value */
+ READ_MEGA_VAL,                 /* 0x33 get mega value */
 };
