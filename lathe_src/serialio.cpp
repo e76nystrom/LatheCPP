@@ -11,7 +11,7 @@
 #endif
 
 #include <cstdio>
-#include <cstdint>
+//#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <cstdarg>
@@ -19,16 +19,16 @@
 #include "config.h"
 #include "dbg.h"
 
-#ifdef REMPORT
+#if defined(REMPORT)
+#if !defined(USB)
 #include "remcmd.h"
+#endif  /* USB */
 #include "remvar.h"
-#endif
+#endif  /* REMPORT */
 
 #ifdef EXT
 #undef EXT
 #endif
-
-
 
 #define EXT
 #include "serialio.h"
@@ -111,6 +111,9 @@ unsigned char getnum1();
 void initRem();
 void putRem(char ch);
 void putstrRem(const char *p);
+void skipRem(int n);
+void fillRem(const char *p, int n);
+int countRem(void);
 void sndhexRem(const unsigned char *p, int size);
 int getRem();
 char gethexRem(int *val);
@@ -535,6 +538,7 @@ typedef struct
  int tx_emp;
  int tx_count;
  char tx_buffer[REM_TX_SIZE];
+ int tx_save;
  int rx_fil;
  int rx_emp;
  int rx_count;
@@ -1268,6 +1272,35 @@ extern "C" void remoteISR()
 #define remDisable() NVIC_DisableIRQ(REMOTE_IRQn)
 #define remEnable() NVIC_EnableIRQ(REMOTE_IRQn)
 #endif  /* USB */
+
+void skipRem(int n)
+{
+ P_REMCTL u = &remCtl;
+ int fill = u->tx_fil;
+ u->tx_save = fill;
+ fill += n;
+ if (fill >= REM_TX_SIZE)
+  fill -= REM_TX_SIZE;
+ u->tx_fil = fill;
+ u->tx_count += n;
+}
+
+void fillRem(const char *str, int n)
+{
+ P_REMCTL u = &remCtl;
+ int fill = u->tx_save;
+ while (--n >= 0)
+ {
+  u->tx_buffer[fill++] = *str++; /* put character in buffer */
+  if (fill >= REM_TX_SIZE)	/* if past end of buffer */
+   fill = 0;			/* reset to zero */
+ }
+}
+
+int countRem()
+{
+ return(remCtl.tx_count);
+}
 
 void putRem(char ch)
 {
@@ -2046,7 +2079,7 @@ ssize_t _write(int fd  __attribute__((unused)), const char* buf, size_t nbyte)
  return((ssize_t) nbyte);
 }
 
-#define STDIN   0
+//#define STDIN   0
 #define STDOUT  1
 #define STDERR  2
 

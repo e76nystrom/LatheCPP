@@ -77,6 +77,9 @@ unsigned char getnum1();
 void initRem();
 void putRem(char ch);
 void putstrRem(const char *p);
+void skipRem(int n);
+void fillRem(const char *p, int n);
+int countRem(void);
 void sndhexRem(const unsigned char *p, int size);
 int getRem();
 char gethexRem(int *val);
@@ -501,6 +504,7 @@ typedef struct
  int tx_emp;
  int tx_count;
  char tx_buffer[REM_TX_SIZE];
+ int tx_save;
  int rx_fil;
  int rx_emp;
  int rx_count;

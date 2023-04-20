@@ -152,6 +152,8 @@ void queMove()
  }
 }
 
+#define BYTE_COUNT
+
 void remcmd()
 {
  dbgRemCmdSet();
@@ -167,6 +169,9 @@ void remcmd()
  remcmdTimeout = REMCMD_TIMEOUT;
 
  putRem('-');
+#if defined(BYTE_COUNT)
+ skipRem(2);
+#endif  /* BYTE_COUNT */
  gethexRem(&parm);		/* read parameter */
  switch (parm)
  {
@@ -402,11 +407,11 @@ void remcmd()
    putstrRem("0 ");
   }
 
-  sprintf(buf, "%d %d %d %d",
+  sprintf(buf, "%d %d %d %d ",
 	  runCtl.pass, rVar.zDroLoc, rVar.xDroLoc, rVar.mvStatus);
   putstrRem(buf);
 
-  sprintf(buf, " %d %d", MAX_CMDS - moveQue.count, dbgQue.count);
+  sprintf(buf, "%d %d ", MAX_CMDS - moveQue.count, dbgQue.count);
   putstrRem(buf);
  }
  break;
@@ -522,6 +527,16 @@ void remcmd()
 
 // flushBuf();
  putRem('*');
+
+#if defined(BYTE_COUNT)
+ {
+  char buf[4];
+  sprintf(buf, "%02x", countRem() - 3);
+//  putBufStr(buf);
+//  newline();
+  fillRem(buf, 2);
+ }
+#endif  /* BYTE_COUNT */
 
  dbgRemCmdClr();
 }
