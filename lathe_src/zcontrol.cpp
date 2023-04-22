@@ -81,11 +81,11 @@ void zMoveX(int32_t pos, char cmd)
  P_MOVECTL mov = &zMoveCtl;
 
  if (DBGMSG)
-  dbgmsg(D_ZMOV, pos);
+  dbgMsg(D_ZMOV, pos);
  read1(XRDZLOC);		/* read z location */
  mov->loc = readval.i;		/* save result */
  if (DBGMSG)
-  dbgmsg(D_ZLOC, mov->loc);
+  dbgMsg(D_ZLOC, mov->loc);
  mov->expLoc = pos;		/* save expected location */
  printf("z move %5d %5d\n", (int) pos, (int) (pos - mov->loc));
  zMoveRelX(pos - mov->loc, cmd); /* calculate move distance */
@@ -143,7 +143,7 @@ void zControlX(void)
  {
   if (mov->state != mov->prev)
   {
-   dbgmsg(D_ZST, mov->state);
+   dbgMsg(D_ZST, mov->state);
    mov->prev = mov->state;
   }
  }
@@ -219,13 +219,13 @@ void zControlX(void)
   {
    printf("z move error actual %d expected %d\n", mov->loc, mov->expLoc);
    if (DBGMSG)
-    dbgmsg(D_ZEXP,  mov->expLoc);
+    dbgMsg(D_ZEXP, mov->expLoc);
   }
   if (DBGMSG)
-   dbgmsg(D_ZLOC, mov->loc);
+   dbgMsg(D_ZLOC, mov->loc);
   mov->state = AXIS_IDLE;	/* set state to idle */
   if (DBGMSG)
-   dbgmsg(D_ZST, mov->state);
+   dbgMsg(D_ZST, mov->state);
  }
  break;
  }

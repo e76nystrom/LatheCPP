@@ -680,7 +680,7 @@ typedef struct s_indexTmr
  uint16_t overflow;		/* index counter overflow */
  uint32_t start;		/* index period start count */
  uint32_t trkFreq;		/* freq for dbgTrk rpm calculation */
- uint32_t freq;			/* freq for remcmd rpm calculation */
+ uint32_t freq;			/* freq for remCmd rpm calculation */
 } T_INDEX_TMR, *P_INDEX_TMR;
 
 EXT T_INDEX_TMR idxTmr;
@@ -1465,6 +1465,19 @@ void spindleSetup(int rpm)
  {
   printf("\nspindleSetup %d\n", rpm);
  }
+
+#if defined(INT_ENCODER)
+ if (rVar.spindleInternalSync)
+ {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  GPIO_InitStruct.Pin = IntSync_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(IntSync_GPIO_Port, &GPIO_InitStruct);
+ }
+#endif  /* INT_ENCODER */
 
  rVar.spRpm = (float) rpm;	/* save rpm */
  if (rVar.cfgVarSpeed)		/* spindle driven with variable speed motor */
@@ -3462,7 +3475,7 @@ void zStartSlave()
 {
  zTmrSlvEna();
  zIsr.active = SYNC_ACTIVE_STEP;
- dbgmsg(D_ZEST, (int)sp.intCount); /* spindle interrupt count at start */
+ dbgMsg(D_ZEST, (int) sp.intCount); /* spindle interrupt count at start */
  dbgZAccelSet();
  if (DBG_TMR)
  {
@@ -3836,9 +3849,9 @@ void zMoveRel(int dist, int cmd)
  mov->expLoc = rVar.zLoc + dist; /* calculate expected end location */
  mov->cmd = cmd;		/* save command */
  if (rVar.cfgDro)
-  dbgmsg(D_ZDRO, rVar.zDroLoc);
- dbgmsg(D_ZLOC, mov->loc);
- dbgmsg(D_ZDST, dist);
+  dbgMsg(D_ZDRO, rVar.zDroLoc);
+ dbgMsg(D_ZLOC, mov->loc);
+ dbgMsg(D_ZDST, dist);
  if (dist != 0)			/* if distance non zero */
  {
   if (dist > 0)			/* if moving positive */
@@ -3952,7 +3965,7 @@ void zInfo(char flag)
 
 void zMove(int pos, int cmd)
 {
- dbgmsg(D_ZMOV, pos);
+ dbgMsg(D_ZMOV, pos);
  int dist = pos - rVar.zLoc;
  zMoveRel(dist, cmd);
 }
@@ -3993,7 +4006,7 @@ void zControl()
 #if DBGMSG
  if (mov->state != mov->prev)
  {
-  dbgmsg(D_ZST, mov->state);
+  dbgMsg(D_ZST, mov->state);
   mov->prev = mov->state;
  }
 #endif
@@ -4007,7 +4020,7 @@ void zControl()
  case AXIS_WAIT_BACKLASH:	/* 0x01 wait for backlash move to complete */
   if (zIsr.done)		/* if done */
   {
-   dbgmsg(D_ZBSTP, (int)zIsr.steps);
+   dbgMsg(D_ZBSTP, (int) zIsr.steps);
    zIsr.done = 0;		/* clear done flag */
    mov->state = AXIS_START_MOVE; /* advance to move state */
   }
@@ -4033,9 +4046,9 @@ void zControl()
      xIsr.dist = taperDist;	/* save for isr */
 
      if (rVar.cfgDro)
-      dbgmsg(D_XDRO, rVar.xDroLoc);
-     dbgmsg(D_XLOC, rVar.xLoc);
-     dbgmsg(D_XDST, taperDist);
+      dbgMsg(D_XDRO, rVar.xDroLoc);
+     dbgMsg(D_XLOC, rVar.xLoc);
+     dbgMsg(D_XDST, taperDist);
 
      if (DBG_P)
       printf("taperDist %4d %7.4f taperInch %8.6f zDist %4d %7.4f\n",
@@ -4067,14 +4080,14 @@ void zControl()
      else
      {
       zIsr.active = SYNC_ACTIVE_STEP; /* set to active */
-      dbgmsg(D_ZEST, (int)sp.intCount); /* spindle int count at start */
+      dbgMsg(D_ZEST, (int) sp.intCount); /* spindle int count at start */
      }
     }
     else			/* *chk* if spindle encoder */
     {
      zIsr.active = zIsr.syncInit; /* make active */
      zIsr.syncInit = 0;		/* clear init flag */
-     dbgmsg(D_ZEST, (int)spEncCount); /* encoder count at start */
+     dbgMsg(D_ZEST, (int) spEncCount); /* encoder count at start */
     }
    }
    break;
@@ -4162,14 +4175,14 @@ void zControl()
    if (mov->loc != mov->expLoc)	/* if not at expected location */
    {
     printf("z move error actual %d expected %d\n", mov->loc, mov->expLoc);
-    dbgmsg(D_ZEXP, mov->expLoc);
+    dbgMsg(D_ZEXP, mov->expLoc);
    }
   }
   mov->jog = 0;			/* clear jog flag */
   trackSpeed = 0;		/* disable speed tracking */
   mov->state = AXIS_IDLE;	/* set state to idle */
-  dbgmsg(D_ZSTP, (int)zIsr.steps);
-  dbgmsg(D_ZST, mov->state);
+   dbgMsg(D_ZSTP, (int) zIsr.steps);
+   dbgMsg(D_ZST, mov->state);
   break;
  }
 }
@@ -4342,8 +4355,8 @@ void xRunoutInit()
  xIsr.curCount = ctr;
  xHwEnable(ctr);		/* setup x timer */
 
- dbgmsg(D_XLOC, rVar.xLoc);
- dbgmsg(D_XDST, (int)xIsr.dist);
+ dbgMsg(D_XLOC, rVar.xLoc);
+ dbgMsg(D_XDST, (int) xIsr.dist);
 }
 
 void xSyncRunoutInit()
@@ -4366,8 +4379,8 @@ void xSyncRunoutInit()
  if (DBG_P)
   printf("\nxSyncRunoutInit dir %d dist %d\n", xIsr.dir, xIsr.dist);
 
- dbgmsg(D_XLOC, rVar.xLoc);
- dbgmsg(D_XDST, (int)xIsr.dist);
+ dbgMsg(D_XLOC, rVar.xLoc);
+ dbgMsg(D_XDST, (int) xIsr.dist);
 }
 
 void xEncRunoutInit()
@@ -4396,8 +4409,8 @@ void xEncRunoutInit()
  if (DBG_P)
   printf("\nxEncRunoutInit dir %d dist %d\n", xIsr.dir, xIsr.dist);
 
- dbgmsg(D_XLOC, rVar.xLoc);
- dbgmsg(D_XDST, (int)xIsr.dist);
+ dbgMsg(D_XLOC, rVar.xLoc);
+ dbgMsg(D_XDST, (int) xIsr.dist);
 }
 
 void xMoveInit(P_ACCEL ac, int dir, unsigned int dist)
@@ -4461,7 +4474,7 @@ void xStartSlave()
  xTmrSlvEna();
  dbgXAccelSet();
  xIsr.active = SYNC_ACTIVE_STEP;
- dbgmsg(D_XEST, (int)sp.intCount); /* spindle interrupt count at start */
+ dbgMsg(D_XEST, (int) sp.intCount); /* spindle interrupt count at start */
 }
 
 void xMoveAbsCmd()
@@ -4691,9 +4704,9 @@ void xMoveRel(int dist, int cmd)
  }
  mov->cmd = cmd;		/* save command */
  if (rVar.cfgDro)
-  dbgmsg(D_XDRO, rVar.xDroLoc);
- dbgmsg(D_XLOC, mov->loc);
- dbgmsg(D_XDST, dist);
+  dbgMsg(D_XDRO, rVar.xDroLoc);
+ dbgMsg(D_XLOC, mov->loc);
+ dbgMsg(D_XDST, dist);
  if (dist != 0)			/* if distance non zero */
  {
   if (dist > 0)			/* if moving positive */
@@ -4814,7 +4827,7 @@ void xControl()
 #if DBGMSG
  if (mov->state != mov->prev)
  {
-  dbgmsg(D_XST, mov->state);
+  dbgMsg(D_XST, mov->state);
   mov->prev = mov->state;
  }
 #endif
@@ -4828,7 +4841,7 @@ void xControl()
  case AXIS_WAIT_BACKLASH:	/* 0x01 wait for backlash mv to complete */
   if (xIsr.done)		/* if done */
   {
-   dbgmsg(D_XBSTP, (int)xIsr.steps);
+   dbgMsg(D_XBSTP, (int) xIsr.steps);
    xIsr.done = 0;		/* clear done flag */
    mov->state = AXIS_START_MOVE; /* advance to move state */
   }
@@ -4853,9 +4866,9 @@ void xControl()
      int taperDist = (int) (dist * zPA.taperInch * (float) zAxis.stepsInch);
      zIsr.dist = taperDist;	/* save for isr */
      if (rVar.cfgDro)
-      dbgmsg(D_ZDRO, rVar.zDroLoc);
-     dbgmsg(D_ZLOC, rVar.zLoc);
-     dbgmsg(D_ZDST, taperDist);
+      dbgMsg(D_ZDRO, rVar.zDroLoc);
+     dbgMsg(D_ZLOC, rVar.zLoc);
+     dbgMsg(D_ZDST, taperDist);
 
      if (DBG_P)
       printf("taperDist %4d %7.4f taperInch %8.6f xDist %4d %7.4f\n",
@@ -4888,14 +4901,14 @@ void xControl()
      else
      {
       xIsr.active = SYNC_ACTIVE_STEP; /* set to active */
-      dbgmsg(D_ZEST, (int) sp.intCount); /* spindle interrupt count at start */
+      dbgMsg(D_ZEST, (int) sp.intCount); /* spindle interrupt count at start */
      }
     }
     else			/* *chk* if spindle encoder */
     {
      xIsr.active = xIsr.syncInit; /* make active */
      xIsr.syncInit = 0;		/* clear init flag */
-     dbgmsg(D_XEST, (int) spEncCount); /* encoder count at start */
+     dbgMsg(D_XEST, (int) spEncCount); /* encoder count at start */
     }
    }
    break;
@@ -4988,15 +5001,15 @@ void xControl()
  default:			/* all others */
   if (mov->cmd & DRO_UPD)	/* fix x loc if using dro for position */
   {
-   dbgmsg(D_XDRO, rVar.xDroLoc);
-   dbgmsg(D_XLOC, rVar.xLoc);
+   dbgMsg(D_XDRO, rVar.xDroLoc);
+   dbgMsg(D_XLOC, rVar.xLoc);
    dbgXUpdDroClr();
    /* xLoc = droPos * (stepsInch / countsInch) */
    int xTmp = ((2 * xDro() * xAxis.stepFactor) / xAxis.droFactor);
    xTmp = ((xTmp + 1) >> 1) + rVar.xHomeOffset; /* round and add offset */
    int xErr = xTmp - rVar.xLoc;
    rVar.xLoc = xTmp;
-   dbgmsg(D_XERR, xErr);
+   dbgMsg(D_XERR, xErr);
    if (DBG_P)
     printf("DRO_UPD droPos %7.4f xPos %7.4f xErr %7.4f xLoc %6d\n",
 	   (2.0 * (float) xDro()) / xAxis.droCountsInch,
@@ -5019,14 +5032,14 @@ void xControl()
    if (mov->loc != mov->expLoc)	/* if not at expected location */
    {
     printf("x move error actual %d expected %d\n", mov->loc, mov->expLoc);
-    dbgmsg(D_XEXP, mov->expLoc);
+    dbgMsg(D_XEXP, mov->expLoc);
    }
   }
   mov->jog = 0;			/* clear jog flag */
   trackSpeed = 0;		/* disable speed tracking */
   mov->state = AXIS_IDLE;	/* set state to idle */
-  dbgmsg(D_XSTP, (int)xIsr.steps);
-  dbgmsg(D_XST, mov->state);
+   dbgMsg(D_XSTP, (int) xIsr.steps);
+   dbgMsg(D_XST, mov->state);
   break;
  }
 }
@@ -5121,7 +5134,7 @@ void homeControl(P_HOMECTL home)
  if (home->state != home->prev)
  {
   printf("home state %d prev %d\n", home->state, home->prev);
-  dbgmsg(D_HST, home->state);
+  dbgMsg(D_HST, home->state);
   home->prev = home->state;
  }
 #endif
@@ -5444,7 +5457,7 @@ void procMove()
 
    if (DBG_QUE & 1)
    {
-    dbgmsg(D_MCMD, (cmd->flag << 8) | cmd->cmd);
+    dbgMsg(D_MCMD, (cmd->flag << 8) | cmd->cmd);
     printf("cmd ");
     if (mv->start != 0)
     {
@@ -5485,7 +5498,7 @@ void procMove()
      zMoveX(val, cmd->flag);
 #else
     val = cmd->iVal + mv->zHomeOffset;
-    dbgmsg(D_ZMOV, val);
+     dbgMsg(D_ZMOV, val);
     if (!rVar.cfgDro		      /* if dro not configured */
     ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
     {
@@ -5512,7 +5525,7 @@ void procMove()
 
    case MOVE_X:
     val = cmd->iVal + mv->xHomeOffset;
-    dbgmsg(D_XMOV, val);
+     dbgMsg(D_XMOV, val);
     if (!rVar.cfgDro		      /* if not configure */
     ||  ((cmd->flag & DRO_POS) == 0)) /* or not using dro for position */
     {
@@ -5758,7 +5771,7 @@ void procMove()
      springInfo = (int16_t) iVal;
      done = 0;
     }
-    dbgmsg(D_PASS, iVal);
+    dbgMsg(D_PASS, iVal);
     break;
    }
 
@@ -5900,11 +5913,11 @@ void procMove()
    }
 
    case SAVE_Z_DRO:
-    dbgmsg(D_ZPDRO, rVar.zDroLoc);
+    dbgMsg(D_ZPDRO, rVar.zDroLoc);
     break;
 
    case SAVE_X_DRO:
-    dbgmsg(D_XPDRO, rVar.xDroLoc);
+    dbgMsg(D_XPDRO, rVar.xDroLoc);
     break;
 
    case QUE_PARM:
@@ -5980,7 +5993,7 @@ void procMove()
     break;
 
    case OP_DONE:
-    dbgmsg(D_DONE, cmd->iVal);
+    dbgMsg(D_DONE, cmd->iVal);
     if (cmd->iVal == PARM_START)
     {
      mv->start = uwTick;
@@ -6260,16 +6273,16 @@ void procMove()
      {
       printf("x move arc error actual %5d expected %5d\n",
 	     xMoveCtl.loc, xMoveCtl.expLoc);
-      dbgmsg(D_XEXP, xMoveCtl.expLoc);
+      dbgMsg(D_XEXP, xMoveCtl.expLoc);
      }
      if (zMoveCtl.loc != zMoveCtl.expLoc)
      {
       printf("z move arc error actual %5d expected %5d\n",
 	     zMoveCtl.loc, zMoveCtl.expLoc);
-      dbgmsg(D_ZEXP, zMoveCtl.expLoc);
+      dbgMsg(D_ZEXP, zMoveCtl.expLoc);
      }
-     dbgmsg(D_XSTP, (int) xIsr.steps);
-     dbgmsg(D_ZSTP, (int) zIsr.steps);
+     dbgMsg(D_XSTP, (int) xIsr.steps);
+     dbgMsg(D_ZSTP, (int) zIsr.steps);
      mv->state = M_IDLE;
     }
    break;
@@ -6279,7 +6292,7 @@ void procMove()
  {
   if (mv->state != mv->lastState)
   {
-   dbgmsg(D_MSTA, mv->state);
+   dbgMsg(D_MSTA, mv->state);
    mv->lastState = mv->state;
    printf("mvState %d %s\n", mv->state, mStatesList[(int) mv->state]);
   }

@@ -50,6 +50,9 @@
 #define encA_IRQn EXTI3_IRQn
 #define encB_IRQn EXTI4_IRQn
 
+#define IntSync_Pin Exti2_Pin
+#define IntSync_GPIO_Port Exti2_GPIO_Port
+
 #define ENC_TEST 0		/* encoder test */
 
 #include "i2c.h"

@@ -27,7 +27,7 @@
 #else
 #include "config.h"
 #include "serialio.h"
-#define getNum getnum
+#define getNum getNum
 #endif	/* ARDUINO_ARCH_AVR */
 
 #if  defined(__STM32INFO_INC__)	// <-

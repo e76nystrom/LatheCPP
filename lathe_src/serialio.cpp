@@ -78,8 +78,8 @@ unsigned char getnumAll();
 unsigned char getfloat();
 
 unsigned char gethex(int *val);
-unsigned char getnum(int *val);
-unsigned char getnumAll(T_INT_FLOAT *val);
+unsigned char getNum(int *val);
+unsigned char getNumAll(T_INT_FLOAT *val);
 unsigned char getfloat(float *val);
 
 char query(const char *format, ...);
@@ -88,8 +88,8 @@ char query(unsigned char (*get)(int *), int *val, const char *format, ...);
 char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
 	   const char *format, ...);
 
-void prtbuf(unsigned char *p, int size);
-void prtibuf(int16_t *p, int size);
+void prtBuf(unsigned char *p, int size);
+void prtIBuf(int16_t *p, int size);
 
 //#ifdef REMPORT
 
@@ -110,15 +110,16 @@ unsigned char getnum1();
 
 void initRem();
 void putRem(char ch);
-void putstrRem(const char *p);
+void putStrRem(const char *p);
 void skipRem(int n);
 void fillRem(const char *p, int n);
 int countRem(void);
-void sndhexRem(const unsigned char *p, int size);
+void sndHexRem(const unsigned char *p, int size);
 int getRem();
-char gethexRem(int *val);
-char getstrRem(char *buf, int bufLen);
-unsigned char getnumRem(T_INT_FLOAT *val);
+char getHexRem(int *val);
+char getHexRemEcho(int *val);
+char getStrRem(char *buf, int bufLen);
+unsigned char getHexFloatRem(T_INT_FLOAT *val);
 
 //#endif
 
@@ -128,7 +129,7 @@ unsigned char getnumRem(T_INT_FLOAT *val);
 void dbgmsg(char dbg, int val);
 void clrDbgBuf();
 #else
-#define dbgmsg(a, b)
+#define dbgMsg(a, b)
 #define dbgmsgx(a, b, c)
 #endif	/* DBGMSG */
 
@@ -757,7 +758,7 @@ char getstr(char *buf,  int bufLen)
  return(len);
 }
 
-unsigned char getnum(int *val)
+unsigned char getNum(int *val)
 {
  char ch;			/* input character */
  char chbuf[MAXDIG];		/* input digit buffer */
@@ -861,7 +862,7 @@ unsigned char getfloat(float *val)
  return(0);
 }
 
-unsigned char getnumAll(T_INT_FLOAT *val)
+unsigned char getNumAll(T_INT_FLOAT *val)
 {
  char chbuf[MAXDIG];		/* input digit buffer */
 
@@ -940,7 +941,7 @@ char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
  return(ch);
 }
 
-void prtbuf(unsigned char *p, int size)
+void prtBuf(unsigned char *p, int size)
 {
  char col;
 
@@ -970,7 +971,7 @@ void prtbuf(unsigned char *p, int size)
   printf("\n");
 }
 
-void prtibuf(int16_t *p, int size)
+void prtIBuf(int16_t *p, int size)
 {
  char col;
 
@@ -1226,7 +1227,7 @@ extern "C" void remoteISR()
      u->state = 0;		/* set to waiting for start */
 #if 1
      NVIC_ClearPendingIRQ(REMOTE_IRQn); /* clear pending interrupt */
-     remcmd();			/* process remote command */
+     remCmd();			/* process remote command */
 #else
      serial.remCmdRcv = 1;
 #endif
@@ -1320,7 +1321,7 @@ void putRem(char ch)
  }
 }
 
-void putstrRem(const char *p)
+void putStrRem(const char *p)
 {
  while (true)
  {
@@ -1333,7 +1334,7 @@ void putstrRem(const char *p)
  }
 }
 
-void sndhexRem(const unsigned char *p, int size)
+void sndHexRem(const unsigned char *p, int size)
 {
  char tmp;
  char ch;
@@ -1394,7 +1395,7 @@ int getRem()
  return(-1);			/* nothing in buffer */
 }
 
-char gethexRem(int *val)
+char getHexRemEcho(int *val)
 {
  char ch;
  int count;
@@ -1407,15 +1408,15 @@ char gethexRem(int *val)
   if (tmp > 0)
   {
    ch = (char) tmp;
-   if ((ch >= '0')
-   &&  (ch <= '9'))
+   if ((ch >= '0') &&
+       (ch <= '9'))
    {
     putRem(ch);
     ch -= '0';
     count++;
    }
-   else if ((ch >= 'a')
-   &&       (ch <= 'f'))
+   else if ((ch >= 'a') &&
+            (ch <= 'f'))
    {
     putRem(ch);
     ch -= 'a' - 10;
@@ -1440,7 +1441,46 @@ char gethexRem(int *val)
  return(count != 0);
 }
 
-char getstrRem(char *buf, int bufLen)
+char getHexRem(int *val)
+{
+ char ch;
+ int count;
+
+ int tmpVal = 0;
+ count = 0;
+ while (count <= 8)
+ {
+  int tmp = getRem();
+  if (tmp > 0)
+  {
+   ch = (char) tmp;
+   if ((ch >= '0')
+   &&  (ch <= '9'))
+   {
+    ch -= '0';
+    count++;
+   }
+   else if ((ch >= 'a')
+   &&       (ch <= 'f'))
+   {
+    ch -= 'a' - 10;
+    count++;
+   }
+   else if ((ch == ' ') || (ch == '\r'))
+    break;
+   else
+    continue;
+   tmpVal <<= 4;
+   tmpVal += ch;
+  }
+  else
+   return(0);
+ }
+ *val = tmpVal;
+ return(count != 0);
+}
+
+char getStrRem(char *buf, int bufLen)
 {
  int len = 0;
  char *p;
@@ -1454,20 +1494,14 @@ char getstrRem(char *buf, int bufLen)
    ch = (char) tmp;
    if ((ch == ' ') || (ch == '\n'))
    {
-    putRem(ch);
-    if (ch == '\n')
-     putRem('\r');
     if (len < bufLen)
-    {
      *p++ = 0;
-    }
     break;
    }
    else
    {
     if (len < bufLen)
     {
-     putRem(ch);
      *p++ = ch;
      len++;
     }
@@ -1482,30 +1516,32 @@ char getstrRem(char *buf, int bufLen)
  return(len);
 }
 
-unsigned char getnumRem(T_INT_FLOAT *val)
+unsigned char getHexFloatRem(T_INT_FLOAT *val)
 {
- char chbuf[MAXDIG];		/* input digit buffer */
+ char chBuf[MAXDIG];		/* input digit buffer */
 
- char len = getstrRem(chbuf, sizeof(chbuf));
+ char len = getStrRem(chBuf, sizeof(chBuf));
+
  if (len != 0)
  {
-  char *p = chbuf;
-  int i;
-  for (i = 0; i < len; i++)
+  char *p = chBuf;
+  char ch = *p;
+  if ((ch == 'x') || (ch == 'X'))
   {
-   char ch = *p++;
-   if (ch == '.')
+   p += 1;
+   val->i = strtol(p, nullptr, 16);
+   return(INT_VAL);
+  }
+
+  for (int i = 0; i < len; i++)
+  {
+   if (*p++ == '.')
    {
-    val->f = strtof((const char *) chbuf, nullptr);
+    val->f = strtof((const char *) chBuf, nullptr);
     return(FLOAT_VAL);
    }
-   if ((ch == 'x') || (ch == 'X'))
-   {
-    val->i = strtol(p, nullptr, 16);
-    return(INT_VAL);
-   }
   }
-  val->i = strtol((const char *) chbuf, nullptr, 10);
+  val->i = strtol((const char *) chBuf, nullptr, 16);
   return(INT_VAL);
  }
  return(NO_VAL);
@@ -1903,7 +1939,7 @@ int pollBufChar()
 #if 0
  if (serial.remCmdRcv != 0)
  {
-  remcmd();
+  remCmd();
   serial.remCmdRcv = 0;
  }
 #endif
@@ -2021,7 +2057,7 @@ void flushBuf()
 
 #if DBGMSG
 
-void dbgmsg(char dbg, int val)
+void dbgMsg(char dbg, int val)
 {
  P_DBGMSG p;
 

@@ -245,7 +245,7 @@ def makeFunc(timer, funcName, arg, body, nameLen=None):
 def fWrite(file, txt):
     file.write(txt.encode())
 
-def main(cfg, path):
+def main(board, cfg, path):
     global f
     global name, tmr, argType, pwm, isr, slave
 
@@ -259,7 +259,7 @@ def main(cfg, path):
     fWrite(f, "#if !defined(__TIMERS_H)\n")
     fWrite(f, "#define __TIMERS_H\n\n")
 
-    setConfig(cfg)
+    setConfig(board, cfg)
 
     maxLen = 0
     for tmp in cfg:
@@ -578,7 +578,7 @@ def triggers():
         (1, (5, 2, 3, 4)),
         )
 
-def setConfig(cfg):
+def setConfig(board, cfg):
     global timers
     for tmp in cfg:
         parm = tmp[0]
@@ -586,7 +586,7 @@ def setConfig(cfg):
         globals()[parm] = val
 
     timers = \
-    ( \
+    [ \
       TmrCfg("zTmr", step1, "uint32_t", step1Pwm, "TIM2", True),
       TmrCfg("xTmr", step2, "uint32_t", step2Pwm, "TIM5", True),
       TmrCfg("step3Tmr", step3, "uint16_t", step3Pwm, step3Isr, None),
@@ -596,10 +596,13 @@ def setConfig(cfg):
       TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, pwmTmrIsr, None),
       TmrCfg("usecTmr", usecTmr, "uint16_t", 0, usecTmrIsr, None),
       TmrCfg("indexTmr", indexTmr, "uint16_t", 0, indexTmrIsr, None),
-      TmrCfg("cmpTmr", cmpTmr, "uint16_t", CAP, "TIM1_BRK_TIM9", None),
       TmrCfg("intTmr", intTmr, "uint16_t", 0, None, None),
       TmrCfg("encTestTmr", encTestTmr, "uint16_t", 0, "TIM7", None),
-    )
+    ]
+    if board == "nuch743":
+        timers.append(TmrCfg("cmpTmr", cmpTmr, "uint16_t", CAP, "TIM17", None))
+    else:
+        timers.append(TmrCfg("cmpTmr", cmpTmr, "uint16_t", CAP, "TIM1_BRK_TIM9", None))
 
 n = 1
 cfg = disc407
@@ -607,28 +610,28 @@ path = "LatheCPP"
 while True:
     if n >= len(sys.argv):
         break
-    val = sys.argv[n]
-    if val == "disc407":
+    board = sys.argv[n]
+    if board == "disc407":
         cfg = disc407
         path = "LatheCPP"
-    elif val == "core407":
+    elif board == "core407":
         cfg = core407
         path = "LatheCPPD"
-    elif val == "core4071":
+    elif board == "core4071":
         cfg = core407
         path = "LatheCPPD1"
-    elif val == "nuc446":
+    elif board == "nuc446":
         cfg = nuc446
         path = "LatheCPPN"
-    elif val == "nuc401":
+    elif board == "nuc401":
         cfg = nuc401
         path = "LatheCPPX0"
-    elif val == "nuc746":
+    elif board == "nuc746":
         cfg = nuc746
         path = "LatheCPP7N"
-    elif val == "nuch743":
+    elif board == "nuch743":
         cfg = nuch743
         path = "LatheCPP7H"
     n += 1
 
-main(cfg, path)
+main(board, cfg, path)

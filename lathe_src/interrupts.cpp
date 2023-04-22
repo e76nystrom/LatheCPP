@@ -465,7 +465,7 @@ extern "C" void indexISR()
    zIsr.active = zIsr.syncStart; /* set to active */
    zIsr.syncStart = 0;		/* clear start flag */
    putBufStrIsr("Sz");
-   dbgmsg(D_ZEST, (int) spEncCount); /* encoder count at start */
+   dbgMsg(D_ZEST, (int) spEncCount); /* encoder count at start */
   }
 
   if (xIsr.syncStart)		/* if x axis waiting for sync start */
@@ -473,7 +473,7 @@ extern "C" void indexISR()
    xIsr.active = xIsr.syncStart; /* set to active */
    xIsr.syncStart = 0;		/* clear start flag */
    putBufStrIsr("Sx");
-   dbgmsg(D_XEST, (int) spEncCount); /* encoder count at start */
+   dbgMsg(D_XEST, (int) spEncCount); /* encoder count at start */
   }
  }
 
@@ -481,14 +481,14 @@ extern "C" void indexISR()
  {
   if (zIsr.active & SYNC_ACTIVE_THREAD) /* if threading */
   {
-   dbgmsg(D_ZIDXD, rVar.zDroLoc); /* save dro position */
+   dbgMsg(D_ZIDXD, rVar.zDroLoc); /* save dro position */
   }
-  dbgmsg(D_ZIDXP, rVar.zLoc);	/* save location */
+  dbgMsg(D_ZIDXP, rVar.zLoc);	/* save location */
  }
  
  if (xIsr.dbgPos)
  {
-  dbgmsg(D_XIDXP, rVar.xLoc);	/* save location */
+  dbgMsg(D_XIDXP, rVar.xLoc);	/* save location */
  }
 
  if constexpr (DBGTRK1W0)	/* if debug tracking index pulse */
@@ -818,15 +818,15 @@ void zIsrStop(char ch)
  {
   zIsr.active = 0;		/* clear active flag */
   if (rVar.spindleEncoder == 0)	/* *ok* if stepper drive */
-   dbgmsg(D_ZEDN, (int) sp.intCount); /* spindle interrupt count */
+   dbgMsg(D_ZEDN, (int) sp.intCount); /* spindle interrupt count */
   else				/* *ok* spindle encoder */
   {
    dbgZOutClr();
    if (zIsr.encoderDirect != 0)	/* *ok* using encoder directly */
    {
-    dbgmsg(D_ZEDN, (int) spEncCount); /* spindle encoder count */
-    dbgmsg(D_ZX, zIsr.x);
-    dbgmsg(D_ZY, zIsr.y);
+    dbgMsg(D_ZEDN, (int) spEncCount); /* spindle encoder count */
+    dbgMsg(D_ZX, zIsr.x);
+    dbgMsg(D_ZY, zIsr.y);
    }
   }
  }
@@ -843,8 +843,8 @@ void zIsrStop(char ch)
  zIsr.taper = 0;		/* clear taper flag */
  zIsr.done = 1;			/* indicate done */
  if (rVar.cfgDro)
-  dbgmsg(D_ZDRO, rVar.zDroLoc);
- dbgmsg(D_ZLOC, rVar.zLoc);
+  dbgMsg(D_ZDRO, rVar.zDroLoc);
+ dbgMsg(D_ZLOC, rVar.zLoc);
  dbgZAccelClr();
 }
 
@@ -1072,15 +1072,15 @@ void xIsrStop(char ch)
  {
   xIsr.active = 0;		/* clear active flag */
   if (rVar.spindleEncoder == 0)	/* *ok* if no encoder */
-   dbgmsg(D_XEDN, (int) sp.intCount); /* send spindle interrupt count */
+   dbgMsg(D_XEDN, (int) sp.intCount); /* send spindle interrupt count */
   else				/* *ok* */
   {
    dbgXOutClr();
-   dbgmsg(D_XEDN, (int) spEncCount); /* send spindle encoder count */
+   dbgMsg(D_XEDN, (int) spEncCount); /* send spindle encoder count */
    if (syn.spindle == 0)	/* *ok* using encoder directly */
    {
-    dbgmsg(D_XX, xIsr.x);
-    dbgmsg(D_XY, xIsr.y);
+    dbgMsg(D_XX, xIsr.x);
+    dbgMsg(D_XY, xIsr.y);
    }
   }
  }
@@ -1091,8 +1091,8 @@ void xIsrStop(char ch)
   if (xIsr.taper & TAPER_RUNOUT)
   {
    dbgRunoutClr();
-   dbgmsg(D_XSTP, (int) xIsr.steps);
-   dbgmsg(D_ZLOC, rVar.zLoc);
+   dbgMsg(D_XSTP, (int) xIsr.steps);
+   dbgMsg(D_ZLOC, rVar.zLoc);
   }
   dbgXTaperClr();
   putBufStrIsr("xt");
@@ -1106,8 +1106,8 @@ void xIsrStop(char ch)
  xIsr.stopPos = sp.pos;
 
  if (rVar.cfgDro)
-  dbgmsg(D_XDRO, rVar.xDroLoc);
- dbgmsg(D_XLOC, rVar.xLoc);
+  dbgMsg(D_XDRO, rVar.xDroLoc);
+ dbgMsg(D_XLOC, rVar.xLoc);
  dbgXAccelClr();
  dbgXStopClr();
  dbgXDoneSet();
@@ -1268,18 +1268,22 @@ extern "C" void xTmrISR()
 extern "C" void encAISR()
 {
  BITWORD tmp;
+
+ IntSync_GPIO_Port->BSRR = IntSync_Pin;
  EXTI->PR1 = encA_Pin;		/* clear interrupt */
- tmp.w - (lastDecode >> 2);	/* read last decode */
+ tmp.w = (lastDecode >> 2);	/* read last decode */
  tmp.b2 = 1;			/* set a bit */
  lastDecode = tmp.w;		/* update last decode */
- encoder();			/* call encoderr */
-}
+ encoder();			/* call encoder */
+ }
 
 extern "C" void encBISR()
 {
  BITWORD tmp;
+
+ IntSync_GPIO_Port->BSRR = IntSync_Pin << 16;
  EXTI->PR1 = encB_Pin;		/* clear interrupt */
- tmp.w - (lastDecode >> 2);	/* read last decode */
+ tmp.w = (lastDecode >> 2);	/* read last decode */
  tmp.b3 = 1;			/* set b bit */
  lastDecode = tmp.w;		/* update last decode */
  encoder();			/* call encoder */

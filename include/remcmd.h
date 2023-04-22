@@ -12,7 +12,7 @@
 #define REM_ISR 1		/* remote port using isr */
 #define DBG_LOAD 1
 
-void remcmd();
+void remCmd();
 void loadVal();
 
 #include "remCmdList.h"

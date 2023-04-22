@@ -47,7 +47,7 @@
 #define REM_ISR 1		/* remote port using isr */
 #define DBG_LOAD 1
 
-void remcmd();
+void remCmd();
 void loadVal();
 
 #include "remCmdList.h"
@@ -109,12 +109,12 @@ void xMoveRel(int dist)
 void loadVal()
 {
  int parm;
- gethexRem(&parm);		/* read the parameter number */
+ getHexRem(&parm);		/* read the parameter number */
  if (parm < MAX_PARM)		/* if in range */
  {
   T_INT_FLOAT intFloat;
   T_DATA_UNION parmVal;
-  int type = getnumRem(&intFloat); /* get the value */
+  int type = getHexFloatRem(&intFloat); /* get the value */
   if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
@@ -137,9 +137,9 @@ void loadVal()
 void queMove()
 {
  int parm;
- gethexRem(&parm);		/* save op code and flag */
+ getHexRem(&parm);		/* save op code and flag */
  T_INT_FLOAT intFloat;
- char rtn = getnumRem(&intFloat); /* read parameter */
+ char rtn = getHexFloatRem(&intFloat); /* read parameter */
  if (rtn != NO_VAL)		  /* if valid number */
  {
   if (rVar.setupDone)		/* if setup complete */
@@ -154,7 +154,7 @@ void queMove()
 
 #define BYTE_COUNT
 
-void remcmd()
+void remCmd()
 {
  dbgRemCmdSet();
  int parm;
@@ -172,7 +172,7 @@ void remcmd()
 #if defined(BYTE_COUNT)
  skipRem(2);
 #endif  /* BYTE_COUNT */
- gethexRem(&parm);		/* read parameter */
+ getHexRemEcho(&parm);		/* read parameter */
  switch (parm)
  {
  case ZMOVEABS:
@@ -320,9 +320,9 @@ void remcmd()
 
  case READISTATE:
  {
-  int tmpval = zMoveCtl.state;
-  tmpval |= xMoveCtl.state << 4;
-  sndhexRem((unsigned char *) &tmpval, sizeof(tmpval));
+  int tmpVal = zMoveCtl.state;
+  tmpVal |= xMoveCtl.state << 4;
+  sndHexRem((unsigned char *) &tmpVal, sizeof(tmpVal));
  }
  break;
 
@@ -333,7 +333,7 @@ void remcmd()
  case LOADMULTI:		/* load multiple parameters */
  {
   int count;
-  gethexRem(&count);
+  getHexRem(&count);
   while (--count >= 0)
    loadVal();
  }
@@ -341,32 +341,38 @@ void remcmd()
 
  case READVAL:			/* read a local parameter */
  {
-  gethexRem(&parm);		/* save the parameter number */
+  getHexRem(&parm);		/* save the parameter number */
   T_DATA_UNION parmVal;
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
-  int size = remParm[parm];
-  printf("r p %2x s %d v %8x\n",
-	 (unsigned int) parm, size, parmVal.t_unsigned_int);
-  sndhexRem((unsigned char *) &parmVal.t_char, size); /* send the response */
+  int tmp = remParm[parm];
+  int size = tmp & SIZE_MASK;
+  char buf[12];
+  if (tmp & FLT)
+   snprintf(buf, sizeof(buf), "%6.4f", parmVal.t_float);
+  else
+   snprintf(buf, sizeof(buf), "%x", parmVal.t_unsigned_int);
+  printf("r p %2x s %d v %s\n", (unsigned int) parm, size, buf);
+  putStrRem(buf);
+  putRem(' ');
  }
  break;
 
- case LOADXREG:		/* load a xilinx register */
+ case LOADXREG:			/* load a xilinx register */
  {
-  gethexRem(&parm);		/* save the parameter number */
+  getHexRem(&parm);		/* save the parameter number */
 
-  gethexRem(&val);		/* get the value */
+  getHexRem(&val);		/* get the value */
   LOAD(parm, val);		/* load value to xilinx register */
  }
  break;
 
- case READXREG:		/* read a xilinx register */
+ case READXREG:			/* read a xilinx register */
  {
-  gethexRem(&parm);		/* save the parameter number */
+  getHexRem(&parm);		/* save the parameter number */
   //   read(parm);		/* read the xilinx register */
   read1(parm);			/* read the xilinx register */
-  sndhexRem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
+  sndHexRem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
  }
  break;
 
@@ -377,19 +383,19 @@ void remcmd()
 //  {
   // sprintf(buf, "%0.4f ", ((float) zLoc) / zAxis.stepsInch);
   sprintf(buf, "%d ", rVar.zLoc);
-  putstrRem(buf);
+  putStrRem(buf);
 //  }
 //  else
-//   putstrRem("# ");
+//   putStrRem("# ");
 
 //  if (xAxis.stepsInch != 0)
 //  {
   // sprintf(buf, "%0.4f ", ((float) xLoc) / xAxis.stepsInch);
   sprintf(buf, "%d ", rVar.xLoc);
-  putstrRem(buf);
+  putStrRem(buf);
 //  }
 //  else
-//   putstrRem("# ");
+//   putStrRem("# ");
 
   if (rVar.cfgFpga == 0)        /* processor control */
   {
@@ -397,26 +403,26 @@ void remcmd()
    {
     sprintf(buf, "%1.0f ",
 	    ((float) idxTmr.freq / (float) rVar.indexPeriod) * 60);
-    putstrRem(buf);
+    putStrRem(buf);
    }
    else
-    putstrRem("0 ");
+    putStrRem("0 ");
   }
   else				/* xilinx control */
   {
-   putstrRem("0 ");
+   putStrRem("0 ");
   }
 
   sprintf(buf, "%d %d %d %d ",
 	  runCtl.pass, rVar.zDroLoc, rVar.xDroLoc, rVar.mvStatus);
-  putstrRem(buf);
+  putStrRem(buf);
 
   sprintf(buf, "%d %d ", MAX_CMDS - moveQue.count, dbgQue.count);
-  putstrRem(buf);
+  putStrRem(buf);
  }
  break;
 
- case CLEARQUE:		/* clear move que */
+ case CLEARQUE:			/* clear move que */
   runInit();
   break;
 
@@ -427,7 +433,7 @@ void remcmd()
  case MOVEMULTI:		/* add multiple items to move que */
  {
   int count;
-  gethexRem(&count);
+  getHexRem(&count);
   while (--count >= 0)
    queMove();
  }
@@ -436,7 +442,7 @@ void remcmd()
  case MOVEQUESTATUS:		/* get move queue status */
  {
   parm = MAX_CMDS - moveQue.count; /* calculate amount empty */
-  sndhexRem((unsigned char *) &parm, sizeof(parm)); /* send it back */
+  sndHexRem((unsigned char *) &parm, sizeof(parm)); /* send it back */
  }
  break;
 
@@ -444,7 +450,7 @@ void remcmd()
 #define MAX_DBG_SIZE (2 + 1 + 1 + 8 + 1)
  case READDBG:
  {
-  gethexRem(&parm);
+  getHexRem(&parm);
   if (dbgQue.count > 0)		/* if debug messages */
   {
    while (--parm >= 0)		/* while more requested */
@@ -455,7 +461,7 @@ void remcmd()
     if (dbgQue.emp >= MAXDBGMSG) /* if past end */
      dbgQue.emp = 0;		/* point back to beginning */
 
-    sndhexRem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
+    sndHexRem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
 
     putRem(' ');		/* output a space */
     if (p->val < 0)
@@ -463,11 +469,11 @@ void remcmd()
      putRem('-');
      p->val = -p->val;
     }
-    sndhexRem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
-    if ((remCtl.tx_count < (REM_TX_SIZE - MAX_DBG_SIZE)) /* if space */
-	&&  (dbgQue.count != 0))	/* and more data */
-     putRem(' ');		/* output a space */
-    else			/* if no more data */
+    sndHexRem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
+    putRem(' ');		/* output a space */
+
+    if ((remCtl.tx_count > (REM_TX_SIZE - MAX_DBG_SIZE)) || /* no space */
+        (dbgQue.count == 0))	/* or no data */
      break;			/* exit loop */
    }
   }
@@ -496,16 +502,16 @@ void remcmd()
   putMega(1);
   char ch = MEGA_SET_VAL;
   sndhexMega((const unsigned char *) &ch, sizeof(ch), ' ');
-  gethexRem(&parm);		/* read parameter */
+  getHexRem(&parm);		/* read parameter */
   sndhexMega((const unsigned char *) &parm, sizeof(parm), ' ');
-  gethexRem(&val);		/* read value */
+  getHexRem(&val);		/* read value */
   sndhexMega((const unsigned char *) &val, sizeof(val), '\r');
  }
  break;
 
 #endif  /* MEGAPORT */
  default:
-  printf("remcmd default\n");
+  printf("remCmd default\n");
   break;
  } /* switch */
 

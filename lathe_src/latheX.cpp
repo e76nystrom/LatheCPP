@@ -116,7 +116,7 @@ void axisCtlX(void)
    if ((readval.i & S_Z_START) == 0) /* if start flag not set */
    {
     if (DBGMSG)
-     dbgmsg(D_ZWT, readval.i);
+     dbgMsg(D_ZWT, readval.i);
     printf("z waiting no start flag\n");
     zMoveCtl.wait = 0;
    }
@@ -125,7 +125,7 @@ void axisCtlX(void)
   ||  (zFlagX()))		/* if z done flag from xilinx set */
   {
    if (DBGMSG)
-    dbgmsg(D_ZDN, rVar.zLoc);
+    dbgMsg(D_ZDN, rVar.zLoc);
    printf("z done\n");
    LOAD(XLDZCTL, 0);		/* clear z control register */
    zMoveCtl.done = 1;		/* signal done */
@@ -143,7 +143,7 @@ void axisCtlX(void)
    if ((readval.i & S_X_START) == 0) /* if start flag not set */
    {
     if (DBGMSG)
-     dbgmsg(D_XST, readval.i);
+     dbgMsg(D_XST, readval.i);
     printf("x waiting no start flag\n");
     xMoveCtl.wait = 0;
    }
@@ -153,7 +153,7 @@ void axisCtlX(void)
   {
    printf("x done\n");
    if (DBGMSG)
-    dbgmsg(D_XDN, rVar.xLoc);
+    dbgMsg(D_XDN, rVar.xLoc);
    LOAD(XLDXCTL, 0);		/* clear x control register */
    xMoveCtl.done = 1;		/* set done flag */
   }

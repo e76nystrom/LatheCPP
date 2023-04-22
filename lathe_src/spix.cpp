@@ -301,7 +301,7 @@ void load(char addr, int32_t val)
 //  printf("load %x %x\n", (unsigned int) addr, (unsigned int) val);
 //  char buf[8];
 //  sprintf(buf, "lx %02x", addr);
-//  dbgmsg(buf, val);
+//  dbgMsg(buf, val);
  spisel();
  spisend(addr);
  byte_long tmp;
@@ -331,7 +331,7 @@ void load(char addr, byte_long val)
 	 (unsigned int) addr, (unsigned int) val.i);
  // char buf[8];
  // sprintf(buf, "lx %02x", addr);
- // dbgmsg(buf, val.i);
+ // dbgMsg(buf, val.i);
  spisel();
  spisend(addr);
  spisend(val.b[3]);
@@ -689,7 +689,7 @@ void load(int dev, char addr, int32_t val)
 //  printf("load %x %x\n", (unsigned int) addr, (unsigned int) val);
 //  char buf[8];
 //  sprintf(buf, "lx %02x", addr);
-//  dbgmsg(buf, val);
+//  dbgMsg(buf, val);
  spisel(dev);
  spisend(addr);
  byte_long tmp;
@@ -806,7 +806,7 @@ extern "C" void spiISR()
    if (ch == '\r')
    {
     spiCtl.state = 0;
-    remcmd(&spiAction);
+    remCmd(&spiAction);
     spi->CR2 |= SPI_CR2_TXEIE;
     spiCtl.txEna = 1;
    }

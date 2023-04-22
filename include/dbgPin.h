@@ -79,12 +79,21 @@
 #ifdef DbgA13_Pin
  PIN(DbgA13, DbgA13),
 #endif
-#ifdef Dbg0_Pin
- PIN(dbgZIsr, Dbg0),
+#ifdef DbgA0_Pin
+ PIN(dbgIntC, DbgA0),
 #endif
-#ifdef Dbg1_Pin
- PIN(dbgXIsr, Dbg1),
+#ifdef DbgA1_Pin
+ PIN(dbgIntP, DbgA1),
 #endif
-#ifdef Dbg2_Pin
- PIN(dbgEncIsr, Dbg2),
+#ifdef DbgA2_Pin
+ PIN(dbgCycle, DbgA2),
+#endif
+#ifdef DbgA3_Pin
+ PIN(dbgCycEnd, DbgA3),
+#endif
+#ifdef DbgA4_Pin
+ PIN(dbgCapIsr, DbgA4),
+#endif
+#ifdef DbgA5_Pin
+ PIN(dbgIntIsr, DbgA5),
 #endif

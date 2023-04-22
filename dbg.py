@@ -90,20 +90,20 @@ pinList = \
 dbgList = \
 (\
  ("dbgSpIsr",  "", "spindle isr time"), \
- ("dbgZIsr",   "0", "z isr time"), \
- ("dbgXIsr",   "1", "x isr time"), \
+ ("dbgZIsr",   "", "z isr time"), \
+ ("dbgXIsr",   "", "x isr time"), \
  ("dbgSpCyc",  "", "spindle cycle counter update"), \
  ("dbgZEnc",   "", "z encoder input"), \
  ("dbgZOut",   "", "z encoder output"), \
  ("dbgXEnc",   "", "x encoder"), \
  ("dbgXOut",   "", "x encoder output"), \
 
- ("dbgIntC",   "", "toggle on compare input"), \
- ("dbgIntP",   "", "toggle on output pulse"), \
- ("dbgCycle",  "", "toggle on input cycle"), \
- ("dbgCycEnd", "", "end of internal pulse cycle"), \
- ("dbgCapIsr", "", "length of capture isr"), \
- ("dbgIntIsr", "", "length of internal isr"), \
+ ("dbgIntC",   "A0", "toggle on compare input"), \
+ ("dbgIntP",   "A1", "toggle on output pulse"), \
+ ("dbgCycle",  "A2", "toggle on input cycle"), \
+ ("dbgCycEnd", "A3", "end of internal pulse cycle"), \
+ ("dbgCapIsr", "A4", "length of capture isr"), \
+ ("dbgIntIsr", "A5", "length of internal isr"), \
 
  ("dbgZCyc",   "", "z cycle counter update"), \
  ("dbgXCyc",   "", "x cycle counter update"), \
@@ -141,7 +141,7 @@ dbgList = \
 
  ("dbgArcUpd",  "", "arc update"), \
  ("dbgArcStep", "", "arc step"), \
- ("dbgEncIsr",  "2", "encoder isr"), \
+ ("dbgEncIsr",  "", "encoder isr"), \
  ("dbgRemCmd",  "", "remote command"), \
 
  ("dbgZPosErr", "", "z position error"),\

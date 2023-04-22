@@ -98,7 +98,7 @@ void lclcmdX(int ch)
    if (gethex(&val))
    {
     newline();
-    prtbuf(p,val);
+    prtBuf(p, val);
    }
   }
  }
@@ -134,7 +134,7 @@ void lclcmdX(int ch)
  {
   printf(" counts ");
   fflush(stdout);
-  if (getnum(&val))
+  if (getNum(&val))
   {
    encInit();
    rVar.encRunCount = val;
@@ -155,7 +155,7 @@ void lclcmdX(int ch)
  else if (ch == 't')
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
   {
    newline();
    int i;
@@ -221,13 +221,13 @@ void lclcmdX(int ch)
  else if (ch == 'a')		/* set command address */
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
    addr = val;
  }
  else if (ch == 'g')		/* read spi data */
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
   {
    addr = val;			/* save address */
    read1(addr);			/* read from device */
@@ -237,11 +237,11 @@ void lclcmdX(int ch)
  else if (ch == 'G')		/* read spi repeatedly */
  {
   putx(' ');
-  if (getnum(&val))			/* enter address */
+  if (getNum(&val))			/* enter address */
   {
    addr = val;			/* save address */
    putx(' ');
-   if (getnum(&val))		/* enter number of tries */
+   if (getNum(&val))		/* enter number of tries */
    {
     newline();
     int16_t i = (int16_t) val;
@@ -265,12 +265,12 @@ void lclcmdX(int ch)
  {
   printf(" addr ");
   fflush(stdout);
-  if (getnum(&val))			/* read address */
+  if (getNum(&val))			/* read address */
   {
    addr = val;
    printf(" data ");
    fflush(stdout);
-   if (getnum(&val))		/* read data */
+   if (getNum(&val))		/* read data */
    {
     printf("\nsending addr %x %10d val %8lx", addr, val, (unsigned long) val);
     LOAD(addr,val);
@@ -281,7 +281,7 @@ void lclcmdX(int ch)
  else if (ch == 'p')		/* set print flag */
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
   {
    print = val;
   }
@@ -297,7 +297,7 @@ void lclcmdX(int ch)
  else if (ch == 'x')		/* move x rel */
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
   {
    xMoveRelX(val, CMD_MOV);
   }
@@ -305,7 +305,7 @@ void lclcmdX(int ch)
  else if (ch == 'z')		/* move z rel */
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
   {
    zMoveRelX(val, CMD_MOV);
   }
@@ -313,9 +313,9 @@ void lclcmdX(int ch)
  else if (ch == 'u')		/* send debug message */
  {
   putx(' ');
-  if (getnum(&val))
+  if (getNum(&val))
   {
-   dbgmsg(D_TEST, val);
+   dbgMsg(D_TEST, val);
   }
  }
 }

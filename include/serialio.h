@@ -44,8 +44,8 @@ unsigned char getnumAll();
 unsigned char getfloat();
 
 unsigned char gethex(int *val);
-unsigned char getnum(int *val);
-unsigned char getnumAll(T_INT_FLOAT *val);
+unsigned char getNum(int *val);
+unsigned char getNumAll(T_INT_FLOAT *val);
 unsigned char getfloat(float *val);
 
 char query(const char *format, ...);
@@ -54,8 +54,8 @@ char query(unsigned char (*get)(int *), int *val, const char *format, ...);
 char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
 	   const char *format, ...);
 
-void prtbuf(unsigned char *p, int size);
-void prtibuf(int16_t *p, int size);
+void prtBuf(unsigned char *p, int size);
+void prtIBuf(int16_t *p, int size);
 
 //#ifdef REMPORT
 
@@ -76,22 +76,23 @@ unsigned char getnum1();
 
 void initRem();
 void putRem(char ch);
-void putstrRem(const char *p);
+void putStrRem(const char *p);
 void skipRem(int n);
 void fillRem(const char *p, int n);
 int countRem(void);
-void sndhexRem(const unsigned char *p, int size);
+void sndHexRem(const unsigned char *p, int size);
 int getRem();
-char gethexRem(int *val);
-char getstrRem(char *buf, int bufLen);
-unsigned char getnumRem(T_INT_FLOAT *val);
+char getHexRem(int *val);
+char getHexRemEcho(int *val);
+char getStrRem(char *buf, int bufLen);
+unsigned char getHexFloatRem(T_INT_FLOAT *val);
 
 //#endif
 
 /* debug message routines */
 
 #if DBGMSG
-void dbgmsg(char dbg, int val);
+void dbgMsg(char dbg, int val);
 void clrDbgBuf();
 #else
 #define dbgmsg(a, b)

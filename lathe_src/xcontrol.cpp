@@ -81,11 +81,11 @@ void xMoveX(long pos, char cmd)
  P_MOVECTL mov = &xMoveCtl;
 
  if (DBGMSG)
-  dbgmsg(D_XMOV,  pos);
+  dbgMsg(D_XMOV, pos);
  read1(XRDXLOC);		/* read x location */
  mov->loc = readval.i;		/* save result */
  if (DBGMSG)
-  dbgmsg(D_XLOC, mov->loc);
+  dbgMsg(D_XLOC, mov->loc);
  mov->expLoc = pos;		/* save expected location */
  printf("x move %5d %5d\n", (int) pos, (int) (pos - mov->loc));
  xMoveRelX(pos - mov->loc, cmd); /* calculate move distance */
@@ -99,7 +99,7 @@ void xMoveRelX(long dist, char cmd)
   return;			/* exit now */
 
  if (DBGMSG)
-  dbgmsg(D_XDST,  dist);
+  dbgMsg(D_XDST, dist);
  mov->cmd = cmd;		/* save command */
  if (dist != 0)			/* if distance non zero */
  {
@@ -146,7 +146,7 @@ void xControlX(void)
  {
   if (mov->state != mov->prev)
   {
-   dbgmsg(D_XST,  mov->state);
+   dbgMsg(D_XST, mov->state);
    mov->prev = mov->state;
   }
  }
@@ -220,13 +220,13 @@ void xControlX(void)
   {
    printf("x move error actual %d expected %d\n", mov->loc, mov->expLoc);
    if (DBGMSG)
-    dbgmsg(D_XEXP,  mov->expLoc);
+    dbgMsg(D_XEXP, mov->expLoc);
   }
   if (DBGMSG)
-   dbgmsg(D_XLOC,  mov->loc);
+   dbgMsg(D_XLOC, mov->loc);
   mov->state = AXIS_IDLE;	/* set state to idle */
   if (DBGMSG)
-   dbgmsg(D_XST,  mov->state);
+   dbgMsg(D_XST, mov->state);
  }
  break;
  }

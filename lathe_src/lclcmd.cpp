@@ -299,11 +299,11 @@ void lclcmd(int ch)
   if (ch == 'C')
   {
    int parm;
-   if (query(&getnum, &parm, "\nparameter: "))
+   if (query(&getNum, &parm, "\nparameter: "))
    {
     T_INT_FLOAT intFloat;
     T_DATA_UNION parmVal;
-    ch = query(&getnumAll, &intFloat, "value: ");
+    ch = query(&getNumAll, &intFloat, "value: ");
     if (ch == INT_VAL)
     {
      parmVal.t_int = intFloat.i;
@@ -331,7 +331,7 @@ void lclcmd(int ch)
     newline();
     printf("jog debug %d: ",  rVar.jogDebug);
     flushBuf();
-    if (getnum(&val))
+    if (getNum(&val))
     {
      if (val != 0)
       rVar.jogDebug = val;
@@ -460,7 +460,7 @@ void lclcmd(int ch)
    }
    else if (ch == 'o')
    {
-    if (query(&getnum, &val, "\npin: "))
+    if (query(&getNum, &val, "\npin: "))
     {
      int pin = val;
      char found = 0;
@@ -476,7 +476,7 @@ void lclcmd(int ch)
      }
      if (found)
      {
-      if (query(&getnum, &val, "val: "))
+      if (query(&getNum, &val, "val: "))
       {
        if (val != 0)
 	p->set();
@@ -491,17 +491,17 @@ void lclcmd(int ch)
    {
     newline();
     syncStop();
-    if (query(&getnum, &val, "encoder cycle %d: ",  rVar.lSyncCycle))
+    if (query(&getNum, &val, "encoder cycle %d: ",  rVar.lSyncCycle))
     {
      if (val != 0)
       rVar.lSyncCycle = val;
     }
-    if (query(&getnum, &val, "output %d: ", rVar.lSyncOutput))
+    if (query(&getNum, &val, "output %d: ", rVar.lSyncOutput))
     {
      if (val != 0)
       rVar.lSyncOutput = val;
     }
-    if (query(&getnum, &val, "prescaler %d: ", rVar.lSyncPrescaler))
+    if (query(&getNum, &val, "prescaler %d: ", rVar.lSyncPrescaler))
     {
      if (val != 0)
       rVar.lSyncPrescaler = val;
@@ -521,15 +521,15 @@ void lclcmd(int ch)
 
     while (true)
     {
-     if (query(&getnum, &val, "\nreg "))
+     if (query(&getNum, &val, "\nreg "))
       reg = val;
      else
       break;
 
-     if (query(&getnum, &val, "mask "))
+     if (query(&getNum, &val, "mask "))
       mask = val;
 
-     if (query(&getnum, &val, "invert "))
+     if (query(&getNum, &val, "invert "))
       invert = val != 0;
 
      unsigned int set = (((reg & mask) != 0) ^ invert);
@@ -552,7 +552,7 @@ void lclcmd(int ch)
 	   "\nout test 0x08"
 	   "\ninp plup 0x10"
 	   "\ninp pldn 0x20");
-    query(&getnum, &val, "\npin test: ");
+    query(&getNum, &val, "\npin test: ");
     newline();
     testOutputs(val);
    }
@@ -580,11 +580,11 @@ void lclcmd(int ch)
      rVar.spJogRpm = fVal;
 
     unsigned int delay = 250;
-    if (query(&getnum, &val, "delay [%u]: ", delay))
+    if (query(&getNum, &val, "delay [%u]: ", delay))
      delay = (unsigned int) val;
 
     int repeat = 1;
-    if (query(&getnum, &val, "repeat [%d]: ", repeat))
+    if (query(&getNum, &val, "repeat [%d]: ", repeat))
      repeat = val;
     printf("\n");
 
@@ -677,7 +677,7 @@ void lclcmd(int ch)
    }
    else if (ch == 'F')
    {
-    if (query(&getnum, &val, "\nIRQn: "))
+    if (query(&getNum, &val, "\nIRQn: "))
     {
      HAL_NVIC_EnableIRQ((IRQn_Type) val);
     }
@@ -851,7 +851,7 @@ void lclcmd(int ch)
      if (gethex(&val))
      {
       newline();
-      prtbuf(p, val);
+      prtBuf(p, val);
      }
     }
    }
@@ -881,7 +881,7 @@ void lclcmd(int ch)
    else if (ch == 'p')
    {
     putBufChar(' ');
-    if (getnum())
+    if (getNum())
     {
      print = val;
     }
@@ -890,7 +890,7 @@ void lclcmd(int ch)
    else if (ch == 'x')
    {
     putBufChar(' ');
-    if (getnum(&val))
+    if (getNum(&val))
     {
      xMoveRel(xDist, CMD_MAX);
     }
@@ -899,9 +899,9 @@ void lclcmd(int ch)
    else if (ch == 'u')
    {
     putBufChar(' ');
-    if (getnum())
+    if (getNum())
     {
-     dbgmsg(D_TEST, val);
+     dbgMsg(D_TEST, val);
     }
    }
 #endif
@@ -1183,7 +1183,7 @@ void zCommand()
   {
    if (zDist == 0)
     zDist = 1000;
-   if (query(&getnum, &val, "dist [%d] ", zDist))
+   if (query(&getNum, &val, "dist [%d] ", zDist))
     zDist = val;
    newline();
    zMoveInit(&zMA, 1, zDist);
@@ -1250,13 +1250,13 @@ void zCommand()
   {
    if (zDist == 0)
     zDist = 1000;
-   if (query(&getnum, &val, "dist [%d] ", zDist))
+   if (query(&getNum, &val, "dist [%d] ", zDist))
     zDist = val;
    newline();
 
    if (rVar.zFlag == 0)
     rVar.zFlag = CMD_MOV;
-   if (query(&getnum, &val, "flag [%d] ", rVar.zFlag))
+   if (query(&getNum, &val, "flag [%d] ", rVar.zFlag))
     rVar.zFlag = val;
    newline();
 

@@ -398,52 +398,6 @@ inline void     indexTmrMax(uint16_t x) {TIM10->ARR = ((x) - 1);}
 inline void     indexTmrSet(uint16_t x) {TIM10->ARR = (x);}
 inline uint16_t indexTmrMaxRead()       {return(TIM10->ARR);}
 
-/* cmpTmr timer 9 */
-
-#define CMP_TIMER 9
-#define CMP_TMR TIM9
-
-#define cmpTmrISR(x) TIM1_BRK_TIM9_IRQHandler(x)
-
-inline void cmpTmrInit() { \
-	__HAL_RCC_TIM9_CLK_ENABLE(); \
-	TIM9->CR1 |= TIM_CR1_DIR; \
-	TIM9->CR1 &= ~TIM_CR1_CEN;}
-
-inline void     cmpTmrClrIE()         {TIM9->DIER &= ~TIM_IT_UPDATE;}
-inline void     cmpTmrSetIE()         {TIM9->DIER |= TIM_IT_UPDATE;}
-inline uint16_t cmpTmrTstIE()         \
-	{return((TIM9->DIER & TIM_IT_UPDATE) != 0);}
-inline uint16_t cmpTmrIF()            \
-	{return((TIM9->SR & TIM_FLAG_UPDATE) != 0);}
-inline void     cmpTmrClrIF()         {TIM9->SR = ~TIM_FLAG_UPDATE;}
-inline void     cmpTmrStart()         {TIM9->CR1 |= TIM_CR1_CEN;}
-inline void     cmpTmrPulse()         {TIM9->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);}
-inline void     cmpTmrStop()          \
-	{TIM9->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
-inline void     cmpTmrScl(uint16_t y) {TIM9->PSC = (y);}
-inline uint16_t cmpTmrRead()          {return(TIM9->CNT);}
-inline void     cmpTmrCntClr()        {TIM9->CNT = 0;}
-inline void     cmpTmrCnt(uint16_t x) {TIM9->CNT = (x);}
-inline void     cmpTmrMax(uint16_t x) {TIM9->ARR = ((x) - 1);}
-inline void     cmpTmrSet(uint16_t x) {TIM9->ARR = (x);}
-inline uint16_t cmpTmrMaxRead()       {return(TIM9->ARR);}
-
-inline void     cmpTmrCap1EnaSet() {TIM9->CCER |= TIM_CCER_CC1E;}
-inline void     cmpTmrCap1SetIE()  {TIM9->DIER |= TIM_DIER_CC1IE;}
-inline void     cmpTmrCap1ClrIE()  {TIM9->DIER &= ~TIM_DIER_CC1IE;}
-inline uint16_t cmpTmrCap1IF()     {return((TIM9->SR & TIM_SR_CC1IF) != 0);}
-inline void     cmpTmrCap1ClrIF()  {TIM9->SR &= ~TIM_SR_CC1IF;}
-inline uint16_t cmpTmrCap1()       {return(TIM9->CCR1);}
-inline void     cmpTmrCap2EnaSet() {TIM9->CCER |= TIM_CCER_CC2E;}
-inline void     cmpTmrCap2SetIE()  {TIM9->DIER |= TIM_DIER_CC2IE;}
-inline void     cmpTmrCap2ClrIE()  {TIM9->DIER &= ~TIM_DIER_CC2IE;}
-inline uint16_t cmpTmrCap2IF()     {return((TIM9->SR & TIM_SR_CC1IF) != 0);}
-inline void     cmpTmrCap2ClrIF()  {TIM9->SR &= ~TIM_SR_CC1IF;}
-inline uint16_t cmpTmrCap2()       {return(TIM9->CCR2);}
-inline void     cmpTmrOCP1Clr()    {TIM9->SR &= ~TIM_SR_CC1OF;}
-inline void     cmpTmrOCP2Clr()    {TIM9->SR &= ~TIM_SR_CC2OF;}
-
 /* intTmr timer 11 */
 
 #define INT_TIMER 11
@@ -505,6 +459,52 @@ inline void     encTestTmrCnt(uint16_t x) {TIM7->CNT = (x);}
 inline void     encTestTmrMax(uint16_t x) {TIM7->ARR = ((x) - 1);}
 inline void     encTestTmrSet(uint16_t x) {TIM7->ARR = (x);}
 inline uint16_t encTestTmrMaxRead()       {return(TIM7->ARR);}
+
+/* cmpTmr timer 9 */
+
+#define CMP_TIMER 9
+#define CMP_TMR TIM9
+
+#define cmpTmrISR(x) TIM1_BRK_TIM9_IRQHandler(x)
+
+inline void cmpTmrInit() { \
+	__HAL_RCC_TIM9_CLK_ENABLE(); \
+	TIM9->CR1 |= TIM_CR1_DIR; \
+	TIM9->CR1 &= ~TIM_CR1_CEN;}
+
+inline void     cmpTmrClrIE()         {TIM9->DIER &= ~TIM_IT_UPDATE;}
+inline void     cmpTmrSetIE()         {TIM9->DIER |= TIM_IT_UPDATE;}
+inline uint16_t cmpTmrTstIE()         \
+	{return((TIM9->DIER & TIM_IT_UPDATE) != 0);}
+inline uint16_t cmpTmrIF()            \
+	{return((TIM9->SR & TIM_FLAG_UPDATE) != 0);}
+inline void     cmpTmrClrIF()         {TIM9->SR = ~TIM_FLAG_UPDATE;}
+inline void     cmpTmrStart()         {TIM9->CR1 |= TIM_CR1_CEN;}
+inline void     cmpTmrPulse()         {TIM9->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);}
+inline void     cmpTmrStop()          \
+	{TIM9->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
+inline void     cmpTmrScl(uint16_t y) {TIM9->PSC = (y);}
+inline uint16_t cmpTmrRead()          {return(TIM9->CNT);}
+inline void     cmpTmrCntClr()        {TIM9->CNT = 0;}
+inline void     cmpTmrCnt(uint16_t x) {TIM9->CNT = (x);}
+inline void     cmpTmrMax(uint16_t x) {TIM9->ARR = ((x) - 1);}
+inline void     cmpTmrSet(uint16_t x) {TIM9->ARR = (x);}
+inline uint16_t cmpTmrMaxRead()       {return(TIM9->ARR);}
+
+inline void     cmpTmrCap1EnaSet() {TIM9->CCER |= TIM_CCER_CC1E;}
+inline void     cmpTmrCap1SetIE()  {TIM9->DIER |= TIM_DIER_CC1IE;}
+inline void     cmpTmrCap1ClrIE()  {TIM9->DIER &= ~TIM_DIER_CC1IE;}
+inline uint16_t cmpTmrCap1IF()     {return((TIM9->SR & TIM_SR_CC1IF) != 0);}
+inline void     cmpTmrCap1ClrIF()  {TIM9->SR &= ~TIM_SR_CC1IF;}
+inline uint16_t cmpTmrCap1()       {return(TIM9->CCR1);}
+inline void     cmpTmrCap2EnaSet() {TIM9->CCER |= TIM_CCER_CC2E;}
+inline void     cmpTmrCap2SetIE()  {TIM9->DIER |= TIM_DIER_CC2IE;}
+inline void     cmpTmrCap2ClrIE()  {TIM9->DIER &= ~TIM_DIER_CC2IE;}
+inline uint16_t cmpTmrCap2IF()     {return((TIM9->SR & TIM_SR_CC1IF) != 0);}
+inline void     cmpTmrCap2ClrIF()  {TIM9->SR &= ~TIM_SR_CC1IF;}
+inline uint16_t cmpTmrCap2()       {return(TIM9->CCR2);}
+inline void     cmpTmrOCP1Clr()    {TIM9->SR &= ~TIM_SR_CC1OF;}
+inline void     cmpTmrOCP2Clr()    {TIM9->SR &= ~TIM_SR_CC2OF;}
 
 #endif /* __TIMERS_H */
 #endif /* __STM32F4xx_HAL_H */

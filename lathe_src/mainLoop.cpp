@@ -19,10 +19,7 @@
 #include "remcmd.h"
 #include "i2cx.h"
 #include "lcd.h"
-#include "spix.h"
 #include "Xilinx.h"
-#include "zcontrol.h"
-#include "xcontrol.h"
 #include "latheX.h"
 #include "condef.h"
 
@@ -30,13 +27,13 @@
 extern "C" void trcInit();
 extern "C" bool tud_init(uint8_t port);
 extern "C" void trcDisplay(void);
-extern void cdc_task(void);
+extern void cdc_task();
 
 #include "device/usbd.h"
 #endif  /* USB */
 
 extern "C" [[noreturn]] int16_t mainLoop();
-extern "C" void hard_fault_handler_c (const unsigned int * hardfault_args);
+extern "C" [[noreturn]] void hard_fault_handler_c (const unsigned int * hardfault_args);
 
 void lcdDisplay();
 
@@ -427,12 +424,12 @@ void dwtAccessEnable(unsigned ena)
  #endif
 
 #if defined(STM32H7)
- uint8_t remMsg[] = "start remcmd\n\r";
+ uint8_t remMsg[] = "start remCmd\n\r";
  HAL_UART_Transmit(&huart7, remMsg, sizeof(remMsg), HAL_MAX_DELAY);
 #endif	/* STM32H7 */
 
 #if !defined(USB)
- putstr1("start remcmd\n");
+ putstr1("start remCmd\n");
 #endif  /* USB */
  unsigned int sysClock = HAL_RCC_GetSysClockFreq();
  unsigned int clockFreq = HAL_RCC_GetHCLKFreq();
@@ -587,7 +584,7 @@ void dwtAccessEnable(unsigned ena)
      allStop();			/* stop everything */
      clearAll();		/* clear everything */
 #endif
-     printf("remcmd timeout expired %d\n", t0);
+     printf("remCmd timeout expired %d\n", t0);
     }
 
     if (eStopIsSet())		/* if emergency stop */
@@ -635,7 +632,7 @@ void dwtAccessEnable(unsigned ena)
     ch = remRxRead();		/* read character */
     if (ch == 1)		/* if control a */
     {
-     remcmd();			/* process remote command */
+     remCmd();			/* process remote command */
     }
    }
    else
@@ -806,7 +803,7 @@ void lcdDisplay()
 #endif	/* I2C */
 }
 
-void hard_fault_handler_c (const unsigned int * hardfault_args)
+[[noreturn]] void hard_fault_handler_c (const unsigned int * hardfault_args)
 {
  unsigned int stacked_r0;
  unsigned int stacked_r1;

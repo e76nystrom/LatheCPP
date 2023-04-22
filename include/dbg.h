@@ -306,26 +306,14 @@ inline void dbgSpIsrClr() {}
 inline uint16_t dbgSpIsrRead() {return(0);}
 
 /* z isr time */
-#ifdef Dbg0_Pin
-inline void dbgZIsrSet() {Dbg0_GPIO_Port->BSRR = Dbg0_Pin;}
-inline void dbgZIsrClr() {Dbg0_GPIO_Port->BSRR = (Dbg0_Pin << 16);}
-inline uint16_t dbgZIsrRead() {return((Dbg0_GPIO_Port->IDR & Dbg0_Pin) != 0);}
-#else
 inline void dbgZIsrSet() {}
 inline void dbgZIsrClr() {}
 inline uint16_t dbgZIsrRead() {return(0);}
-#endif
 
 /* x isr time */
-#ifdef Dbg1_Pin
-inline void dbgXIsrSet() {Dbg1_GPIO_Port->BSRR = Dbg1_Pin;}
-inline void dbgXIsrClr() {Dbg1_GPIO_Port->BSRR = (Dbg1_Pin << 16);}
-inline uint16_t dbgXIsrRead() {return((Dbg1_GPIO_Port->IDR & Dbg1_Pin) != 0);}
-#else
 inline void dbgXIsrSet() {}
 inline void dbgXIsrClr() {}
 inline uint16_t dbgXIsrRead() {return(0);}
-#endif
 
 /* spindle cycle counter update */
 inline void dbgSpCycSet() {}
@@ -353,34 +341,70 @@ inline void dbgXOutClr() {}
 inline uint16_t dbgXOutRead() {return(0);}
 
 /* toggle on compare input */
+#ifdef DbgA0_Pin
+inline void dbgIntCSet() {DbgA0_GPIO_Port->BSRR = DbgA0_Pin;}
+inline void dbgIntCClr() {DbgA0_GPIO_Port->BSRR = (DbgA0_Pin << 16);}
+inline uint16_t dbgIntCRead() {return((DbgA0_GPIO_Port->IDR & DbgA0_Pin) != 0);}
+#else
 inline void dbgIntCSet() {}
 inline void dbgIntCClr() {}
 inline uint16_t dbgIntCRead() {return(0);}
+#endif
 
 /* toggle on output pulse */
+#ifdef DbgA1_Pin
+inline void dbgIntPSet() {DbgA1_GPIO_Port->BSRR = DbgA1_Pin;}
+inline void dbgIntPClr() {DbgA1_GPIO_Port->BSRR = (DbgA1_Pin << 16);}
+inline uint16_t dbgIntPRead() {return((DbgA1_GPIO_Port->IDR & DbgA1_Pin) != 0);}
+#else
 inline void dbgIntPSet() {}
 inline void dbgIntPClr() {}
 inline uint16_t dbgIntPRead() {return(0);}
+#endif
 
 /* toggle on input cycle */
+#ifdef DbgA2_Pin
+inline void dbgCycleSet() {DbgA2_GPIO_Port->BSRR = DbgA2_Pin;}
+inline void dbgCycleClr() {DbgA2_GPIO_Port->BSRR = (DbgA2_Pin << 16);}
+inline uint16_t dbgCycleRead() {return((DbgA2_GPIO_Port->IDR & DbgA2_Pin) != 0);}
+#else
 inline void dbgCycleSet() {}
 inline void dbgCycleClr() {}
 inline uint16_t dbgCycleRead() {return(0);}
+#endif
 
 /* end of internal pulse cycle */
+#ifdef DbgA3_Pin
+inline void dbgCycEndSet() {DbgA3_GPIO_Port->BSRR = DbgA3_Pin;}
+inline void dbgCycEndClr() {DbgA3_GPIO_Port->BSRR = (DbgA3_Pin << 16);}
+inline uint16_t dbgCycEndRead() {return((DbgA3_GPIO_Port->IDR & DbgA3_Pin) != 0);}
+#else
 inline void dbgCycEndSet() {}
 inline void dbgCycEndClr() {}
 inline uint16_t dbgCycEndRead() {return(0);}
+#endif
 
 /* length of capture isr */
+#ifdef DbgA4_Pin
+inline void dbgCapIsrSet() {DbgA4_GPIO_Port->BSRR = DbgA4_Pin;}
+inline void dbgCapIsrClr() {DbgA4_GPIO_Port->BSRR = (DbgA4_Pin << 16);}
+inline uint16_t dbgCapIsrRead() {return((DbgA4_GPIO_Port->IDR & DbgA4_Pin) != 0);}
+#else
 inline void dbgCapIsrSet() {}
 inline void dbgCapIsrClr() {}
 inline uint16_t dbgCapIsrRead() {return(0);}
+#endif
 
 /* length of internal isr */
+#ifdef DbgA5_Pin
+inline void dbgIntIsrSet() {DbgA5_GPIO_Port->BSRR = DbgA5_Pin;}
+inline void dbgIntIsrClr() {DbgA5_GPIO_Port->BSRR = (DbgA5_Pin << 16);}
+inline uint16_t dbgIntIsrRead() {return((DbgA5_GPIO_Port->IDR & DbgA5_Pin) != 0);}
+#else
 inline void dbgIntIsrSet() {}
 inline void dbgIntIsrClr() {}
 inline uint16_t dbgIntIsrRead() {return(0);}
+#endif
 
 /* z cycle counter update */
 inline void dbgZCycSet() {}
@@ -538,15 +562,9 @@ inline void dbgArcStepClr() {}
 inline uint16_t dbgArcStepRead() {return(0);}
 
 /* encoder isr */
-#ifdef Dbg2_Pin
-inline void dbgEncIsrSet() {Dbg2_GPIO_Port->BSRR = Dbg2_Pin;}
-inline void dbgEncIsrClr() {Dbg2_GPIO_Port->BSRR = (Dbg2_Pin << 16);}
-inline uint16_t dbgEncIsrRead() {return((Dbg2_GPIO_Port->IDR & Dbg2_Pin) != 0);}
-#else
 inline void dbgEncIsrSet() {}
 inline void dbgEncIsrClr() {}
 inline uint16_t dbgEncIsrRead() {return(0);}
-#endif
 
 /* remote command */
 inline void dbgRemCmdSet() {}

@@ -623,7 +623,7 @@ typedef struct s_indexTmr
  uint16_t overflow;		/* index counter overflow */
  uint32_t start;		/* index period start count */
  uint32_t trkFreq;		/* freq for dbgTrk rpm calculation */
- uint32_t freq;			/* freq for remcmd rpm calculation */
+ uint32_t freq;			/* freq for remCmd rpm calculation */
 } T_INDEX_TMR, *P_INDEX_TMR;
 
 EXT T_INDEX_TMR idxTmr;
