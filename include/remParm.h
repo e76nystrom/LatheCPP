@@ -246,80 +246,82 @@ unsigned char remParm[] =
 
  sizeof(rVar.lSyncCycle),               /* 0x8f sync cycle length */
  sizeof(rVar.lSyncOutput),              /* 0x90 sync outputs per cycle */
- sizeof(rVar.lSyncPrescaler),           /* 0x91 sync prescaler */
+ sizeof(rVar.lSyncInPrescaler),         /* 0x91 input sync prescaler */
+ sizeof(rVar.lSyncOutPrescaler),        /* 0x92 output sync prescaler */
 
 // x sync parameters
 
- sizeof(rVar.lXSyncCycle),              /* 0x92 sync cycle length */
- sizeof(rVar.lXSyncOutput),             /* 0x93 sync outputs per cycle */
- sizeof(rVar.lXSyncPrescaler),          /* 0x94 sync prescaler */
+ sizeof(rVar.lXSyncCycle),              /* 0x93 sync cycle length */
+ sizeof(rVar.lXSyncOutput),             /* 0x94 sync outputs per cycle */
+ sizeof(rVar.lXSyncInPrescaler),        /* 0x95 input sync prescaler */
+ sizeof(rVar.lXSyncOutPrescaler),       /* 0x96 output sync prescaler */
 
 // threading variables
 
- sizeof(rVar.thZStart),                 /* 0x95 threading z start */
- sizeof(rVar.thXStart),                 /* 0x96 threading x start */
- sizeof(rVar.tanThreadAngle) | FLT,     /* 0x97 tan of threading angle */
- sizeof(rVar.xFeed),                    /* 0x98 x feed */
- sizeof(rVar.runoutDistance) | FLT,     /* 0x99 runout distance */
- sizeof(rVar.runoutDepth) | FLT,        /* 0x9a runout depth */
+ sizeof(rVar.thZStart),                 /* 0x97 threading z start */
+ sizeof(rVar.thXStart),                 /* 0x98 threading x start */
+ sizeof(rVar.tanThreadAngle) | FLT,     /* 0x99 tan of threading angle */
+ sizeof(rVar.xFeed),                    /* 0x9a x feed */
+ sizeof(rVar.runoutDistance) | FLT,     /* 0x9b runout distance */
+ sizeof(rVar.runoutDepth) | FLT,        /* 0x9c runout depth */
 
 // jog debug
 
- sizeof(rVar.jogDebug),                 /* 0x9b jog interrupt debug */
+ sizeof(rVar.jogDebug),                 /* 0x9d jog interrupt debug */
 
 // motor and speed control
 
- sizeof(rVar.pwmFreq),                  /* 0x9c spindle speed pwm frequency */
- sizeof(rVar.minSpeed),                 /* 0x9d min speed for current range */
- sizeof(rVar.maxSpeed),                 /* 0x9e max speed for current range */
+ sizeof(rVar.pwmFreq),                  /* 0x9e spindle speed pwm frequency */
+ sizeof(rVar.minSpeed),                 /* 0x9f min speed for current range */
+ sizeof(rVar.maxSpeed),                 /* 0xa0 max speed for current range */
 
 // current operation
 
- sizeof(rVar.currentOp),                /* 0x9f current operation */
+ sizeof(rVar.currentOp),                /* 0xa1 current operation */
 
 // global limits and home
 
- sizeof(rVar.limitOverride),            /* 0xa0 override limit switches */
- sizeof(rVar.commonLimits),             /* 0xa1 all limit switches one pin */
- sizeof(rVar.limitsEnabled),            /* 0xa2 limits enabled */
- sizeof(rVar.commonHome),               /* 0xa3 all home switches one pin */
+ sizeof(rVar.limitOverride),            /* 0xa2 override limit switches */
+ sizeof(rVar.commonLimits),             /* 0xa3 all limit switches one pin */
+ sizeof(rVar.limitsEnabled),            /* 0xa4 limits enabled */
+ sizeof(rVar.commonHome),               /* 0xa5 all home switches one pin */
 
 // z limits and home
 
- sizeof(rVar.zLimEna),                  /* 0xa4 z limit enable */
- sizeof(rVar.zLimNegInv),               /* 0xa5 z negative limit invert */
- sizeof(rVar.zLimPosInv),               /* 0xa6 z Positive limit Invert */
- sizeof(rVar.zHomeEna),                 /* 0xa7 z home enable */
- sizeof(rVar.zHomeInv),                 /* 0xa8 z home invert */
+ sizeof(rVar.zLimEna),                  /* 0xa6 z limit enable */
+ sizeof(rVar.zLimNegInv),               /* 0xa7 z negative limit invert */
+ sizeof(rVar.zLimPosInv),               /* 0xa8 z Positive limit Invert */
+ sizeof(rVar.zHomeEna),                 /* 0xa9 z home enable */
+ sizeof(rVar.zHomeInv),                 /* 0xaa z home invert */
 
 // x limits and home
 
- sizeof(rVar.xLimEna),                  /* 0xa9 x limit enable */
- sizeof(rVar.xLimNegInv),               /* 0xaa x negative limit invert */
- sizeof(rVar.xLimPosInv),               /* 0xab x Positive limit Invert */
- sizeof(rVar.xHomeEna),                 /* 0xac x home enable */
- sizeof(rVar.xHomeInv),                 /* 0xad x home invert */
+ sizeof(rVar.xLimEna),                  /* 0xab x limit enable */
+ sizeof(rVar.xLimNegInv),               /* 0xac x negative limit invert */
+ sizeof(rVar.xLimPosInv),               /* 0xad x Positive limit Invert */
+ sizeof(rVar.xHomeEna),                 /* 0xae x home enable */
+ sizeof(rVar.xHomeInv),                 /* 0xaf x home invert */
 
 // e stop
 
- sizeof(rVar.eStopEna),                 /* 0xae enable estop */
- sizeof(rVar.eStopInv),                 /* 0xaf invert estop signal */
+ sizeof(rVar.eStopEna),                 /* 0xb0 enable estop */
+ sizeof(rVar.eStopInv),                 /* 0xb1 invert estop signal */
 
 // command pause
 
- sizeof(rVar.cmdPaused),                /* 0xb0 move commands paused */
+ sizeof(rVar.cmdPaused),                /* 0xb2 move commands paused */
 
 // arc parameters
 
- sizeof(rVar.arcRadius) | FLT,          /* 0xb1 arc radius */
- sizeof(rVar.arcXCenter),               /* 0xb2 arc x center */
- sizeof(rVar.arcZCenter),               /* 0xb3 arc z center */
- sizeof(rVar.arcXStart),                /* 0xb4 arc x start */
- sizeof(rVar.arcZStart),                /* 0xb5 arc z start */
- sizeof(rVar.arcXEnd),                  /* 0xb6 arc x center */
- sizeof(rVar.arcZEnd),                  /* 0xb7 arc z center */
- sizeof(rVar.megaVfd),                  /* 0xb8 mega vfd speed mode */
- sizeof(rVar.megaSim),                  /* 0xb9 mega encoder lines */
- sizeof(rVar.usbEna),                   /* 0xba enable usb */
- sizeof(rVar.maxParm),                  /* 0xbb maximum parameter */
+ sizeof(rVar.arcRadius) | FLT,          /* 0xb3 arc radius */
+ sizeof(rVar.arcXCenter),               /* 0xb4 arc x center */
+ sizeof(rVar.arcZCenter),               /* 0xb5 arc z center */
+ sizeof(rVar.arcXStart),                /* 0xb6 arc x start */
+ sizeof(rVar.arcZStart),                /* 0xb7 arc z start */
+ sizeof(rVar.arcXEnd),                  /* 0xb8 arc x center */
+ sizeof(rVar.arcZEnd),                  /* 0xb9 arc z center */
+ sizeof(rVar.megaVfd),                  /* 0xba mega vfd speed mode */
+ sizeof(rVar.megaSim),                  /* 0xbb mega encoder lines */
+ sizeof(rVar.usbEna),                   /* 0xbc enable usb */
+ sizeof(rVar.maxParm),                  /* 0xbd maximum parameter */
 };

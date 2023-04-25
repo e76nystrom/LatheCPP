@@ -95,7 +95,7 @@ unsigned char getHexFloatRem(T_INT_FLOAT *val);
 void dbgMsg(char dbg, int val);
 void clrDbgBuf();
 #else
-#define dbgmsg(a, b)
+#define dbgMsg(a, b)
 #define dbgmsgx(a, b, c)
 #endif	/* DBGMSG */
 

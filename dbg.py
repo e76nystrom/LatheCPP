@@ -3,181 +3,181 @@
 CPP = True
 
 pinList = \
-( \
-  ("i", "idx", "Index", ""), \
-  ("i", "zA", "ZA", ""), \
-  ("i", "zB", "ZB", ""), \
-  ("i", "xA", "XA", ""), \
-  ("i", "xB", "XB", ""), \
-  
-  ("i", "spEncDir", "ZFLag", ""), \
-  ("i", "jogA1", "JogA1", ""), \
-  ("i", "jogB1", "JogB1", ""), \
-  ("i", "jogA2", "JogA2", ""), \
-  ("i", "jogB2", "JogB2", ""), \
-  
-  ("o", "stpZ", "Step1", ""), \
-  ("o", "stpX", "Step2", ""), \
-  ("o", "step3", "Step3", ""), \
-  ("o", "step4", "Step4", ""), \
-  ("o", "step5", "Step5", ""), \
-  
-  ("o", "dirZ", "Dir1", ""), \
-  ("o", "dirX", "Dir2", ""), \
-  ("o", "dir3", "Dir3", ""), \
-  ("o", "dir4", "Dir4", ""), \
-  ("o", "dir5", "Dir5", ""), \
-  
-  ("o", "pin1", "Pin1", ""), \
-  ("o", "pin14", "Pin14", ""), \
-  ("o", "pin16", "Pin16", ""), \
-  ("o", "pin17", "Pin17", ""), \
-  
-  ("i", "pin10", "Pin10", ""), \
-  ("i", "pin11", "Pin11", ""), \
-  ("i", "pin12", "Pin12", ""), \
-  ("i", "pin13", "Pin13", ""), \
-  ("i", "pin15", "Pin15", ""), \
+(
+  ("i", "idx", "Index", ""),
+  ("i", "zA", "ZA", ""),
+  ("i", "zB", "ZB", ""),
+  ("i", "xA", "XA", ""),
+  ("i", "xB", "XB", ""),
 
-  ("i", "eStop", "Pin10", ""), \
-  ("i", "limit", "Pin11", ""), \
-  ("i", "xHome", "Pin12", ""), \
+  ("i", "spEncDir", "ZFLag", ""),
+  ("i", "jogA1", "JogA1", ""),
+  ("i", "jogB1", "JogB1", ""),
+  ("i", "jogA2", "JogA2", ""),
+  ("i", "jogB2", "JogB2", ""),
 
-  ("i", "pinA2", "PinA2", ""), \
-  ("i", "pinA3", "PinA3", ""), \
-  ("i", "pinA4", "PinA4", ""), \
-  ("i", "pinA5", "PinA5", ""), \
-  ("i", "pinA6", "PinA6", ""), \
-  ("i", "pinA7", "PinA7", ""), \
-  ("i", "pinA8", "PinA8", ""), \
-  ("i", "pinA9", "PinA9", ""), \
-  ("i", "pinA10", "PinA10", ""), \
-  ("i", "pinA11", "PinA11", ""), \
-  ("i", "pinA12", "PinA12", ""), \
-  ("i", "pinA13", "PinA13", ""), \
-  ("i", "pinA15", "PinA15", ""), \
-  
-  ("i", "xPosLim", "PinA13", ""), \
-  ("i", "xAHome",  "PinA12", ""), \
-  ("i", "xNegLim", "PinA11", ""), \
+  ("o", "stpZ", "Step1", ""),
+  ("o", "stpX", "Step2", ""),
+  ("o", "step3", "Step3", ""),
+  ("o", "step4", "Step4", ""),
+  ("o", "step5", "Step5", ""),
 
-  ("i", "zPosLim", "PinA8", ""), \
-  ("i", "zAHome",  "PinA7", ""), \
-  ("i", "zNegLim", "PinA6", ""), \
+  ("o", "dirZ", "Dir1", ""),
+  ("o", "dirX", "Dir2", ""),
+  ("o", "dir3", "Dir3", ""),
+  ("o", "dir4", "Dir4", ""),
+  ("o", "dir5", "Dir5", ""),
 
-  ("o", "pinA16", "PinA16", ""), \
-  ("o", "pinA17", "PinA17", ""), \
-  
-  ("o", "start", "ZFlag", ""), \
-  ("i", "ready", "XFlag", ""), \
+  ("o", "pin1", "Pin1", ""),
+  ("o", "pin14", "Pin14", ""),
+  ("o", "pin16", "Pin16", ""),
+  ("o", "pin17", "Pin17", ""),
 
-  ("i", "xFlagX", "XFlag", ""), \
-  ("i", "zFlagX", "ZFlag", ""), \
+  ("i", "pin10", "Pin10", ""),
+  ("i", "pin11", "Pin11", ""),
+  ("i", "pin12", "Pin12", ""),
+  ("i", "pin13", "Pin13", ""),
+  ("i", "pin15", "Pin15", ""),
 
-  ("o", "spFwd", "Pin14", ""), \
-  ("o", "spRev", "Pin1", ""), \
-  ("o", "chgPump", "Pin17", ""), \
+  ("i", "eStop", "Pin10", ""),
+  ("i", "limit", "Pin11", ""),
+  ("i", "xHome", "Pin12", ""),
 
-  ("o", "spiSel", "SPI_SEL", ""), \
+  ("i", "pinA2", "PinA2", ""),
+  ("i", "pinA3", "PinA3", ""),
+  ("i", "pinA4", "PinA4", ""),
+  ("i", "pinA5", "PinA5", ""),
+  ("i", "pinA6", "PinA6", ""),
+  ("i", "pinA7", "PinA7", ""),
+  ("i", "pinA8", "PinA8", ""),
+  ("i", "pinA9", "PinA9", ""),
+  ("i", "pinA10", "PinA10", ""),
+  ("i", "pinA11", "PinA11", ""),
+  ("i", "pinA12", "PinA12", ""),
+  ("i", "pinA13", "PinA13", ""),
+  ("i", "pinA15", "PinA15", ""),
 
-  ("o", "led1", "Led1", ""), \
-  ("o", "led2", "Led2", ""), \
-  ("o", "led3", "Led3", ""), \
+  ("i", "xPosLim", "PinA13", ""),
+  ("i", "xAHome",  "PinA12", ""),
+  ("i", "xNegLim", "PinA11", ""),
+
+  ("i", "zPosLim", "PinA8", ""),
+  ("i", "zAHome",  "PinA7", ""),
+  ("i", "zNegLim", "PinA6", ""),
+
+  ("o", "pinA16", "PinA16", ""),
+  ("o", "pinA17", "PinA17", ""),
+
+  ("o", "start", "ZFlag", ""),
+  ("i", "ready", "XFlag", ""),
+
+  ("i", "xFlagX", "XFlag", ""),
+  ("i", "zFlagX", "ZFlag", ""),
+
+  ("o", "spFwd", "Pin14", ""),
+  ("o", "spRev", "Pin1", ""),
+  ("o", "chgPump", "Pin17", ""),
+
+  ("o", "spiSel", "SPI_SEL", ""),
+
+  ("o", "led1", "Led1", ""),
+  ("o", "led2", "Led2", ""),
+  ("o", "led3", "Led3", ""),
 )
 
 #  ("i", "xHome", "Pin11", ""),
 
 dbgList = \
-(\
- ("dbgSpIsr",  "", "spindle isr time"), \
- ("dbgZIsr",   "", "z isr time"), \
- ("dbgXIsr",   "", "x isr time"), \
- ("dbgSpCyc",  "", "spindle cycle counter update"), \
- ("dbgZEnc",   "", "z encoder input"), \
- ("dbgZOut",   "", "z encoder output"), \
- ("dbgXEnc",   "", "x encoder"), \
- ("dbgXOut",   "", "x encoder output"), \
+(
+ ("dbgSpIsr",  "", "spindle isr time"),
+ ("dbgZIsr",   "", "z isr time"),
+ ("dbgXIsr",   "", "x isr time"),
+ ("dbgSpCyc",  "", "spindle cycle counter update"),
+ ("dbgZEnc",   "", "z encoder input"),
+ ("dbgZOut",   "", "z encoder output"),
+ ("dbgXEnc",   "", "x encoder"),
+ ("dbgXOut",   "", "x encoder output"),
 
- ("dbgIntC",   "A0", "toggle on compare input"), \
- ("dbgIntP",   "A1", "toggle on output pulse"), \
- ("dbgCycle",  "A2", "toggle on input cycle"), \
- ("dbgCycEnd", "A3", "end of internal pulse cycle"), \
- ("dbgCapIsr", "A4", "length of capture isr"), \
- ("dbgIntIsr", "A5", "length of internal isr"), \
+ ("dbgIntC",   "A0", "toggle on compare input"),
+ ("dbgIntP",   "A1", "toggle on output pulse"),
+ ("dbgCycle",  "A2", "toggle on input cycle"),
+ ("dbgCycEnd", "A3", "end of internal pulse cycle"),
+ ("dbgCapIsr", "A4", "length of capture isr"),
+ ("dbgIntIsr", "A5", "length of internal isr"),
 
- ("dbgZCyc",   "", "z cycle counter update"), \
- ("dbgXCyc",   "", "x cycle counter update"), \
- ("dbgSpStop", "", "spindle accel and decel"), \
- ("dbgZAccel", "", "z accel and decel"), \
- ("dbgXAccel", "", "x accel and decel"), \
- ("dbgXRem",   "", "x remainder"), \
- ("dbgSpRev",  "", "spindle rev counter"), \
- ("dbgRunout", "", "runout start"), \
- ("dbgZTaper", "", "z taper"), \
- ("dbgXTaper", "", "x taper"), \
- ("dbgSlv",    "", "slave start"), \
- ("dbgS2bIsr", "", "step 2b isr"), \
- ("dbgS3Isr",  "", "step 3 isr"), \
- ("dbgS4Isr",  "", "step 4 isr"), \
- ("dbgS5Isr",  "", "step 5 isr"), \
+ ("dbgZCyc",   "", "z cycle counter update"),
+ ("dbgXCyc",   "", "x cycle counter update"),
+ ("dbgSpStop", "", "spindle accel and decel"),
+ ("dbgZAccel", "", "z accel and decel"),
+ ("dbgXAccel", "", "x accel and decel"),
+ ("dbgXRem",   "", "x remainder"),
+ ("dbgSpRev",  "", "spindle rev counter"),
+ ("dbgRunout", "", "runout start"),
+ ("dbgZTaper", "", "z taper"),
+ ("dbgXTaper", "", "x taper"),
+ ("dbgSlv",    "", "slave start"),
+ ("dbgS2bIsr", "", "step 2b isr"),
+ ("dbgS3Isr",  "", "step 3 isr"),
+ ("dbgS4Isr",  "", "step 4 isr"),
+ ("dbgS5Isr",  "", "step 5 isr"),
 
- ("dbgJogIsr",  "", "jog isr transition put in queue"), \
- ("dbgJogMPG0", "", "jog idle queue checked"), \
- ("dbgJogMPG1", "", "jog moving all cases"), \
- ("dbgJogMPG2", "", "jog moving isr done start again"), \
- ("dbgJogMPG3", "", "jog moving add to current distance"), \
+ ("dbgJogIsr",  "", "jog isr transition put in queue"),
+ ("dbgJogMPG0", "", "jog idle queue checked"),
+ ("dbgJogMPG1", "", "jog moving all cases"),
+ ("dbgJogMPG2", "", "jog moving isr done start again"),
+ ("dbgJogMPG3", "", "jog moving add to current distance"),
 
- ("dbgAxisCtl", "", "axis control"), \
+ ("dbgAxisCtl", "", "axis control"),
 
- ("dbgXDro",    "", "x dro isr"), \
- ("dbgXStop",   "", "x stop"), \
- ("dbgXDone",   "", "x done"), \
- ("dbgXUpdDro", "", "x move using dro"), \
- ("dbgXFinalDro","", "x dro final"), \
+ ("dbgXDro",    "", "x dro isr"),
+ ("dbgXStop",   "", "x stop"),
+ ("dbgXDone",   "", "x done"),
+ ("dbgXUpdDro", "", "x move using dro"),
+ ("dbgXFinalDro","", "x dro final"),
 
- ("dbgZDro",    "", "z dro isr"), \
- ("dbgZStop",   "", "z stop"), \
- ("dbgZDone",   "", "z done"), \
+ ("dbgZDro",    "", "z dro isr"),
+ ("dbgZStop",   "", "z stop"),
+ ("dbgZDone",   "", "z done"),
 
- ("dbgArcUpd",  "", "arc update"), \
- ("dbgArcStep", "", "arc step"), \
- ("dbgEncIsr",  "", "encoder isr"), \
- ("dbgRemCmd",  "", "remote command"), \
+ ("dbgArcUpd",  "", "arc update"),
+ ("dbgArcStep", "", "arc step"),
+ ("dbgEncIsr",  "", "encoder isr"),
+ ("dbgRemCmd",  "", "remote command"),
 
- ("dbgZPosErr", "", "z position error"),\
- ("dbgZJogDir", "", "jog direction change"),\
- ("dbgMpgBackL","", "jog backlash"),\
+ ("dbgZPosErr", "", "z position error"),
+ ("dbgZJogDir", "", "jog direction change"),
+ ("dbgMpgBackL","", "jog backlash"),
 
- ("dbgSpiIsr",  "", "spi isr"), \
- ("dbgProcMove","", "debug procMove"), \
- ("dbgSyncResp","", "sync response"), \
+ ("dbgSpiIsr",  "", "spi isr"),
+ ("dbgProcMove","", "debug procMove"),
+ ("dbgSyncResp","", "sync response"),
 
- ("dbgMegaTx",   "", "mega tx"), \
- ("dbgMegaRx",   "", "mega rx"), \
- ("dbgMegaRsp",  "", "mega rsp"), \
- ("dbgMegaWait", "", "mega wait"), \
+ ("dbgMegaTx",   "", "mega tx"),
+ ("dbgMegaRx",   "", "mega rx"),
+ ("dbgMegaRsp",  "", "mega rsp"),
+ ("dbgMegaWait", "", "mega wait"),
  )
  #("","",""), \
 
-dbgPins = ("0", "1", "2", "3", "4", "5", \
-           "6", "7", "8", "9", "10", "11", "12", \
-           "A0", "A1", "A2", "A3", "A4", "A5", "A6", \
+dbgPins = ("0", "1", "2", "3", "4", "5",
+           "6", "7", "8", "9", "10", "11", "12",
+           "A0", "A1", "A2", "A3", "A4", "A5", "A6",
            "A7", "A8", "A9", "A10", "A11", "A12", "A13")
 
-dbgTrk = "1L1"
+dbgTrk = "2WL1"
 
 dbgTrkList = \
-(\
- ("1W0", "spindle position when index pulse"), \
- ("1W1", "x jog encoder"), \
- ("1L0", "rpm"), \
- ("1L1", "mpg"), \
- ("2L0", "x and z timers on spindle cyc ctr max"), \
- ("2L1", "z isr tmr at accel end on sync start"), \
- ("2L2", "spare"), \
- ("2L3", "ext motor index period z clocks step"), \
- ("2WL0", "encoder capature"), \
- ("2WL1", "interal capature"), \
+(
+ ("1W0", "spindle position when index pulse"),
+ ("1W1", "x jog encoder"),
+ ("1L0", "rpm"),
+ ("1L1", "mpg"),
+ ("2L0", "x and z timers on spindle cyc ctr max"),
+ ("2L1", "z isr tmr at accel end on sync start"),
+ ("2L2", "spare"),
+ ("2L3", "ext motor index period z clocks step"),
+ ("2WL0", "encoder capature"),
+ ("2WL1", "interal capature"),
 )
 
 if CPP:
@@ -203,7 +203,8 @@ def fWrite(f, txt):
     f.write(txt.encode())
     
 f = open("include/pinDef.h", "wb")
-fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || defined(STM32H7xx_HAL_H)\n")
+fWrite(f, "#if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H) || "
+          "defined(STM32H7xx_HAL_H)\n")
 fWrite(f, "#if !defined(__PINDEF_H)\n")
 fWrite(f, "#define __PINDEF_H\n\n")
 
@@ -241,7 +242,7 @@ for (direction, name, pin, comment) in pinList:
         fWrite(f, "%s %sIsClr()%s\n" % (din, name, emptyIn))
         fWrite(f, "#endif\n\n")
     else:
-        print("invalid direction\n");
+        print("invalid direction\n")
 
 fWrite(f, "#endif /* __PINDEF_H */\n")
 fWrite(f, "#endif /* __STM32F4xx_HAL_H */\n")
@@ -309,41 +310,41 @@ f.close()
 f1.close()
 
 dbgTrkCode = \
-(\
- ("1W", ("val1",), ("uint16_t",), \
-  "{ \\\n" \
-  " int16_t *p = (int16_t *) &trkbuf[trkidx]; \\\n" \
-  " *p = val1; \\\n" \
-  " trkidx += 1; \\\n" \
-  " trkidx &= (TRKBUFSIZE - 1); \\\n" \
-  "}\n"), \
+(
+ ("1W", ("val1",), ("uint16_t",),
+  "{ \\\n"
+  " int16_t *p = (int16_t *) &trkbuf[trkidx]; \\\n"
+  " *p = val1; \\\n"
+  " trkidx += 1; \\\n"
+  " trkidx &= (TRKBUFSIZE - 1); \\\n"
+  "}\n"),
 
- ("1L", ("val1",) , ("uint32_t",), \
-  "{ \\\n" \
-  " int32_t *p = (int32_t *) &trkbuf[trkidx]; \\\n" \
-  " *p = val1; \\\n" \
-  " trkidx += 2; \\\n" \
-  " trkidx &= (TRKBUFSIZE - 1); \\\n" \
-  "}\n"), \
+ ("1L", ("val1",) , ("uint32_t",),
+  "{ \\\n"
+  " int32_t *p = (int32_t *) &trkbuf[trkidx]; \\\n"
+  " *p = val1; \\\n"
+  " trkidx += 2; \\\n"
+  " trkidx &= (TRKBUFSIZE - 1); \\\n"
+  "}\n"),
 
- ("2L", ("val1", "val2"), ("uint32_t", "uint32_t"), \
-  "{ \\\n" \
-  " int32_t *p = (int32_t *) &trkbuf[trkidx]; \\\n" \
-  " *p++ = val1; \\\n" \
-  " *p = val2; \\\n" \
-  " trkidx += 4; \\\n" \
-  " trkidx &= (TRKBUFSIZE - 1); \\\n" \
-  "}\n"), \
+ ("2L", ("val1", "val2"), ("uint32_t", "uint32_t"),
+  "{ \\\n"
+  " int32_t *p = (int32_t *) &trkbuf[trkidx]; \\\n"
+  " *p++ = val1; \\\n"
+  " *p = val2; \\\n"
+  " trkidx += 4; \\\n"
+  " trkidx &= (TRKBUFSIZE - 1); \\\n"
+  "}\n"),
 
- ("2WL", ("val1", "val2", "val3",), ("uint16_t", "uint16_t", "uint32_t"), \
-  "{ \\\n" \
-  " int16_t *p = (int16_t *) &trkbuf[trkidx]; \\\n" \
-  " *p++ = val1; \\\n" \
-  " *p++ = val2; \\\n" \
-  " *((int32_t *) p) = val3; \\\n" \
-  " trkidx += 4; \\\n" \
-  " trkidx &= (TRKBUFSIZE - 1); \\\n" \
-  "}\n"), \
+ ("2WL", ("val1", "val2", "val3",), ("uint16_t", "uint16_t", "uint32_t"),
+  "{ \\\n"
+  " int16_t *p = (int16_t *) &trkbuf[trkidx]; \\\n"
+  " *p++ = val1; \\\n"
+  " *p++ = val2; \\\n"
+  " *((int32_t *) p) = val3; \\\n"
+  " trkidx += 4; \\\n"
+  " trkidx &= (TRKBUFSIZE - 1); \\\n"
+  "}\n"),
 )
 
 f = open("include/dbgtrk.h", "wb")
@@ -387,7 +388,7 @@ for (label, arg, argType, macro) in dbgTrkCode:
             fWrite(f, "%s " % (argType[i]))
         fWrite(f, arg[i])
         if CPP:
-            fWrite(f, "  __attribute__((unused))");
+            fWrite(f, "  __attribute__((unused))")
     fWrite(f, ")")
     if defined:
         fWrite(f, " \\\n%s\n" % (macro))

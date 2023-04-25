@@ -420,16 +420,20 @@ extern "C" void TIM1_TRG_COM_TIM11_IRQHandler()
  }
 }
 
+#if defined(INDEX_CYCLES)
 uint32_t indexCycles;
+#endif  /* INDEX_CYCLES */
 
 extern "C" void indexISR()
 {
  EXTI->PR = INDEX_PIN;		/* clear index interrupt */
 
+#if defined(INDEX_CYCLES)
  stopCnt();
  indexCycles = getCycles();
  resetCnt();
  startCnt();
+#endif  /* INDEX_CYCLES */
 
  static T_INDEX_COUNTER indexTmp;
 
@@ -1269,8 +1273,8 @@ extern "C" void encAISR()
 {
  BITWORD tmp;
 
- IntSync_GPIO_Port->BSRR = IntSync_Pin;
  EXTI->PR1 = encA_Pin;		/* clear interrupt */
+ IntSync_GPIO_Port->BSRR = IntSync_Pin;
  tmp.w = (lastDecode >> 2);	/* read last decode */
  tmp.b2 = 1;			/* set a bit */
  lastDecode = tmp.w;		/* update last decode */
@@ -1281,8 +1285,8 @@ extern "C" void encBISR()
 {
  BITWORD tmp;
 
- IntSync_GPIO_Port->BSRR = IntSync_Pin << 16;
  EXTI->PR1 = encB_Pin;		/* clear interrupt */
+ IntSync_GPIO_Port->BSRR = IntSync_Pin << 16;
  tmp.w = (lastDecode >> 2);	/* read last decode */
  tmp.b3 = 1;			/* set b bit */
  lastDecode = tmp.w;		/* update last decode */
@@ -1389,6 +1393,7 @@ extern "C" void cmpTmrISR(void)
   if (rVar.capTmrEnable)	/* if capture timer enabled */
   {
    delta = captureVal - cmpTmr.lastEnc; /* time since last pulse */
+   delta *= cmpTmr.inPreScaler;
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */
    cmpTmr.encPulse -= 1;	/* count off a pulse */
 
@@ -1491,6 +1496,7 @@ extern "C" void intTmrISR()
 
  if (cmpTmr.intPulse > 0)	/* if not done */
  {
+  ctr /= cmpTmr.outPreScaler;
   intTmrSet(ctr - 1);		/* set timer interval */
  }
  else

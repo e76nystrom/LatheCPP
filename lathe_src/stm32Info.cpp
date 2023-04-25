@@ -55,6 +55,7 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo);
 #endif
 void gpioInfo(GPIO_TypeDef *gpio);
 void tmrInfo(TIM_TypeDef *tmr);
+void tmrInfo(TIM_TypeDef *tmr, int flag);
 void extiInfo();
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
@@ -69,6 +70,44 @@ void rtcInfo();
 void dmaInfo(DMA_TypeDef *dma);
 void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n);
 #endif
+
+enum tmrFlags
+{T_CR1, T_CR2, T_SMCR, T_DIER, T_SR, T_EGR,
+ T_CCMR1, T_CCMR2, T_CCER, T_CNT, T_PSC, T_ARR, T_RCR,
+ T_CCR1, T_CCR2, T_CCR3, T_CCR4, T_BDTR, T_DCR, T_DMAR,
+ T_RESERVED1, T_CCMR3, T_CCR5, T_CCR6, T_AF1, T_AF2, T_TISEL
+};
+
+#define T_MASK(x) (1 << T_##x)
+#define T_CHECK(flag, x) (flag & (1 << T_##x))
+#define T_NL() {n += 1; if ((n & 1) == 0) printf("\n");}
+#define T_PRT(t, str) printf("%-6s %8x ", #str, (unsigned int) t->str)
+
+#define TIM15_MASK \
+ (T_MASK(CR1) \
+  | T_MASK(CR2) \
+  | T_MASK(DIER) \
+  | T_MASK(SR) \
+  | T_MASK(CCMR1) \
+  | T_MASK(CCER) \
+  | T_MASK(CNT) \
+  | T_MASK(PSC) \
+  | T_MASK(ARR) \
+  | T_MASK(CCR1) \
+  )
+
+#define TIM17_MASK \
+ (T_MASK(CR1) \
+  | T_MASK(CR2) \
+  | T_MASK(DIER) \
+  | T_MASK(SR) \
+  | T_MASK(CCMR1) \
+  | T_MASK(CCER) \
+  | T_MASK(CNT) \
+  | T_MASK(PSC) \
+  | T_MASK(ARR) \
+  | T_MASK(CCR1) \
+  )
 
 void info();
 void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
@@ -109,11 +148,11 @@ T_GPIO gpio[] =
 
 char portName(GPIO_TypeDef *port)
 {
- for (unsigned int j = 0; j < sizeof(gpio) / sizeof(T_GPIO); j++)
+ for (auto & j : gpio)
  {
-  if (port == gpio[j].port)
+  if (port == j.port)
   {
-   return(gpio[j].name);
+   return(j.name);
   }
  }
  return('*');
@@ -148,11 +187,11 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
 {
  buf[0] = 0;
  GPIO_TypeDef *port;
- for (unsigned int j = 0; j < sizeof(gpio) / sizeof(T_GPIO); j++)
+ for (auto & j : gpio)
  {
-  if (gpio[j].name == pinInfo->port)
+  if (j.name == pinInfo->port)
   {
-   port = gpio[j].port;
+   port = j.port;
    int pin = pinInfo->num;
 //   printf("port  %08x %2d %c %2d\n", (unsigned int) port, pin,
 //	  pinInfo->port, pinInfo->num);
@@ -178,11 +217,12 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
     outType = (sizeof(typeInfo) / sizeof(char *)) - 1;
     outSpeed = (sizeof(speedInfo) / sizeof(char *)) - 1;
 
-    if ((EXTI->IMR >> pin) & 1)
+    if (EXTI->IMR & (1 << pin))
     {
      unsigned int exti =
          (SYSCFG->EXTICR[pin >> 2] >> ((pin << 2) & 0xf)) & 0xf;
-     if ((unsigned int) (pinInfo->port - 'A') == exti) {
+     if ((unsigned int) (pinInfo->port - 'A') == exti)
+     {
       interrupt = 'I';
 
       if (pin <= 4) {
@@ -218,27 +258,27 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo)
 
 #endif
 
-void gpioInfo(GPIO_TypeDef *gpio)
+void gpioInfo(GPIO_TypeDef *gpioPtr)
 {
- printf("gpio %x %c\n", (unsigned int) gpio, portName(gpio));
-#if defined(STM32F3) || defined(STM32F4)
- printf("MODER   %8x ", (unsigned int) gpio->MODER);
- printf("OTYPER  %8x\n", (unsigned int) gpio->OTYPER);
- printf("OSPEEDR %8x ", (unsigned int) gpio->OSPEEDR);
- printf("PUPDR   %8x\n", (unsigned int) gpio->PUPDR);
-#endif	/* STM32F3 */
+ printf("gpio %x %c\n", (unsigned int) gpioPtr, portName(gpioPtr));
+//#if defined(STM32F3) || defined(STM32F4) || defined(STM32H7)
+// printf("MODER   %8x ", (unsigned int) gpio->MODER);
+// printf("OTYPER  %8x\n", (unsigned int) gpio->OTYPER);
+// printf("OSPEEDR %8x ", (unsigned int) gpio->OSPEEDR);
+// printf("PUPDR   %8x\n", (unsigned int) gpio->PUPDR);
+//#endif	/* STM32F3 */
 #if defined(STM32F1)
  printf("CRL     %8x ", (unsigned int) gpio->CRL);
  printf("CRH     %8x\n", (unsigned int) gpio->CRH);
 #endif	/* STM32F1 */
- printf("IDR     %8x ", (unsigned int) gpio->IDR);
- printf("ODR     %8x\n", (unsigned int) gpio->ODR);
- printf("BSRR    %8x ", (unsigned int) gpio->BSRR);
- printf("LCKR    %8x\n", (unsigned int) gpio->LCKR);
-#if defined(STM32F3) || defined(STM32F4)
- printf("AFR[0]  %8x ", (unsigned int) gpio->AFR[0]);
- printf("AFR[1]  %8x\n", (unsigned int) gpio->AFR[1]);
-#endif	/* STM32F3 */
+// printf("IDR     %8x ", (unsigned int) gpio->IDR);
+// printf("ODR     %8x\n", (unsigned int) gpio->ODR);
+// printf("BSRR    %8x ", (unsigned int) gpio->BSRR);
+// printf("LCKR    %8x\n", (unsigned int) gpio->LCKR);
+//#if defined(STM32F3) || defined(STM32F4) || defined(STM32H7)
+// printf("AFR[0]  %8x ", (unsigned int) gpio->AFR[0]);
+// printf("AFR[1]  %8x\n", (unsigned int) gpio->AFR[1]);
+//#endif	/* STM32F3 */
  int i;
  printf("         ");
  for (i = 0; i < 16; i++)
@@ -246,24 +286,24 @@ void gpioInfo(GPIO_TypeDef *gpio)
 
  uint32_t val;
 
-#if defined(STM32F3) || defined(STM32F4)
+#if defined(STM32F3) || defined(STM32F4) || defined(STM32H7)
  printf("\nmoder    ");
- val = gpio->MODER;
+ val = gpioPtr->MODER;
  for (i = 0; i < 16; i++)
   printf(" %2lu", (val >> (2 * i)) & 0x3);
 
  printf("\notyper   ");
- val = gpio->OTYPER;
+ val = gpioPtr->OTYPER;
  for (i = 0; i < 16; i++)
   printf(" %2lu", (val >> i) & 0x1);
 
  printf("\nopspeedr ");
- val = gpio->OSPEEDR;
+ val = gpioPtr->OSPEEDR;
  for (i = 0; i < 16; i++)
   printf(" %2lu", (val >> (2 * i)) & 0x3);
 
  printf("\npupdr    ");
- val = gpio->PUPDR;
+ val = gpioPtr->PUPDR;
  for (i = 0; i < 16; i++)
   printf(" %2lu", (val >> (2 * i)) & 0x3);
 #endif	/* STM32F3 */
@@ -290,24 +330,32 @@ void gpioInfo(GPIO_TypeDef *gpio)
   printf(" %2d", (int) (val >> ((4 * i) + 2)) & 0x3);
 #endif	/* STM32F1 */
 
- printf("\n");
- printf("idr      ");
- val = gpio->IDR;
+ printf("\nidr      ");
+ val = gpioPtr->IDR;
  for (i = 0; i < 16; i++)
   printf(" %2lu", (val >> i) & 0x1);
 
- printf("\n");
- printf("odr      ");
- val = gpio->ODR;
+ printf("\nodr      ");
+ val = gpioPtr->ODR;
  for (i = 0; i < 16; i++)
   printf(" %2lu", (val >> i) & 0x1);
 
-#if defined(STM32F3) || defined(STM32F4)
+ printf("\nbsrr     ");
+ val = gpioPtr->BSRR;
+ for (i = 0; i < 16; i++)
+  printf(" %2lu", (val >> i) & 0x1);
+
+ printf("\nlckr     ");
+ val = gpioPtr->LCKR;
+ for (i = 0; i < 16; i++)
+  printf(" %2lu", (val >> i) & 0x1);
+
+#if defined(STM32F3) || defined(STM32F4) || defined(STM32H7)
  printf("\nafr      ");
- val = gpio->AFR[0];
+ val = gpioPtr->AFR[0];
  for (i = 0; i < 8; i++)
   printf(" %2lu", (val >> (4 * i)) & 0xf);
- val = gpio->AFR[1];
+ val = gpioPtr->AFR[1];
  for (i = 0; i < 8; i++)
   printf(" %2lu", (val >> (4 * i)) & 0xf);
 #endif	/* STM32F3 */
@@ -420,17 +468,26 @@ T_TIM tim[] =
 #ifdef TIM14
  {TIM14, 14},
 #endif
+#ifdef TIM15
+ {TIM15, 15},
+#endif
+#ifdef TIM16
+ {TIM16, 16},
+#endif
+#ifdef TIM17
+ {TIM17, 17},
+#endif
 };
 
 char timNum(TIM_TypeDef *tmr);
 
 char timNum(TIM_TypeDef *tmr)
 {
- for (unsigned int j = 0; j < sizeof(tim) / sizeof(T_TIM); j++)
+ for (auto & j : tim)
  {
-  if (tmr == tim[j].tmr)
+  if (tmr == j.tmr)
   {
-   return(tim[j].num);
+   return(j.num);
   }
  }
  return(0);
@@ -467,8 +524,73 @@ void tmrInfo(TIM_TypeDef *tmr)
  flushBuf();
 }
 
-void extiBit(const char *label, uint32_t val)
+void tmrInfo(TIM_TypeDef *tmr, int tmrFlag)
 {
+ int n = 0;
+ printf("tmr %x TIM%d\n", (unsigned int) tmr, timNum(tmr));
+ if (T_CHECK(tmrFlag, CR1)) {
+  T_PRT(tmr, CR1);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CR2)) {
+  T_PRT(tmr, CR2);
+  T_NL()}
+ if (T_CHECK(tmrFlag, SMCR)) {
+  T_PRT(tmr, SMCR);
+  T_NL()}
+ if (T_CHECK(tmrFlag, DIER)) {
+  T_PRT(tmr, DIER);
+  T_NL()}
+ if (T_CHECK(tmrFlag, SR)) {
+  T_PRT(tmr, SR);
+  T_NL()}
+ if (T_CHECK(tmrFlag, EGR)) {
+  T_PRT(tmr, EGR);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCMR1)) {
+  T_PRT(tmr, CCMR1);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCMR2)) {
+  T_PRT(tmr, CCMR2);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCER)) {
+  T_PRT(tmr, CCER);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CNT)) {
+  T_PRT(tmr, CNT);
+  T_NL()}
+ if (T_CHECK(tmrFlag, PSC)) {
+  T_PRT(tmr, PSC);
+  T_NL()}
+ if (T_CHECK(tmrFlag, ARR)) {
+  T_PRT(tmr, ARR);
+  T_NL()}
+ if (T_CHECK(tmrFlag, RCR)) {
+  T_PRT(tmr, RCR);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCR1)) {
+  T_PRT(tmr, CCR1);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCR2)) {
+  T_PRT(tmr, CCR2);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCR3)) {
+  T_PRT(tmr, CCR3);
+  T_NL()}
+ if (T_CHECK(tmrFlag, CCR4)) {
+  T_PRT(tmr, CCR4);
+  T_NL()}
+ if (T_CHECK(tmrFlag, BDTR)) {
+  T_PRT(tmr, BDTR);
+  T_NL()}
+ if (T_CHECK(tmrFlag, DCR)) {
+  T_PRT(tmr, DCR);
+  T_NL()}
+ printf("\n");
+ flushBuf();
+}
+
+ void extiBit(const char *label, uint32_t val)
+ {
  printf("\n%6s", label);
  for (int i = 0; i <= 22; i++)
   printf(" %2d", (int) ((val >> i) & 0x1));

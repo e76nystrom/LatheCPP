@@ -241,80 +241,82 @@ enum REM_PARM
 
  L_SYNC_CYCLE,                  /* 0x8f sync cycle length */
  L_SYNC_OUTPUT,                 /* 0x90 sync outputs per cycle */
- L_SYNC_PRESCALER,              /* 0x91 sync prescaler */
+ L_SYNC_IN_PRESCALER,           /* 0x91 input sync prescaler */
+ L_SYNC_OUT_PRESCALER,          /* 0x92 output sync prescaler */
 
 // x sync parameters
 
- L_X_SYNC_CYCLE,                /* 0x92 sync cycle length */
- L_X_SYNC_OUTPUT,               /* 0x93 sync outputs per cycle */
- L_X_SYNC_PRESCALER,            /* 0x94 sync prescaler */
+ L_X_SYNC_CYCLE,                /* 0x93 sync cycle length */
+ L_X_SYNC_OUTPUT,               /* 0x94 sync outputs per cycle */
+ L_X_SYNC_IN_PRESCALER,         /* 0x95 input sync prescaler */
+ L_X_SYNC_OUT_PRESCALER,        /* 0x96 output sync prescaler */
 
 // threading variables
 
- TH_Z_START,                    /* 0x95 threading z start */
- TH_X_START,                    /* 0x96 threading x start */
- TAN_THREAD_ANGLE,              /* 0x97 tan of threading angle */
- X_FEED,                        /* 0x98 x feed */
- RUNOUT_DISTANCE,               /* 0x99 runout distance */
- RUNOUT_DEPTH,                  /* 0x9a runout depth */
+ TH_Z_START,                    /* 0x97 threading z start */
+ TH_X_START,                    /* 0x98 threading x start */
+ TAN_THREAD_ANGLE,              /* 0x99 tan of threading angle */
+ X_FEED,                        /* 0x9a x feed */
+ RUNOUT_DISTANCE,               /* 0x9b runout distance */
+ RUNOUT_DEPTH,                  /* 0x9c runout depth */
 
 // jog debug
 
- JOG_DEBUG,                     /* 0x9b jog interrupt debug */
+ JOG_DEBUG,                     /* 0x9d jog interrupt debug */
 
 // motor and speed control
 
- PWM_FREQ,                      /* 0x9c spindle speed pwm frequency */
- MIN_SPEED,                     /* 0x9d min speed for current range */
- MAX_SPEED,                     /* 0x9e max speed for current range */
+ PWM_FREQ,                      /* 0x9e spindle speed pwm frequency */
+ MIN_SPEED,                     /* 0x9f min speed for current range */
+ MAX_SPEED,                     /* 0xa0 max speed for current range */
 
 // current operation
 
- CURRENT_OP,                    /* 0x9f current operation */
+ CURRENT_OP,                    /* 0xa1 current operation */
 
 // global limits and home
 
- LIMIT_OVERRIDE,                /* 0xa0 override limit switches */
- COMMON_LIMITS,                 /* 0xa1 all limit switches one pin */
- LIMITS_ENABLED,                /* 0xa2 limits enabled */
- COMMON_HOME,                   /* 0xa3 all home switches one pin */
+ LIMIT_OVERRIDE,                /* 0xa2 override limit switches */
+ COMMON_LIMITS,                 /* 0xa3 all limit switches one pin */
+ LIMITS_ENABLED,                /* 0xa4 limits enabled */
+ COMMON_HOME,                   /* 0xa5 all home switches one pin */
 
 // z limits and home
 
- Z_LIM_ENA,                     /* 0xa4 z limit enable */
- Z_LIM_NEG_INV,                 /* 0xa5 z negative limit invert */
- Z_LIM_POS_INV,                 /* 0xa6 z Positive limit Invert */
- Z_HOME_ENA,                    /* 0xa7 z home enable */
- Z_HOME_INV,                    /* 0xa8 z home invert */
+ Z_LIM_ENA,                     /* 0xa6 z limit enable */
+ Z_LIM_NEG_INV,                 /* 0xa7 z negative limit invert */
+ Z_LIM_POS_INV,                 /* 0xa8 z Positive limit Invert */
+ Z_HOME_ENA,                    /* 0xa9 z home enable */
+ Z_HOME_INV,                    /* 0xaa z home invert */
 
 // x limits and home
 
- X_LIM_ENA,                     /* 0xa9 x limit enable */
- X_LIM_NEG_INV,                 /* 0xaa x negative limit invert */
- X_LIM_POS_INV,                 /* 0xab x Positive limit Invert */
- X_HOME_ENA,                    /* 0xac x home enable */
- X_HOME_INV,                    /* 0xad x home invert */
+ X_LIM_ENA,                     /* 0xab x limit enable */
+ X_LIM_NEG_INV,                 /* 0xac x negative limit invert */
+ X_LIM_POS_INV,                 /* 0xad x Positive limit Invert */
+ X_HOME_ENA,                    /* 0xae x home enable */
+ X_HOME_INV,                    /* 0xaf x home invert */
 
 // e stop
 
- E_STOP_ENA,                    /* 0xae enable estop */
- E_STOP_INV,                    /* 0xaf invert estop signal */
+ E_STOP_ENA,                    /* 0xb0 enable estop */
+ E_STOP_INV,                    /* 0xb1 invert estop signal */
 
 // command pause
 
- CMD_PAUSED,                    /* 0xb0 move commands paused */
+ CMD_PAUSED,                    /* 0xb2 move commands paused */
 
 // arc parameters
 
- ARC_RADIUS,                    /* 0xb1 arc radius */
- ARC_X_CENTER,                  /* 0xb2 arc x center */
- ARC_Z_CENTER,                  /* 0xb3 arc z center */
- ARC_X_START,                   /* 0xb4 arc x start */
- ARC_Z_START,                   /* 0xb5 arc z start */
- ARC_X_END,                     /* 0xb6 arc x center */
- ARC_Z_END,                     /* 0xb7 arc z center */
- MEGA_VFD,                      /* 0xb8 mega vfd speed mode */
- MEGA_SIM,                      /* 0xb9 mega encoder lines */
- USB_ENA,                       /* 0xba enable usb */
- MAX_PARM,                      /* 0xbb maximum parameter */
+ ARC_RADIUS,                    /* 0xb3 arc radius */
+ ARC_X_CENTER,                  /* 0xb4 arc x center */
+ ARC_Z_CENTER,                  /* 0xb5 arc z center */
+ ARC_X_START,                   /* 0xb6 arc x start */
+ ARC_Z_START,                   /* 0xb7 arc z start */
+ ARC_X_END,                     /* 0xb8 arc x center */
+ ARC_Z_END,                     /* 0xb9 arc z center */
+ MEGA_VFD,                      /* 0xba mega vfd speed mode */
+ MEGA_SIM,                      /* 0xbb mega encoder lines */
+ USB_ENA,                       /* 0xbc enable usb */
+ MAX_PARM,                      /* 0xbd maximum parameter */
 };

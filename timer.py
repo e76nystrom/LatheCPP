@@ -596,12 +596,13 @@ def setConfig(board, cfg):
       TmrCfg("pwmTmr", pwmTmr, "uint16_t", pwmTmrPwm, pwmTmrIsr, None),
       TmrCfg("usecTmr", usecTmr, "uint16_t", 0, usecTmrIsr, None),
       TmrCfg("indexTmr", indexTmr, "uint16_t", 0, indexTmrIsr, None),
-      TmrCfg("intTmr", intTmr, "uint16_t", 0, None, None),
       TmrCfg("encTestTmr", encTestTmr, "uint16_t", 0, "TIM7", None),
     ]
     if board == "nuch743":
+        timers.append(TmrCfg("intTmr", intTmr, "uint16_t", 0, "TIM15", None))
         timers.append(TmrCfg("cmpTmr", cmpTmr, "uint16_t", CAP, "TIM17", None))
     else:
+        timers.append(TmrCfg("intTmr", intTmr, "uint16_t", 0, None, None))
         timers.append(TmrCfg("cmpTmr", cmpTmr, "uint16_t", CAP, "TIM1_BRK_TIM9", None))
 
 n = 1

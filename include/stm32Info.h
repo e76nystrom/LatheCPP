@@ -24,6 +24,7 @@ char *gpioStr(char *buf, int size, T_PIN_NAME *pinInfo);
 #endif
 void gpioInfo(GPIO_TypeDef *gpio);
 void tmrInfo(TIM_TypeDef *tmr);
+void tmrInfo(TIM_TypeDef *tmr, int flag);
 void extiInfo();
 void usartInfo(USART_TypeDef *usart, const char *str);
 void i2cInfo(I2C_TypeDef *i2c, const char *str);
@@ -38,6 +39,44 @@ void rtcInfo();
 void dmaInfo(DMA_TypeDef *dma);
 void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n);
 #endif
+
+enum tmrFlags
+{T_CR1, T_CR2, T_SMCR, T_DIER, T_SR, T_EGR,
+ T_CCMR1, T_CCMR2, T_CCER, T_CNT, T_PSC, T_ARR, T_RCR,
+ T_CCR1, T_CCR2, T_CCR3, T_CCR4, T_BDTR, T_DCR, T_DMAR,
+ T_RESERVED1, T_CCMR3, T_CCR5, T_CCR6, T_AF1, T_AF2, T_TISEL
+};
+
+#define T_MASK(x) (1 << T_##x)
+#define T_CHECK(flag, x) (flag & (1 << T_##x))
+#define T_NL() {n += 1; if ((n & 1) == 0) printf("\n");}
+#define T_PRT(t, str) printf("%-6s %8x ", #str, (unsigned int) t->str)
+
+#define TIM15_MASK \
+ (T_MASK(CR1) \
+  | T_MASK(CR2) \
+  | T_MASK(DIER) \
+  | T_MASK(SR) \
+  | T_MASK(CCMR1) \
+  | T_MASK(CCER) \
+  | T_MASK(CNT) \
+  | T_MASK(PSC) \
+  | T_MASK(ARR) \
+  | T_MASK(CCR1) \
+  )
+
+#define TIM17_MASK \
+ (T_MASK(CR1) \
+  | T_MASK(CR2) \
+  | T_MASK(DIER) \
+  | T_MASK(SR) \
+  | T_MASK(CCMR1) \
+  | T_MASK(CCER) \
+  | T_MASK(CNT) \
+  | T_MASK(PSC) \
+  | T_MASK(ARR) \
+  | T_MASK(CCR1) \
+  )
 
 void info();
 void bitState(const char *s, volatile uint32_t *p, uint32_t mask);

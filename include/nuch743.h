@@ -43,15 +43,21 @@
 #define INT_ENCODER
 
 #define encAISR(x) EXTI3_IRQHandler(x)
-#define encA_Pin ZFlag_Pin
-#define encBISR(x) EXTI4_IRQHandler(x)
-#define encB_Pin XFlag_Pin
-
 #define encA_IRQn EXTI3_IRQn
+#define encA_Pin ZFlag_Pin
+#define encA_GPIO_Port ZFlag_GPIO_Port
+
+#define encBISR(x) EXTI4_IRQHandler(x)
 #define encB_IRQn EXTI4_IRQn
+#define encB_Pin XFlag_Pin
+#define encB_GPIO_Port XFlag_GPIO_Port
 
 #define IntSync_Pin Exti2_Pin
 #define IntSync_GPIO_Port Exti2_GPIO_Port
+#define IntSync_IRQn EXTI2_IRQn
+
+//#define IntSync_Pin GPIO_PIN_12
+//#define IntSync_GPIO_Port GPIOG
 
 #define ENC_TEST 0		/* encoder test */
 

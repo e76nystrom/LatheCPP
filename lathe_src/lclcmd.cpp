@@ -8,6 +8,7 @@
 #endif
 #ifdef STM32H7
 #include "stm32h7xx_hal.h"
+#include "stm32h743xx.h"
 #endif
 
 #include "lathe.h"
@@ -17,6 +18,7 @@
 #include "lcd.h"
 
 #include "i2c.h"
+#include "config.h"
 
 #include "remStruct.h"
 
@@ -269,6 +271,17 @@ void lclcmd(int ch)
 	 rVar.zDroLoc, rVar.zDroOffset, rVar.zDroCountInch);
   printf("zCur %6d zDro %6d zDelta %6d\n", zCur, zDro, zDelta);
  }
+ else if (ch == '%')
+ {
+  printf("\n%04x %04x\n", (unsigned int) IntSync_GPIO_Port->ODR,
+         (unsigned int) IntSync_GPIO_Port->ODR);
+  if ((IntSync_GPIO_Port->IDR & IntSync_Pin) == 0)
+   IntSync_GPIO_Port->BSRR = IntSync_Pin;
+  else
+   IntSync_GPIO_Port->BSRR = IntSync_Pin << 16;
+  printf("%04x %04x\n", (unsigned int) IntSync_GPIO_Port->ODR,
+         (unsigned int) IntSync_GPIO_Port->ODR);
+ }
  else if (ch == '!')
  {
   newline();
@@ -501,10 +514,10 @@ void lclcmd(int ch)
      if (val != 0)
       rVar.lSyncOutput = val;
     }
-    if (query(&getNum, &val, "prescaler %d: ", rVar.lSyncPrescaler))
+    if (query(&getNum, &val, "prescaler %d: ", rVar.lSyncInPrescaler))
     {
      if (val != 0)
-      rVar.lSyncPrescaler = val;
+      rVar.lSyncInPrescaler = val;
     }
     syncStart();
    }

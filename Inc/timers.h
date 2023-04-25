@@ -398,36 +398,6 @@ inline void     indexTmrMax(uint16_t x) {TIM10->ARR = ((x) - 1);}
 inline void     indexTmrSet(uint16_t x) {TIM10->ARR = (x);}
 inline uint16_t indexTmrMaxRead()       {return(TIM10->ARR);}
 
-/* intTmr timer 11 */
-
-#define INT_TIMER 11
-#define INT_TMR TIM11
-
-inline void intTmrInit() { \
-	__HAL_RCC_TIM11_CLK_ENABLE(); \
-	TIM11->CR1 |= TIM_CR1_DIR; \
-	TIM11->CR1 &= ~TIM_CR1_CEN;}
-
-inline void     intTmrClrIE()         {TIM11->DIER &= ~TIM_IT_UPDATE;}
-inline void     intTmrSetIE()         {TIM11->DIER |= TIM_IT_UPDATE;}
-inline uint16_t intTmrTstIE()         \
-	{return((TIM11->DIER & TIM_IT_UPDATE) != 0);}
-inline uint16_t intTmrIF()            \
-	{return((TIM11->SR & TIM_FLAG_UPDATE) != 0);}
-inline void     intTmrClrIF()         {TIM11->SR = ~TIM_FLAG_UPDATE;}
-inline void     intTmrStart()         {TIM11->CR1 |= TIM_CR1_CEN;}
-inline void     intTmrPulse()         \
-	{TIM11->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);}
-inline void     intTmrStop()          \
-	{TIM11->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
-inline void     intTmrScl(uint16_t y) {TIM11->PSC = (y);}
-inline uint16_t intTmrRead()          {return(TIM11->CNT);}
-inline void     intTmrCntClr()        {TIM11->CNT = 0;}
-inline void     intTmrCnt(uint16_t x) {TIM11->CNT = (x);}
-inline void     intTmrMax(uint16_t x) {TIM11->ARR = ((x) - 1);}
-inline void     intTmrSet(uint16_t x) {TIM11->ARR = (x);}
-inline uint16_t intTmrMaxRead()       {return(TIM11->ARR);}
-
 /* encTestTmr timer 7 */
 
 #define ENCTEST_TIMER 7
@@ -459,6 +429,36 @@ inline void     encTestTmrCnt(uint16_t x) {TIM7->CNT = (x);}
 inline void     encTestTmrMax(uint16_t x) {TIM7->ARR = ((x) - 1);}
 inline void     encTestTmrSet(uint16_t x) {TIM7->ARR = (x);}
 inline uint16_t encTestTmrMaxRead()       {return(TIM7->ARR);}
+
+/* intTmr timer 11 */
+
+#define INT_TIMER 11
+#define INT_TMR TIM11
+
+inline void intTmrInit() { \
+	__HAL_RCC_TIM11_CLK_ENABLE(); \
+	TIM11->CR1 |= TIM_CR1_DIR; \
+	TIM11->CR1 &= ~TIM_CR1_CEN;}
+
+inline void     intTmrClrIE()         {TIM11->DIER &= ~TIM_IT_UPDATE;}
+inline void     intTmrSetIE()         {TIM11->DIER |= TIM_IT_UPDATE;}
+inline uint16_t intTmrTstIE()         \
+	{return((TIM11->DIER & TIM_IT_UPDATE) != 0);}
+inline uint16_t intTmrIF()            \
+	{return((TIM11->SR & TIM_FLAG_UPDATE) != 0);}
+inline void     intTmrClrIF()         {TIM11->SR = ~TIM_FLAG_UPDATE;}
+inline void     intTmrStart()         {TIM11->CR1 |= TIM_CR1_CEN;}
+inline void     intTmrPulse()         \
+	{TIM11->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);}
+inline void     intTmrStop()          \
+	{TIM11->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
+inline void     intTmrScl(uint16_t y) {TIM11->PSC = (y);}
+inline uint16_t intTmrRead()          {return(TIM11->CNT);}
+inline void     intTmrCntClr()        {TIM11->CNT = 0;}
+inline void     intTmrCnt(uint16_t x) {TIM11->CNT = (x);}
+inline void     intTmrMax(uint16_t x) {TIM11->ARR = ((x) - 1);}
+inline void     intTmrSet(uint16_t x) {TIM11->ARR = (x);}
+inline uint16_t intTmrMaxRead()       {return(TIM11->ARR);}
 
 /* cmpTmr timer 9 */
 

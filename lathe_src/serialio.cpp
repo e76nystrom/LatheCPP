@@ -126,7 +126,7 @@ unsigned char getHexFloatRem(T_INT_FLOAT *val);
 /* debug message routines */
 
 #if DBGMSG
-void dbgmsg(char dbg, int val);
+void dbgMsg(char dbg, int val);
 void clrDbgBuf();
 #else
 #define dbgMsg(a, b)

@@ -593,175 +593,183 @@ void setRemVar(int parm, T_DATA_UNION val)
   rVar.lSyncOutput = val.t_uint16_t;
   break;
 
- case L_SYNC_PRESCALER:          /* 145 0x91 sync prescaler */
-  rVar.lSyncPrescaler = val.t_uint16_t;
+ case L_SYNC_IN_PRESCALER:       /* 145 0x91 input sync prescaler */
+  rVar.lSyncInPrescaler = val.t_uint16_t;
   break;
 
- case L_X_SYNC_CYCLE:            /* 146 0x92 sync cycle length */
+ case L_SYNC_OUT_PRESCALER:      /* 146 0x92 output sync prescaler */
+  rVar.lSyncOutPrescaler = val.t_uint16_t;
+  break;
+
+ case L_X_SYNC_CYCLE:            /* 147 0x93 sync cycle length */
   rVar.lXSyncCycle = val.t_uint16_t;
   break;
 
- case L_X_SYNC_OUTPUT:           /* 147 0x93 sync outputs per cycle */
+ case L_X_SYNC_OUTPUT:           /* 148 0x94 sync outputs per cycle */
   rVar.lXSyncOutput = val.t_uint16_t;
   break;
 
- case L_X_SYNC_PRESCALER:        /* 148 0x94 sync prescaler */
-  rVar.lXSyncPrescaler = val.t_uint16_t;
+ case L_X_SYNC_IN_PRESCALER:     /* 149 0x95 input sync prescaler */
+  rVar.lXSyncInPrescaler = val.t_uint16_t;
   break;
 
- case TH_Z_START:                /* 149 0x95 threading z start */
+ case L_X_SYNC_OUT_PRESCALER:    /* 150 0x96 output sync prescaler */
+  rVar.lXSyncOutPrescaler = val.t_uint16_t;
+  break;
+
+ case TH_Z_START:                /* 151 0x97 threading z start */
   rVar.thZStart = val.t_int32_t;
   break;
 
- case TH_X_START:                /* 150 0x96 threading x start */
+ case TH_X_START:                /* 152 0x98 threading x start */
   rVar.thXStart = val.t_int32_t;
   break;
 
- case TAN_THREAD_ANGLE:          /* 151 0x97 tan of threading angle */
+ case TAN_THREAD_ANGLE:          /* 153 0x99 tan of threading angle */
   rVar.tanThreadAngle = val.t_float;
   break;
 
- case X_FEED:                    /* 152 0x98 x feed */
+ case X_FEED:                    /* 154 0x9a x feed */
   rVar.xFeed = val.t_int32_t;
   break;
 
- case RUNOUT_DISTANCE:           /* 153 0x99 runout distance */
+ case RUNOUT_DISTANCE:           /* 155 0x9b runout distance */
   rVar.runoutDistance = val.t_float;
   break;
 
- case RUNOUT_DEPTH:              /* 154 0x9a runout depth */
+ case RUNOUT_DEPTH:              /* 156 0x9c runout depth */
   rVar.runoutDepth = val.t_float;
   break;
 
- case JOG_DEBUG:                 /* 155 0x9b jog interrupt debug */
+ case JOG_DEBUG:                 /* 157 0x9d jog interrupt debug */
   rVar.jogDebug = val.t_char;
   break;
 
- case PWM_FREQ:                  /* 156 0x9c spindle speed pwm frequency */
+ case PWM_FREQ:                  /* 158 0x9e spindle speed pwm frequency */
   rVar.pwmFreq = val.t_unsigned_int;
   break;
 
- case MIN_SPEED:                 /* 157 0x9d min speed for current range */
+ case MIN_SPEED:                 /* 159 0x9f min speed for current range */
   rVar.minSpeed = val.t_int16_t;
   break;
 
- case MAX_SPEED:                 /* 158 0x9e max speed for current range */
+ case MAX_SPEED:                 /* 160 0xa0 max speed for current range */
   rVar.maxSpeed = val.t_int16_t;
   break;
 
- case CURRENT_OP:                /* 159 0x9f current operation */
+ case CURRENT_OP:                /* 161 0xa1 current operation */
   rVar.currentOp = val.t_char;
   break;
 
- case LIMIT_OVERRIDE:            /* 160 0xa0 override limit switches */
+ case LIMIT_OVERRIDE:            /* 162 0xa2 override limit switches */
   rVar.limitOverride = val.t_char;
   break;
 
- case COMMON_LIMITS:             /* 161 0xa1 all limit switches one pin */
+ case COMMON_LIMITS:             /* 163 0xa3 all limit switches one pin */
   rVar.commonLimits = val.t_char;
   break;
 
- case LIMITS_ENABLED:            /* 162 0xa2 limits enabled */
+ case LIMITS_ENABLED:            /* 164 0xa4 limits enabled */
   rVar.limitsEnabled = val.t_char;
   break;
 
- case COMMON_HOME:               /* 163 0xa3 all home switches one pin */
+ case COMMON_HOME:               /* 165 0xa5 all home switches one pin */
   rVar.commonHome = val.t_char;
   break;
 
- case Z_LIM_ENA:                 /* 164 0xa4 z limit enable */
+ case Z_LIM_ENA:                 /* 166 0xa6 z limit enable */
   rVar.zLimEna = val.t_char;
   break;
 
- case Z_LIM_NEG_INV:             /* 165 0xa5 z negative limit invert */
+ case Z_LIM_NEG_INV:             /* 167 0xa7 z negative limit invert */
   rVar.zLimNegInv = val.t_char;
   break;
 
- case Z_LIM_POS_INV:             /* 166 0xa6 z Positive limit Invert */
+ case Z_LIM_POS_INV:             /* 168 0xa8 z Positive limit Invert */
   rVar.zLimPosInv = val.t_char;
   break;
 
- case Z_HOME_ENA:                /* 167 0xa7 z home enable */
+ case Z_HOME_ENA:                /* 169 0xa9 z home enable */
   rVar.zHomeEna = val.t_char;
   break;
 
- case Z_HOME_INV:                /* 168 0xa8 z home invert */
+ case Z_HOME_INV:                /* 170 0xaa z home invert */
   rVar.zHomeInv = val.t_char;
   break;
 
- case X_LIM_ENA:                 /* 169 0xa9 x limit enable */
+ case X_LIM_ENA:                 /* 171 0xab x limit enable */
   rVar.xLimEna = val.t_char;
   break;
 
- case X_LIM_NEG_INV:             /* 170 0xaa x negative limit invert */
+ case X_LIM_NEG_INV:             /* 172 0xac x negative limit invert */
   rVar.xLimNegInv = val.t_char;
   break;
 
- case X_LIM_POS_INV:             /* 171 0xab x Positive limit Invert */
+ case X_LIM_POS_INV:             /* 173 0xad x Positive limit Invert */
   rVar.xLimPosInv = val.t_char;
   break;
 
- case X_HOME_ENA:                /* 172 0xac x home enable */
+ case X_HOME_ENA:                /* 174 0xae x home enable */
   rVar.xHomeEna = val.t_char;
   break;
 
- case X_HOME_INV:                /* 173 0xad x home invert */
+ case X_HOME_INV:                /* 175 0xaf x home invert */
   rVar.xHomeInv = val.t_char;
   break;
 
- case E_STOP_ENA:                /* 174 0xae enable estop */
+ case E_STOP_ENA:                /* 176 0xb0 enable estop */
   rVar.eStopEna = val.t_char;
   break;
 
- case E_STOP_INV:                /* 175 0xaf invert estop signal */
+ case E_STOP_INV:                /* 177 0xb1 invert estop signal */
   rVar.eStopInv = val.t_char;
   break;
 
- case CMD_PAUSED:                /* 176 0xb0 move commands paused */
+ case CMD_PAUSED:                /* 178 0xb2 move commands paused */
   rVar.cmdPaused = val.t_char;
   break;
 
- case ARC_RADIUS:                /* 177 0xb1 arc radius */
+ case ARC_RADIUS:                /* 179 0xb3 arc radius */
   rVar.arcRadius = val.t_float;
   break;
 
- case ARC_X_CENTER:              /* 178 0xb2 arc x center */
+ case ARC_X_CENTER:              /* 180 0xb4 arc x center */
   rVar.arcXCenter = val.t_int;
   break;
 
- case ARC_Z_CENTER:              /* 179 0xb3 arc z center */
+ case ARC_Z_CENTER:              /* 181 0xb5 arc z center */
   rVar.arcZCenter = val.t_int;
   break;
 
- case ARC_X_START:               /* 180 0xb4 arc x start */
+ case ARC_X_START:               /* 182 0xb6 arc x start */
   rVar.arcXStart = val.t_int;
   break;
 
- case ARC_Z_START:               /* 181 0xb5 arc z start */
+ case ARC_Z_START:               /* 183 0xb7 arc z start */
   rVar.arcZStart = val.t_int;
   break;
 
- case ARC_X_END:                 /* 182 0xb6 arc x center */
+ case ARC_X_END:                 /* 184 0xb8 arc x center */
   rVar.arcXEnd = val.t_int;
   break;
 
- case ARC_Z_END:                 /* 183 0xb7 arc z center */
+ case ARC_Z_END:                 /* 185 0xb9 arc z center */
   rVar.arcZEnd = val.t_int;
   break;
 
- case MEGA_VFD:                  /* 184 0xb8 mega vfd speed mode */
+ case MEGA_VFD:                  /* 186 0xba mega vfd speed mode */
   rVar.megaVfd = val.t_char;
   break;
 
- case MEGA_SIM:                  /* 185 0xb9 mega encoder lines */
+ case MEGA_SIM:                  /* 187 0xbb mega encoder lines */
   rVar.megaSim = val.t_char;
   break;
 
- case USB_ENA:                   /* 186 0xba enable usb */
+ case USB_ENA:                   /* 188 0xbc enable usb */
   rVar.usbEna = val.t_char;
   break;
 
- case MAX_PARM:                  /* 187 0xbb maximum parameter */
+ case MAX_PARM:                  /* 189 0xbd maximum parameter */
   rVar.maxParm = val.t_int16_t;
   break;
 
@@ -1352,175 +1360,183 @@ void getRemVar(int parm, P_DATA_UNION val)
   val->t_uint16_t = rVar.lSyncOutput;
   break;
 
- case L_SYNC_PRESCALER:          /* 145 0x91 sync prescaler */
-  val->t_uint16_t = rVar.lSyncPrescaler;
+ case L_SYNC_IN_PRESCALER:       /* 145 0x91 input sync prescaler */
+  val->t_uint16_t = rVar.lSyncInPrescaler;
   break;
 
- case L_X_SYNC_CYCLE:            /* 146 0x92 sync cycle length */
+ case L_SYNC_OUT_PRESCALER:      /* 146 0x92 output sync prescaler */
+  val->t_uint16_t = rVar.lSyncOutPrescaler;
+  break;
+
+ case L_X_SYNC_CYCLE:            /* 147 0x93 sync cycle length */
   val->t_uint16_t = rVar.lXSyncCycle;
   break;
 
- case L_X_SYNC_OUTPUT:           /* 147 0x93 sync outputs per cycle */
+ case L_X_SYNC_OUTPUT:           /* 148 0x94 sync outputs per cycle */
   val->t_uint16_t = rVar.lXSyncOutput;
   break;
 
- case L_X_SYNC_PRESCALER:        /* 148 0x94 sync prescaler */
-  val->t_uint16_t = rVar.lXSyncPrescaler;
+ case L_X_SYNC_IN_PRESCALER:     /* 149 0x95 input sync prescaler */
+  val->t_uint16_t = rVar.lXSyncInPrescaler;
   break;
 
- case TH_Z_START:                /* 149 0x95 threading z start */
+ case L_X_SYNC_OUT_PRESCALER:    /* 150 0x96 output sync prescaler */
+  val->t_uint16_t = rVar.lXSyncOutPrescaler;
+  break;
+
+ case TH_Z_START:                /* 151 0x97 threading z start */
   val->t_int32_t = rVar.thZStart;
   break;
 
- case TH_X_START:                /* 150 0x96 threading x start */
+ case TH_X_START:                /* 152 0x98 threading x start */
   val->t_int32_t = rVar.thXStart;
   break;
 
- case TAN_THREAD_ANGLE:          /* 151 0x97 tan of threading angle */
+ case TAN_THREAD_ANGLE:          /* 153 0x99 tan of threading angle */
   val->t_float = rVar.tanThreadAngle;
   break;
 
- case X_FEED:                    /* 152 0x98 x feed */
+ case X_FEED:                    /* 154 0x9a x feed */
   val->t_int32_t = rVar.xFeed;
   break;
 
- case RUNOUT_DISTANCE:           /* 153 0x99 runout distance */
+ case RUNOUT_DISTANCE:           /* 155 0x9b runout distance */
   val->t_float = rVar.runoutDistance;
   break;
 
- case RUNOUT_DEPTH:              /* 154 0x9a runout depth */
+ case RUNOUT_DEPTH:              /* 156 0x9c runout depth */
   val->t_float = rVar.runoutDepth;
   break;
 
- case JOG_DEBUG:                 /* 155 0x9b jog interrupt debug */
+ case JOG_DEBUG:                 /* 157 0x9d jog interrupt debug */
   val->t_char = rVar.jogDebug;
   break;
 
- case PWM_FREQ:                  /* 156 0x9c spindle speed pwm frequency */
+ case PWM_FREQ:                  /* 158 0x9e spindle speed pwm frequency */
   val->t_unsigned_int = rVar.pwmFreq;
   break;
 
- case MIN_SPEED:                 /* 157 0x9d min speed for current range */
+ case MIN_SPEED:                 /* 159 0x9f min speed for current range */
   val->t_int16_t = rVar.minSpeed;
   break;
 
- case MAX_SPEED:                 /* 158 0x9e max speed for current range */
+ case MAX_SPEED:                 /* 160 0xa0 max speed for current range */
   val->t_int16_t = rVar.maxSpeed;
   break;
 
- case CURRENT_OP:                /* 159 0x9f current operation */
+ case CURRENT_OP:                /* 161 0xa1 current operation */
   val->t_char = rVar.currentOp;
   break;
 
- case LIMIT_OVERRIDE:            /* 160 0xa0 override limit switches */
+ case LIMIT_OVERRIDE:            /* 162 0xa2 override limit switches */
   val->t_char = rVar.limitOverride;
   break;
 
- case COMMON_LIMITS:             /* 161 0xa1 all limit switches one pin */
+ case COMMON_LIMITS:             /* 163 0xa3 all limit switches one pin */
   val->t_char = rVar.commonLimits;
   break;
 
- case LIMITS_ENABLED:            /* 162 0xa2 limits enabled */
+ case LIMITS_ENABLED:            /* 164 0xa4 limits enabled */
   val->t_char = rVar.limitsEnabled;
   break;
 
- case COMMON_HOME:               /* 163 0xa3 all home switches one pin */
+ case COMMON_HOME:               /* 165 0xa5 all home switches one pin */
   val->t_char = rVar.commonHome;
   break;
 
- case Z_LIM_ENA:                 /* 164 0xa4 z limit enable */
+ case Z_LIM_ENA:                 /* 166 0xa6 z limit enable */
   val->t_char = rVar.zLimEna;
   break;
 
- case Z_LIM_NEG_INV:             /* 165 0xa5 z negative limit invert */
+ case Z_LIM_NEG_INV:             /* 167 0xa7 z negative limit invert */
   val->t_char = rVar.zLimNegInv;
   break;
 
- case Z_LIM_POS_INV:             /* 166 0xa6 z Positive limit Invert */
+ case Z_LIM_POS_INV:             /* 168 0xa8 z Positive limit Invert */
   val->t_char = rVar.zLimPosInv;
   break;
 
- case Z_HOME_ENA:                /* 167 0xa7 z home enable */
+ case Z_HOME_ENA:                /* 169 0xa9 z home enable */
   val->t_char = rVar.zHomeEna;
   break;
 
- case Z_HOME_INV:                /* 168 0xa8 z home invert */
+ case Z_HOME_INV:                /* 170 0xaa z home invert */
   val->t_char = rVar.zHomeInv;
   break;
 
- case X_LIM_ENA:                 /* 169 0xa9 x limit enable */
+ case X_LIM_ENA:                 /* 171 0xab x limit enable */
   val->t_char = rVar.xLimEna;
   break;
 
- case X_LIM_NEG_INV:             /* 170 0xaa x negative limit invert */
+ case X_LIM_NEG_INV:             /* 172 0xac x negative limit invert */
   val->t_char = rVar.xLimNegInv;
   break;
 
- case X_LIM_POS_INV:             /* 171 0xab x Positive limit Invert */
+ case X_LIM_POS_INV:             /* 173 0xad x Positive limit Invert */
   val->t_char = rVar.xLimPosInv;
   break;
 
- case X_HOME_ENA:                /* 172 0xac x home enable */
+ case X_HOME_ENA:                /* 174 0xae x home enable */
   val->t_char = rVar.xHomeEna;
   break;
 
- case X_HOME_INV:                /* 173 0xad x home invert */
+ case X_HOME_INV:                /* 175 0xaf x home invert */
   val->t_char = rVar.xHomeInv;
   break;
 
- case E_STOP_ENA:                /* 174 0xae enable estop */
+ case E_STOP_ENA:                /* 176 0xb0 enable estop */
   val->t_char = rVar.eStopEna;
   break;
 
- case E_STOP_INV:                /* 175 0xaf invert estop signal */
+ case E_STOP_INV:                /* 177 0xb1 invert estop signal */
   val->t_char = rVar.eStopInv;
   break;
 
- case CMD_PAUSED:                /* 176 0xb0 move commands paused */
+ case CMD_PAUSED:                /* 178 0xb2 move commands paused */
   val->t_char = rVar.cmdPaused;
   break;
 
- case ARC_RADIUS:                /* 177 0xb1 arc radius */
+ case ARC_RADIUS:                /* 179 0xb3 arc radius */
   val->t_float = rVar.arcRadius;
   break;
 
- case ARC_X_CENTER:              /* 178 0xb2 arc x center */
+ case ARC_X_CENTER:              /* 180 0xb4 arc x center */
   val->t_int = rVar.arcXCenter;
   break;
 
- case ARC_Z_CENTER:              /* 179 0xb3 arc z center */
+ case ARC_Z_CENTER:              /* 181 0xb5 arc z center */
   val->t_int = rVar.arcZCenter;
   break;
 
- case ARC_X_START:               /* 180 0xb4 arc x start */
+ case ARC_X_START:               /* 182 0xb6 arc x start */
   val->t_int = rVar.arcXStart;
   break;
 
- case ARC_Z_START:               /* 181 0xb5 arc z start */
+ case ARC_Z_START:               /* 183 0xb7 arc z start */
   val->t_int = rVar.arcZStart;
   break;
 
- case ARC_X_END:                 /* 182 0xb6 arc x center */
+ case ARC_X_END:                 /* 184 0xb8 arc x center */
   val->t_int = rVar.arcXEnd;
   break;
 
- case ARC_Z_END:                 /* 183 0xb7 arc z center */
+ case ARC_Z_END:                 /* 185 0xb9 arc z center */
   val->t_int = rVar.arcZEnd;
   break;
 
- case MEGA_VFD:                  /* 184 0xb8 mega vfd speed mode */
+ case MEGA_VFD:                  /* 186 0xba mega vfd speed mode */
   val->t_char = rVar.megaVfd;
   break;
 
- case MEGA_SIM:                  /* 185 0xb9 mega encoder lines */
+ case MEGA_SIM:                  /* 187 0xbb mega encoder lines */
   val->t_char = rVar.megaSim;
   break;
 
- case USB_ENA:                   /* 186 0xba enable usb */
+ case USB_ENA:                   /* 188 0xbc enable usb */
   val->t_char = rVar.usbEna;
   break;
 
- case MAX_PARM:                  /* 187 0xbb maximum parameter */
+ case MAX_PARM:                  /* 189 0xbd maximum parameter */
   val->t_int16_t = rVar.maxParm;
   break;
 

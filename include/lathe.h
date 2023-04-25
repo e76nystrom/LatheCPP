@@ -370,7 +370,7 @@ typedef struct s_sync
  char extActive;		/* sync external active */
 } T_SYN_CTL, *P_SYN_CTL;
 
-EXT T_SYN_CTL syn;
+EXT T_SYN_CTL syn;		/* synchronization control */
 
 EXT int trackSpeed;		/* external motor track speed */
 EXT int updateFeed;		/* time to update feed */
@@ -392,12 +392,14 @@ typedef struct
  int missedStart;		/* start flag missed */
 
  unsigned int encCycLen;	/* encoder cycle length */
- unsigned int  encPulse;	/* encoder pulse number */
+ unsigned int encPulse;		/* encoder pulse number */
  uint16_t lastEnc;		/* last encoder capture */
  uint32_t encClocks;		/* clocks in current encoder cycle */
  uint32_t cycleClocks;		/* estimated clocks in cycle */
 
- uint16_t preScale;		/* counter pre scaler */
+ uint32_t encoderClocks;	/* encoder clocks per cycle */
+ uint16_t inPreScaler;		/* input pre scaler */
+ uint16_t outPreScaler;		/* output pre scaler */
 
  int intCycLen;			/* internal cycle length */
  int intPulse;			/* internal pulse number */
@@ -617,8 +619,8 @@ typedef struct s_indexTmr
 
  int tmrCount;			/* index timer count */
  int tmrAct;			/* index timer active */
- unsigned int timeout;
- unsigned int updateTime;
+ unsigned int timeout;		/* index timer timeout */
+ unsigned int updateTime;	/* last update for timeout check */
 
  uint16_t overflow;		/* index counter overflow */
  uint32_t start;		/* index period start count */
