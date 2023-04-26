@@ -436,7 +436,7 @@ EXT int trackSpeed;		/* external motor track speed */
 EXT int updateFeed;		/* time to update feed */
 
 EXT unsigned int tmrStepWidth;	/* step width */
-EXT unsigned int  tmrMin;	/* timer minimum width */
+EXT unsigned int tmrMin;	/* timer minimum width */
 
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
@@ -470,7 +470,7 @@ typedef struct
  boolean stop;			/* stop flag */
 
  uint16_t startDelay;		/* initial delay */
- uint16_t delta[ARRAY_LEN];	/* saved delta values */
+ uint32_t delta[ARRAY_LEN];	/* saved delta values */
 } T_CMP_TMR, *P_CMP_TMR;
 
 EXT T_CMP_TMR cmpTmr;
@@ -1810,11 +1810,12 @@ void spindleStop()
 void cmpTmrSetup()
 {
  if (DBG_SETUP)
-  printf("cmpTmrSetup\n");
+  printf("cmpTmrSetup inPreScaler %d\n", cmpTmr.inPreScaler);
  cmpTmrClrIE();			/* disable update interrupts */
  cmpTmrCntClr();		/* clear counter */
  cmpTmrSet(0xffff);		/* set count to maximum */
  cmpTmrScl(cmpTmr.inPreScaler - 1); /* set prescaler */
+ cmpTmrUpd();			/* update to load registers */
  cmpTmrCap1EnaSet();		/* enable capture from encoder */
  cmpTmrCap1SetIE();		/* enable capture interrupt */
  cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
@@ -1843,11 +1844,13 @@ void syncMeasure()
 
  unsigned int encoderClocks = rVar.indexPeriod / rVar.encPerRev;
  cmpTmr.encoderClocks = encoderClocks;
- unsigned int preScaler = (encoderClocks / 65536) + 1;
- cmpTmr.inPreScaler = preScaler;
-
- printf("encPerRev %d indexPeriod %d encoderClocks %d preScaler %d\n",
-        rVar.encPerRev, rVar.indexPeriod, encoderClocks, preScaler);
+ unsigned int inPreScaler = (encoderClocks / 49152) + 1;
+ cmpTmr.inPreScaler = inPreScaler;
+ int rpm = lrint(((double) rVar.cfgFcy * (double) 60.0) / rVar.indexPeriod);
+ printf("encPerRev %d indexPeriod %d rpm %2d "
+	"encoderClocks %d inPreScaler %d\n",
+        rVar.encPerRev, rVar.indexPeriod, rpm,
+	encoderClocks, inPreScaler);
 
  rVar.capTmrEnable = 1;		/* enable capture timer */
 
@@ -1858,15 +1861,19 @@ void syncMeasure()
 
  cmpTmr.encPulse = cmpTmr.encCycLen; /* set number to count */
  cmpTmr.measure = 1;		/* set measurement flag */
+ cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
 
  cmpTmrClrIE();			/* disable update interrupts */
  cmpTmrCntClr();		/* clear counter */
  cmpTmrSet(0xffff);		/* set count to maximum */
- cmpTmrScl((preScaler - 1));	/* set prescaler */
+ cmpTmrScl(inPreScaler - 1);	/* set prescaler */
  cmpTmrCap1EnaSet();		/* enable capture from encoder */
  cmpTmrCap1SetIE();		/* enable capture interrupt */
- cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
+ cmpTmrSetIE();			/* enable update interrupt */
  cmpTmrStart();			/* start capture timer */
+ cmpTmrUpd();			/* update to load registers */
+
+ tmrInfo(CMP_TMR, TIM17_MASK);
 }
 
 void syncCalculate()
@@ -1890,8 +1897,8 @@ void syncCalculate()
  printf("delta array encCycLen %d\n", cmpTmr.encCycLen);
  flushBuf();
 
- uint64_t total = 0;
- uint16_t *p = cmpTmr.delta;
+ uint32_t total = 0;
+ uint32_t *p = cmpTmr.delta;
  int col = 0;
  for (int i = 0; i < cmpTmr.encCycLen; i++)
  {
@@ -1899,7 +1906,7 @@ void syncCalculate()
    printf("%4d -", i);
   col += 1;
   total += *p;
-  printf(" %5u", *p++);
+  printf(" %5lu", *p++);
   if (col == 16)
   {
    col = 0;
@@ -1909,7 +1916,7 @@ void syncCalculate()
  }
  if (col != 0)
   printf("***\n");
- printf("total %lld average %u\n",
+ printf("total %lu average %u\n",
         total, (unsigned int) (total / cmpTmr.encCycLen));
  fflush(stdout);
  flushBuf();
@@ -1918,7 +1925,7 @@ void syncCalculate()
  cmpTmr.encCycLen = rVar.lSyncCycle;
  unsigned int clockPerCycle = cmpTmr.encoderClocks * cmpTmr.encCycLen;
  unsigned int outClockPerPulse = clockPerCycle / cmpTmr.intCycLen;
- rVar.lSyncOutPrescaler = outClockPerPulse / 65536 + 1;
+ rVar.lSyncOutPrescaler = outClockPerPulse / 49152 + 1;
 
  if (DBG_SETUP)
  {
@@ -1942,6 +1949,10 @@ void syncStart()
  cmpTmr.inPreScaler = rVar.lSyncInPrescaler;
  cmpTmr.outPreScaler = rVar.lSyncOutPrescaler;
 
+ printf("syncSetup encCycLen %d intCycLen %d inPreScale %d outPreScale %d\n",
+        rVar.lSyncCycle, rVar.lSyncOutput,
+        rVar.lSyncInPrescaler, rVar.lSyncOutPrescaler);
+
  if (DBG_SETUP)
   printf("syncStart cycle %d output %d inPreScale %d outPreScale %d\n",
 	 cmpTmr.encCycLen, cmpTmr.intCycLen,
@@ -1951,8 +1962,8 @@ void syncStart()
 
  cmpTmr.startDelay = (uint16_t) ((rVar.cfgFcy * START_DELAY) / 1000000l - 1);
  intTmrSet(cmpTmr.startDelay);	/* set to initial delay */
-
  intTmrScl(cmpTmr.outPreScaler - 1); /* set prescaler */
+ intTmrUpd();			/* update to load registers */
  intTmrSetIE();			/* enable interrupts */
 
  cmpTmr.cycleClocks = 0;	/* clear cycle clocks */

@@ -410,7 +410,7 @@ typedef struct
  boolean stop;			/* stop flag */
 
  uint16_t startDelay;		/* initial delay */
- uint16_t delta[ARRAY_LEN];	/* saved delta values */
+ uint32_t delta[ARRAY_LEN];	/* saved delta values */
 } T_CMP_TMR, *P_CMP_TMR;
 
 EXT T_CMP_TMR cmpTmr;

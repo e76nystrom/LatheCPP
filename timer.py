@@ -66,6 +66,7 @@ regList = \
   ("Pulse",  None,  "%s->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN)"),
   ("Stop",   None,  "%s->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN)"),
   ("Scl",    "y",   "%s->PSC = (y)"),
+  ("Upd",    None,  "%s->EGR = TIM_EGR_UG"),
   ("Read",   "i",   "%s->CNT"),
   ("CntClr", None,  "%s->CNT = 0"),
   ("Cnt",    "x",   "%s->CNT = (x)"),

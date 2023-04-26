@@ -86,6 +86,7 @@ inline void     zTmrStart()         {TIM2->CR1 |= TIM_CR1_CEN;}
 inline void     zTmrPulse()         {TIM2->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     zTmrStop()          {TIM2->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     zTmrScl(uint16_t y) {TIM2->PSC = (y);}
+inline void     zTmrUpd()           {TIM2->EGR = TIM_EGR_UG;}
 inline uint32_t zTmrRead()          {return(TIM2->CNT);}
 inline void     zTmrCntClr()        {TIM2->CNT = 0;}
 inline void     zTmrCnt(uint32_t x) {TIM2->CNT = (x);}
@@ -132,6 +133,7 @@ inline void     xTmrStart()         {TIM5->CR1 |= TIM_CR1_CEN;}
 inline void     xTmrPulse()         {TIM5->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     xTmrStop()          {TIM5->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     xTmrScl(uint16_t y) {TIM5->PSC = (y);}
+inline void     xTmrUpd()           {TIM5->EGR = TIM_EGR_UG;}
 inline uint32_t xTmrRead()          {return(TIM5->CNT);}
 inline void     xTmrCntClr()        {TIM5->CNT = 0;}
 inline void     xTmrCnt(uint32_t x) {TIM5->CNT = (x);}
@@ -182,6 +184,7 @@ inline void     step3TmrPulse()         \
 inline void     step3TmrStop()          \
 	{TIM3->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     step3TmrScl(uint16_t y) {TIM3->PSC = (y);}
+inline void     step3TmrUpd()           {TIM3->EGR = TIM_EGR_UG;}
 inline uint16_t step3TmrRead()          {return(TIM3->CNT);}
 inline void     step3TmrCntClr()        {TIM3->CNT = 0;}
 inline void     step3TmrCnt(uint16_t x) {TIM3->CNT = (x);}
@@ -226,6 +229,7 @@ inline void     step4TmrPulse()         \
 inline void     step4TmrStop()          \
 	{TIM4->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     step4TmrScl(uint16_t y) {TIM4->PSC = (y);}
+inline void     step4TmrUpd()           {TIM4->EGR = TIM_EGR_UG;}
 inline uint16_t step4TmrRead()          {return(TIM4->CNT);}
 inline void     step4TmrCntClr()        {TIM4->CNT = 0;}
 inline void     step4TmrCnt(uint16_t x) {TIM4->CNT = (x);}
@@ -272,6 +276,7 @@ inline void     spindleTmrPulse()         \
 inline void     spindleTmrStop()          \
 	{TIM8->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     spindleTmrScl(uint16_t y) {TIM8->PSC = (y);}
+inline void     spindleTmrUpd()           {TIM8->EGR = TIM_EGR_UG;}
 inline uint16_t spindleTmrRead()          {return(TIM8->CNT);}
 inline void     spindleTmrCntClr()        {TIM8->CNT = 0;}
 inline void     spindleTmrCnt(uint16_t x) {TIM8->CNT = (x);}
@@ -317,6 +322,7 @@ inline void     pwmTmrPulse()         \
 inline void     pwmTmrStop()          \
 	{TIM12->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     pwmTmrScl(uint16_t y) {TIM12->PSC = (y);}
+inline void     pwmTmrUpd()           {TIM12->EGR = TIM_EGR_UG;}
 inline uint16_t pwmTmrRead()          {return(TIM12->CNT);}
 inline void     pwmTmrCntClr()        {TIM12->CNT = 0;}
 inline void     pwmTmrCnt(uint16_t x) {TIM12->CNT = (x);}
@@ -359,6 +365,7 @@ inline void     usecTmrPulse()         \
 inline void     usecTmrStop()          \
 	{TIM6->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     usecTmrScl(uint16_t y) {TIM6->PSC = (y);}
+inline void     usecTmrUpd()           {TIM6->EGR = TIM_EGR_UG;}
 inline uint16_t usecTmrRead()          {return(TIM6->CNT);}
 inline void     usecTmrCntClr()        {TIM6->CNT = 0;}
 inline void     usecTmrCnt(uint16_t x) {TIM6->CNT = (x);}
@@ -391,6 +398,7 @@ inline void     indexTmrPulse()         \
 inline void     indexTmrStop()          \
 	{TIM10->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     indexTmrScl(uint16_t y) {TIM10->PSC = (y);}
+inline void     indexTmrUpd()           {TIM10->EGR = TIM_EGR_UG;}
 inline uint16_t indexTmrRead()          {return(TIM10->CNT);}
 inline void     indexTmrCntClr()        {TIM10->CNT = 0;}
 inline void     indexTmrCnt(uint16_t x) {TIM10->CNT = (x);}
@@ -423,6 +431,7 @@ inline void     encTestTmrPulse()         \
 inline void     encTestTmrStop()          \
 	{TIM7->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     encTestTmrScl(uint16_t y) {TIM7->PSC = (y);}
+inline void     encTestTmrUpd()           {TIM7->EGR = TIM_EGR_UG;}
 inline uint16_t encTestTmrRead()          {return(TIM7->CNT);}
 inline void     encTestTmrCntClr()        {TIM7->CNT = 0;}
 inline void     encTestTmrCnt(uint16_t x) {TIM7->CNT = (x);}
@@ -453,6 +462,7 @@ inline void     intTmrPulse()         \
 inline void     intTmrStop()          \
 	{TIM11->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     intTmrScl(uint16_t y) {TIM11->PSC = (y);}
+inline void     intTmrUpd()           {TIM11->EGR = TIM_EGR_UG;}
 inline uint16_t intTmrRead()          {return(TIM11->CNT);}
 inline void     intTmrCntClr()        {TIM11->CNT = 0;}
 inline void     intTmrCnt(uint16_t x) {TIM11->CNT = (x);}
@@ -484,6 +494,7 @@ inline void     cmpTmrPulse()         {TIM9->CR1 |= (TIM_CR1_OPM | TIM_CR1_CEN);
 inline void     cmpTmrStop()          \
 	{TIM9->CR1 &= ~(TIM_CR1_OPM | TIM_CR1_CEN);}
 inline void     cmpTmrScl(uint16_t y) {TIM9->PSC = (y);}
+inline void     cmpTmrUpd()           {TIM9->EGR = TIM_EGR_UG;}
 inline uint16_t cmpTmrRead()          {return(TIM9->CNT);}
 inline void     cmpTmrCntClr()        {TIM9->CNT = 0;}
 inline void     cmpTmrCnt(uint16_t x) {TIM9->CNT = (x);}

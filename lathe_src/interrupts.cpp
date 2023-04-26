@@ -1360,75 +1360,66 @@ void encoder()
  dbgEncIsrClr();
 }
 
-#define toggle(cond, set, clr)			\
+#define toggle(cond, set, clr) \
  if (cond) {set;} else {clr;}
 
 extern "C" void cmpTmrISR(void)
 {
- uint16_t captureVal;
- uint16_t delta;
- if constexpr (DBG_CMP_TIME)
+ dbgCapIsrSet();
+
+ if (cmpTmrTstIE())
  {
-  dbgCapIsrSet();
+  cmpTmrClrIF();
  }
- spEncCount++;			/* count an interrupt */
 
  if (cmpTmrCap1IF())		/* if encoder input pulse */
  {
-  captureVal = cmpTmrCap1();	/* read capture value */
+  spEncCount++;			/* count an interrupt */
+  uint16_t captureVal = cmpTmrCap1(); /* read capture value */
   cmpTmrCap1ClrIF();		/* clear interrupt */
   cmpTmrOCP1Clr();		/* clear over capture flag */
 
-  if (syn.encoderDirect)	/* if encoder direct */
-  {
 #if defined(STM32F4)
+  if (syn.encoderDirect)        /* if encoder direct */
+  {
    EXTI->SWIER |= ExtInt_Pin;	/* generate software interrupt */
    encISR();
-#endif  /* STM32F4 */
-#if defined(STM32H7)
-   encoder();
-#endif  /* STM32H7 */
   }
+#endif  /* STM32F4 */
 
-  if (rVar.capTmrEnable)	/* if capture timer enabled */
+  if (rVar.capTmrEnable)        /* if capture timer enabled */
   {
-   delta = captureVal - cmpTmr.lastEnc; /* time since last pulse */
-   delta *= cmpTmr.inPreScaler;
+   uint16_t d = captureVal - cmpTmr.lastEnc; /* time since last pulse */
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */
-   cmpTmr.encPulse -= 1;	/* count off a pulse */
+   uint32_t delta = (uint32_t) d * (uint32_t) cmpTmr.inPreScaler;
+   cmpTmr.encPulse -= 1;        /* count off a pulse */
 
    uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycle clocks */
-   uint16_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
+   uint32_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
    cycleClocks -= *p;		/* subtract old value */
-   cycleClocks += delta;	/* add in new value */
+   cycleClocks += delta;        /* add in new value */
    *p = delta;			/* save new value */
 
    cmpTmr.cycleClocks = cycleClocks; /* update clocks in a cycle */
 
-   if constexpr (DBG_CMP)
-   {
+   if constexpr (DBG_CMP) {
     if constexpr (DBGTRK2WL0)
-    {
      dbgTrk2WL(cmpTmr.encPulse, delta, cycleClocks);
-    }
    }
 
    if (cmpTmr.encPulse <= 0)	/* if end of cycle */
    {
     cmpTmr.encPulse = cmpTmr.encCycLen; /* reset cycle counter */
-    if (cmpTmr.startInt)	/* if time to start internal timer */
+    if (cmpTmr.startInt)        /* if time to start internal timer */
     {
      intTmrStart();		/* start timer */
      cmpTmr.startInt = 0;	/* clear flag */
 
-     if constexpr (DBG_INT)
-     {
-      dbgCycEndClr();
-     }
+     dbgCycEndClr();
     }
     else if (cmpTmr.measure)	/* if measure flag set */
     {
-     cmpTmr.measure = 0;	/* indicate measurement done */
+     cmpTmr.measure = 0;        /* indicate measurement done */
      cmpTmrCap1ClrIE();		/* clear capture 1 interrupt enable */
      cmpTmrStop();		/* stop timer */
     }
@@ -1456,7 +1447,7 @@ extern "C" void cmpTmrISR(void)
 
    if constexpr (DBG_SYNC_COUNT)
    {
-    cmpTmr.encCount += 1;	/* count interrupt */
+    cmpTmr.encCount += 1;        /* count interrupt */
     if constexpr (DBG_CMP)
     {
      toggle(cmpTmr.encCount & 1, dbgIntCSet(), dbgIntCClr());
@@ -1467,11 +1458,6 @@ extern "C" void cmpTmrISR(void)
 
  if constexpr (false)		/* **disabled */
  {
-  if (cmpTmrIF())		/* if update interrupt */
-  {
-   cmpTmrClrIF();		/* clear interrupt flag */
-  }
-
   if (cmpTmrCap2IF())		/* if encoder input pulse */
   {
    cmpTmrCap2ClrIF();		/* clear interrupt */
@@ -1479,10 +1465,7 @@ extern "C" void cmpTmrISR(void)
   }
  }
 
- if constexpr (DBG_CMP_TIME)
- {
-  dbgCapIsrClr();
- }
+ dbgCapIsrClr();
 }
 
 extern "C" void intTmrISR()
