@@ -279,6 +279,7 @@ void lclcmd(int ch)
 	 rVar.zDroLoc, rVar.zDroOffset, rVar.zDroCountInch);
   printf("zCur %6d zDro %6d zDelta %6d\n", zCur, zDro, zDelta);
  }
+#if defined(STM32H7)
  else if (ch == '%')
  {
   printf("\n%04x %04x\n", (unsigned int) IntSync_GPIO_Port->ODR,
@@ -290,6 +291,7 @@ void lclcmd(int ch)
   printf("%04x %04x\n", (unsigned int) IntSync_GPIO_Port->ODR,
          (unsigned int) IntSync_GPIO_Port->ODR);
  }
+#endif  /* STM32H7 */
  else if (ch == '!')
  {
   newline();
