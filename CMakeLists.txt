@@ -65,6 +65,7 @@ include_directories(../LatheCPP/include)
 
 add_definitions()
 add_definitions(-DSTM32F407xx -DSTM32F4 -DDISCOVERY407 -DLATHE_CPP -DCLION)
+add_definitions(-DSPI_SYNC)
 
 file(GLOB_RECURSE SOURCES "Startup/*.*" "Src/*.*" "Drivers/*.*")
 set(SOURCES1

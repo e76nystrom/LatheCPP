@@ -22,6 +22,10 @@
 #include "Xilinx.h"
 #include "latheX.h"
 #include "condef.h"
+#if defined(SPI_SYNC)
+#include "config.h"
+#include "spix.h"
+#endif  /* SPI_SYNC */
 
 #if defined(USB)
 extern "C" void trcInit();

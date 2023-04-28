@@ -28,7 +28,9 @@
 
 #include "remcmd.h"
 #include "remParm.h"
+#if defined(USB)
 #include "class/cdc/cdc_device.h"
+#endif  /* USB */
 
 #if defined(MEGAPORT)
 #include "megaCmdList.h"
