@@ -442,8 +442,10 @@ EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
 EXT int16_t encState;		/* state of encoder */
 
-#define ARRAY_LEN 2048		/* size of array */
+#define ARRAY_LEN 1024		/* size of array */
 #define START_DELAY 2		/* delay internal start */
+
+const auto MAX_SYNC_COUNT = 49152;
 
 typedef struct
 {
@@ -1847,7 +1849,7 @@ void syncMeasure()
 
  unsigned int encoderClocks = rVar.indexPeriod / rVar.encPerRev;
  cmpTmr.encoderClocks = encoderClocks;
- unsigned int inPreScaler = (encoderClocks / 49152) + 1;
+ unsigned int inPreScaler = (encoderClocks / MAX_SYNC_COUNT) + 1;
  cmpTmr.inPreScaler = inPreScaler;
  int rpm = lrint(((double) rVar.cfgFcy * (double) 60.0) / rVar.indexPeriod);
  printf("encPerRev %d indexPeriod %d rpm %2d "
@@ -1857,7 +1859,7 @@ void syncMeasure()
 
  rVar.capTmrEnable = 1;		/* enable capture timer */
 
- cmpTmr.encCycLen = ARRAY_LEN;	/* initialize cycle length */
+ cmpTmr.encCycLen = rVar.lSyncCycle; /* initialize cycle length */
  cmpTmr.preCycleClocks = 0;	/* clear prescaled cycle clocks */
  cmpTmr.cycleClocks = 0;	/* clear cycle clocks */
  cmpTmr.lastEnc = 0;		/* clear last encoder vale */
@@ -1885,19 +1887,9 @@ void syncCalculate()
  if (DBG_SETUP)
   printf("syncCalculate\n");
 
-// uint64_t n = clocksMin * cmpTmr.encCycLen;
-// uint64_t d = ((uint64_t) cmpTmr.cycleClocks * rVar.encPerRev);
-// auto rpm = (uint16_t) (n / d);
-//
-// uint32_t pulseMinIn = rVar.encPerRev * rpm;
-// uint32_t pulseMinOut = (pulseMinIn * rVar.lSyncOutput) / rVar.lSyncCycle;
-// auto clocksPulse = (uint32_t) (clocksMin / pulseMinOut);
-// rVar.lSyncOutPrescaler = clocksPulse >> 16;
-// unsigned int encPerSec = (rVar.rpm * rVar.encPerRev) / 60;
-// unsigned int clockPerEncPulse = rVar.cfgFcy / encPerSec;
-// rVar.lSyncInPrescaler = clockPerEncPulse / 65536;
-
 #if 1
+ const auto CYC_MAX_COL = 12;
+
  printf("delta array encCycLen %d\n", cmpTmr.encCycLen);
  flushBuf();
 
@@ -1910,8 +1902,8 @@ void syncCalculate()
    printf("%4d -", i);
   col += 1;
   total += *p;
-  printf(" %5lu", *p++);
-  if (col == 16)
+  printf(" %5hu", *p++);
+  if (col >= CYC_MAX_COL)
   {
    col = 0;
    printf("\n");
@@ -1919,9 +1911,9 @@ void syncCalculate()
   }
  }
  if (col != 0)
-  printf("***\n");
- printf("total %lu average %u\n",
-        total, (unsigned int) (total / cmpTmr.encCycLen));
+  printf("\n");
+ printf("total %lu average %lu\n",
+        total, (total / cmpTmr.encCycLen));
  fflush(stdout);
  flushBuf();
 #endif
@@ -1929,7 +1921,7 @@ void syncCalculate()
  cmpTmr.encCycLen = rVar.lSyncCycle;
  unsigned int clockPerCycle = cmpTmr.encoderClocks * cmpTmr.encCycLen;
  unsigned int outClockPerPulse = clockPerCycle / cmpTmr.intCycLen;
- rVar.lSyncOutPrescaler = outClockPerPulse / 49152 + 1;
+ rVar.lSyncOutPrescaler = outClockPerPulse / MAX_SYNC_COUNT + 1;
 
  if (DBG_SETUP)
  {

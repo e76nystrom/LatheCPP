@@ -382,8 +382,10 @@ EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
 EXT int16_t encState;		/* state of encoder */
 
-#define ARRAY_LEN 2048		/* size of array */
+#define ARRAY_LEN 1024		/* size of array */
 #define START_DELAY 2		/* delay internal start */
+
+const auto MAX_SYNC_COUNT = 49152;
 
 typedef struct
 {

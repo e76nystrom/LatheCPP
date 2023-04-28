@@ -81,7 +81,7 @@ enum tmrFlags
 #define T_MASK(x) (1 << T_##x)
 #define T_CHECK(flag, x) (flag & (1 << T_##x))
 #define T_NL() {n += 1; if ((n & 1) == 0) printf("\n");}
-#define T_PRT(t, str) printf("%-6s %8x ", #str, (unsigned int) t->str)
+#define T_PRT(t, str) printf("%-6s %8lx ", #str, t->str)
 
 #define TIM15_MASK \
  (T_MASK(CR1) \
@@ -262,22 +262,22 @@ void gpioInfo(GPIO_TypeDef *gpioPtr)
 {
  printf("gpio %x %c\n", (unsigned int) gpioPtr, portName(gpioPtr));
 //#if defined(STM32F3) || defined(STM32F4) || defined(STM32H7)
-// printf("MODER   %8x ", (unsigned int) gpio->MODER);
-// printf("OTYPER  %8x\n", (unsigned int) gpio->OTYPER);
-// printf("OSPEEDR %8x ", (unsigned int) gpio->OSPEEDR);
-// printf("PUPDR   %8x\n", (unsigned int) gpio->PUPDR);
+// printf("MODER   %8lx ", gpio->MODER);
+// printf("OTYPER  %8lx\n", gpio->OTYPER);
+// printf("OSPEEDR %8lx ", gpio->OSPEEDR);
+// printf("PUPDR   %8lx\n", gpio->PUPDR);
 //#endif	/* STM32F3 */
 #if defined(STM32F1)
- printf("CRL     %8x ", (unsigned int) gpio->CRL);
- printf("CRH     %8x\n", (unsigned int) gpio->CRH);
+ printf("CRL     %8lx ", gpio->CRL);
+ printf("CRH     %8lx\n", gpio->CRH);
 #endif	/* STM32F1 */
-// printf("IDR     %8x ", (unsigned int) gpio->IDR);
-// printf("ODR     %8x\n", (unsigned int) gpio->ODR);
-// printf("BSRR    %8x ", (unsigned int) gpio->BSRR);
-// printf("LCKR    %8x\n", (unsigned int) gpio->LCKR);
+// printf("IDR     %8lx ", gpio->IDR);
+// printf("ODR     %8lx\n", gpio->ODR);
+// printf("BSRR    %8lx ", gpio->BSRR);
+// printf("LCKR    %8lx\n", gpio->LCKR);
 //#if defined(STM32F3) || defined(STM32F4) || defined(STM32H7)
-// printf("AFR[0]  %8x ", (unsigned int) gpio->AFR[0]);
-// printf("AFR[1]  %8x\n", (unsigned int) gpio->AFR[1]);
+// printf("AFR[0]  %8lx ", gpio->AFR[0]);
+// printf("AFR[1]  %8lx\n", gpio->AFR[1]);
 //#endif	/* STM32F3 */
  int i;
  printf("         ");
@@ -368,16 +368,16 @@ void gpioInfo(GPIO_TypeDef *gpio)
 {
  printf("gpio %x %c\n",(unsigned int) gpio, portName(gpio));
 #if defined(STM32F4)
- printf("MODER   %8x ",(unsigned int) gpio->MODER);
- printf("OTYPER  %8x\n",(unsigned int) gpio->OTYPER);
- printf("OSPEEDR %8x ",(unsigned int) gpio->OSPEEDR);
- printf("PUPDR   %8x\n",(unsigned int) gpio->PUPDR);
- printf("IDR     %8x ",(unsigned int) gpio->IDR);
- printf("ODR     %8x\n",(unsigned int) gpio->ODR);
- printf("BSRR    %8x ",(unsigned int) gpio->BSRR);
- printf("LCKR    %8x\n",(unsigned int) gpio->LCKR);
- printf("AFR[0]  %8x ",(unsigned int) gpio->AFR[0]);
- printf("AFR[1]  %8x\n",(unsigned int) gpio->AFR[1]);
+ printf("MODER   %8lx ",gpio->MODER);
+ printf("OTYPER  %8lx\n",gpio->OTYPER);
+ printf("OSPEEDR %8lx ",gpio->OSPEEDR);
+ printf("PUPDR   %8lx\n",gpio->PUPDR);
+ printf("IDR     %8lx ",gpio->IDR);
+ printf("ODR     %8lx\n",gpio->ODR);
+ printf("BSRR    %8lx ",gpio->BSRR);
+ printf("LCKR    %8lx\n",gpio->LCKR);
+ printf("AFR[0]  %8lx ",gpio->AFR[0]);
+ printf("AFR[1]  %8lx\n",gpio->AFR[1]);
  int i;
  printf("         ");
  for (i = 0; i < 16; i++)
@@ -495,28 +495,28 @@ char timNum(TIM_TypeDef *tmr)
 
 void tmrInfo(TIM_TypeDef *tmr)
 {
- printf("tmr %x TIM%d\n",(unsigned int) tmr, timNum(tmr));
- printf("CR1   %8x ",(unsigned int) tmr->CR1);
- printf("CR2   %8x\n",(unsigned int) tmr->CR2);
- printf("SMCR  %8x ",(unsigned int) tmr->SMCR);
- printf("DIER  %8x\n",(unsigned int) tmr->DIER);
- printf("SR    %8x ",(unsigned int) tmr->SR);
- printf("EGR   %8x\n",(unsigned int) tmr->EGR);
- printf("CCMR1 %8x ",(unsigned int) tmr->CCMR1);
- printf("CCMR2 %8x\n",(unsigned int) tmr->CCMR2);
- printf("CCER  %8x ",(unsigned int) tmr->CCER);
- printf("CNT   %8x\n",(unsigned int) tmr->CNT);
- printf("PSC   %8x ",(unsigned int) tmr->PSC);
- printf("ARR   %8x\n",(unsigned int) tmr->ARR);
- printf("RCR   %8x ",(unsigned int) tmr->RCR);
- printf("CCR1  %8x\n",(unsigned int) tmr->CCR1);
- printf("CCR2  %8x ",(unsigned int) tmr->CCR2);
- printf("CCR3  %8x\n",(unsigned int) tmr->CCR3);
- printf("CCR4  %8x ",(unsigned int) tmr->CCR4);
- printf("BDTR  %8x\n",(unsigned int) tmr->BDTR);
- printf("DCR   %8x ",(unsigned int) tmr->DCR);
+ printf("tmr %x TIM%d\n", (unsigned int) tmr, timNum(tmr));
+ printf("CR1   %8lx ", tmr->CR1);
+ printf("CR2   %8lx\n",tmr->CR2);
+ printf("SMCR  %8lx ",tmr->SMCR);
+ printf("DIER  %8lx\n",tmr->DIER);
+ printf("SR    %8lx ",tmr->SR);
+ printf("EGR   %8lx\n",tmr->EGR);
+ printf("CCMR1 %8lx ",tmr->CCMR1);
+ printf("CCMR2 %8lx\n",tmr->CCMR2);
+ printf("CCER  %8lx ",tmr->CCER);
+ printf("CNT   %8lx\n",tmr->CNT);
+ printf("PSC   %8lx ",tmr->PSC);
+ printf("ARR   %8lx\n",tmr->ARR);
+ printf("RCR   %8lx ",tmr->RCR);
+ printf("CCR1  %8lx\n",tmr->CCR1);
+ printf("CCR2  %8lx ",tmr->CCR2);
+ printf("CCR3  %8lx\n",tmr->CCR3);
+ printf("CCR4  %8lx ",tmr->CCR4);
+ printf("BDTR  %8lx\n",tmr->BDTR);
+ printf("DCR   %8lx ",tmr->DCR);
 #if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
- printf("OR    %8x\n",(unsigned int) tmr->OR);
+ printf("OR    %8lx\n",tmr->OR);
 #endif
 #if defined(STM32F1) ||  defined(STM32H7)
  newline();
@@ -598,7 +598,7 @@ void tmrInfo(TIM_TypeDef *tmr, int tmrFlag)
 
 void extiInfo()
 {
- printf("EXTI %x\n",(unsigned int) EXTI);
+ printf("EXTI %x\n", (unsigned int) EXTI);
  int i;
  printf("      ");
  for (i = 0; i <= 22; i++)
@@ -643,7 +643,7 @@ void extiInfo()
   printf(" %2d", (val >> i) & 0x1);
 
 #if defined(__STM32F4xx_HAL_H) || defined(__STM32F7xx_HAL_H)
- printf("\nSYSCFG %x\n",(unsigned int) SYSCFG);
+ printf("\nSYSCFG %x\n", (unsigned int) SYSCFG);
  printf("      ");
  for (i = 0; i < 16; i++)
   printf(" %2d", i);
@@ -680,18 +680,18 @@ void usartInfo(USART_TypeDef *usart, const char *str)
 {
  printf("usart %x %s\n",(unsigned int) usart, str);
 #ifdef STM32F4
- printf("SR   %8x ",(unsigned int) usart->SR);
- printf("DR   %8x\n",(unsigned int) usart->DR);
+ printf("SR   %8lx ",usart->SR);
+ printf("DR   %8lx\n",usart->DR);
 #endif
 #ifdef STM32F7
- printf("ISR  %8x ",(unsigned int) usart->ISR);
- printf("RDR  %8x\n",(unsigned int) usart->RDR);
+ printf("ISR  %8lx ",usart->ISR);
+ printf("RDR  %8lx\n",usart->RDR);
 #endif
- printf("BRR  %8x ",(unsigned int) usart->BRR);
- printf("CR1  %8x\n",(unsigned int) usart->CR1);
- printf("CR2  %8x ",(unsigned int) usart->CR2);
- printf("CR3  %8x\n",(unsigned int) usart->CR3);
- printf("GTPR %8x\n",(unsigned int) usart->GTPR);
+ printf("BRR  %8lx ",usart->BRR);
+ printf("CR1  %8lx\n",usart->CR1);
+ printf("CR2  %8lx ",usart->CR2);
+ printf("CR3  %8lx\n",usart->CR3);
+ printf("GTPR %8lx\n",usart->GTPR);
  flushBuf();
 }
 
@@ -699,15 +699,15 @@ void usartInfo(USART_TypeDef *usart, const char *str)
 void i2cInfo(I2C_TypeDef *i2c, const char *str)
 {
  printf("I2C %08x %s\n", (unsigned int) i2c, str);
- printf("CR1   %8x ", (unsigned int) i2c->CR1);
- printf("CR2   %8x\n", (unsigned int) i2c->CR2);
- printf("OAR1  %8x ", (unsigned int) i2c->OAR1);
- printf("OAR2  %8x\n", (unsigned int) i2c->OAR2);
- printf("SR1   %8x ", (unsigned int) i2c->SR1);
- printf("SR2   %8x\n", (unsigned int) i2c->SR2);
- printf("DR    %8x ", (unsigned int) i2c->DR);
- printf("CCR   %8x\n", (unsigned int) i2c->CCR);
- printf("TRISE %8x\n", (unsigned int) i2c->TRISE);
+ printf("CR1   %8lx ", i2c->CR1);
+ printf("CR2   %8lx\n", i2c->CR2);
+ printf("OAR1  %8lx ", i2c->OAR1);
+ printf("OAR2  %8lx\n", i2c->OAR2);
+ printf("SR1   %8lx ", i2c->SR1);
+ printf("SR2   %8lx\n", i2c->SR2);
+ printf("DR    %8lx ", i2c->DR);
+ printf("CCR   %8lx\n", i2c->CCR);
+ printf("TRISE %8lx\n", i2c->TRISE);
  flushBuf();
 }
 #endif
@@ -715,25 +715,25 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str)
 void i2cInfo(I2C_TypeDef *i2c, const char *str)
 {
  printf("i2c %x %s\n",(unsigned int) i2c, str);
- printf("CR1      %8x ",  (unsigned int) i2c->CR1);
- printf("CR2      %8x\n", (unsigned int) i2c->CR2);
- printf("OAR1     %8x ",  (unsigned int) i2c->OAR1);
- printf("OAR2     %8x\n", (unsigned int) i2c->OAR2);
+ printf("CR1      %8lx ",  i2c->CR1);
+ printf("CR2      %8lx\n", i2c->CR2);
+ printf("OAR1     %8lx ",  i2c->OAR1);
+ printf("OAR2     %8lx\n", i2c->OAR2);
 #if defined(STM32F1) || defined(STM32F3) || defined(STM32F4)
- printf("SR1      %8x ",  (unsigned int) i2c->SR1);
- printf("SR2      %8x\n", (unsigned int) i2c->SR2);
- printf("DR       %8x ",  (unsigned int) i2c->DR);
- printf("CCR      %8x\n", (unsigned int) i2c->CCR);
- printf("TRISE    %8x\n", (unsigned int) i2c->TRISE);
+ printf("SR1      %8lx ",  i2c->SR1);
+ printf("SR2      %8lx\n", i2c->SR2);
+ printf("DR       %8lx ",  i2c->DR);
+ printf("CCR      %8lx\n", i2c->CCR);
+ printf("TRISE    %8lx\n", i2c->TRISE);
 #endif
 #ifdef STM32H7
- printf("TIMINGR  %8x ",  (unsigned int) i2c->TIMINGR);
- printf("TIMEOUTR %8x\n", (unsigned int) i2c->TIMEOUTR);
- printf("ISR      %8x ",  (unsigned int) i2c->ISR);
- printf("ICR      %8x\n", (unsigned int) i2c->ICR);
- printf("PECR     %8x\n", (unsigned int) i2c->PECR);
- printf("RXDR     %8x ",  (unsigned int) i2c->RXDR);
- printf("TXDR     %8x\n", (unsigned int) i2c->TXDR);
+ printf("TIMINGR  %8lx ",  i2c->TIMINGR);
+ printf("TIMEOUTR %8lx\n", i2c->TIMEOUTR);
+ printf("ISR      %8lx ",  i2c->ISR);
+ printf("ICR      %8lx\n", i2c->ICR);
+ printf("PECR     %8lx\n", i2c->PECR);
+ printf("RXDR     %8lx ",  i2c->RXDR);
+ printf("TXDR     %8lx\n", i2c->TXDR);
 #endif
  flushBuf();
 }
@@ -741,132 +741,132 @@ void i2cInfo(I2C_TypeDef *i2c, const char *str)
 void spiInfo(SPI_TypeDef *spi, const char *str)
 {
  printf("spi %x %s\n", (unsigned int) spi, str);
- printf("CR1      %8x ",  (unsigned int) spi->CR1);
- printf("CR2      %8x\n", (unsigned int) spi->CR2);
- printf("SR       %8x\n", (unsigned int) spi->SR);
+ printf("CR1      %8lx ",  spi->CR1);
+ printf("CR2      %8lx\n", spi->CR2);
+ printf("SR       %8lx\n", spi->SR);
 }
 
 void rccInfo()
 {
 #if defined(STM32F1)
  printf("RCC %08x\n", (unsigned int) RCC);
- printf("CR       %8x ",  (unsigned int) RCC->CR);
- printf("CFGR     %8x\n", (unsigned int) RCC->CFGR);
- printf("APB2RSTR %8x ",  (unsigned int) RCC->APB2RSTR);
- printf("APB1RSTR %8x\n", (unsigned int) RCC->APB1RSTR);
- printf("APB2ENR  %8x ",  (unsigned int) RCC->APB2ENR);
- printf("APB1ENR  %8x\n", (unsigned int) RCC->APB1ENR);
- printf("CIR      %8x ",  (unsigned int) RCC->CIR);
- printf("AHBENR   %8x\n", (unsigned int) RCC->AHBENR);
- printf("BDCR     %8x ",  (unsigned int) RCC->BDCR);
- printf("CSR      %8x\n", (unsigned int) RCC->CSR);
+ printf("CR       %8lx ",  RCC->CR);
+ printf("CFGR     %8lx\n", RCC->CFGR);
+ printf("APB2RSTR %8lx ",  RCC->APB2RSTR);
+ printf("APB1RSTR %8lx\n", RCC->APB1RSTR);
+ printf("APB2ENR  %8lx ",  RCC->APB2ENR);
+ printf("APB1ENR  %8lx\n", RCC->APB1ENR);
+ printf("CIR      %8lx ",  RCC->CIR);
+ printf("AHBENR   %8lx\n", RCC->AHBENR);
+ printf("BDCR     %8lx ",  RCC->BDCR);
+ printf("CSR      %8lx\n", RCC->CSR);
 #endif
 #ifdef STM32F4
- printf("CR         %8x ",  (unsigned int) RCC->CR);
- printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
+ printf("CR         %8lx ",  RCC->CR);
+ printf("PLLCFGR    %8lx\n", RCC->PLLCFGR);
 
- printf("CFGR       %8x ",  (unsigned int) RCC->CFGR);
- printf("CIR        %8x\n", (unsigned int) RCC->CIR);
+ printf("CFGR       %8lx ",  RCC->CFGR);
+ printf("CIR        %8lx\n", RCC->CIR);
 
- printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
- printf("AHB2RSTR   %8x ",  (unsigned int) RCC->AHB2RSTR);
- printf("AHB3RSTR   %8x\n", (unsigned int) RCC->AHB3RSTR);
+ printf("AHB1RSTR   %8lx ",  RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8lx ",  RCC->AHB2RSTR);
+ printf("AHB3RSTR   %8lx\n", RCC->AHB3RSTR);
 
- printf("APB1RSTR   %8x ",  (unsigned int) RCC->APB1RSTR);
- printf("APB2RSTR   %8x\n", (unsigned int) RCC->APB2RSTR);
+ printf("APB1RSTR   %8lx ",  RCC->APB1RSTR);
+ printf("APB2RSTR   %8lx\n", RCC->APB2RSTR);
 
- printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
- printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB1RSTR);
- printf("AHB3ENR    %8x\n", (unsigned int) RCC->AHB1RSTR);
+ printf("AHB1ENR    %8lx ",  RCC->AHB1RSTR);
+ printf("AHB2ENR    %8lx ",  RCC->AHB1RSTR);
+ printf("AHB3ENR    %8lx\n", RCC->AHB1RSTR);
 
- printf("APB1ENR    %8x ",  (unsigned int) RCC->APB1ENR);
- printf("APB2ENR    %8x\n", (unsigned int) RCC->APB2ENR);
+ printf("APB1ENR    %8lx ",  RCC->APB1ENR);
+ printf("APB2ENR    %8lx\n", RCC->APB2ENR);
 
- printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
- printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
- printf("AHB3LPENR  %8x\n", (unsigned int) RCC->AHB3LPENR);
+ printf("AHB1LPENR  %8lx ",  RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8lx ",  RCC->AHB2LPENR);
+ printf("AHB3LPENR  %8lx\n", RCC->AHB3LPENR);
 
- printf("APB1LPENR  %8x ",  (unsigned int) RCC->APB1LPENR);
- printf("APB2LPENR  %8x\n", (unsigned int) RCC->APB2LPENR);
+ printf("APB1LPENR  %8lx ",  RCC->APB1LPENR);
+ printf("APB2LPENR  %8lx\n", RCC->APB2LPENR);
 
- printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
- printf("CSR        %8x\n", (unsigned int) RCC->CSR);
+ printf("BDCR       %8lx ",  RCC->BDCR);
+ printf("CSR        %8lx\n", RCC->CSR);
 
- printf("SSCGR      %8x ",  (unsigned int) RCC->BDCR);
- printf("PLLI2SCFGR %8x\n", (unsigned int) RCC->CSR);
+ printf("SSCGR      %8lx ",  RCC->BDCR);
+ printf("PLLI2SCFGR %8lx\n", RCC->CSR);
 #endif
 #ifdef STM32H7
- printf("CR         %8x ",  (unsigned int) RCC->CR);
- printf("HSICFGR    %8x\n", (unsigned int) RCC->HSICFGR);
+ printf("CR         %8lx ",  RCC->CR);
+ printf("HSICFGR    %8lx\n", RCC->HSICFGR);
 
- printf("CRRCR      %8x ",  (unsigned int) RCC->CRRCR);
- printf("CSICFGR    %8x ",  (unsigned int) RCC->CSICFGR);
- printf("CFGR       %8x\n", (unsigned int) RCC->CFGR);
+ printf("CRRCR      %8lx ",  RCC->CRRCR);
+ printf("CSICFGR    %8lx ",  RCC->CSICFGR);
+ printf("CFGR       %8lx\n", RCC->CFGR);
 
- printf("D1CFGR     %8x ",  (unsigned int) RCC->D1CFGR);
- printf("D2CFGR     %8x ",  (unsigned int) RCC->D2CFGR);
- printf("D3CFGR     %8x\n", (unsigned int) RCC->D3CFGR);
+ printf("D1CFGR     %8lx ",  RCC->D1CFGR);
+ printf("D2CFGR     %8lx ",  RCC->D2CFGR);
+ printf("D3CFGR     %8lx\n", RCC->D3CFGR);
 
- printf("PLLCKSELR  %8x ",  (unsigned int) RCC->PLLCKSELR);
- printf("PLLCFGR    %8x\n", (unsigned int) RCC->PLLCFGR);
+ printf("PLLCKSELR  %8lx ",  RCC->PLLCKSELR);
+ printf("PLLCFGR    %8lx\n", RCC->PLLCFGR);
 
- printf("PLL1DIVR   %8x ",  (unsigned int) RCC->PLL1DIVR);
- printf("PLL1FRACR  %8x\n", (unsigned int) RCC->PLL1FRACR);
+ printf("PLL1DIVR   %8lx ",  RCC->PLL1DIVR);
+ printf("PLL1FRACR  %8lx\n", RCC->PLL1FRACR);
 
- printf("PLL2DIVR   %8x ",  (unsigned int) RCC->PLL2DIVR);
- printf("PLL2FRACR  %8x\n", (unsigned int) RCC->PLL2FRACR);
+ printf("PLL2DIVR   %8lx ",  RCC->PLL2DIVR);
+ printf("PLL2FRACR  %8lx\n", RCC->PLL2FRACR);
 
- printf("PLL3DIVR   %8x ",  (unsigned int) RCC->PLL3DIVR);
- printf("PLL3FRACR  %8x\n", (unsigned int) RCC->PLL3FRACR);
+ printf("PLL3DIVR   %8lx ",  RCC->PLL3DIVR);
+ printf("PLL3FRACR  %8lx\n", RCC->PLL3FRACR);
 
- printf("D1CCIPR    %8x ",  (unsigned int) RCC->D1CCIPR);
- printf("D2CCIP1R   %8x ",  (unsigned int) RCC->D2CCIP1R);
- printf("D2CCIP2R   %8x ",  (unsigned int) RCC->D2CCIP2R);
- printf("D3CCIPR    %8x\n", (unsigned int) RCC->D3CCIPR);
+ printf("D1CCIPR    %8lx ",  RCC->D1CCIPR);
+ printf("D2CCIP1R   %8lx ",  RCC->D2CCIP1R);
+ printf("D2CCIP2R   %8lx ",  RCC->D2CCIP2R);
+ printf("D3CCIPR    %8lx\n", RCC->D3CCIPR);
 
- printf("CIER       %8x ",  (unsigned int) RCC->CIER);
- printf("CIFR       %8x\n", (unsigned int) RCC->CIFR);
+ printf("CIER       %8lx ",  RCC->CIER);
+ printf("CIFR       %8lx\n", RCC->CIFR);
 
- printf("CICR       %8x ",  (unsigned int) RCC->CICR);
- printf("BDCR       %8x ",  (unsigned int) RCC->BDCR);
- printf("CSR        %8x\n", (unsigned int) RCC->CSR);
+ printf("CICR       %8lx ",  RCC->CICR);
+ printf("BDCR       %8lx ",  RCC->BDCR);
+ printf("CSR        %8lx\n", RCC->CSR);
 
- printf("AHB3RSTR   %8x ",  (unsigned int) RCC->AHB3RSTR);
- printf("AHB1RSTR   %8x ",  (unsigned int) RCC->AHB1RSTR);
- printf("AHB2RSTR   %8x\n", (unsigned int) RCC->AHB2RSTR);
- printf("AHB4RSTR   %8x ",  (unsigned int) RCC->AHB4RSTR);
- printf("APB3RSTR   %8x\n", (unsigned int) RCC->APB3RSTR);
+ printf("AHB3RSTR   %8lx ",  RCC->AHB3RSTR);
+ printf("AHB1RSTR   %8lx ",  RCC->AHB1RSTR);
+ printf("AHB2RSTR   %8lx\n", RCC->AHB2RSTR);
+ printf("AHB4RSTR   %8lx ",  RCC->AHB4RSTR);
+ printf("APB3RSTR   %8lx\n", RCC->APB3RSTR);
 
- printf("APB1LRSTR  %8x ",  (unsigned int) RCC->APB1LRSTR);
- printf("APB1HRSTR  %8x ",  (unsigned int) RCC->APB1HRSTR);
- printf("APB2RSTR   %8x ",  (unsigned int) RCC->APB2RSTR);
- printf("APB4RSTR   %8x\n", (unsigned int) RCC->APB4RSTR);
+ printf("APB1LRSTR  %8lx ",  RCC->APB1LRSTR);
+ printf("APB1HRSTR  %8lx ",  RCC->APB1HRSTR);
+ printf("APB2RSTR   %8lx ",  RCC->APB2RSTR);
+ printf("APB4RSTR   %8lx\n", RCC->APB4RSTR);
 
- printf("GCR        %8x ",  (unsigned int) RCC->GCR);
- printf("D3AMR      %8x ",  (unsigned int) RCC->D3AMR);
- printf("RSR        %8x\n", (unsigned int) RCC->RSR);
+ printf("GCR        %8lx ",  RCC->GCR);
+ printf("D3AMR      %8lx ",  RCC->D3AMR);
+ printf("RSR        %8lx\n", RCC->RSR);
 
- printf("AHB3ENR    %8x ",  (unsigned int) RCC->AHB3ENR);
- printf("AHB1ENR    %8x ",  (unsigned int) RCC->AHB1ENR);
- printf("AHB2ENR    %8x ",  (unsigned int) RCC->AHB2ENR);
- printf("AHB4ENR    %8x\n", (unsigned int) RCC->AHB4ENR);
+ printf("AHB3ENR    %8lx ",  RCC->AHB3ENR);
+ printf("AHB1ENR    %8lx ",  RCC->AHB1ENR);
+ printf("AHB2ENR    %8lx ",  RCC->AHB2ENR);
+ printf("AHB4ENR    %8lx\n", RCC->AHB4ENR);
 
- printf("APB3ENR    %8x ",  (unsigned int) RCC->APB3ENR);
- printf("APB1LENR   %8x ",  (unsigned int) RCC->APB1LENR);
- printf("APB1HENR   %8x\n", (unsigned int) RCC->APB1HENR);
- printf("APB2ENR    %8x ",  (unsigned int) RCC->APB2ENR);
- printf("APB4ENR    %8x\n", (unsigned int) RCC->APB4ENR);
+ printf("APB3ENR    %8lx ",  RCC->APB3ENR);
+ printf("APB1LENR   %8lx ",  RCC->APB1LENR);
+ printf("APB1HENR   %8lx\n", RCC->APB1HENR);
+ printf("APB2ENR    %8lx ",  RCC->APB2ENR);
+ printf("APB4ENR    %8lx\n", RCC->APB4ENR);
 
- printf("AHB3LPENR  %8x ",  (unsigned int) RCC->AHB3LPENR);
- printf("AHB1LPENR  %8x ",  (unsigned int) RCC->AHB1LPENR);
- printf("AHB2LPENR  %8x ",  (unsigned int) RCC->AHB2LPENR);
- printf("AHB4LPENR  %8x ",  (unsigned int) RCC->AHB4LPENR);
+ printf("AHB3LPENR  %8lx ",  RCC->AHB3LPENR);
+ printf("AHB1LPENR  %8lx ",  RCC->AHB1LPENR);
+ printf("AHB2LPENR  %8lx ",  RCC->AHB2LPENR);
+ printf("AHB4LPENR  %8lx ",  RCC->AHB4LPENR);
 
- printf("APB3LPENR  %8x ",  (unsigned int) RCC->APB3LPENR);
- printf("APB1LLPENR %8x ",  (unsigned int) RCC->APB1LLPENR);
- printf("APB1HLPENR %8x\n", (unsigned int) RCC->APB1HLPENR);
- printf("APB2LPENR  %8x ",  (unsigned int) RCC->APB2LPENR);
- printf("APB4LPENR  %8x\n", (unsigned int) RCC->APB4LPENR);
+ printf("APB3LPENR  %8lx ",  RCC->APB3LPENR);
+ printf("APB1LLPENR %8lx ",  RCC->APB1LLPENR);
+ printf("APB1HLPENR %8lx\n", RCC->APB1HLPENR);
+ printf("APB2LPENR  %8lx ",  RCC->APB2LPENR);
+ printf("APB4LPENR  %8lx\n", RCC->APB4LPENR);
  #endif
 }
 
@@ -874,16 +874,16 @@ void rccInfo()
 void rccInfo()
 {
  printf("RCC %08x\n", (unsigned int) RCC);
- printf("CR       %8x ",  (unsigned int) RCC->CR);
- printf("CFGR     %8x\n", (unsigned int) RCC->CFGR);
- printf("APB2RSTR %8x ",  (unsigned int) RCC->APB2RSTR);
- printf("APB1RSTR %8x\n", (unsigned int) RCC->APB1RSTR);
- printf("APB2ENR  %8x ",  (unsigned int) RCC->APB2ENR);
- printf("APB1ENR  %8x\n", (unsigned int) RCC->APB1ENR);
- printf("CIR      %8x ",  (unsigned int) RCC->CIR);
- printf("AHBENR   %8x\n", (unsigned int) RCC->AHBENR);
- printf("BDCR     %8x ",  (unsigned int) RCC->BDCR);
- printf("CSR      %8x\n", (unsigned int) RCC->CSR);
+ printf("CR       %8lx ",  RCC->CR);
+ printf("CFGR     %8lx\n", RCC->CFGR);
+ printf("APB2RSTR %8lx ",  RCC->APB2RSTR);
+ printf("APB1RSTR %8lx\n", RCC->APB1RSTR);
+ printf("APB2ENR  %8lx ",  RCC->APB2ENR);
+ printf("APB1ENR  %8lx\n", RCC->APB1ENR);
+ printf("CIR      %8lx ",  RCC->CIR);
+ printf("AHBENR   %8lx\n", RCC->AHBENR);
+ printf("BDCR     %8lx ",  RCC->BDCR);
+ printf("CSR      %8lx\n", RCC->CSR);
 }
 #endif
 
@@ -892,13 +892,13 @@ void adcInfo(ADC_TypeDef *adc, char n)
  printf("ADC%d %08x  DR %08x\n",
 	n, (unsigned int) adc, (unsigned int) &adc->DR);
 #if defined(STM32F1)
- printf("SR    %8x\n", (unsigned int) adc->SR);
- printf("CR1   %8x ", (unsigned int) adc->CR1);
- printf("CR2   %8x\n", (unsigned int) adc->CR2);
- printf("HTR   %8x ", (unsigned int) adc->HTR);
- printf("LTR   %8x\n", (unsigned int) adc->LTR);
- printf("L     %8x ", (unsigned int) ((adc->SQR1 >> 20) & 0xf));
- printf("DR    %8x\n", (unsigned int) adc->DR);
+ printf("SR    %8lx\n", adc->SR);
+ printf("CR1   %8lx ", adc->CR1);
+ printf("CR2   %8lx\n", adc->CR2);
+ printf("HTR   %8lx ", adc->HTR);
+ printf("LTR   %8lx\n", adc->LTR);
+ printf("L     %8lx ", ((adc->SQR1 >> 20) & 0xf));
+ printf("DR    %8lx\n", adc->DR);
  int i;
  printf("     ");
  for (i = 0; i < 16; i++)
@@ -909,13 +909,13 @@ void adcInfo(ADC_TypeDef *adc, char n)
  int32_t tmp = adc->SMPR2;
  for (i = 0; i < 10; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 3;
  }
  tmp = adc->SMPR1;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 3;
  }
  printf("\n");
@@ -924,30 +924,30 @@ void adcInfo(ADC_TypeDef *adc, char n)
  tmp = adc->SQR3;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 5;
  }
  tmp = adc->SQR2;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 5;
  }
  tmp = adc->SQR1;
  for (i = 0; i < 4; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 5;
  }
  printf("\n");
 #endif	/* STM32F1 */
 #if defined(STM32F3)
- printf("ISR   %8x ", (unsigned int) adc->ISR);
- printf("IER   %8x\n", (unsigned int) adc->IER);
- printf("CR    %8x ", (unsigned int) adc->CR);
- printf("CFGR  %8x\n", (unsigned int) adc->CFGR);
- printf("CAL   %8x ", (unsigned int) adc->CALFACT);
- printf("DR    %8x\n", (unsigned int) adc->DR);
+ printf("ISR   %8lx ", adc->ISR);
+ printf("IER   %8lx\n", adc->IER);
+ printf("CR    %8lx ", adc->CR);
+ printf("CFGR  %8lx\n", adc->CFGR);
+ printf("CAL   %8lx ", adc->CALFACT);
+ printf("DR    %8lx\n", adc->DR);
  int i;
  printf("     ");
  for (i = 0; i < 16; i++)
@@ -958,13 +958,13 @@ void adcInfo(ADC_TypeDef *adc, char n)
  int32_t tmp = adc->SMPR1;
  for (i = 0; i < 10; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 3;
  }
  tmp = adc->SMPR2;
  for (i = 0; i < 9; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 7));
+  printf(" %2u", (tmp & 7));
   tmp >>= 3;
  }
  printf("\n");
@@ -973,25 +973,25 @@ void adcInfo(ADC_TypeDef *adc, char n)
  tmp = adc->SQR1;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 0xf));
+  printf(" %2u", (tmp & 0xf));
   tmp >>= 6;
  }
  tmp = adc->SQR2;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 0x4));
+  printf(" %2u", (tmp & 0x4));
   tmp >>= 6;
  }
  tmp = adc->SQR3;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 0xf));
+  printf(" %2u", (tmp & 0xf));
   tmp >>= 6;
  }
  tmp = adc->SQR4;
  for (i = 0; i < 2; i++)
  {
-  printf(" %2u", (unsigned int) (tmp & 0xf));
+  printf(" %2u", (tmp & 0xf));
   tmp >>= 6;
  }
  printf("\n");
@@ -1003,8 +1003,8 @@ void adcInfo(ADC_TypeDef *adc, char n)
 void dmaInfo(DMA_TypeDef *dma)
 {
  printf("DMA1 %08x\n", (unsigned int) dma);
- printf("ISR   %8x ", (unsigned int) dma->ISR);
- printf("IFCR  %8x\n", (unsigned int) dma->IFCR);
+ printf("ISR   %8lx ", dma->ISR);
+ printf("IFCR  %8lx\n", dma->IFCR);
  flushBuf();
 }
 #endif
@@ -1013,10 +1013,10 @@ void dmaInfo(DMA_TypeDef *dma)
 void dmaChannelInfo(DMA_Channel_TypeDef *dmaC, char n)
 {
  printf("DMA_Channel%d %08x\n", n, (unsigned int) dmaC);
- printf("CCR   %8x ", (unsigned int) dmaC->CCR);
- printf("CNDTR %8x\n", (unsigned int) dmaC->CNDTR);
- printf("CPAR  %8x ", (unsigned int) dmaC->CPAR);
- printf("CMAR  %8x\n", (unsigned int) dmaC->CMAR);
+ printf("CCR   %8lx ", dmaC->CCR);
+ printf("CNDTR %8lx\n", dmaC->CNDTR);
+ printf("CPAR  %8lx ", dmaC->CPAR);
+ printf("CMAR  %8lx\n", dmaC->CMAR);
  flushBuf();
 }
 #endif
@@ -1025,13 +1025,13 @@ void afioInfo()
 {
 #if defined(STM32F1)
  printf("AFIO %x\n", (unsigned int) AFIO);
- printf("EVCR      %8x ",  (unsigned int) AFIO->EVCR);
- printf("MAPR      %8x\n", (unsigned int) AFIO->MAPR);
- printf("EXTICR[0] %8x ",  (unsigned int) AFIO->EXTICR[0]);
- printf("EXTICR[1] %8x\n", (unsigned int) AFIO->EXTICR[1]);
- printf("EXTICR[2] %8x ",  (unsigned int) AFIO->EXTICR[2]);
- printf("EXTICR[3] %8x\n", (unsigned int) AFIO->EXTICR[3]);
- printf("MAPR2     %8x\n", (unsigned int) AFIO->MAPR2);
+ printf("EVCR      %8lx ",  AFIO->EVCR);
+ printf("MAPR      %8lx\n", AFIO->MAPR);
+ printf("EXTICR[0] %8lx ",  AFIO->EXTICR[0]);
+ printf("EXTICR[1] %8lx\n", AFIO->EXTICR[1]);
+ printf("EXTICR[2] %8lx ",  AFIO->EXTICR[2]);
+ printf("EXTICR[3] %8lx\n", AFIO->EXTICR[3]);
+ printf("MAPR2     %8lx\n", AFIO->MAPR2);
 #endif
 }
 
@@ -1039,9 +1039,9 @@ void bkpInfo()
 {
 #if defined(STM32F1)
  printf("BKP %x\n", (unsigned int) BKP);
- printf("RTCCR     %8x ",  (unsigned int) BKP->RTCCR);
- printf("CR        %8x\n", (unsigned int) BKP->CR);
- printf("CSR       %8x\n", (unsigned int) BKP->CSR);
+ printf("RTCCR     %8lx ",  BKP->RTCCR);
+ printf("CR        %8lx\n", BKP->CR);
+ printf("CSR       %8lx\n", BKP->CSR);
 #endif
 }
 
@@ -1049,16 +1049,16 @@ void rtcInfo()
 {
 #if defined(STM32F1)
  printf("RTC %x\n", (unsigned int) RTC);
- printf("CRH       %8x ",  (unsigned int) RTC->CRH);
- printf("CRL       %8x\n", (unsigned int) RTC->CRL);
- printf("PRLH      %8x ",  (unsigned int) RTC->PRLH);
- printf("PRLL      %8x\n", (unsigned int) RTC->PRLL);
- printf("DIVH      %8x ",  (unsigned int) RTC->DIVH);
- printf("DIVL      %8x\n", (unsigned int) RTC->DIVL);
- printf("CNTH      %8x ",  (unsigned int) RTC->CNTH);
- printf("CNTL      %8x\n", (unsigned int) RTC->CNTL);
- printf("ALRH      %8x ",  (unsigned int) RTC->ALRH);
- printf("ALRL      %8x\n", (unsigned int) RTC->ALRL);
+ printf("CRH       %8lx ",  RTC->CRH);
+ printf("CRL       %8lx\n", RTC->CRL);
+ printf("PRLH      %8lx ",  RTC->PRLH);
+ printf("PRLL      %8lx\n", RTC->PRLL);
+ printf("DIVH      %8lx ",  RTC->DIVH);
+ printf("DIVL      %8lx\n", RTC->DIVL);
+ printf("CNTH      %8lx ",  RTC->CNTH);
+ printf("CNTL      %8lx\n", RTC->CNTL);
+ printf("ALRH      %8lx ",  RTC->ALRH);
+ printf("ALRL      %8lx\n", RTC->ALRL);
 #endif
 }
 
@@ -1066,19 +1066,19 @@ void pwrInfo()
 {
  printf("PWR %x\n", (unsigned int) PWR);
 #if defined(STM32F1) || defined(STM32F4)
- printf("CR        %8x ",  (unsigned int) PWR->CR);
- printf("CSR       %8x\n", (unsigned int) PWR->CSR);
+ printf("CR        %8lx ",  PWR->CR);
+ printf("CSR       %8lx\n", PWR->CSR);
 #endif /* STM32F1 || STM32F4 */
 #if defined(STM32H7)
- printf("CR1        %8x ",  (unsigned int) PWR->CR1);
- printf("CSR1       %8x\n", (unsigned int) PWR->CSR1);
- printf("CR2        %8x ",  (unsigned int) PWR->CR2);
- printf("CR3        %8x\n", (unsigned int) PWR->CR3);
- printf("CPUCR2     %8x ",  (unsigned int) PWR->CPUCR);
- printf("D3CR       %8x\n", (unsigned int) PWR->D3CR);
- printf("WKUPCR     %8x ",  (unsigned int) PWR->WKUPCR);
- printf("WKUPFR     %8x\n", (unsigned int) PWR->WKUPFR);
- printf("WKUPEPR    %8x\n", (unsigned int) PWR->WKUPEPR);
+ printf("CR1        %8lx ",  PWR->CR1);
+ printf("CSR1       %8lx\n", PWR->CSR1);
+ printf("CR2        %8lx ",  PWR->CR2);
+ printf("CR3        %8lx\n", PWR->CR3);
+ printf("CPUCR2     %8lx ",  PWR->CPUCR);
+ printf("D3CR       %8lx\n", PWR->D3CR);
+ printf("WKUPCR     %8lx ",  PWR->WKUPCR);
+ printf("WKUPFR     %8lx\n", PWR->WKUPFR);
+ printf("WKUPEPR    %8lx\n", PWR->WKUPEPR);
 #endif /* STM32F7 */
 }
 
@@ -1270,7 +1270,7 @@ void info()
  }
 }
 
-void bitState(const char *s, volatile uint32_t *p, uint32_t mask)
+void bitState(const char *s, volatile const uint32_t *p, uint32_t mask)
 {
  printf("%s %c\n", s, ((*p & mask) == 0) ? '0' : '1');
 }

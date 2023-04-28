@@ -50,7 +50,7 @@ enum tmrFlags
 #define T_MASK(x) (1 << T_##x)
 #define T_CHECK(flag, x) (flag & (1 << T_##x))
 #define T_NL() {n += 1; if ((n & 1) == 0) printf("\n");}
-#define T_PRT(t, str) printf("%-6s %8x ", #str, (unsigned int) t->str)
+#define T_PRT(t, str) printf("%-6s %8lx ", #str, t->str)
 
 #define TIM15_MASK \
  (T_MASK(CR1) \
