@@ -376,7 +376,7 @@ EXT int trackSpeed;		/* external motor track speed */
 EXT int updateFeed;		/* time to update feed */
 
 EXT unsigned int tmrStepWidth;	/* step width */
-EXT unsigned int  tmrMin;	/* timer minimum width */
+EXT unsigned int tmrMin;	/* timer minimum width */
 
 EXT uint32_t spEncCount;	/* spindle encoder interrupt count */
 
@@ -384,6 +384,7 @@ EXT int16_t encState;		/* state of encoder */
 
 #define ARRAY_LEN 2048		/* size of array */
 #define START_DELAY 2		/* delay internal start */
+
 typedef struct
 {
  uint32_t encCount;		/* encoder counts */
@@ -395,6 +396,7 @@ typedef struct
  unsigned int encPulse;		/* encoder pulse number */
  uint16_t lastEnc;		/* last encoder capture */
  uint32_t encClocks;		/* clocks in current encoder cycle */
+ uint32_t preCycleClocks;	/* prescaled cycle clocks */
  uint32_t cycleClocks;		/* estimated clocks in cycle */
 
  uint32_t encoderClocks;	/* encoder clocks per cycle */
@@ -410,7 +412,7 @@ typedef struct
  boolean stop;			/* stop flag */
 
  uint16_t startDelay;		/* initial delay */
- uint32_t delta[ARRAY_LEN];	/* saved delta values */
+ uint16_t delta[ARRAY_LEN];	/* saved delta values */
 } T_CMP_TMR, *P_CMP_TMR;
 
 EXT T_CMP_TMR cmpTmr;

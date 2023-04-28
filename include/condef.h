@@ -304,7 +304,7 @@ T_CONDEF conDef[] =
 };
 
 #endif
-#if defined(NUCLEO746) || defined(NUCLEOH743)
+#if defined(NUCLEO746) || defined(NUCLEOH743) || defined(NUCLEOH723)
 
 T_CONDEF conDef[] =
 {

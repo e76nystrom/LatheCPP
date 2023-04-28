@@ -423,7 +423,7 @@ void dwtAccessEnable(unsigned ena)
 	getSP());
  #endif
 
-#if defined(STM32H7)
+#if defined(STM32H7) && !defined(USB)
  uint8_t remMsg[] = "start remCmd\n\r";
  HAL_UART_Transmit(&huart7, remMsg, sizeof(remMsg), HAL_MAX_DELAY);
 #endif	/* STM32H7 */
@@ -440,14 +440,14 @@ void dwtAccessEnable(unsigned ena)
 	sysClock, clockFreq, FCY, (unsigned int) &rVar.cfgFcy);
  printf("sysTick load %d\n", (int) SysTick->LOAD);
 
-#if defined(USB) && defined(STM32H7)
+#if defined(USB) && defined(STM32H7) && defined(NUCLEOH743)
  printf("SYSCFG->PWRCR %08x RCC->APB4ENR %08x PWR->D3CR %08x\n",
         (unsigned int) SYSCFG->PWRCR, (unsigned int) RCC->APB4ENR,
         (unsigned int) PWR->D3CR);
 
  printf("RCC->D2CCIP2R %x\n", (unsigned int)
      (RCC->D2CCIP2R & RCC_D2CCIP2R_USBSEL) >> RCC_D2CCIP2R_USBSEL_Pos);
-#endif  /* USB && STM32H& */
+#endif  /* USB && STM32H7 */
 
 #if 1
  printf("spindle timer %d pwm %d\n", SPINDLE_TIMER, SPINDLE_TMR_PWM);

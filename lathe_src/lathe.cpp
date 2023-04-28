@@ -444,6 +444,7 @@ EXT int16_t encState;		/* state of encoder */
 
 #define ARRAY_LEN 2048		/* size of array */
 #define START_DELAY 2		/* delay internal start */
+
 typedef struct
 {
  uint32_t encCount;		/* encoder counts */
@@ -455,6 +456,7 @@ typedef struct
  unsigned int encPulse;		/* encoder pulse number */
  uint16_t lastEnc;		/* last encoder capture */
  uint32_t encClocks;		/* clocks in current encoder cycle */
+ uint32_t preCycleClocks;	/* prescaled cycle clocks */
  uint32_t cycleClocks;		/* estimated clocks in cycle */
 
  uint32_t encoderClocks;	/* encoder clocks per cycle */
@@ -470,7 +472,7 @@ typedef struct
  boolean stop;			/* stop flag */
 
  uint16_t startDelay;		/* initial delay */
- uint32_t delta[ARRAY_LEN];	/* saved delta values */
+ uint16_t delta[ARRAY_LEN];	/* saved delta values */
 } T_CMP_TMR, *P_CMP_TMR;
 
 EXT T_CMP_TMR cmpTmr;
@@ -1339,7 +1341,7 @@ void setup()
  tmrStepWidth -= 1;
  tmrMin -= 1;
 
- rVar.setupDone = 1;			/* indicate setup complete */
+ rVar.setupDone = 1;		/* indicate setup complete */
 
  clksPerUSec = rVar.cfgFcy / 1000000; /* clocks per usec */
 }
@@ -1467,13 +1469,14 @@ void setSpindleSpeed(int rpm)
 void spindleSetup(int rpm)
 {
  if (DBG_SETUP)
- {
   printf("\nspindleSetup %d\n", rpm);
- }
 
 #if defined(INT_ENCODER)
  if (rVar.spindleInternalSync)
  {
+  if (DBG_SETUP)
+   printf("IntSyncPin set to output\n");
+
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   NVIC_DisableIRQ(IntSync_IRQn);
@@ -1855,11 +1858,12 @@ void syncMeasure()
  rVar.capTmrEnable = 1;		/* enable capture timer */
 
  cmpTmr.encCycLen = ARRAY_LEN;	/* initialize cycle length */
+ cmpTmr.preCycleClocks = 0;	/* clear prescaled cycle clocks */
  cmpTmr.cycleClocks = 0;	/* clear cycle clocks */
  cmpTmr.lastEnc = 0;		/* clear last encoder vale */
  memset(&cmpTmr.delta, 0, sizeof(cmpTmr.delta)); /* clear delta array */
 
- cmpTmr.encPulse = cmpTmr.encCycLen; /* set number to count */
+ cmpTmr.encPulse = 0;		/* initialize counter */
  cmpTmr.measure = 1;		/* set measurement flag */
  cmpTmr.intClocks = 0;		/* clear clocks in current cycle */
 
@@ -1892,13 +1896,13 @@ void syncCalculate()
 // unsigned int encPerSec = (rVar.rpm * rVar.encPerRev) / 60;
 // unsigned int clockPerEncPulse = rVar.cfgFcy / encPerSec;
 // rVar.lSyncInPrescaler = clockPerEncPulse / 65536;
-#
+
 #if 1
  printf("delta array encCycLen %d\n", cmpTmr.encCycLen);
  flushBuf();
 
  uint32_t total = 0;
- uint32_t *p = cmpTmr.delta;
+ uint16_t *p = cmpTmr.delta;
  int col = 0;
  for (int i = 0; i < cmpTmr.encCycLen; i++)
  {
@@ -1966,14 +1970,15 @@ void syncStart()
  intTmrUpd();			/* update to load registers */
  intTmrSetIE();			/* enable interrupts */
 
+ cmpTmr.preCycleClocks = 0;	/* clear prescaled cycle clocks */
  cmpTmr.cycleClocks = 0;	/* clear cycle clocks */
  cmpTmr.lastEnc = 0;		/* clear last encoder vale */
  memset(&cmpTmr.delta, 0, sizeof(cmpTmr.delta)); /* clear delta array */
 
  cmpTmr.encClocks = 0;		/* clear clocks in current cycle */
 
- cmpTmr.encPulse = cmpTmr.encCycLen; /* initialize encoder counter */
- cmpTmr.intPulse = cmpTmr.intCycLen; /* initialize internal counter */
+ cmpTmr.encPulse = 0;		/* initialize encoder counter */
+ cmpTmr.intPulse = 0;		/* initialize internal counter */
 
 #if DBG_SYNC_COUNT
  cmpTmr.encCount = 0;		/* clear counters */
@@ -2428,7 +2433,7 @@ void slaveEna()
   if (DBG_SETUP)
    printf("\nslave enable 0 z %d x %d\n", zIsr.sync, xIsr.sync);
 
-  unsigned int tmp = sp.stepsRev - 1;	/* get maximum spindle step number */
+  unsigned int tmp = sp.stepsRev - 1; /* get maximum spindle step number */
   if (zIsr.sync)		/* if z sync */
   {
    sp.zStart = tmp - zIsr.accelSpSteps; /* set start pos */
@@ -3161,7 +3166,7 @@ void jogMpg3(P_MOVECTL mov)
   if (mov->mpgFlag)		/* if direction inverted */
    dir = -dir;			/* invert distance */
 
-  if (dir != mov->dir)	/* if direction change */
+  if (dir != mov->dir)		/* if direction change */
   {
    if (rVar.jogDebug)
     printf("%c chg dir %d\n", mov->axisName, dir);

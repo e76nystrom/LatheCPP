@@ -1361,16 +1361,14 @@ void encoder()
 }
 
 #define toggle(cond, set, clr) \
- if (cond) {set;} else {clr;}
+ {if (cond) {set;} else {clr;}}
 
 extern "C" void cmpTmrISR(void)
 {
  dbgCapIsrSet();
 
- if (cmpTmrTstIE())
- {
-  cmpTmrClrIF();
- }
+ if (cmpTmrTstIE())		/* if update interrupt */
+  cmpTmrClrIF();		/* clear interrupt */
 
  if (cmpTmrCap1IF())		/* if encoder input pulse */
  {
@@ -1389,27 +1387,24 @@ extern "C" void cmpTmrISR(void)
 
   if (rVar.capTmrEnable)        /* if capture timer enabled */
   {
-   uint16_t d = captureVal - cmpTmr.lastEnc; /* time since last pulse */
+   uint16_t delta = captureVal - cmpTmr.lastEnc; /* time since last pulse */
    cmpTmr.lastEnc = captureVal;	/* save time of last capture */
-   uint32_t delta = (uint32_t) d * (uint32_t) cmpTmr.inPreScaler;
-   cmpTmr.encPulse -= 1;        /* count off a pulse */
 
-   uint32_t cycleClocks = cmpTmr.cycleClocks; /* get cycle clocks */
-   uint32_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
-   cycleClocks -= *p;		/* subtract old value */
-   cycleClocks += delta;        /* add in new value */
+   uint16_t *p = &cmpTmr.delta[cmpTmr.encPulse]; /* get loc in history array */
+   cmpTmr.preCycleClocks -= *p;	/* subtract old value */
+   cmpTmr.preCycleClocks += delta; /* add in new value */
    *p = delta;			/* save new value */
-
-   cmpTmr.cycleClocks = cycleClocks; /* update clocks in a cycle */
+   cmpTmr.cycleClocks = cmpTmr.preCycleClocks * cmpTmr.inPreScaler; /* scale clocks */
 
    if constexpr (DBG_CMP) {
     if constexpr (DBGTRK2WL0)
-     dbgTrk2WL(cmpTmr.encPulse, delta, cycleClocks);
+     dbgTrk2WL(cmpTmr.encPulse, delta, cmpTmr.preCycleClocks);
    }
 
-   if (cmpTmr.encPulse <= 0)	/* if end of cycle */
+   cmpTmr.encPulse += 1;        /* count off a pulse */
+   if (cmpTmr.encPulse >= cmpTmr.encCycLen) /* if end of cycle */
    {
-    cmpTmr.encPulse = cmpTmr.encCycLen; /* reset cycle counter */
+    cmpTmr.encPulse = 0;	/* reset cycle counter */
     if (cmpTmr.startInt)        /* if time to start internal timer */
     {
      intTmrStart();		/* start timer */
@@ -1439,9 +1434,7 @@ extern "C" void cmpTmrISR(void)
     {
      cmpTmr.cycleCount += 1;
      if constexpr (DBG_CMP)
-     {
       toggle(cmpTmr.cycleCount & 1, dbgCycleSet(), dbgCycleClr());
-     }
     }
    }
 
@@ -1449,9 +1442,7 @@ extern "C" void cmpTmrISR(void)
    {
     cmpTmr.encCount += 1;        /* count interrupt */
     if constexpr (DBG_CMP)
-    {
      toggle(cmpTmr.encCount & 1, dbgIntCSet(), dbgIntCClr());
-    }
    }
   }
  }
@@ -1473,22 +1464,23 @@ extern "C" void intTmrISR()
  dbgIntIsrSet();
  intTmrClrIF();			/* clear interrupt */
  uint32_t ctr  = ((cmpTmr.cycleClocks - cmpTmr.intClocks) /
-		  cmpTmr.intPulse);
- cmpTmr.intPulse -= 1;		/* count a pulse in cycle */
+		  (cmpTmr.intCycLen - cmpTmr.intPulse));
  cmpTmr.intClocks += ctr;	/* update count for next interrupt */
 
- if (cmpTmr.intPulse > 0)	/* if not done */
+ cmpTmr.intPulse += 1;		/* count a pulse in cycle */
+ if (cmpTmr.intPulse < cmpTmr.intCycLen) /* if not done */
  {
-  ctr /= cmpTmr.outPreScaler;
+  ctr /= cmpTmr.outPreScaler;	/* calculate proper counter value */
   intTmrSet(ctr - 1);		/* set timer interval */
  }
- else
+ else				/* if done */
  {
+  cmpTmr.intPulse = 0;		/* resuet counter */
+  cmpTmr.intClocks = 0;		/* clear clock counter */
+
   intTmrStop();			/* stop timer */
   intTmrSet(cmpTmr.startDelay);	/* set to start value */
   intTmrCntClr();		/* clear counter */
-  cmpTmr.intPulse = cmpTmr.intCycLen; /* initialize counter to cycle len */
-  cmpTmr.intClocks = 0;		/* clear clock counter */
   if (cmpTmr.stop == 0)		/* if time to stop */
    cmpTmr.startInt = 1;		/* start on next encoder pulse */
 
@@ -1529,18 +1521,14 @@ extern "C" void intTmrISR()
  {
   cmpTmr.intCount += 1;
   if constexpr (DBG_INT)
-  {
    toggle(cmpTmr.intCount & 1, dbgIntPSet(), dbgIntPClr());
-  }
  }
 
- if constexpr (DBG_INT)
- {
+ if constexpr (DBG_INT) {
   if constexpr (DBGTRK2WL1)
-  {
    dbgTrk2WL(1000 + cmpTmr.intPulse, ctr, cmpTmr.intClocks);
-  }
  }
+
  dbgIntIsrClr();
 }
 

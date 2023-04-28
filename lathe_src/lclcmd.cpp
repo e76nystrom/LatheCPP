@@ -8,8 +8,16 @@
 #endif
 #ifdef STM32H7
 #include "stm32h7xx_hal.h"
+
+#if defined(NUCLEOH743)
 #include "stm32h743xx.h"
-#endif
+#endif  /* NUCLEO743 */
+
+#if defined(NUCLEOH723)
+#include "stm32h723xx.h"
+#endif  /* NUCLEO723 */
+
+#endif  /* STM32H7 */
 
 #include "lathe.h"
 
