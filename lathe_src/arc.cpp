@@ -24,7 +24,7 @@
 #include "lathe.h"
 #include "arc.h"
 #include "ctlbits.h"
-#include "remStruct.h"
+//#include "remStruct.h"
 #include "timers.h"
 #include "serialio.h"
 
@@ -866,6 +866,9 @@ bool arcStep()
    arc->xPos += arc->xDir;
   }
   break;
+
+  default:
+   break;
  }
 
  arc->rpt = rpt;

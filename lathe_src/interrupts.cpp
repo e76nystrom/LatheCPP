@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
 #endif
@@ -441,10 +443,8 @@ extern "C" void indexISR()
  indexTmp.overflow = idxTmr.overflow; /* copy overflow value */
  indexTmp.count = indexTmrRead(); /* read index timer */
  indexTmrStart();		/* restart counter */
- if (idxTmr.start != 0)		/* if not the first index interrupt */
- {
+ if (idxTmr.start != 0)         /* if not the first index interrupt */
   rVar.indexPeriod = indexTmp.period - idxTmr.start; /* save to period */
- }
  idxTmr.start = indexTmp.period; /* set start for next period */
 
  if (trackSpeed)		/* if tracking speed */
@@ -1475,7 +1475,7 @@ extern "C" void intTmrISR()
  }
  else				/* if done */
  {
-  cmpTmr.intPulse = 0;		/* resuet counter */
+  cmpTmr.intPulse = 0;		/* reset counter */
   cmpTmr.intClocks = 0;		/* clear clock counter */
 
   intTmrStop();			/* stop timer */
@@ -1570,3 +1570,5 @@ extern "C" void step5TmrISR()
  dbgS5IsrClr();
 }
 #endif	/* STEP5_TIMER */
+
+#pragma clang diagnostic pop

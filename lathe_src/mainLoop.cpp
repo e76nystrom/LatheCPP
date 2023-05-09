@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-reserved-identifier"
 //******************************************************************************
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
@@ -256,10 +258,13 @@ void mainLoopSetup()
 
 // #ifdef USEC_SHARED_INDEX
  if constexpr (USEC_TIMER == INDEX_TIMER)
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
  {
   indexTmrScl((tmrClkFreq / 1000000U) - 1); /* load scaler */
   idxTmr.freq = 1000000U;
  }
+#pragma clang diagnostic pop
 // #else
  {
   indexTmrScl(0);
@@ -286,7 +291,10 @@ void mainLoopSetup()
  }
 
  if constexpr (false)
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
   testOutputs(0);
+#pragma clang diagnostic pop
 }
 
 void mainLoopSetupX()
@@ -877,3 +885,5 @@ void lcdDisplay()
   d++;
  }
 #endif
+
+#pragma clang diagnostic pop

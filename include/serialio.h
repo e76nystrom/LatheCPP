@@ -448,6 +448,10 @@ inline uint32_t megaRxOverrun()
 {
  return(MEGAPORT->ISR & USART_ISR_ORE);
 }
+inline void megaRxClrOverrun()
+{
+ MEGAPORT->ICR = USART_ICR_ORECF;
+}
 inline uint32_t megaTxEmpty()
 {
  return(MEGAPORT->ISR & USART_ISR_TXE_TXFNF);
