@@ -16,7 +16,7 @@ void remCmd();
 void loadVal();
 
 #include "remCmdList.h"
-#include "remParmList.h"
+#include "remParm.h"
 #include "ctlbits.h"
 
 #endif  /* REMCMD_INC */	// ->

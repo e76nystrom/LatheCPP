@@ -331,16 +331,16 @@ void lclcmd(int ch)
     {
      parmVal.t_int = intFloat.i;
      setRemVar(parm, parmVal);
-     parmVal.t_unsigned_int = 0xffffffff;
+     parmVal.t_uint_t = 0xffffffff;
      getRemVar(parm, &parmVal);
      printf("parm %d val %d parmVal %08x\n",
-	    parm, intFloat.i, parmVal.t_unsigned_int);
+	    parm, intFloat.i, parmVal.t_uint_t);
     }
     else if (ch == FLOAT_VAL)
     {
      parmVal.t_float = intFloat.f;
      setRemVar(parm, parmVal);
-     parmVal.t_unsigned_int = 0xffffffff;
+     parmVal.t_uint_t = 0xffffffff;
      getRemVar(parm, &parmVal);
      printf("parm %d fVal %7.3f parmVal %7.3f\n",
 	    parm, intFloat.f, parmVal.t_float);

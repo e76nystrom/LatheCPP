@@ -529,7 +529,7 @@ nuch743 = \
   ("step1",       2,  "STEP1_TIM"),
   ("step1Pwm",    3,  "STEP1_PWM"),
   ("step2",       5,  "STEP2_TIM"),
-  ("step2Pwm",    3,  "STEP2_PWM"),
+  ("step2Pwm",    4,  "STEP2_PWM"),
   ("step3",       3,  "STEP3_TIM"),
   ("step3Pwm",    2,  "STEP3_PWM"),
   ("step4",       4,  "STEP4_TIM"),
@@ -634,6 +634,9 @@ while True:
     elif board == "nuch743":
         cfg = nuch743
         path = "LatheCPP7H"
+    elif board == "nuch723":
+        cfg = nuch743
+        path = "LatheCPP723"
     n += 1
 
 main(board, cfg, path)

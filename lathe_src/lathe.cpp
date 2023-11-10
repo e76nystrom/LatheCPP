@@ -1,6 +1,6 @@
 /******************************************************************************/
 #include "remStruct.h"
-#define __LATHE__
+#define __LATHE__ // NOLINT(*-reserved-identifier)
 #ifdef STM32F4
 #include "stm32f4xx_hal.h"
 #endif
@@ -15,7 +15,6 @@
 #include <cstring>
 #include <cmath>
 #include <climits>
-#include <cstdint>
 
 #if 0
 #define ENUM_AXIS_STATES 0
@@ -46,7 +45,7 @@
 
 #if defined(MEGAPORT)
 #include "megaCmdList.h"
-#include "megaParmList.h"
+#include "megaParm.h"
 #include "megaCtlstates.h"
 #endif	/* MEGAPORT */
 
@@ -993,8 +992,8 @@ EXT bool syncPollDone;
 #if defined(SYNC_SPI)
 
 //#include "syncStruct.h"
-#include "remParmList.h"
-#include "syncParmList.h"
+#include "remParm.h"
+#include "syncParm.h"
 
 T_SYNC_MULTI_PARM syncParms[] =
 {
@@ -1090,7 +1089,7 @@ void stopCmd()
  zMoveCtl.stop = 1;
  rVar.cmdPaused = 0;
  rVar.mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_DONE |
-		 MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE);
+		    MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE);
  xHomeCtl.state = H_IDLE;
  zHomeCtl.state = H_IDLE;
 #if WIN32
@@ -3168,7 +3167,7 @@ void jogMpg3(P_MOVECTL mov)
    mov->mpgState = MPG_DIR_CHANGE_WAIT;
    dbgZJogDirSet();
   }
-  else
+  else				/* if same directin */
   {
    uint32_t ctr;
    int dist = *mov->mpgJogInc;	/* read increment distance */
@@ -3184,6 +3183,8 @@ void jogMpg3(P_MOVECTL mov)
      dist = 1;			/* set distance to 1 */
     }
     ctr = (delta * clksPerUSec) / dist; /* calculate new time value */
+    if (rVar.jogDebug)
+     printf("0 %d %d %d %d\n", (int) ctr, delta, clksPerUSec, dist);
 
     __disable_irq();		/* disable interrupt */
     if (isr->dist != 0)		/* if currently active */
@@ -3198,6 +3199,9 @@ void jogMpg3(P_MOVECTL mov)
    else				/* if incremental jog */
    {
     ctr = (mov->mpgUSecSlow * clksPerUSec) / mov->mpgStepsCount; /* set ctr */
+    if (rVar.jogDebug)
+     printf("1 %d %d %d %d\n", (int) ctr, mov->mpgUSecSlow, clksPerUSec,
+            mov->mpgStepsCount);
    }
    __enable_irq();		/* enable interrupts */
 
@@ -3595,7 +3599,7 @@ void zMoveRelCmd()
    if (DBG_P)
    {
     printf("zMoveRelCmd dist %7.4f steps %7d droCounts %7d\n",
-		    rVar.zMoveDist, dist, droCounts);
+	   rVar.zMoveDist, dist, droCounts);
     printf("droTarget %7d droPos %7d droCounts %7d\n",
 	   zMoveCtl.droTarget, rVar.zDroLoc, zMoveCtl.droTarget - rVar.zDroLoc);
    }
@@ -3957,6 +3961,7 @@ void zMoveRel(int dist, int cmd)
    mov->dir = DIR_NEG;		/* set move direction to negative */
    dirZRev();			/* set to reverse */
   }
+
   if (mov->dirChange		/* if direction change */
   &&  (zAxis.backlashSteps != 0)) /* and backlash present */
   {
@@ -4125,9 +4130,9 @@ void zControl()
   case CMD_SYN:
    zIsr.dbgPos = true;
    zTurnInit(&zTA, mov->dir, mov->dist); /* init synchronized move */
-   if ((cmd & (Z_SYN_START | Z_SYN_LEFT)) != 0) /* if start on index pulse */
+   if ((cmd & (SYN_START | SYN_LEFT)) != 0) /* if start on index pulse */
    {
-    if ((cmd & X_SYN_TAPER) != 0) /* if tapering */
+    if ((cmd & SYN_TAPER) != 0) /* if tapering */
     {
      zIsr.taper = TAPER_CTL;	/* indicate z controlling taper */
      float dist = (float) mov->dist / (float) zAxis.stepsInch; /* distance */
@@ -4208,7 +4213,7 @@ void zControl()
     zInfo(0);
    break;
 
-  case JOGSLOW:			/* slow jog to probe or find home */
+  case JOG_SLOW:			/* slow jog to probe or find home */
    zMoveInit(&zSA, mov->dir, mov->dist); /* setup move */
    if ((cmd & FIND_HOME) != 0)
     zIsr.home |= HOME_SET;
@@ -4637,6 +4642,7 @@ void xStop()
  xMoveCtl.stop = 1;
  xIsr.accel = 0;
  xIsr.decel = 1;
+ xIsr.errFlag = 0;
  dbgXAccelSet();
  dbgXStopSet();
 }
@@ -4946,9 +4952,9 @@ void xControl()
   case CMD_SYN:			/* synchronized move */
    xIsr.dbgPos = true;
    xTurnInit(&xTA, mov->dir, mov->dist); /* init for turning */
-   if ((cmd & X_SYN_START) != 0) /* if start on index pulse */
+   if ((cmd & SYN_START) != 0) /* if start on index pulse */
    {
-    if ((cmd & Z_SYN_TAPER) != 0) /* if tapering */
+    if ((cmd & SYN_TAPER) != 0) /* if tapering */
     {
      xIsr.taper = TAPER_CTL;	/* indicate x controlling taper */
      float dist = (float) mov->dist / (float) xAxis.stepsInch; /* distance */
@@ -5031,7 +5037,7 @@ void xControl()
     xInfo(0);
    break;
 
-  case JOGSLOW:			/* slow jog to probe or find home */
+  case JOG_SLOW:			/* slow jog to probe or find home */
    xMoveInit(&xSA, mov->dir, mov->dist); /* setup move */
    xIsr.home = 0;
    if ((cmd & FIND_HOME) != 0)
@@ -5265,7 +5271,7 @@ void homeControl(P_HOMECTL home)
   case H_BACKOFF:		/* 0x03 wait for backoff complete */
    if (home->homeIsClr())	/* if clear of switch */
    {
-    mov->moveRel(home->slowDist, JOGSLOW | FIND_HOME); /* move back slowly */
+    mov->moveRel(home->slowDist, JOG_SLOW | FIND_HOME); /* move back slowly */
     home->state = H_SLOW;	/* advance to wait */
    }
    else
@@ -5517,6 +5523,8 @@ void stopMove()
  memset(&moveQue, 0, sizeof(moveQue));
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-branch-clone"
 void procMove()
 {
  dbgProcMoveSet();
@@ -5578,7 +5586,7 @@ void procMove()
 
    switch (cmd->cmd)
    {
-   case MOVE_Z:
+   case Q_MOVE_Z:
 #if 0
     val = lrintf(cmd->val * zAxis.stepsInch) + mv->zHomeOffset;
     if (rVar.cfgFpga == 0)
@@ -5612,7 +5620,7 @@ void procMove()
     mv->state = M_WAIT_Z;
     break;
 
-   case MOVE_X:
+   case Q_MOVE_X:
     val = cmd->iVal + mv->xHomeOffset;
      dbgMsg(D_XMOV, val);
     if (!rVar.cfgDro		      /* if not configure */
@@ -5637,7 +5645,7 @@ void procMove()
     mv->state = M_WAIT_X;
     break;
 
-   case SAVE_Z:
+   case Q_SAVE_Z:
     if (DBG_QUE)
      printf("save z %7.4f\n", cmd->val);
 
@@ -5645,7 +5653,7 @@ void procMove()
     done = 0;
     break;
 
-   case SAVE_X:
+   case Q_SAVE_X:
     if (DBG_QUE)
      printf("save X %7.4f\n", cmd->val);
 
@@ -5653,7 +5661,7 @@ void procMove()
     done = 0;
     break;
 
-   case SAVE_Z_OFFSET:
+   case Q_SAVE_Z_OFFSET:
     if (DBG_QUE)
      printf("save z offset %7.4f\n",
             ((float) cmd->iVal) / (float) zAxis.stepsInch);
@@ -5662,7 +5670,7 @@ void procMove()
     done = 0;
     break;
 
-   case SAVE_X_OFFSET:
+   case Q_SAVE_X_OFFSET:
     if (DBG_QUE)
      printf("save x offset %7.4f\n",
             ((float) cmd->iVal) / (float) xAxis.stepsInch );
@@ -5671,7 +5679,7 @@ void procMove()
     done = 0;
     break;
 
-   case SAVE_TAPER:
+   case Q_SAVE_TAPER:
     if (DBG_QUE)
      printf("save taper %7.4f\n", cmd->val);
 
@@ -5679,7 +5687,7 @@ void procMove()
     done = 0;
     break;
 
-   case MOVE_ZX:
+   case Q_MOVE_Z_X:
     if (DBG_QUE)
      printf("move zx %7.4f\n", cmd->val);
 
@@ -5688,7 +5696,7 @@ void procMove()
     mv->state = M_WAIT_Z;
     break;
 
-   case MOVE_XZ:
+   case Q_MOVE_X_Z:
     if (DBG_QUE)
      printf("move xz %7.4f\n", cmd->val);
 
@@ -5697,7 +5705,7 @@ void procMove()
     mv->state = M_WAIT_X;
     break;
 
-   case TAPER_ZX:		/* move z taper x */
+   case Q_TAPER_Z_X:		/* move z taper x */
    {
     if (DBG_QUE)
      printf("taper zx %7.4f\n", cmd->val);
@@ -5717,19 +5725,19 @@ void procMove()
     {
      taperCalc(&zTA, &xPA, mv->taper);
      xTaperInit(&xPA, dir);
-     zMove(val, CMD_SYN | Z_SYN_START | X_SYN_TAPER);
+     zMove(val, CMD_SYN | SYN_START | SYN_TAPER);
     }
     else
     {
      taperCalcX(&zTA, &xPA, mv->taper);
      xTaperInitX(&xPA, dir);
-     zMoveX(val, CMD_SYN | Z_SYN_START | X_SYN_TAPER);
+     zMoveX(val, CMD_SYN | SYN_START | SYN_TAPER);
     }
     mv->state = M_WAIT_Z;
     break;
    }
 
-   case TAPER_XZ:		/* move x taper z */
+   case Q_TAPER_X_Z:		/* move x taper z */
    {
     if (DBG_QUE)
      printf("taper xz %7.4f\n", cmd->val);
@@ -5749,20 +5757,20 @@ void procMove()
     {
      taperCalc(&xTA, &zPA, mv->taper);
      zTaperInit(&zPA, dir);
-     xMove(val, CMD_SYN | X_SYN_START | Z_SYN_TAPER);
+     xMove(val, CMD_SYN | SYN_START | SYN_TAPER);
     }
     else
     {
      taperCalcX(&xTA, &zPA, mv->taper);
      zTaperInitX(&zPA, dir);
-     xMoveX(val, CMD_SYN | X_SYN_START | Z_SYN_TAPER);
+     xMoveX(val, CMD_SYN | SYN_START | SYN_TAPER);
     }
 
     mv->state = M_WAIT_X;
     break;
    }
 
-   case START_SPINDLE:
+   case Q_START_SPINDLE:
     if (DBG_QUE)
      printf("start spindle %d rpm\n", (int) cmd->iVal);
 
@@ -5780,7 +5788,7 @@ void procMove()
     mv->state = M_WAIT_SPINDLE;
     break;
 
-   case STOP_SPINDLE:
+   case Q_STOP_SPINDLE:
     if (rVar.cfgFpga == 0)
      spindleStop();
     else
@@ -5789,18 +5797,18 @@ void procMove()
     mv->state = M_WAIT_SPINDLE;
     break;
 
-   case SAVE_FEED_TYPE:
+   case Q_SAVE_FEED_TYPE:
     mv->feedType = cmd->iVal;
     done = 0;
     break;
 
-   case Z_SYN_SETUP:
+   case Q_Z_SYN_SETUP:
     mv->zFeed = cmd->val;
     zSynSetup(mv->feedType, cmd->val, rVar.runoutDistance, rVar.runoutDepth);
     done = 0;
     break;
 
-   case X_SYN_SETUP:
+   case Q_X_SYN_SETUP:
     mv->xFeed = cmd->val;
 //    if (rVar.cfgFpga == 0)
      xSynSetup(mv->feedType, cmd->val);
@@ -5809,21 +5817,21 @@ void procMove()
     done = 0;
     break;
 
-   case SEND_SYNC_PARMS:
+   case Q_SEND_SYNC_PARMS:
 #if defined(SYNC_SPI)
     syncSendMulti(syncParms);
     mv->state = M_WAIT_SYNC_PARMS;
 #endif  /* SYNC_SPI */
     break;
 
-   case SYNC_COMMAND:
+   case Q_SYNC_COMMAND:
 #if defined(SYNC_SPI)
     syncCommand((char) cmd->iVal);
     mv->state = M_WAIT_SYNC_CMD;
 #endif  /* SYNC_SPI */
     break;
 
-   case PASS_NUM:
+   case Q_PASS_NUM:
    {
     int iVal = cmd->iVal;
     mv->pass = iVal;
@@ -5864,7 +5872,7 @@ void procMove()
     break;
    }
 
-   case QUE_PAUSE:
+   case Q_QUE_PAUSE:
     if (DBG_QUE)
      printf("pause %x\n", (unsigned int) cmd->iVal);
 
@@ -5877,7 +5885,7 @@ void procMove()
     rVar.mvStatus |= MV_PAUSE;
     break;
 
-   case MOVE_Z_OFFSET:
+   case Q_MOVE_Z_OFFSET:
    {
     rVar.xFeed = rVar.thXStart - rVar.xLoc;
     int zOffset = -(int) ((float) rVar.xFeed * rVar.tanThreadAngle);
@@ -5897,7 +5905,7 @@ void procMove()
    }
     break;
 
-   case Z_FEED_SETUP:
+   case Q_Z_FEED_SETUP:
     if (DBG_QUE)
      printf("z feed setup\n");
 
@@ -5912,7 +5920,7 @@ void procMove()
     done = 0;
     break;
 
-   case X_FEED_SETUP:
+   case Q_X_FEED_SETUP:
     if (DBG_QUE)
      printf("x feed setup\n");
 
@@ -5927,7 +5935,7 @@ void procMove()
     done = 0;
     break;
 
-   case SAVE_FLAGS:
+   case Q_SAVE_FLAGS:
     if (DBG_QUE)
      printf("save flags %02x\n", (unsigned int) cmd->iVal);
 
@@ -5935,7 +5943,7 @@ void procMove()
     done = 0;
     break;
 
-   case PROBE_Z:
+   case Q_PROBE_Z:
    {
     if (DBG_QUE)
      printf("probe z %7.4f\n", cmd->val);
@@ -5962,13 +5970,13 @@ void procMove()
      rVar.zHomeStatus = PROBE_FAIL;
      return;
     }
-    zMoveRel(val, JOGSLOW | FIND_PROBE);
-    mv->probeCmd = PROBE_Z;
+    zMoveRel(val, JOG_SLOW | FIND_PROBE);
+    mv->probeCmd = Q_PROBE_Z;
     mv->state = M_WAIT_PROBE;
     break;
    }
 
-   case PROBE_X:
+   case Q_PROBE_X:
    {
     if (DBG_QUE)
      printf("probe x %7.4f\n", cmd->val);
@@ -5995,27 +6003,27 @@ void procMove()
      rVar.xHomeStatus = PROBE_FAIL;
      return;
     }
-    xMoveRel(val, JOGSLOW | FIND_PROBE);
-    mv->probeCmd = PROBE_X;
+    xMoveRel(val, JOG_SLOW | FIND_PROBE);
+    mv->probeCmd = Q_PROBE_X;
     mv->state = M_WAIT_PROBE;
     break;
    }
 
-   case SAVE_Z_DRO:
+   case Q_SAVE_Z_DRO:
     dbgMsg(D_ZPDRO, rVar.zDroLoc);
     break;
 
-   case SAVE_X_DRO:
+   case Q_SAVE_X_DRO:
     dbgMsg(D_XPDRO, rVar.xDroLoc);
     break;
 
-   case QUE_PARM:
+   case Q_QUE_PARM:
     T_DATA_UNION parmVal;
-    parmVal.t_unsigned_int = cmd->iVal;
+    parmVal.t_uint_t = cmd->iVal;
     setRemVar(cmd->flag, parmVal);
     break;
 
-   case MOVE_ARC:
+   case Q_MOVE_ARC:
     arcInit(rVar.arcRadius);
 
     if (rVar.turnSync == SEL_TU_STEP)	/* if stepper drive */
@@ -6081,7 +6089,7 @@ void procMove()
     mv->state = M_WAIT_ARC;
     break;
 
-   case OP_DONE:
+   case Q_OP_DONE:
     dbgMsg(D_DONE, cmd->iVal);
     if (cmd->iVal == PARM_START)
     {
@@ -6197,7 +6205,7 @@ void procMove()
 	       syn.extActive, syn.intActive, syn.encActive);
        }
 
-       if (mv->spindleCmd == STOP_SPINDLE) /* if stopping spindle */
+       if (mv->spindleCmd == Q_STOP_SPINDLE) /* if stopping spindle */
        {
 	mv->state = M_IDLE;	/* return to idle state */
        }
@@ -6232,7 +6240,7 @@ void procMove()
        }	/* if not stopping spindle */
       }		/* if speed stable */
      }		/* if valid index period */
-     else if (mv->spindleCmd == STOP_SPINDLE) /* if stopping spindle */
+     else if (mv->spindleCmd == Q_STOP_SPINDLE) /* if stopping spindle */
      {
       mv->state = M_IDLE;	/* return to idle state */
      }
@@ -6288,7 +6296,7 @@ void procMove()
   break;
 
  case M_WAIT_PROBE:
-  if (mv->probeCmd == PROBE_Z)
+  if (mv->probeCmd == Q_PROBE_Z)
   {
    if (zMoveCtl.state == AXIS_IDLE) /* if operation complete */
    {
@@ -6299,7 +6307,7 @@ void procMove()
      printf("z probe done %d\n", zIsr.doneHome);
    }
   }
-  else if (mv->probeCmd == PROBE_X)
+  else if (mv->probeCmd == Q_PROBE_X)
   {
    if (xMoveCtl.state == AXIS_IDLE) /* if operation complete */
    {
@@ -6388,6 +6396,7 @@ void procMove()
  }
  dbgProcMoveClr();
 }
+#pragma clang diagnostic pop
 
 void moveZX(int zDest, int xDest)
 {
@@ -6787,7 +6796,7 @@ void accelCalc(P_ACCEL accel)
  }
  else
  {
-  accel->stepsSec2 = (accel->accel / 60.0f) * (float) accel->stepsInch;
+  accel->stepsSec2 = accel->accel * (float) accel->stepsInch;
   accel->aTime = deltaV / accel->stepsSec2;
 
   if (DBG_P)
@@ -6994,6 +7003,8 @@ void encRunoutCalc(P_ACCEL a0, P_ACCEL a1, float dist, float runoutDepth)
 
 #if defined(MEGAPORT)
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-branch-clone"
 void megaRsp()
 {
  putBufStrIsr("mr");
@@ -7039,6 +7050,7 @@ void megaRsp()
   megaCtl.timer = 0;
  }
 }
+#pragma clang diagnostic pop
 
 void megaPoll()
 {
@@ -7200,16 +7212,18 @@ void syncSendMulti(P_SYNC_MULTI_PARM p)
    sndHexSPI((unsigned char *) &p->syncParm, sizeof(p->syncParm));
    putSPI(' ');
    getRemVar(p->remParm, &parmVal);
-   int size = remParm[p->remParm];
+   int size = remSize[p->remParm];
    printf("r p %2x s %d v %8x\n",
-	  (unsigned int) p->syncParm, size, parmVal.t_unsigned_int);
-   sndHexSPI((unsigned char *) &parmVal.t_unsigned_int, size);
+	  (unsigned int) p->syncParm, size, parmVal.t_uint_t);
+   sndHexSPI((unsigned char *) &parmVal.t_uint_t, size);
    p += 1;
   }
  }
  putSPI('\r');
  spiMasterStart();
 }
+
+
 
 void syncPoll()
 {
@@ -7265,7 +7279,7 @@ void syncResp()
 #if DBG_LOAD
    int size = syncParm[parm];
    printf("r p %2x s %d v %8x\n",
-	  (unsigned int) parm, size, parmVal.t_unsigned_int);
+	  (unsigned int) parm, size, parmVal.t_uint_t);
 #endif
   }
 #endif

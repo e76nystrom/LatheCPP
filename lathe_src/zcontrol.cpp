@@ -172,7 +172,7 @@ void zControlX(void)
   {
    zLoad(&zTA);			/* load turn parameters */
    mov->ctlreg |= ZSRC_SYN;	/* set sync flags */
-   if (mov->cmd & Z_SYN_START)	/* if wait for sync */
+   if (mov->cmd & SYN_START)	/* if wait for sync */
     mov->ctlreg |= ZWAIT_SYNC;	/* set to wait for sync */
   }
   else

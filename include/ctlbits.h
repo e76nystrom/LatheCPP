@@ -7,10 +7,11 @@
 #define CMD_SYN      (3 << 0)    /* 0x03 move dist synchronized to rotation */
 #define CMD_MAX      (4 << 0)    /* 0x04 rapid move */
 #define CMD_SPEED    (5 << 0)    /* 0x05 jog at speed */
-#define JOGSLOW      (6 << 0)    /* 0x06 slow jog for home or probe */
-#define SYN_START    (1 << 4)    /* 0x10 start on sync pulse */
-#define SYN_LEFT     (1 << 5)    /* 0x20 start sync left */
-#define SYN_TAPER    (1 << 6)    /* 0x40 taper on other axis */
+#define JOG_SLOW     (6 << 0)    /* 0x06 slow jog for home or probe */
+#define SYN_START    (1 << 3)    /* 0x08 start on sync pulse */
+#define SYN_LEFT     (1 << 4)    /* 0x10 start sync left */
+#define SYN_TAPER    (1 << 5)    /* 0x20 taper on other axis */
+#define DIST_MODE    (1 << 6)    /* 0x40 distance update mode */
 #define FIND_HOME    (1 << 7)    /* 0x80 find home */
 #define CLEAR_HOME   (1 << 8)    /* 0x100 move off of home */
 #define FIND_PROBE   (1 << 9)    /* 0x200 find probe */
@@ -23,21 +24,10 @@
 #define DIR_POS      1           /* 0x01 positive direction */
 #define DIR_NEG      -1          /* 0x-1 negative direction */
 
-// z move command bits
-
-#define Z_SYN_START  (1 << 4)    /* 0x10 start on sync pulse */
-#define Z_SYN_LEFT   (1 << 5)    /* 0x20 start sync left */
-#define X_SYN_TAPER  (1 << 6)    /* 0x40 taper on x */
-
 // z direction
 
 #define ZPOS         1           /* 0x01 z in positive direction */
 #define ZNEG         -1          /* 0x-1 z in negative direction */
-
-// x move command bits
-
-#define X_SYN_START  (1 << 4)    /* 0x10 start on sync pulse */
-#define Z_SYN_TAPER  (1 << 6)    /* 0x40 taper on z */
 
 // x direction
 

@@ -969,19 +969,21 @@ extern "C" void zTmrISR()
    zIsr.curCount = count - zIsr.lastCount; /* value to load in timer */
    zIsr.lastCount = count;	/* set last count */
    zTmrMax(zIsr.curCount);	/* load counter value */
+   sndhexIsr((unsigned char *) &zIsr.curCount, 4);
   }
   else				/* if acceleration done */
   {
    zIsr.clockSum += zIsr.curCount; /* final acceleration clock count */
    zIsr.curCount = zIsr.clocksStep; /* get clocks per step */
    zTmrMax(zIsr.curCount);	/* save current clocks per step */
+   sndhexIsr((unsigned char *) &zIsr.curCount, 4);
    zIsr.accel = 0;		/* clear flag */
    dbgZAccelClr();
    putBufStrIsr("za");
   }
   if constexpr (DBGTRK2L1)
   {
-   if (zMoveCtl.cmd & Z_SYN_START)
+   if (zMoveCtl.cmd & SYN_START)
    {
     dbgTrk2L(zIsr.curCount, zIsr.lastCount);
    }

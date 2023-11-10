@@ -27,7 +27,7 @@
 #endif  /* EXT */
 
 #include "remcmd.h"
-#include "remParm.h"
+//#include "remParm.h"
 #if defined(USB)
 #include "class/cdc/cdc_device.h"
 #endif  /* USB */
@@ -53,7 +53,7 @@ void remCmd();
 void loadVal();
 
 #include "remCmdList.h"
-#include "remParmList.h"
+#include "remParm.h"
 #include "ctlbits.h"
 
 #endif	/* REMCMD_INCLUDE*/ // ->
@@ -120,7 +120,7 @@ void loadVal()
   if (type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
-   int size = remParm[parm];	/* value size */
+   int size = remSize[parm];	/* value size */
    printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) intFloat.i);
 #endif
    parmVal.t_int = intFloat.i;
@@ -156,6 +156,8 @@ void queMove()
 
 #define BYTE_COUNT
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-branch-clone"
 void remCmd()
 {
  dbgRemCmdSet();
@@ -177,150 +179,156 @@ void remCmd()
  getHexRemEcho(&parm);		/* read parameter */
  switch (parm)
  {
- case ZMOVEABS:
+ case C_ZMOVEABS:
   zMoveAbsCmd();
   break;
 
- case ZMOVEREL:
+ case C_ZMOVEREL:
   zMoveRelCmd();
   break;
 
- case ZJMOV:
+ case C_ZJMOV:
   zJogCmd();
   break;
 
- case ZJSPEED:
+ case C_ZJSPEED:
   zJogSpeedCmd();
   break;
 
- case ZSTOP:
+ case C_ZSTOP:
   zStop();
   break;
 
- case ZSETLOC:
+ case C_ZSETLOC:
   zLocCmd();
   break;
 
- case ZHOMEFWD:
+ case C_ZHOMEFWD:
   homeAxis(&zHomeCtl, HOME_FWD);
   break;
 
- case ZHOMEREV:
+ case C_ZHOMEREV:
   homeAxis(&zHomeCtl, HOME_REV);
   break;
 
- case XMOVEABS:
+ case C_XMOVEABS:
   xMoveAbsCmd();
   break;
 
- case XMOVEREL:
+ case C_XMOVEREL:
   xMoveRelCmd();
   break;
 
- case XJMOV:
+ case C_XJMOV:
   xJogCmd();
   break;
 
- case XJSPEED:
+ case C_XJSPEED:
   xJogSpeedCmd();
   break;
 
- case XSTOP:
+ case C_XSTOP:
   xStop();
   break;
 
- case XSETLOC:
+ case C_XSETLOC:
   xLocCmd();
   break;
 
- case XHOMEFWD:
+ case C_XHOMEFWD:
   homeAxis(&xHomeCtl, HOME_FWD);
   break;
 
- case XHOMEREV:
+ case C_XHOMEREV:
   homeAxis(&xHomeCtl, HOME_REV);
   break;
 
- case SPINDLE_START:
+ case C_SPINDLE_START:
   spindleStart();
   break;
 
- case SPINDLE_STOP:
+ case C_SPINDLE_STOP:
   spindleStop();
   break;
 
- case SPINDLE_UPDATE:
+ case C_SPINDLE_UPDATE:
   spindleUpdate();
   break;
 
- case SPINDLE_JOG:
+ case C_SPINDLE_JOG:
   spindleJog();
   break;
 
- case SPINDLE_JOG_SPEED:
+ case C_SPINDLE_JOG_SPEED:
   spindleJogSpeed();
   break;
 
- case CMD_PAUSE:
+ case C_CMD_PAUSE:
   pauseCmd();
   break;
 
- case CMD_RESUME:
+ case C_CMD_RESUME:
   resumeCmd();
   break;
 
- case CMD_STOP:
+ case C_CMD_STOP:
   stopCmd();
   break;
 
- case CMD_DONE:
+ case C_CMD_DONE:
   doneCmd();
   break;
 
- case CMD_MEASURE:
+ case C_CMD_MEASURE:
   measureCmd();
   break;
 
- case CMD_CLEAR:
+ case C_CMD_CLEAR:
   clearCmd();
   break;
 
- case CMD_SETUP:
+ case C_CMD_SETUP:
   setup();
   break;
 
- case CMD_SPSETUP:
+ case C_CMD_SPSETUP:
   spindleSetup((int) rVar.spMaxRpm);
   break;
 
- case CMD_SYNCSETUP:
+ case C_CMD_SYNCSETUP:
   syncMoveSetup();
   break;
 
- case CMD_ZSETUP:
+ case C_CMD_ZSETUP:
   zSetup();
   break;
 
+ case C_CMD_ZSETLOC:
+  break;
+
 #if 0
- case CMD_ZTAPERSETUP:
+ case C_CMD_ZTAPERSETUP:
   zTaperSetup();
   break;
 #endif
 
- case CMD_XSETUP:
+ case C_CMD_XSETUP:
   xSetup();
   break;
 
+ case C_CMD_XSETLOC:
+  break;
+
 #if 0
- case CMD_XTAPERSETUP:
+ case C_CMD_XTAPERSETUP:
   xTaperSetup();
   break;
 #endif
 
- case READSTAT:
+ case C_READSTAT:
   break;
 
- case READISTATE:
+ case C_READISTATE:
  {
   int tmpVal = zMoveCtl.state;
   tmpVal |= xMoveCtl.state << 4;
@@ -328,11 +336,11 @@ void remCmd()
  }
  break;
 
- case LOADVAL:			/* load a local parameter */
+ case C_LOADVAL:		/* load a local parameter */
   loadVal();
   break;
 
- case LOADMULTI:		/* load multiple parameters */
+ case C_LOADMULTI:		/* load multiple parameters */
  {
   int count;
   getHexRem(&count);
@@ -341,26 +349,26 @@ void remCmd()
  }
  break;
 
- case READVAL:			/* read a local parameter */
+ case C_READVAL:		/* read a local parameter */
  {
   getHexRem(&parm);		/* save the parameter number */
   T_DATA_UNION parmVal;
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
-  int tmp = remParm[parm];
+  int tmp = remSize[parm];
   int size = tmp & SIZE_MASK;
   char buf[12];
   if (tmp & FLT)
    snprintf(buf, sizeof(buf), "%6.4f", parmVal.t_float);
   else
-   snprintf(buf, sizeof(buf), "%x", parmVal.t_unsigned_int);
+   snprintf(buf, sizeof(buf), "%x", parmVal.t_uint_t);
   printf("r p %2x s %d v %s\n", (unsigned int) parm, size, buf);
   putStrRem(buf);
   putRem(' ');
  }
  break;
 
- case LOADXREG:			/* load a xilinx register */
+ case C_LOADXREG:		/* load a xilinx register */
  {
   getHexRem(&parm);		/* save the parameter number */
 
@@ -369,7 +377,7 @@ void remCmd()
  }
  break;
 
- case READXREG:			/* read a xilinx register */
+ case C_READXREG:		/* read a xilinx register */
  {
   getHexRem(&parm);		/* save the parameter number */
   //   read(parm);		/* read the xilinx register */
@@ -378,7 +386,7 @@ void remCmd()
  }
  break;
 
- case READALL:
+ case C_READALL:
  {
   char buf[80];
 //  if (zAxis.stepsInch != 0)
@@ -424,15 +432,15 @@ void remCmd()
  }
  break;
 
- case CLEARQUE:			/* clear move que */
+ case C_CLEARQUE:		/* clear move que */
   runInit();
   break;
 
- case QUEMOVE:			/* que move operation */
+ case C_QUEMOVE:		/* que move operation */
   queMove();
   break;
 
- case MOVEMULTI:		/* add multiple items to move que */
+ case C_MOVEMULTI:		/* add multiple items to move que */
  {
   int count;
   getHexRem(&count);
@@ -441,7 +449,7 @@ void remCmd()
  }
  break;
 
- case MOVEQUESTATUS:		/* get move queue status */
+ case C_MOVEQUESTATUS:		/* get move queue status */
  {
   parm = MAX_CMDS - moveQue.count; /* calculate amount empty */
   sndHexRem((unsigned char *) &parm, sizeof(parm)); /* send it back */
@@ -450,7 +458,7 @@ void remCmd()
 
 #if DBGMSG
 #define MAX_DBG_SIZE (2 + 1 + 1 + 8 + 1)
- case READDBG:
+ case C_READDBG:
  {
   getHexRem(&parm);
   if (dbgQue.count > 0)		/* if debug messages */
@@ -482,24 +490,24 @@ void remCmd()
  }
  break;
 
- case CLRDBG:
+ case C_CLRDBG:
   clrDbgBuf();
   break;
 #endif	/* DBGMSG */
 
 #if ENCODER
- case ENCSTART:
+ case C_ENCSTART:
   encStart(true);
   break;
 
- case ENCSTOP:
+ case C_ENCSTOP:
   encStop();
   break;
 #endif	/* ENCODER */
 
 #if defined(MEGAPORT)
 
- case SET_MEGA_VAL:
+ case C_SET_MEGA_VAL:
  {
   putMega(1);
   char ch = MEGA_SET_VAL;
@@ -548,5 +556,6 @@ void remCmd()
 
  dbgRemCmdClr();
 }
+#pragma clang diagnostic pop
 
 #endif	/* LATHECPP_REMCMD */

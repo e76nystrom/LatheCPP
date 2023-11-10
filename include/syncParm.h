@@ -1,4 +1,9 @@
-enum SYNC_PARM
+/* defines */
+
+#define FLT (0x80)
+#define SIZE_MASK (0x7)
+
+enum SYNC_PARM_DEF
 {
  SYNC_CYCLE,                    /* 0x00 sync cycle length */
  SYNC_OUTPUT,                   /* 0x01 sync outputs per cycle */
