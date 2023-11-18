@@ -1,3 +1,6 @@
+#if !defined(INC_D_MESSAGE)
+#define INC_D_MESSAGE
+
 struct S_D_MESSAGE
 {
  char c0;
@@ -60,3 +63,5 @@ struct S_D_MESSAGE dMessageStr[] =
  {'Z', 'I', 'P', 'O',},  /* 31 49  z position at index pulse */
  {'M', 'A', 'X', ' ',},  /* 32 50  debug maximum */
 };
+
+#endif  /* D_MESSAGE */

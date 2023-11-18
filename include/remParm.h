@@ -1,3 +1,5 @@
+#if !defined(REM_PARM)
+#define REM_PARM
 /* defines */
 
 #define FLT (0x80)
@@ -325,3 +327,5 @@ enum REM_PARM_DEF
  USB_ENA,                       /* 0xbc enable usb */
  MAX_PARM,                      /* 0xbd maximum parameter */
 };
+
+#endif  /* REM_PARM */

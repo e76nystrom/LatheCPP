@@ -1,3 +1,5 @@
+#if !defined(SYNC_PARM)
+#define SYNC_PARM
 /* defines */
 
 #define FLT (0x80)
@@ -11,3 +13,5 @@ enum SYNC_PARM_DEF
  SYNC_ENCODER,                  /* 0x03 sync encoder pulses */
  SYNC_MAX_PARM,                 /* 0x04 sync maximum parameter */
 };
+
+#endif  /* SYNC_PARM */

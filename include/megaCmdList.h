@@ -1,3 +1,6 @@
+#if !defined(MEGA_CMD_LIST)
+#define MEGA_CMD_LIST
+
 enum MEGA_COMMANDS
 {
  MEGA_NONE,                     /* 0x00 no command */
@@ -10,3 +13,5 @@ enum MEGA_COMMANDS
  MEGA_ENC_STOP,                 /* 0x07 stop mega encoder */
  MEGA_UPDATE_RPM,               /* 0x08 update rpm if active */
 };
+
+#endif  /* MEGA_CMD_LIST */

@@ -1,3 +1,5 @@
+#if !defined(FPGA_LATHE_BITS)
+#define FPGA_LATHE_BITS
 
 // RiscV control register
 
@@ -74,7 +76,8 @@
 #define AX_DONE_DRO        (1 << 1)     /* 0x002 axis done dro */
 #define AX_DONE_HOME       (1 << 2)     /* 0x004 axis done home */
 #define AX_DONE_LIMIT      (1 << 3)     /* 0x008 axis done limit */
-#define AXIS_STATUS_SIZE   4
+#define AX_DIST_ZERO       (1 << 4)     /* 0x010 axis distance zero */
+#define AXIS_STATUS_SIZE   5
 
 // configuration control register
 
@@ -107,6 +110,7 @@
 #define X_FREQ_SEL         (0x7 << 3)   /* 0x038 x Frequency select */
 #define Z_FREQ_SHIFT       (0 << 0)     /* 0x000 z Frequency shift */
 #define X_FREQ_SHIFT       (3 << 0)     /* 0x003 x Frequency shift */
+#define CLK_MASK           (7 << 0)     /* 0x007 clock mask */
 #define CLK_NONE           (0 << 0)     /* 0x000  */
 #define CLK_FREQ           (1 << 0)     /* 0x004  */
 #define CLK_CH             (2 << 0)     /* 0x008  */
@@ -148,3 +152,5 @@
 #define SP_DIR             (1 << 2)     /* 0x004 spindle direction */
 #define SP_JOG_ENABLE      (1 << 3)     /* 0x008 spindle jog enable */
 #define SP_CTL_SIZE        4
+
+#endif  /* FPGA_LATHE_BITS */

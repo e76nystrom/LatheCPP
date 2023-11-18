@@ -1,3 +1,6 @@
+#if !defined(INC_ACCEL_TYPE)
+#define INC_ACCEL_TYPE
+
 struct S_ACCEL_TYPE
 {
  char c0;
@@ -12,3 +15,5 @@ struct S_ACCEL_TYPE accelTypeStr[] =
  {'J', 'G',},            /*  3  3  */
  {'J', 'S',},            /*  4  4  */
 };
+
+#endif  /* ACCEL_TYPE */

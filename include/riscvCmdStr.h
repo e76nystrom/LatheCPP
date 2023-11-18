@@ -1,3 +1,6 @@
+#if !defined(INC_RISCV_CMD)
+#define INC_RISCV_CMD
+
 struct S_RISCV_CMD
 {
  char c0;
@@ -41,3 +44,5 @@ struct S_RISCV_CMD riscvCmdStr[] =
  {'R', 'D',},            /* 20 32  read all status */
  {'M', 'X',},            /* 21 33  max value */
 };
+
+#endif  /* RISCV_CMD */

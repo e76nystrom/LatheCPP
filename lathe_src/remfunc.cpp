@@ -331,7 +331,7 @@ unsigned char remSize[] =
  sizeof(rVar.maxParm),                  /* 0xbd maximum parameter */
 };
 
-void setRemVar(int parm, T_DATA_UNION val)
+void setRemVar(const int parm, const T_DATA_UNION val)
 {
  switch(parm)
  {
@@ -1101,7 +1101,7 @@ void setRemVar(int parm, T_DATA_UNION val)
  }
 }
 
-void getRemVar(int parm, P_DATA_UNION val)
+void getRemVar(const int parm, const P_DATA_UNION val)
 {
  switch(parm)
  {

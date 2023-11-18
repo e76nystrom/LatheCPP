@@ -1,3 +1,5 @@
+#if !defined(FPGA_ENC)
+#define FPGA_ENC
 
 // run control register
 
@@ -13,3 +15,5 @@
 #define DBG_DIR            (1 << 2)     /* 0x004 debug direction */
 #define DBG_COUNT          (1 << 3)     /* 0x008 gen count num dbg clks */
 #define D_CTL_SIZE         4
+
+#endif  /* FPGA_ENC */

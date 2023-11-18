@@ -116,12 +116,11 @@ void loadVal()
  {
   T_INT_FLOAT intFloat;
   T_DATA_UNION parmVal;
-  int type = getHexFloatRem(&intFloat); /* get the value */
-  if (type == INT_VAL)		/* if integer */
+  if (const int type = getHexFloatRem(&intFloat); type == INT_VAL)		/* if integer */
   {
 #if DBG_LOAD
-   int size = remSize[parm];	/* value size */
-   printf("w parm %2x s %d val %8x\n", parm, size, (unsigned) intFloat.i);
+   const int size = remSize[parm];	/* value size */
+   printf("w parm %2x s %d val %8x\n", parm, size, static_cast<unsigned>(intFloat.i));
 #endif
    parmVal.t_int = intFloat.i;
   }
@@ -141,8 +140,7 @@ void queMove()
  int parm;
  getHexRem(&parm);		/* save op code and flag */
  T_INT_FLOAT intFloat;
- char rtn = getHexFloatRem(&intFloat); /* read parameter */
- if (rtn != NO_VAL)		  /* if valid number */
+ if (const char rtn = getHexFloatRem(&intFloat); rtn != NO_VAL)		  /* if valid number */
  {
   if (rVar.setupDone)		/* if setup complete */
   {
@@ -292,7 +290,7 @@ void remCmd()
   break;
 
  case C_CMD_SPSETUP:
-  spindleSetup((int) rVar.spMaxRpm);
+  spindleSetup(static_cast<int>(rVar.spMaxRpm));
   break;
 
  case C_CMD_SYNCSETUP:
@@ -332,7 +330,7 @@ void remCmd()
  {
   int tmpVal = zMoveCtl.state;
   tmpVal |= xMoveCtl.state << 4;
-  sndHexRem((unsigned char *) &tmpVal, sizeof(tmpVal));
+  sndHexRem(reinterpret_cast<unsigned char *>(&tmpVal), sizeof(tmpVal));
  }
  break;
 
@@ -355,14 +353,14 @@ void remCmd()
   T_DATA_UNION parmVal;
   parmVal.t_int = 0;
   getRemVar(parm, &parmVal);
-  int tmp = remSize[parm];
-  int size = tmp & SIZE_MASK;
+  const int tmp = remSize[parm];
+  const int size = tmp & SIZE_MASK;
   char buf[12];
   if (tmp & FLT)
    snprintf(buf, sizeof(buf), "%6.4f", parmVal.t_float);
   else
    snprintf(buf, sizeof(buf), "%x", parmVal.t_uint_t);
-  printf("r p %2x s %d v %s\n", (unsigned int) parm, size, buf);
+  printf("r p %2x s %d v %s\n", static_cast<unsigned int>(parm), size, buf);
   putStrRem(buf);
   putRem(' ');
  }
@@ -382,7 +380,7 @@ void remCmd()
   getHexRem(&parm);		/* save the parameter number */
   //   read(parm);		/* read the xilinx register */
   read1(parm);			/* read the xilinx register */
-  sndHexRem((unsigned char *) &readval, sizeof(readval)); /* return the parm */
+  sndHexRem(reinterpret_cast<unsigned char *>(&readval), sizeof(readval)); /* return the parm */
  }
  break;
 
@@ -412,7 +410,7 @@ void remCmd()
    if (rVar.indexPeriod != 0)
    {
     sprintf(buf, "%1.0f ",
-	    ((float) idxTmr.freq / (float) rVar.indexPeriod) * 60);
+	    static_cast<float>(idxTmr.freq) / static_cast<float>(rVar.indexPeriod) * 60);
     putStrRem(buf);
    }
    else
@@ -452,7 +450,7 @@ void remCmd()
  case C_MOVEQUESTATUS:		/* get move queue status */
  {
   parm = MAX_CMDS - moveQue.count; /* calculate amount empty */
-  sndHexRem((unsigned char *) &parm, sizeof(parm)); /* send it back */
+  sndHexRem(reinterpret_cast<unsigned char *>(&parm), sizeof(parm)); /* send it back */
  }
  break;
 
@@ -466,12 +464,12 @@ void remCmd()
    while (--parm >= 0)		/* while more requested */
    {
     --dbgQue.count;		/* count off a message */
-    P_DBGMSG p = &dbgQue.data[dbgQue.emp]; /* get pointer to data */
+    const P_DBGMSG p = &dbgQue.data[dbgQue.emp]; /* get pointer to data */
     dbgQue.emp++;		 /* update empty pointer */
     if (dbgQue.emp >= MAXDBGMSG) /* if past end */
      dbgQue.emp = 0;		/* point back to beginning */
 
-    sndHexRem((unsigned char *) &p->dbg, sizeof(p->dbg)); /* output data */
+    sndHexRem(reinterpret_cast<unsigned char *>(&p->dbg), sizeof(p->dbg)); /* output data */
 
     putRem(' ');		/* output a space */
     if (p->val < 0)
@@ -479,11 +477,11 @@ void remCmd()
      putRem('-');
      p->val = -p->val;
     }
-    sndHexRem((unsigned char *) &p->val, sizeof(p->val)); /* output data */
+    sndHexRem(reinterpret_cast<unsigned char *>(&p->val), sizeof(p->val)); /* output data */
     putRem(' ');		/* output a space */
 
-    if ((remCtl.tx_count > (REM_TX_SIZE - MAX_DBG_SIZE)) || /* no space */
-        (dbgQue.count == 0))	/* or no data */
+    if (remCtl.tx_count > REM_TX_SIZE - MAX_DBG_SIZE || /* no space */
+        dbgQue.count == 0)	/* or no data */
      break;			/* exit loop */
    }
   }
@@ -528,7 +526,7 @@ void remCmd()
 #if REM_ISR
  while (true)
  {
-  int tmp = getRem();
+  const int tmp = getRem();
   if (tmp < 0)
   {
    printf("end of buffer\n");

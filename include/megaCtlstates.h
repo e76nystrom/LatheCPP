@@ -1,3 +1,5 @@
+#if !defined(CTL_STATES_INC)
+#define CTL_STATES_INC
 
 // mega poll response bits
 
@@ -62,3 +64,5 @@ const char *vfdSpeedList[] =
 extern const char *vfdSpeedList[];
 
 #endif
+
+#endif  /* CTL_STATES_INC */

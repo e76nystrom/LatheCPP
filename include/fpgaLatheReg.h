@@ -1,3 +1,6 @@
+#if !defined(FPGA_LATHE_REG)
+#define FPGA_LATHE_REG
+
 enum FPGALATHEREG
 {
 
@@ -142,3 +145,5 @@ enum FPGALATHEREG
  F_Spindle_Base     = 82,       /* 0x52 'S' spindle registers */
  F_Cmd_Max          = 111,      /* 0x6f number of commands */
 };
+
+#endif  /* FPGA_LATHE_REG */

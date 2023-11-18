@@ -1,3 +1,5 @@
+#if !defined(CTL_STATES_INC)
+#define CTL_STATES_INC
 
 // axis control states
 
@@ -523,6 +525,32 @@ extern const char *selArcTypeList[];
 
 #endif
 
+// mpg control states
+
+enum MPG_STATE
+{
+ MPG_DISABLED = 0,              /*  0 x00 'DS' disabled */
+ MPG_CHECK_QUE = 1,             /*  1 x01 'CQ' check queue */
+ MPG_DIR_CHANGE_WAIT = 2,       /*  2 x02 'DC' wait for direction change */
+ MPG_WAIT_BACKLASH = 3,         /*  3 x03 'WB' wait for backlash */
+};
+
+#ifdef ENUM_MPG_STATE
+
+const char *mpgStateList[] = 
+{
+ "MPG_DISABLED",                /*  0 x00 'DS' disabled */
+ "MPG_CHECK_QUE",               /*  1 x01 'CQ' check queue */
+ "MPG_DIR_CHANGE_WAIT",         /*  2 x02 'DC' wait for direction change */
+ "MPG_WAIT_BACKLASH",           /*  3 x03 'WB' wait for backlash */
+};
+
+#else
+
+extern const char *mpgStateList[];
+
+#endif
+
 // riscv actions
 
 enum RISCV_CMD
@@ -910,3 +938,81 @@ const char *moveBitList[] =
 extern const char *moveBitList[];
 
 #endif
+
+// movement status
+
+enum MV_STATUS_BITS
+{
+ R_MV_PAUSE = 0,                /*  0 x00 'PA' movement paused */
+ R_MV_READ_X = 1,               /*  1 x01 'RX' pause x may change */
+ R_MV_READ_Z = 2,               /*  2 x02 'RZ' pause z may change */
+ R_MV_ACTIVE = 3,               /*  3 x03 'AC' movement active */
+ R_MV_DONE = 4,                 /*  4 x04 'DN' movement active */
+ R_MV_XLIMIT = 5,               /*  5 x05 'XL' at limit switch */
+ R_MV_ZLIMIT = 6,               /*  6 x06 'ZL' at limit switch */
+ R_MV_XHOME_ACTIVE = 7,         /*  7 x07 'XA' x home active */
+ R_MV_XHOME = 8,                /*  8 x08 'XH' x home success */
+ R_MV_ZHOME_ACTIVE = 9,         /*  9 x09 'ZA' z home active */
+ R_MV_ZHOME = 10,               /* 10 x0a 'ZH' z home success */
+ R_MV_MEASURE = 11,             /* 11 x0b 'MS' pause for measurement */
+ R_MV_ESTOP = 12,               /* 12 x0c 'ES' estop */
+ R_MV_MAX = 13,                 /* 13 x0d number of bits */
+};
+
+#ifdef ENUM_MV_STATUS_BITS
+
+const char *mvStatusBitsList[] = 
+{
+ "R_MV_PAUSE",                  /*  0 x00 'PA' movement paused */
+ "R_MV_READ_X",                 /*  1 x01 'RX' pause x may change */
+ "R_MV_READ_Z",                 /*  2 x02 'RZ' pause z may change */
+ "R_MV_ACTIVE",                 /*  3 x03 'AC' movement active */
+ "R_MV_DONE",                   /*  4 x04 'DN' movement active */
+ "R_MV_XLIMIT",                 /*  5 x05 'XL' at limit switch */
+ "R_MV_ZLIMIT",                 /*  6 x06 'ZL' at limit switch */
+ "R_MV_XHOME_ACTIVE",           /*  7 x07 'XA' x home active */
+ "R_MV_XHOME",                  /*  8 x08 'XH' x home success */
+ "R_MV_ZHOME_ACTIVE",           /*  9 x09 'ZA' z home active */
+ "R_MV_ZHOME",                  /* 10 x0a 'ZH' z home success */
+ "R_MV_MEASURE",                /* 11 x0b 'MS' pause for measurement */
+ "R_MV_ESTOP",                  /* 12 x0c 'ES' estop */
+ "R_MV_MAX",                    /* 13 x0d number of bits */
+};
+
+#else
+
+extern const char *mvStatusBitsList[];
+
+#endif
+
+// pause flags
+
+enum PAUSE_BITS
+{
+ R_DISABLE_JOG = 0,             /*  0 x00 'DJ' jogging disabled */
+ R_PAUSE_ENA_Z_JOG = 1,         /*  1 x01 'EZ' enable z job during pause */
+ R_PAUSE_ENA_X_JOG = 2,         /*  2 x02 'EX' enable x jog during pause */
+ R_PAUSE_READ_Z = 3,            /*  3 x03 'RX' read z after pause */
+ R_PAUSE_READ_X = 4,            /*  4 x04 'RZ' read x after pause */
+ R_PAUSE_MAX = 5,               /*  5 x05 number of bits */
+};
+
+#ifdef ENUM_PAUSE_BITS
+
+const char *pauseBitsList[] = 
+{
+ "R_DISABLE_JOG",               /*  0 x00 'DJ' jogging disabled */
+ "R_PAUSE_ENA_Z_JOG",           /*  1 x01 'EZ' enable z job during pause */
+ "R_PAUSE_ENA_X_JOG",           /*  2 x02 'EX' enable x jog during pause */
+ "R_PAUSE_READ_Z",              /*  3 x03 'RX' read z after pause */
+ "R_PAUSE_READ_X",              /*  4 x04 'RZ' read x after pause */
+ "R_PAUSE_MAX",                 /*  5 x05 number of bits */
+};
+
+#else
+
+extern const char *pauseBitsList[];
+
+#endif
+
+#endif  /* CTL_STATES_INC */

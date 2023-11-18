@@ -1,3 +1,6 @@
+#if !defined(INC_RISCV_RUN_WAIT)
+#define INC_RISCV_RUN_WAIT
+
 struct S_RISCV_RUN_WAIT
 {
  char c0;
@@ -13,3 +16,5 @@ struct S_RISCV_RUN_WAIT riscvRunWaitStr[] =
  {'W', 'X',},            /*  4  4  wait x done */
  {'W', 'Z',},            /*  5  5  wait z done */
 };
+
+#endif  /* RISCV_RUN_WAIT */

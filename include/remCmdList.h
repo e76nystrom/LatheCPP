@@ -1,3 +1,6 @@
+#if !defined(REM_CMD_LIST)
+#define REM_CMD_LIST
+
 enum REM_COMMANDS
 {
 
@@ -88,3 +91,5 @@ enum REM_COMMANDS
  C_SET_MEGA_VAL,                /* 0x34 set mega value */
  C_READ_MEGA_VAL,               /* 0x35 get mega value */
 };
+
+#endif  /* REM_CMD_LIST */

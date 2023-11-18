@@ -1,3 +1,6 @@
+#if !defined(INC_AXIS_ACCEL_TYPE)
+#define INC_AXIS_ACCEL_TYPE
+
 struct S_AXIS_ACCEL_TYPE
 {
  char c0;
@@ -18,3 +21,5 @@ struct S_AXIS_ACCEL_TYPE axisAccelTypeStr[] =
  {'X', 'S',},            /*  9  9  */
  {},                     /*  a 10  */
 };
+
+#endif  /* AXIS_ACCEL_TYPE */

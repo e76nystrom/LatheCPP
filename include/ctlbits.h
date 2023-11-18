@@ -1,3 +1,5 @@
+#if !defined(CTL_BITS_INC)
+#define CTL_BITS_INC
 
 // common move command bits
 
@@ -81,11 +83,11 @@
 
 // pause flags
 
-#define PAUSE_ENA_Z_JOG (1 << 0) /* 0x01 enable z job during pause */
-#define PAUSE_ENA_X_JOG (1 << 1) /* 0x02 enable x jog during pause */
-#define DISABLE_JOG  (1 << 2)    /* 0x04 jogging disabled */
-#define PAUSE_READ_X (1 << 3)    /* 0x08 read x after pause */
-#define PAUSE_READ_Z (1 << 4)    /* 0x10 read z after pause */
+#define DISABLE_JOG  (1 << 0)    /* 0x01 jogging disabled */
+#define PAUSE_ENA_Z_JOG (1 << 1) /* 0x02 enable z job during pause */
+#define PAUSE_ENA_X_JOG (1 << 2) /* 0x04 enable x jog during pause */
+#define PAUSE_READ_Z (1 << 3)    /* 0x08 read z after pause */
+#define PAUSE_READ_X (1 << 4)    /* 0x10 read x after pause */
 
 // thread flags
 
@@ -140,3 +142,5 @@
 #define PEXT_INCZ    (1 << 0)    /* 0x01 step z */
 #define PEXT_INCX_INCZ (2 << 0)  /* 0x02 step x and z */
 #define PEXT_INCX2_INCZ (3 << 0) /* 0x03 step x 2 step z */
+
+#endif  /* CTL_BITS_INC */

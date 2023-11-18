@@ -1,3 +1,5 @@
+#if !defined(MEGA_PARM)
+#define MEGA_PARM
 /* defines */
 
 #define FLT (0x80)
@@ -12,3 +14,5 @@ enum MEGA_PARM_DEF
  M_PARM_ENC_LINES,              /* 0x04  */
  M_PARM_MAX_PARM,               /* 0x05 mega maximum parameter */
 };
+
+#endif  /* MEGA_PARM */

@@ -2108,7 +2108,7 @@ void spindleJogSpeed()
 {
  P_SPINDLEISR s = &sp;
  __disable_irq();		/* disable interrupt */
- P_SPINDLE spa = &spJSA;	/* pointer to jog */
+ const P_SPINDLE spa = &spJSA;	/* pointer to jog */
  if ((s->active == 0)		/* if spindle not active */
  &&  (rVar.spJogRpm != 0.0))
  {
@@ -2121,10 +2121,10 @@ void spindleJogSpeed()
   }
   spa->maxRPM = rVar.spJogRpm;	/* set maximum speed */
   spindleAccelCalc(spa);	/* calculate acceleration */
-  float time = rVar.spJogTimeInitial - spa->time; /* time after accel */
-  int d = (int) (spa->steps + (int) (spa->stepsSec * time)); /* initial steps */
-  s->jogInc = (int) (2 * rVar.spJogTimeInc * spa->stepsSec); /* save inc */
-  s->maxDist = (int) (2 * rVar.spJogTimeMax * spa->stepsSec); /* save max */
+  const float time = rVar.spJogTimeInitial - spa->time; /* time after accel */
+  const int d = static_cast<int>(spa->steps + (int)(spa->stepsSec * time)); /* initial steps */
+  s->jogInc = static_cast<int>(2 * rVar.spJogTimeInc * spa->stepsSec); /* save inc */
+  s->maxDist = static_cast<int>(2 * rVar.spJogTimeMax * spa->stepsSec); /* save max */
 
   if (DBG_P)
    printf("spindleJog dist %5d inc %5d max %5d\n",
@@ -2154,8 +2154,8 @@ void spindleJogSpeed()
    if (rVar.spJogRpm != spa->maxRPM) /* if jog speed different */
    {
     spindleSpeedCalc(rVar.spJogRpm); /* calculate acceleration */
-    s->jogInc = (int) (2 * rVar.spJogTimeInc * spa->stepsSec); /* save inc */
-    s->maxDist = (int) (2 * rVar.spJogTimeMax * spa->stepsSec); /* save max */
+    s->jogInc = static_cast<int>(2 * rVar.spJogTimeInc * spa->stepsSec); /* save inc */
+    s->maxDist = static_cast<int>(2 * rVar.spJogTimeMax * spa->stepsSec); /* save max */
    }
    __disable_irq();		/* disable interrupt */
    s->dist += s->jogInc;	/* add to distance */
@@ -3107,12 +3107,12 @@ void jogMpg2(P_MOVECTL mov)
  mov->start();			/* start */
 }
 
-enum MPG_STATE
-{
- MPG_CHECK_QUE,
- MPG_DIR_CHANGE_WAIT,
- MPG_WAIT_BACKLASH
-};
+// enum MPG_STATE
+// {
+//  MPG_CHECK_QUE,
+//  MPG_DIR_CHANGE_WAIT,
+//  MPG_WAIT_BACKLASH
+// };
 
 void jogMpg3(P_MOVECTL mov)
 {
