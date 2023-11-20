@@ -177,67 +177,67 @@ void remCmd()
  getHexRemEcho(&parm);		/* read parameter */
  switch (parm)
  {
- case C_ZMOVEABS:
+ case C_Z_MOVE_ABS:
   zMoveAbsCmd();
   break;
 
- case C_ZMOVEREL:
+ case C_Z_MOVE_REL:
   zMoveRelCmd();
   break;
 
- case C_ZJMOV:
+ case C_Z_J_MOV:
   zJogCmd();
   break;
 
- case C_ZJSPEED:
+ case C_Z_J_SPEED:
   zJogSpeedCmd();
   break;
 
- case C_ZSTOP:
+ case C_Z_STOP:
   zStop();
   break;
 
- case C_ZSETLOC:
+ case C_Z_SET_LOC:
   zLocCmd();
   break;
 
- case C_ZHOMEFWD:
+ case C_Z_HOME_FWD:
   homeAxis(&zHomeCtl, HOME_FWD);
   break;
 
- case C_ZHOMEREV:
+ case C_Z_HOME_REV:
   homeAxis(&zHomeCtl, HOME_REV);
   break;
 
- case C_XMOVEABS:
+ case C_X_MOVE_ABS:
   xMoveAbsCmd();
   break;
 
- case C_XMOVEREL:
+ case C_X_MOVE_REL:
   xMoveRelCmd();
   break;
 
- case C_XJMOV:
+ case C_X_J_MOV:
   xJogCmd();
   break;
 
- case C_XJSPEED:
+ case C_X_J_SPEED:
   xJogSpeedCmd();
   break;
 
- case C_XSTOP:
+ case C_X_STOP:
   xStop();
   break;
 
- case C_XSETLOC:
+ case C_X_SET_LOC:
   xLocCmd();
   break;
 
- case C_XHOMEFWD:
+ case C_X_HOME_FWD:
   homeAxis(&xHomeCtl, HOME_FWD);
   break;
 
- case C_XHOMEREV:
+ case C_X_HOME_REV:
   homeAxis(&xHomeCtl, HOME_REV);
   break;
 
@@ -289,19 +289,19 @@ void remCmd()
   setup();
   break;
 
- case C_CMD_SPSETUP:
-  spindleSetup(static_cast<int>(rVar.spMaxRpm));
+ case C_CMD_SP_SETUP:
+  spindleSetup(lrintf(rVar.spMaxRpm));
   break;
 
- case C_CMD_SYNCSETUP:
+ case C_CMD_SYNC_SETUP:
   syncMoveSetup();
   break;
 
- case C_CMD_ZSETUP:
+ case C_CMD_Z_SETUP:
   zSetup();
   break;
 
- case C_CMD_ZSETLOC:
+ case C_CMD_Z_SET_LOC:
   break;
 
 #if 0
@@ -310,11 +310,11 @@ void remCmd()
   break;
 #endif
 
- case C_CMD_XSETUP:
+ case C_CMD_X_SETUP:
   xSetup();
   break;
 
- case C_CMD_XSETLOC:
+ case C_CMD_X_SET_LOC:
   break;
 
 #if 0
@@ -323,10 +323,10 @@ void remCmd()
   break;
 #endif
 
- case C_READSTAT:
+ case C_READ_STAT:
   break;
 
- case C_READISTATE:
+ case C_READ_I_STATE:
  {
   int tmpVal = zMoveCtl.state;
   tmpVal |= xMoveCtl.state << 4;
@@ -334,11 +334,11 @@ void remCmd()
  }
  break;
 
- case C_LOADVAL:		/* load a local parameter */
+ case C_LOAD_VAL:		/* load a local parameter */
   loadVal();
   break;
 
- case C_LOADMULTI:		/* load multiple parameters */
+ case C_LOAD_MULTI:		/* load multiple parameters */
  {
   int count;
   getHexRem(&count);
@@ -347,7 +347,7 @@ void remCmd()
  }
  break;
 
- case C_READVAL:		/* read a local parameter */
+ case C_READ_VAL:		/* read a local parameter */
  {
   getHexRem(&parm);		/* save the parameter number */
   T_DATA_UNION parmVal;
@@ -366,7 +366,7 @@ void remCmd()
  }
  break;
 
- case C_LOADXREG:		/* load a xilinx register */
+ case C_LOAD_X_REG:		/* load a xilinx register */
  {
   getHexRem(&parm);		/* save the parameter number */
 
@@ -375,7 +375,7 @@ void remCmd()
  }
  break;
 
- case C_READXREG:		/* read a xilinx register */
+ case C_READ_X_REG:		/* read a xilinx register */
  {
   getHexRem(&parm);		/* save the parameter number */
   //   read(parm);		/* read the xilinx register */
@@ -384,7 +384,7 @@ void remCmd()
  }
  break;
 
- case C_READALL:
+ case C_READ_ALL:
  {
   char buf[80];
 //  if (zAxis.stepsInch != 0)
@@ -430,15 +430,15 @@ void remCmd()
  }
  break;
 
- case C_CLEARQUE:		/* clear move que */
+ case C_CLEAR_QUE:		/* clear move que */
   runInit();
   break;
 
- case C_QUEMOVE:		/* que move operation */
+ case C_QUE_MOVE:		/* que move operation */
   queMove();
   break;
 
- case C_MOVEMULTI:		/* add multiple items to move que */
+ case C_MOVE_MULTI:		/* add multiple items to move que */
  {
   int count;
   getHexRem(&count);
@@ -447,7 +447,7 @@ void remCmd()
  }
  break;
 
- case C_MOVEQUESTATUS:		/* get move queue status */
+ case C_MOVE_QUE_STATUS:		/* get move queue status */
  {
   parm = MAX_CMDS - moveQue.count; /* calculate amount empty */
   sndHexRem(reinterpret_cast<unsigned char *>(&parm), sizeof(parm)); /* send it back */
@@ -456,7 +456,7 @@ void remCmd()
 
 #if DBGMSG
 #define MAX_DBG_SIZE (2 + 1 + 1 + 8 + 1)
- case C_READDBG:
+ case C_READ_DBG:
  {
   getHexRem(&parm);
   if (dbgQue.count > 0)		/* if debug messages */
@@ -488,7 +488,7 @@ void remCmd()
  }
  break;
 
- case C_CLRDBG:
+ case C_CLR_DBG:
   clrDbgBuf();
   break;
 #endif	/* DBGMSG */
@@ -516,6 +516,9 @@ void remCmd()
   sndhexMega((const unsigned char *) &val, sizeof(val), '\r');
  }
  break;
+
+ case C_SEND_DONE:
+  break;
 
 #endif  /* MEGAPORT */
  default:

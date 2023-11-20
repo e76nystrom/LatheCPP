@@ -1,5 +1,5 @@
-#if !defined(FPGA_LATHE_BITS)
-#define FPGA_LATHE_BITS
+#if !defined(FPGA_LATHE)
+#define FPGA_LATHE
 
 // RiscV control register
 
@@ -22,7 +22,7 @@
 #define SYNC_ACTIVE        (1 << 10)    /* 0x400 'SA' sync active */
 #define STATUS_SIZE        11
 
-// input register
+// inputs register
 
 #define IN_ZHOME           (1 << 0)     /* 0x001 z home switch */
 #define IN_ZMINUS          (1 << 1)     /* 0x002 z limit minus */
@@ -38,29 +38,6 @@
 #define IN_PIN13           (1 << 11)    /* 0x800 pin 13 */
 #define IN_PIN15           (1 << 12)    /* 0x1000 pin 15 */
 #define INPUTS_SIZE        13
-
-// output register
-
-#define OUT_PIN1           (1 << 0)     /* 0x001 pin 1 */
-#define OUT_PIN14          (1 << 1)     /* 0x002 pin 14 */
-#define OUT_PIN17          (1 << 2)     /* 0x004 pin 17 */
-#define OUTPUTS_SIZE       3
-
-// pin out signals
-
-#define PIN_OUT2           (1 << 0)     /* 0x001  */
-#define PIN_OUT3           (1 << 1)     /* 0x002  */
-#define PIN_OUT4           (1 << 2)     /* 0x004  */
-#define PIN_OUT5           (1 << 3)     /* 0x008  */
-#define PIN_OUT6           (1 << 4)     /* 0x010  */
-#define PIN_OUT7           (1 << 5)     /* 0x020  */
-#define PIN_OUT8           (1 << 6)     /* 0x040  */
-#define PIN_OUT9           (1 << 7)     /* 0x080  */
-#define PIN_OUT1           (1 << 8)     /* 0x100  */
-#define PIN_OUT14          (1 << 9)     /* 0x200  */
-#define PIN_OUT16          (1 << 10)    /* 0x400  */
-#define PIN_OUT17          (1 << 11)    /* 0x800  */
-#define PIN_OUT_SIZE       12
 
 // run control register
 
@@ -176,4 +153,4 @@
 #define SP_JOG_ENABLE      (1 << 3)     /* 0x008 spindle jog enable */
 #define SP_CTL_SIZE        4
 
-#endif  /* FPGA_LATHE_BITS */
+#endif  /* FPGA_LATHE */

@@ -18,31 +18,33 @@ struct S_RISCV_CMD riscvCmdStr[] =
  {'S', 'X',},            /*  6  6  stop x */
  {'S', 'Z',},            /*  7  7  stop z */
  {'D', 'N',},            /*  8  8  done */
- {'L', 'X',},            /*  9  9  set x loc */
- {'L', 'Z',},            /*  a 10  set z loc */
- {'P', 'A',},            /*  b 11  pause */
- {'S', '+',},            /*  c 12  start spindle */
- {'S', '-',},            /*  d 13  stop spindle */
- {'P', 'S',},            /*  e 14  pass */
- {'S', 'A',},            /*  f 15  set accel parm */
- {'S', 'Q',},            /* 10 16  set accel parm queued */
- {'S', 'D',},            /* 11 17  set data */
- {'G', 'D',},            /* 12 18  set data */
- {'V', 'Z',},            /* 13 19  save z */
- {'V', 'X',},            /* 14 20  save x */
- {'I', 'Z',},            /* 15 21  save z steps inch */
- {'I', 'X',},            /* 16 22  save x steps inch */
- {'H', 'Z',},            /* 17 23  home offset z */
- {'H', 'X',},            /* 18 24  home offset x */
- {'J', 'Z',},            /* 19 25  jog move z */
- {'J', 'X',},            /* 1a 26  jog move x */
- {'M', 'Z',},            /* 1b 27  move z */
- {'M', 'X',},            /* 1c 28  move x */
- {'R', 'Z',},            /* 1d 29  move rel z */
- {'R', 'X',},            /* 1e 30  move rel x */
- {'R', 'A',},            /* 1f 31  read all status */
- {'R', 'D',},            /* 20 32  read all status */
- {'M', 'X',},            /* 21 33  max value */
+ {'N', 'D',},            /*  9  9  send data done */
+ {'L', 'X',},            /*  a 10  set x loc */
+ {'L', 'Z',},            /*  b 11  set z loc */
+ {'P', 'A',},            /*  c 12  pause */
+ {'S', '+',},            /*  d 13  start spindle */
+ {'S', '-',},            /*  e 14  stop spindle */
+ {'U', 'S',},            /*  f 15  update spindle speed */
+ {'P', 'S',},            /* 10 16  pass */
+ {'S', 'A',},            /* 11 17  set accel parm */
+ {'S', 'Q',},            /* 12 18  set accel parm queued */
+ {'S', 'D',},            /* 13 19  set data */
+ {'G', 'D',},            /* 14 20  set data */
+ {'V', 'Z',},            /* 15 21  save z */
+ {'V', 'X',},            /* 16 22  save x */
+ {'I', 'Z',},            /* 17 23  save z steps inch */
+ {'I', 'X',},            /* 18 24  save x steps inch */
+ {'H', 'Z',},            /* 19 25  home offset z */
+ {'H', 'X',},            /* 1a 26  home offset x */
+ {'J', 'Z',},            /* 1b 27  jog move z */
+ {'J', 'X',},            /* 1c 28  jog move x */
+ {'M', 'Z',},            /* 1d 29  move z */
+ {'M', 'X',},            /* 1e 30  move x */
+ {'R', 'Z',},            /* 1f 31  move rel z */
+ {'R', 'X',},            /* 20 32  move rel x */
+ {'R', 'A',},            /* 21 33  read all status */
+ {'R', 'D',},            /* 22 34  read all status */
+ {'M', 'X',},            /* 23 35  max value */
 };
 
 #endif  /* RISCV_CMD */

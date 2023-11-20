@@ -564,31 +564,33 @@ enum RISCV_CMD
  R_STOP_X = 6,                  /*  6 x06 'SX' stop x */
  R_STOP_Z = 7,                  /*  7 x07 'SZ' stop z */
  R_DONE = 8,                    /*  8 x08 'DN' done */
- R_SET_LOC_X = 9,               /*  9 x09 'LX' set x loc */
- R_SET_LOC_Z = 10,              /* 10 x0a 'LZ' set z loc */
- R_PAUSE = 11,                  /* 11 x0b 'PA' pause */
- R_START_SPIN = 12,             /* 12 x0c 'S+' start spindle */
- R_STOP_SPIN = 13,              /* 13 x0d 'S-' stop spindle */
- R_PASS = 14,                   /* 14 x0e 'PS' pass */
- R_SET_ACCEL = 15,              /* 15 x0f 'SA' set accel parm */
- R_SET_ACCEL_Q = 16,            /* 16 x10 'SQ' set accel parm queued */
- R_SET_DATA = 17,               /* 17 x11 'SD' set data */
- R_GET_DATA = 18,               /* 18 x12 'GD' set data */
- R_SAVE_Z = 19,                 /* 19 x13 'VZ' save z */
- R_SAVE_X = 20,                 /* 20 x14 'VX' save x */
- R_STEPS_Z = 21,                /* 21 x15 'IZ' save z steps inch */
- R_STEPS_X = 22,                /* 22 x16 'IX' save x steps inch */
- R_HOFS_Z = 23,                 /* 23 x17 'HZ' home offset z */
- R_HOFS_X = 24,                 /* 24 x18 'HX' home offset x */
- R_JOG_Z = 25,                  /* 25 x19 'JZ' jog move z */
- R_JOG_X = 26,                  /* 26 x1a 'JX' jog move x */
- R_MOVE_Z = 27,                 /* 27 x1b 'MZ' move z */
- R_MOVE_X = 28,                 /* 28 x1c 'MX' move x */
- R_MOVE_REL_Z = 29,             /* 29 x1d 'RZ' move rel z */
- R_MOVE_REL_X = 30,             /* 30 x1e 'RX' move rel x */
- R_READ_ALL = 31,               /* 31 x1f 'RA' read all status */
- R_READ_DBG = 32,               /* 32 x20 'RD' read all status */
- R_MAX_CMD = 33,                /* 33 x21 'MX' max value */
+ R_SEND_DONE = 9,               /*  9 x09 'ND' send data done */
+ R_SET_LOC_X = 10,              /* 10 x0a 'LX' set x loc */
+ R_SET_LOC_Z = 11,              /* 11 x0b 'LZ' set z loc */
+ R_PAUSE = 12,                  /* 12 x0c 'PA' pause */
+ R_START_SPIN = 13,             /* 13 x0d 'S+' start spindle */
+ R_STOP_SPIN = 14,              /* 14 x0e 'S-' stop spindle */
+ R_UPDATE_SPIN = 15,            /* 15 x0f 'US' update spindle speed */
+ R_PASS = 16,                   /* 16 x10 'PS' pass */
+ R_SET_ACCEL = 17,              /* 17 x11 'SA' set accel parm */
+ R_SET_ACCEL_Q = 18,            /* 18 x12 'SQ' set accel parm queued */
+ R_SET_DATA = 19,               /* 19 x13 'SD' set data */
+ R_GET_DATA = 20,               /* 20 x14 'GD' set data */
+ R_SAVE_Z = 21,                 /* 21 x15 'VZ' save z */
+ R_SAVE_X = 22,                 /* 22 x16 'VX' save x */
+ R_STEPS_Z = 23,                /* 23 x17 'IZ' save z steps inch */
+ R_STEPS_X = 24,                /* 24 x18 'IX' save x steps inch */
+ R_HOFS_Z = 25,                 /* 25 x19 'HZ' home offset z */
+ R_HOFS_X = 26,                 /* 26 x1a 'HX' home offset x */
+ R_JOG_Z = 27,                  /* 27 x1b 'JZ' jog move z */
+ R_JOG_X = 28,                  /* 28 x1c 'JX' jog move x */
+ R_MOVE_Z = 29,                 /* 29 x1d 'MZ' move z */
+ R_MOVE_X = 30,                 /* 30 x1e 'MX' move x */
+ R_MOVE_REL_Z = 31,             /* 31 x1f 'RZ' move rel z */
+ R_MOVE_REL_X = 32,             /* 32 x20 'RX' move rel x */
+ R_READ_ALL = 33,               /* 33 x21 'RA' read all status */
+ R_READ_DBG = 34,               /* 34 x22 'RD' read all status */
+ R_MAX_CMD = 35,                /* 35 x23 'MX' max value */
 };
 
 #ifdef ENUM_RISCV_CMD
@@ -604,31 +606,33 @@ const char *riscvCmdList[] =
  "R_STOP_X",                    /*  6 x06 'SX' stop x */
  "R_STOP_Z",                    /*  7 x07 'SZ' stop z */
  "R_DONE",                      /*  8 x08 'DN' done */
- "R_SET_LOC_X",                 /*  9 x09 'LX' set x loc */
- "R_SET_LOC_Z",                 /* 10 x0a 'LZ' set z loc */
- "R_PAUSE",                     /* 11 x0b 'PA' pause */
- "R_START_SPIN",                /* 12 x0c 'S+' start spindle */
- "R_STOP_SPIN",                 /* 13 x0d 'S-' stop spindle */
- "R_PASS",                      /* 14 x0e 'PS' pass */
- "R_SET_ACCEL",                 /* 15 x0f 'SA' set accel parm */
- "R_SET_ACCEL_Q",               /* 16 x10 'SQ' set accel parm queued */
- "R_SET_DATA",                  /* 17 x11 'SD' set data */
- "R_GET_DATA",                  /* 18 x12 'GD' set data */
- "R_SAVE_Z",                    /* 19 x13 'VZ' save z */
- "R_SAVE_X",                    /* 20 x14 'VX' save x */
- "R_STEPS_Z",                   /* 21 x15 'IZ' save z steps inch */
- "R_STEPS_X",                   /* 22 x16 'IX' save x steps inch */
- "R_HOFS_Z",                    /* 23 x17 'HZ' home offset z */
- "R_HOFS_X",                    /* 24 x18 'HX' home offset x */
- "R_JOG_Z",                     /* 25 x19 'JZ' jog move z */
- "R_JOG_X",                     /* 26 x1a 'JX' jog move x */
- "R_MOVE_Z",                    /* 27 x1b 'MZ' move z */
- "R_MOVE_X",                    /* 28 x1c 'MX' move x */
- "R_MOVE_REL_Z",                /* 29 x1d 'RZ' move rel z */
- "R_MOVE_REL_X",                /* 30 x1e 'RX' move rel x */
- "R_READ_ALL",                  /* 31 x1f 'RA' read all status */
- "R_READ_DBG",                  /* 32 x20 'RD' read all status */
- "R_MAX_CMD",                   /* 33 x21 'MX' max value */
+ "R_SEND_DONE",                 /*  9 x09 'ND' send data done */
+ "R_SET_LOC_X",                 /* 10 x0a 'LX' set x loc */
+ "R_SET_LOC_Z",                 /* 11 x0b 'LZ' set z loc */
+ "R_PAUSE",                     /* 12 x0c 'PA' pause */
+ "R_START_SPIN",                /* 13 x0d 'S+' start spindle */
+ "R_STOP_SPIN",                 /* 14 x0e 'S-' stop spindle */
+ "R_UPDATE_SPIN",               /* 15 x0f 'US' update spindle speed */
+ "R_PASS",                      /* 16 x10 'PS' pass */
+ "R_SET_ACCEL",                 /* 17 x11 'SA' set accel parm */
+ "R_SET_ACCEL_Q",               /* 18 x12 'SQ' set accel parm queued */
+ "R_SET_DATA",                  /* 19 x13 'SD' set data */
+ "R_GET_DATA",                  /* 20 x14 'GD' set data */
+ "R_SAVE_Z",                    /* 21 x15 'VZ' save z */
+ "R_SAVE_X",                    /* 22 x16 'VX' save x */
+ "R_STEPS_Z",                   /* 23 x17 'IZ' save z steps inch */
+ "R_STEPS_X",                   /* 24 x18 'IX' save x steps inch */
+ "R_HOFS_Z",                    /* 25 x19 'HZ' home offset z */
+ "R_HOFS_X",                    /* 26 x1a 'HX' home offset x */
+ "R_JOG_Z",                     /* 27 x1b 'JZ' jog move z */
+ "R_JOG_X",                     /* 28 x1c 'JX' jog move x */
+ "R_MOVE_Z",                    /* 29 x1d 'MZ' move z */
+ "R_MOVE_X",                    /* 30 x1e 'MX' move x */
+ "R_MOVE_REL_Z",                /* 31 x1f 'RZ' move rel z */
+ "R_MOVE_REL_X",                /* 32 x20 'RX' move rel x */
+ "R_READ_ALL",                  /* 33 x21 'RA' read all status */
+ "R_READ_DBG",                  /* 34 x22 'RD' read all status */
+ "R_MAX_CMD",                   /* 35 x23 'MX' max value */
 };
 
 #else

@@ -25,7 +25,7 @@ enum REM_PARM_DEF
  SP_JOG_TIME_INC,               /* 0x0c spindle jog time increment */
  SP_JOG_TIME_MAX,               /* 0x0d spindle jog timemax */
  SP_JOG_DIR,                    /* 0x0e spindle direction */
- SP_DIR_FLAG,                   /* 0x0f spindle invert direction */
+ SP_DIR_INV,                    /* 0x0f spindle invert direction */
  SP_TEST_INDEX,                 /* 0x10 generate test index pulse */
  SP_TEST_ENCODER,               /* 0x11 generate enc test pulse */
 
@@ -39,8 +39,8 @@ enum REM_PARM_DEF
  Z_ACCEL,                       /* 0x17 z accel rpm/sec^2 */
  Z_BACKLASH,                    /* 0x18 z axis backlash */
  Z_STEP_FACTOR,                 /* 0x19 z steps inch factored */
- Z_DIR_FLAG,                    /* 0x1a z invert direction */
- Z_MPG_FLAG,                    /* 0x1b z invert mpg */
+ Z_DIR_INV,                     /* 0x1a z invert direction */
+ Z_MPG_INV,                     /* 0x1b z invert mpg */
 
 // x axis parameters
 
@@ -52,8 +52,8 @@ enum REM_PARM_DEF
  X_ACCEL,                       /* 0x21 x accel rpm/sec^2 */
  X_BACKLASH,                    /* 0x22 x axis backlash */
  X_STEP_FACTOR,                 /* 0x23 x steps inch factored */
- X_DIR_FLAG,                    /* 0x24 x invert direction */
- X_MPG_FLAG,                    /* 0x25 x invert mpg */
+ X_DIR_INV,                     /* 0x24 x invert direction */
+ X_MPG_INV,                     /* 0x25 x invert mpg */
  X_DIAMETER,                    /* 0x26 x diameter */
 
 // z move parameters
@@ -325,7 +325,8 @@ enum REM_PARM_DEF
  MEGA_VFD,                      /* 0xba mega vfd speed mode */
  MEGA_SIM,                      /* 0xbb mega encoder lines */
  USB_ENA,                       /* 0xbc enable usb */
- MAX_PARM,                      /* 0xbd maximum parameter */
+ DRO_STEP,                      /* 0xbd step pulse drives dro */
+ MAX_PARM,                      /* 0xbe maximum parameter */
 };
 
 #endif  /* REM_PARM */

@@ -28,7 +28,7 @@ unsigned char remSize[] =
  sizeof(rVar.spJogTimeInc) | FLT,       /* 0x0c spindle jog time increment */
  sizeof(rVar.spJogTimeMax) | FLT,       /* 0x0d spindle jog timemax */
  sizeof(rVar.spJogDir),                 /* 0x0e spindle direction */
- sizeof(rVar.spDirFlag),                /* 0x0f spindle invert direction */
+ sizeof(rVar.spDirInv),                 /* 0x0f spindle invert direction */
  sizeof(rVar.spTestIndex),              /* 0x10 generate test index pulse */
  sizeof(rVar.spTestEncoder),            /* 0x11 generate enc test pulse */
 
@@ -42,8 +42,8 @@ unsigned char remSize[] =
  sizeof(rVar.zAccel) | FLT,             /* 0x17 z accel rpm/sec^2 */
  sizeof(rVar.zBacklash) | FLT,          /* 0x18 z axis backlash */
  sizeof(rVar.zStepFactor),              /* 0x19 z steps inch factored */
- sizeof(rVar.zDirFlag),                 /* 0x1a z invert direction */
- sizeof(rVar.zMpgFlag),                 /* 0x1b z invert mpg */
+ sizeof(rVar.zDirInv),                  /* 0x1a z invert direction */
+ sizeof(rVar.zMpgInv),                  /* 0x1b z invert mpg */
 
 // x axis parameters
 
@@ -55,8 +55,8 @@ unsigned char remSize[] =
  sizeof(rVar.xAccel) | FLT,             /* 0x21 x accel rpm/sec^2 */
  sizeof(rVar.xBacklash) | FLT,          /* 0x22 x axis backlash */
  sizeof(rVar.xStepFactor),              /* 0x23 x steps inch factored */
- sizeof(rVar.xDirFlag),                 /* 0x24 x invert direction */
- sizeof(rVar.xMpgFlag),                 /* 0x25 x invert mpg */
+ sizeof(rVar.xDirInv),                  /* 0x24 x invert direction */
+ sizeof(rVar.xMpgInv),                  /* 0x25 x invert mpg */
  sizeof(rVar.xDiameter),                /* 0x26 x diameter */
 
 // z move parameters
@@ -328,7 +328,8 @@ unsigned char remSize[] =
  sizeof(rVar.megaVfd),                  /* 0xba mega vfd speed mode */
  sizeof(rVar.megaSim),                  /* 0xbb mega encoder lines */
  sizeof(rVar.usbEna),                   /* 0xbc enable usb */
- sizeof(rVar.maxParm),                  /* 0xbd maximum parameter */
+ sizeof(rVar.droStep),                  /* 0xbd step pulse drives dro */
+ sizeof(rVar.maxParm),                  /* 0xbe maximum parameter */
 };
 
 void setRemVar(const int parm, const T_DATA_UNION val)
@@ -398,8 +399,8 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.spJogDir = val.t_char;
   break;
 
- case SP_DIR_FLAG:               /* 15 0x0f spindle invert direction */
-  rVar.spDirFlag = val.t_char;
+ case SP_DIR_INV:                /* 15 0x0f spindle invert direction */
+  rVar.spDirInv = val.t_char;
   break;
 
  case SP_TEST_INDEX:             /* 16 0x10 generate test index pulse */
@@ -442,12 +443,12 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.zStepFactor = val.t_int;
   break;
 
- case Z_DIR_FLAG:                /* 26 0x1a z invert direction */
-  rVar.zDirFlag = val.t_char;
+ case Z_DIR_INV:                 /* 26 0x1a z invert direction */
+  rVar.zDirInv = val.t_char;
   break;
 
- case Z_MPG_FLAG:                /* 27 0x1b z invert mpg */
-  rVar.zMpgFlag = val.t_char;
+ case Z_MPG_INV:                 /* 27 0x1b z invert mpg */
+  rVar.zMpgInv = val.t_char;
   break;
 
  case X_PITCH:                   /* 28 0x1c x axis leadscrew pitch */
@@ -482,12 +483,12 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.xStepFactor = val.t_int;
   break;
 
- case X_DIR_FLAG:                /* 36 0x24 x invert direction */
-  rVar.xDirFlag = val.t_char;
+ case X_DIR_INV:                 /* 36 0x24 x invert direction */
+  rVar.xDirInv = val.t_char;
   break;
 
- case X_MPG_FLAG:                /* 37 0x25 x invert mpg */
-  rVar.xMpgFlag = val.t_char;
+ case X_MPG_INV:                 /* 37 0x25 x invert mpg */
+  rVar.xMpgInv = val.t_char;
   break;
 
  case X_DIAMETER:                /* 38 0x26 x diameter */
@@ -1094,7 +1095,11 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.usbEna = val.t_char;
   break;
 
- case MAX_PARM:                  /* 189 0xbd maximum parameter */
+ case DRO_STEP:                  /* 189 0xbd step pulse drives dro */
+  rVar.droStep = val.t_char;
+  break;
+
+ case MAX_PARM:                  /* 190 0xbe maximum parameter */
   rVar.maxParm = val.t_int16_t;
   break;
 
@@ -1168,8 +1173,8 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_char = rVar.spJogDir;
   break;
 
- case SP_DIR_FLAG:               /* 15 0x0f spindle invert direction */
-  val->t_char = rVar.spDirFlag;
+ case SP_DIR_INV:                /* 15 0x0f spindle invert direction */
+  val->t_char = rVar.spDirInv;
   break;
 
  case SP_TEST_INDEX:             /* 16 0x10 generate test index pulse */
@@ -1212,12 +1217,12 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_int = rVar.zStepFactor;
   break;
 
- case Z_DIR_FLAG:                /* 26 0x1a z invert direction */
-  val->t_char = rVar.zDirFlag;
+ case Z_DIR_INV:                 /* 26 0x1a z invert direction */
+  val->t_char = rVar.zDirInv;
   break;
 
- case Z_MPG_FLAG:                /* 27 0x1b z invert mpg */
-  val->t_char = rVar.zMpgFlag;
+ case Z_MPG_INV:                 /* 27 0x1b z invert mpg */
+  val->t_char = rVar.zMpgInv;
   break;
 
  case X_PITCH:                   /* 28 0x1c x axis leadscrew pitch */
@@ -1252,12 +1257,12 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_int = rVar.xStepFactor;
   break;
 
- case X_DIR_FLAG:                /* 36 0x24 x invert direction */
-  val->t_char = rVar.xDirFlag;
+ case X_DIR_INV:                 /* 36 0x24 x invert direction */
+  val->t_char = rVar.xDirInv;
   break;
 
- case X_MPG_FLAG:                /* 37 0x25 x invert mpg */
-  val->t_char = rVar.xMpgFlag;
+ case X_MPG_INV:                 /* 37 0x25 x invert mpg */
+  val->t_char = rVar.xMpgInv;
   break;
 
  case X_DIAMETER:                /* 38 0x26 x diameter */
@@ -1864,7 +1869,11 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_char = rVar.usbEna;
   break;
 
- case MAX_PARM:                  /* 189 0xbd maximum parameter */
+ case DRO_STEP:                  /* 189 0xbd step pulse drives dro */
+  val->t_char = rVar.droStep;
+  break;
+
+ case MAX_PARM:                  /* 190 0xbe maximum parameter */
   val->t_int16_t = rVar.maxParm;
   break;
 

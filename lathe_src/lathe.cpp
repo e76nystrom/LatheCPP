@@ -1559,7 +1559,7 @@ void spindleSetup(int rpm)
     spa->aTime = rVar.spAccelTime;
    else
     spa->accel = rVar.spAccel;
-   if (rVar.spDirFlag)
+   if (rVar.spDirInv)
    {
     spa->dirFwd = DIR_SPIN_BIT;
     spa->dirRev = DIR_SPIN_BIT << 16;
@@ -3667,7 +3667,7 @@ void zSetup()
  axis->accel = rVar.zAccel;
  axis->backlash = rVar.zBacklash;
  axis->axis = 'z';
- if (rVar.zDirFlag)
+ if (rVar.zDirInv)
  {
   axis->dirFwd = Dir1_Pin;
   axis->dirRev = Dir1_Pin << 16;
@@ -3728,7 +3728,7 @@ void zMoveSetup()
   mov->limitsEna = rVar.zLimEna;
  mov->mpgJogInc = &rVar.zMpgInc;
  mov->mpgJogMax = &rVar.zMpgMax;
- mov->mpgFlag = rVar.zMpgFlag;
+ mov->mpgFlag = rVar.zMpgInv;
  mov->axis = &zAxis;
  mov->isr = &zIsr;
  mov->jogFlag = PAUSE_ENA_Z_JOG;
@@ -4660,7 +4660,7 @@ void xSetup()
  axis->accel = rVar.xAccel;
  axis->backlash = rVar.xBacklash;
  axis->axis = 'x';
- if (rVar.xDirFlag)
+ if (rVar.xDirInv)
  {
   axis->dirFwd = Dir2_Pin;
   axis->dirRev = Dir2_Pin << 16;
@@ -4726,7 +4726,7 @@ void xMoveSetup()
   mov->limitsEna = rVar.xLimEna;
  mov->mpgJogInc = &rVar.xMpgInc;
  mov->mpgJogMax = &rVar.xMpgMax;
- mov->mpgFlag = rVar.xMpgFlag;
+ mov->mpgFlag = rVar.xMpgInv;
  mov->axis = &xAxis;
  mov->isr = &xIsr;
  mov->jogFlag = PAUSE_ENA_X_JOG;

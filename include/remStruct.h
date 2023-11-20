@@ -45,7 +45,7 @@ typedef struct sRemVar
  float spJogTimeInc;    /* 0x0c SP_JOG_TIME_INC  spindle jog time increment */
  float spJogTimeMax;    /* 0x0d SP_JOG_TIME_MAX  spindle jog timemax */
  char spJogDir;         /* 0x0e SP_JOG_DIR       spindle direction */
- char spDirFlag;        /* 0x0f SP_DIR_FLAG      spindle invert direction */
+ char spDirInv;         /* 0x0f SP_DIR_INV       spindle invert direction */
  char spTestIndex;      /* 0x10 SP_TEST_INDEX    generate test index pulse */
  char spTestEncoder;    /* 0x11 SP_TEST_ENCODER  generate enc test pulse */
 
@@ -59,8 +59,8 @@ typedef struct sRemVar
  float zAccel;          /* 0x17 Z_ACCEL          z accel rpm/sec^2 */
  float zBacklash;       /* 0x18 Z_BACKLASH       z axis backlash */
  int zStepFactor;       /* 0x19 Z_STEP_FACTOR    z steps inch factored */
- char zDirFlag;         /* 0x1a Z_DIR_FLAG       z invert direction */
- char zMpgFlag;         /* 0x1b Z_MPG_FLAG       z invert mpg */
+ char zDirInv;          /* 0x1a Z_DIR_INV        z invert direction */
+ char zMpgInv;          /* 0x1b Z_MPG_INV        z invert mpg */
 
 // x axis parameters
 
@@ -72,8 +72,8 @@ typedef struct sRemVar
  float xAccel;          /* 0x21 X_ACCEL          x accel rpm/sec^2 */
  float xBacklash;       /* 0x22 X_BACKLASH       x axis backlash */
  int xStepFactor;       /* 0x23 X_STEP_FACTOR    x steps inch factored */
- char xDirFlag;         /* 0x24 X_DIR_FLAG       x invert direction */
- char xMpgFlag;         /* 0x25 X_MPG_FLAG       x invert mpg */
+ char xDirInv;          /* 0x24 X_DIR_INV        x invert direction */
+ char xMpgInv;          /* 0x25 X_MPG_INV        x invert mpg */
  int xDiameter;         /* 0x26 X_DIAMETER       x diameter */
 
 // z move parameters
@@ -345,7 +345,8 @@ typedef struct sRemVar
  char megaVfd;          /* 0xba MEGA_VFD         mega vfd speed mode */
  char megaSim;          /* 0xbb MEGA_SIM         mega encoder lines */
  char usbEna;           /* 0xbc USB_ENA          enable usb */
- int16_t maxParm;       /* 0xbd MAX_PARM         maximum parameter */
+ char droStep;          /* 0xbd DRO_STEP         step pulse drives dro */
+ int16_t maxParm;       /* 0xbe MAX_PARM         maximum parameter */
 } T_REM_VAR, *P_REM_VAR;
 
 extern unsigned char remSize[];

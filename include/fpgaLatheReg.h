@@ -1,7 +1,7 @@
-#if !defined(FPGA_LATHE_REG)
-#define FPGA_LATHE_REG
+#if !defined(FPGA_LATHE)
+#define FPGA_LATHE
 
-enum FPGALATHEREG
+enum FPGALATHE
 {
 
 // phase control
@@ -28,8 +28,8 @@ enum FPGALATHEREG
 // PWM
 
  F_Ld_PWM_Max       = 0,        /* 0x00 'MAX' pwm counter maximum */
- F_Ld_PWM_Trig      = 0,        /* 0x00 'TRG' pwm trigger */
- F_PWM_Max          = 1,        /* 0x01 number of pwm registers */
+ F_Ld_PWM_Trig      = 1,        /* 0x01 'TRG' pwm trigger */
+ F_PWM_Max          = 2,        /* 0x02 number of pwm registers */
 
 // encoder
 
@@ -58,19 +58,15 @@ enum FPGALATHEREG
  F_Rd_Accel_Ctr     = 9,        /* 0x09 'RAC' axis accel counter */
  F_Ld_Dist          = 10,       /* 0x0a 'LDS' axis distance */
  F_Ld_Max_Dist      = 11,       /* 0x0b 'LMD' jog maximum distance */
- F_Ld_Backlash      = 12,       /* 0x0c 'LB'  jog backlash */
- F_Rd_Dist          = 13,       /* 0x0d 'RDS' read axis distance */
- F_Rd_Accel_Steps   = 14,       /* 0x0e 'RAS' read accel steps */
- F_Ld_Loc           = 15,       /* 0x0f 'LLC' axis location */
- F_Rd_Loc           = 16,       /* 0x10 'RLC' read axis location */
- F_Ld_Mpg_Delta     = 17,       /* 0x11 'LMD' Mpg delta values */
- F_Ld_Mpg_Dist      = 18,       /* 0x12 'LMS' Mpg dist values */
- F_Ld_Mpg_Div       = 19,       /* 0x13 'LMV' Mpg div values */
- F_Ld_Dro           = 20,       /* 0x14 'LDR' axis dro */
- F_Ld_Dro_End       = 21,       /* 0x15 'LDE' axis dro end */
- F_Ld_Dro_Limit     = 22,       /* 0x16 'LDL' axis dro decel limit */
- F_Rd_Dro           = 23,       /* 0x17 'RDR' read axis dro */
- F_Sync_Max         = 24,       /* 0x18 number of sync registers */
+ F_Rd_Dist          = 12,       /* 0x0c 'RDS' read axis distance */
+ F_Rd_Accel_Steps   = 13,       /* 0x0d 'RAS' read accel steps */
+ F_Ld_Loc           = 14,       /* 0x0e 'LLC' axis location */
+ F_Rd_Loc           = 15,       /* 0x0f 'RLC' read axis location */
+ F_Ld_Dro           = 16,       /* 0x10 'LDR' axis dro */
+ F_Ld_Dro_End       = 17,       /* 0x11 'LDE' axis dro end */
+ F_Ld_Dro_Limit     = 18,       /* 0x12 'LDL' axis dro decel limit */
+ F_Rd_Dro           = 19,       /* 0x13 'RDR' read axis dro */
+ F_Sync_Max         = 20,       /* 0x14 number of sync registers */
 
 // jog registers
 
@@ -86,7 +82,7 @@ enum FPGALATHEREG
  F_Rd_Axis_Ctl      = 2,        /* 0x02 'RAC' read axis control reg */
  F_Ld_Freq          = 3,        /* 0x03 'LFR' frequency */
  F_Sync_Base        = 4,        /* 0x04 sync registers */
- F_Axis_Max         = 28,       /* 0x1c num of axis regs */
+ F_Axis_Max         = 24,       /* 0x18 num of axis regs */
 
 // spindle
 
@@ -111,39 +107,40 @@ enum FPGALATHEREG
  F_Ld_Sync_Ctl      = 5,        /* 0x05 'LSYN' sync control reg */
  F_Ld_Cfg_Ctl       = 6,        /* 0x06 'LCFG' config control reg */
  F_Ld_Clk_Ctl       = 7,        /* 0x07 'LCLK' clock control reg */
- F_Ld_Dsp_Reg       = 8,        /* 0x08 'LDSP' display reg */
+ F_Ld_Out_Reg       = 8,        /* 0x08 'LDOU' output reg */
+ F_Ld_Dsp_Reg       = 9,        /* 0x09 'LDSP' display reg */
 
 // controller
 
- F_Ctrl_Base        = 9,        /* 0x09 'C' controller */
+ F_Ctrl_Base        = 10,       /* 0x0a 'C' controller */
 
 // reader
 
- F_Read_Base        = 14,       /* 0x0e 'R' reader */
+ F_Read_Base        = 15,       /* 0x0f 'R' reader */
 
 // debug frequency control
 
- F_Dbg_Freq_Base    = 16,       /* 0x10 'D' dbg frequency */
+ F_Dbg_Freq_Base    = 17,       /* 0x11 'D' dbg frequency */
 
 // spindle speed
 
- F_Rd_Idx_Clks      = 18,       /* 0x12 'RIDX' clocks per index */
+ F_Rd_Idx_Clks      = 19,       /* 0x13 'RIDX' clocks per index */
 
 // step spindle frequency generator
 
 
 // pwm
 
- F_PWM_Base         = 19,       /* 0x13 'P' pwm control */
+ F_PWM_Base         = 20,       /* 0x14 'P' pwm control */
 
 // base for modules
 
- F_Enc_Base         = 21,       /* 0x15 'E' encoder registers */
- F_Phase_Base       = 24,       /* 0x18 'H' phase registers */
- F_ZAxis_Base       = 26,       /* 0x1a 'Z' z axis registers */
- F_XAxis_Base       = 54,       /* 0x36 'X' x axis registers */
- F_Spindle_Base     = 82,       /* 0x52 'S' spindle registers */
- F_Cmd_Max          = 111,      /* 0x6f number of commands */
+ F_Enc_Base         = 22,       /* 0x16 'E' encoder registers */
+ F_Phase_Base       = 25,       /* 0x19 'H' phase registers */
+ F_ZAxis_Base       = 27,       /* 0x1b 'Z' z axis registers */
+ F_XAxis_Base       = 51,       /* 0x33 'X' x axis registers */
+ F_Spindle_Base     = 75,       /* 0x4b 'S' spindle registers */
+ F_Cmd_Max          = 100,      /* 0x64 number of commands */
 };
 
-#endif  /* FPGA_LATHE_REG */
+#endif  /* FPGA_LATHE */
