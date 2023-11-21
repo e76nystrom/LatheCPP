@@ -41,9 +41,9 @@ typedef struct sRemVar
  float spJogMaxRpm;     /* 0x08 SP_JOG_MAX_RPM   spindle jog maximum rpm */
  float spJogRpm;        /* 0x09 SP_JOG_RPM       spindle jog rpm */
  float spJogAccelTime;  /* 0x0a SP_JOG_ACCEL_TIME spindle jog accel time */
- float spJogTimeInitial;/* 0x0b SP_JOG_TIME_INITIAL spindle jog time initl */
+ float spJogTimeInitial;/* 0x0b SP_JOG_TIME_INITIAL spindle jog time initial */
  float spJogTimeInc;    /* 0x0c SP_JOG_TIME_INC  spindle jog time increment */
- float spJogTimeMax;    /* 0x0d SP_JOG_TIME_MAX  spindle jog timemax */
+ float spJogTimeMax;    /* 0x0d SP_JOG_TIME_MAX  spindle jog time max */
  char spJogDir;         /* 0x0e SP_JOG_DIR       spindle direction */
  char spDirInv;         /* 0x0f SP_DIR_INV       spindle invert direction */
  char spTestIndex;      /* 0x10 SP_TEST_INDEX    generate test index pulse */

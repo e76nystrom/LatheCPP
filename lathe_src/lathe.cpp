@@ -1089,7 +1089,7 @@ void stopCmd()
  zMoveCtl.stop = 1;
  rVar.cmdPaused = 0;
  rVar.mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_DONE |
-		    MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE);
+		    MV_X_HOME_ACTIVE | MV_Z_HOME_ACTIVE);
  xHomeCtl.state = H_IDLE;
  zHomeCtl.state = H_IDLE;
 #if WIN32
@@ -1217,7 +1217,7 @@ void clearAll()
  rVar.cmdPaused = 0;
  jogPause = 0;
  rVar.mvStatus &= ~(MV_PAUSE | MV_ACTIVE | MV_DONE |
-	       MV_XHOME_ACTIVE | MV_ZHOME_ACTIVE | MV_MEASURE);
+	       MV_X_HOME_ACTIVE | MV_Z_HOME_ACTIVE | MV_MEASURE);
 
  rVar.currentPass = 0;
  rVar.totalPasses = 0;
@@ -5173,10 +5173,10 @@ void homeAxis(P_HOMECTL home, int homeCmd)
  if (mov->state == AXIS_IDLE)	/* if axis idle */
  {
   *home->status = HOME_ACTIVE;
-  home->setActive = MV_ZHOME_ACTIVE;
-  home->clrActive = ~MV_ZHOME_ACTIVE;
-  home->setHomed = MV_ZHOME;
-  home->clrHomed = ~MV_ZHOME;
+  home->setActive = MV_Z_HOME_ACTIVE;
+  home->clrActive = ~MV_Z_HOME_ACTIVE;
+  home->setHomed = MV_Z_HOME;
+  home->clrHomed = ~MV_Z_HOME;
   int dist = 0;
   int flag = 0;
   if (homeCmd == HOME_FWD)	/* if forward homing*/
@@ -5326,7 +5326,7 @@ void axisCtl()
   {
    if (limitIsSet())		/* if limit is set */
    {
-    rVar.mvStatus |= MV_XLIMIT;	/* set at limit bit */
+    rVar.mvStatus |= MV_X_LIMIT; /* set at limit bit */
     if (xIsr.dist)		/* if x isr active */
     {
      mov = &xMoveCtl;
@@ -5347,7 +5347,7 @@ void axisCtl()
     }
    }
    else				/* if limit clear */
-    rVar.mvStatus &= MV_XLIMIT;	/* clear at limit bit */
+    rVar.mvStatus &= MV_X_LIMIT; /* clear at limit bit */
   }
   else				/* if individual limits */
   {
@@ -5365,7 +5365,7 @@ void axisCtl()
      ||  (zIsr.dir == dir))	/* or trying to move further to limit */
      {
       mov->limitDir = dir;	/* set direction where limit occurred */
-      rVar.mvStatus |= MV_ZLIMIT; /* set at limit bit */
+      rVar.mvStatus |= MV_Z_LIMIT; /* set at limit bit */
       if (zIsr.dist != 0)	/* if moving */
       {
        zIsrStop('7');		/* stop movement */
@@ -5375,7 +5375,7 @@ void axisCtl()
     else
     {
      zMoveCtl.limitDir = 0;	/* clear limit */
-     rVar.mvStatus &= ~MV_ZLIMIT; /* clear at limit bit */
+     rVar.mvStatus &= ~MV_Z_LIMIT; /* clear at limit bit */
     }
    }
 
@@ -5393,7 +5393,7 @@ void axisCtl()
      ||  (xIsr.dir == dir))	/* or trying to move further to limit */
      {
       mov->limitDir = dir;	/* set direction where limit occurred */
-      rVar.mvStatus |= MV_XLIMIT; /* set at limit bit */
+      rVar.mvStatus |= MV_X_LIMIT; /* set at limit bit */
       if (xIsr.dist != 0)	/* if moving */
       {
        xIsrStop('7');		/* stop movement */
@@ -5403,7 +5403,7 @@ void axisCtl()
     else
     {
      xMoveCtl.limitDir = 0;	/* clear limit */
-     rVar.mvStatus &= ~MV_XLIMIT; /* clear at limit bit */
+     rVar.mvStatus &= ~MV_X_LIMIT; /* clear at limit bit */
     }
    }
   }
@@ -6076,7 +6076,7 @@ void procMove()
     flushBuf();
 #endif
 
-    zIsr.syncInit <<= ARC_SHIFT;
+    zIsr.syncInit <<= A_S;
     if (DBG_QUE)
      printf("\nzIsr.syncInit %3x\n", zIsr.syncInit);
 
@@ -7196,7 +7196,7 @@ void syncSendMulti(P_SYNC_MULTI_PARM p)
  }
  
  putSPI(1);
- unsigned char tmp = SYNC_LOADMULTI;
+ unsigned char tmp = SYNC_LOAD_MULTI;
  sndHexSPI(&tmp, sizeof(tmp));
  putSPI(' ');
  sndHexSPI(&count, sizeof(count));
@@ -7258,15 +7258,15 @@ void syncResp()
   syncCmdDone = true;
   break;
   
- case SYNC_LOADVAL:		/* load a local parameter */
+ case SYNC_LOAD_VAL:		/* load a local parameter */
   //syncLoadDone = true;
   //break;
 
- case SYNC_LOADMULTI:		/* load multiple parameters */
+ case SYNC_LOAD_MULTI:		/* load multiple parameters */
   syncLoadDone = true;
   break;
 
- case SYNC_READVAL:		/* read a local parameter */
+ case SYNC_READ_VAL:		/* read a local parameter */
  {
 #if 0
   T_DATA_UNION parmVal;

@@ -21,9 +21,9 @@ enum REM_PARM_DEF
  SP_JOG_MAX_RPM,                /* 0x08 spindle jog maximum rpm */
  SP_JOG_RPM,                    /* 0x09 spindle jog rpm */
  SP_JOG_ACCEL_TIME,             /* 0x0a spindle jog accel time */
- SP_JOG_TIME_INITIAL,           /* 0x0b spindle jog time initl */
+ SP_JOG_TIME_INITIAL,           /* 0x0b spindle jog time initial */
  SP_JOG_TIME_INC,               /* 0x0c spindle jog time increment */
- SP_JOG_TIME_MAX,               /* 0x0d spindle jog timemax */
+ SP_JOG_TIME_MAX,               /* 0x0d spindle jog time max */
  SP_JOG_DIR,                    /* 0x0e spindle direction */
  SP_DIR_INV,                    /* 0x0f spindle invert direction */
  SP_TEST_INDEX,                 /* 0x10 generate test index pulse */

@@ -72,12 +72,12 @@
 #define MV_READ_Z    (1 << 2)    /* 0x04 pause z may change */
 #define MV_ACTIVE    (1 << 3)    /* 0x08 movement active */
 #define MV_DONE      (1 << 4)    /* 0x10 movement active */
-#define MV_XLIMIT    (1 << 5)    /* 0x20 at limit switch */
-#define MV_ZLIMIT    (1 << 6)    /* 0x40 at limit switch */
-#define MV_XHOME_ACTIVE (1 << 7) /* 0x80 x home active */
-#define MV_XHOME     (1 << 8)    /* 0x100 x home success */
-#define MV_ZHOME_ACTIVE (1 << 9) /* 0x200 z home active */
-#define MV_ZHOME     (1 << 10)   /* 0x400 z home success */
+#define MV_X_LIMIT   (1 << 5)    /* 0x20 at limit switch */
+#define MV_Z_LIMIT   (1 << 6)    /* 0x40 at limit switch */
+#define MV_X_HOME_ACTIVE (1 << 7) /* 0x80 x home active */
+#define MV_X_HOME    (1 << 8)    /* 0x100 x home success */
+#define MV_Z_HOME_ACTIVE (1 << 9) /* 0x200 z home active */
+#define MV_Z_HOME    (1 << 10)   /* 0x400 z home success */
 #define MV_MEASURE   (1 << 11)   /* 0x800 pause for measurement */
 #define MV_ESTOP     (1 << 12)   /* 0x1000 estop */
 
@@ -101,20 +101,6 @@
 #define PARM_START   0           /* 0x00 start of operation */
 #define PARM_DONE    1           /* 0x01 done operation */
 
-// isr active flags
-
-#define ARC_SHIFT    6           /* 0x06 shift for arc syn */
-#define SYNC_ACTIVE_EXT (1 << 0) /* 0x01 active for sync board */
-#define SYNC_ACTIVE_TMR (1 << 1) /* 0x02 active for internal timer */
-#define SYNC_ACTIVE_ENC (1 << 2) /* 0x04 active for encoder */
-#define SYNC_ACTIVE_STEP (1 << 3) /* 0x08 active for stepper */
-#define SYNC_ACTIVE_TAPER (1 << 4) /* 0x10 active for taper */
-#define SYNC_ACTIVE_THREAD (1 << 5) /* 0x20 active for threading */
-#define ARC_ACTIVE_EXT (SYNC_ACTIVE_EXT << ARC_SHIFT) /* 0x40 arc sync board */
-#define ARC_ACTIVE_TMR (SYNC_ACTIVE_TMR << ARC_SHIFT) /* 0x80 arc int tmr */
-#define ARC_ACTIVE_ENC (SYNC_ACTIVE_ENC << ARC_SHIFT) /* 0x100 arc encoder */
-#define ARC_ACTIVE_STEP (SYNC_ACTIVE_STEP << ARC_SHIFT) /* 0x200 arc stepper */
-
 // encoder direct flags
 
 #define Z_ENCODER_DIRECT (1 << 0) /* 0x01 z sync directly from encoder */
@@ -134,13 +120,27 @@
 #define PCMD_Z_NEG   (1 << 1)    /* 0x02 mov z negative */
 #define PCMD_DIR_FLAG (1 << 2)   /* 0x04 direction flag */
 #define PCMD_CMD_MASK (7 << 0)   /* 0x07 command mask */
-#define PCMD_RPT_SHIFT (3)       /* 0x03 repeat mask */
-#define PCMD_RPT_SHORT (32)      /* 0x20 repeat short */
-#define PCMD_RPT_MASK (0x1f << PCMD_RPT_SHIFT) /* 0xf8 repeat shift */
 #define PEXT_OFFSET  (8)         /* 0x08  */
 #define PEXT_INCX    (0 << 0)    /* 0x00 step x */
 #define PEXT_INCZ    (1 << 0)    /* 0x01 step z */
 #define PEXT_INCX_INCZ (2 << 0)  /* 0x02 step x and z */
 #define PEXT_INCX2_INCZ (3 << 0) /* 0x03 step x 2 step z */
+#define PCMD_RPT_SHIFT (3)       /* 0x03 repeat mask */
+#define PCMD_RPT_SHORT (32)      /* 0x20 repeat short */
+#define PCMD_RPT_MASK (0x1f << PCMD_RPT_SHIFT) /* 0xf8 repeat shift */
+
+// isr active flags
+
+#define A_S          6           /* 0x06 shift for arc syn */
+#define SYNC_ACTIVE_EXT (1 << 0) /* 0x01 sync board */
+#define SYNC_ACTIVE_TMR (1 << 1) /* 0x02 internal timer */
+#define SYNC_ACTIVE_ENC (1 << 2) /* 0x04 encoder */
+#define SYNC_ACTIVE_STEP (1 << 3) /* 0x08 stepper */
+#define SYNC_ACTIVE_TAPER (1 << 4) /* 0x10 taper */
+#define SYNC_ACTIVE_THREAD (1 << 5) /* 0x20 threading */
+#define ARC_ACTIVE_EXT (SYNC_ACTIVE_EXT << A_S) /* 0x40 arc sync board */
+#define ARC_ACTIVE_TMR (SYNC_ACTIVE_TMR << A_S) /* 0x80 arc int tmr */
+#define ARC_ACTIVE_ENC (SYNC_ACTIVE_ENC << A_S) /* 0x100 arc encoder */
+#define ARC_ACTIVE_STEP (SYNC_ACTIVE_STEP << A_S) /* 0x200 arc stepper */
 
 #endif  /* CTL_BITS_INC */

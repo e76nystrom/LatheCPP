@@ -24,9 +24,9 @@ unsigned char remSize[] =
  sizeof(rVar.spJogMaxRpm) | FLT,        /* 0x08 spindle jog maximum rpm */
  sizeof(rVar.spJogRpm) | FLT,           /* 0x09 spindle jog rpm */
  sizeof(rVar.spJogAccelTime) | FLT,     /* 0x0a spindle jog accel time */
- sizeof(rVar.spJogTimeInitial) | FLT,   /* 0x0b spindle jog time initl */
+ sizeof(rVar.spJogTimeInitial) | FLT,   /* 0x0b spindle jog time initial */
  sizeof(rVar.spJogTimeInc) | FLT,       /* 0x0c spindle jog time increment */
- sizeof(rVar.spJogTimeMax) | FLT,       /* 0x0d spindle jog timemax */
+ sizeof(rVar.spJogTimeMax) | FLT,       /* 0x0d spindle jog time max */
  sizeof(rVar.spJogDir),                 /* 0x0e spindle direction */
  sizeof(rVar.spDirInv),                 /* 0x0f spindle invert direction */
  sizeof(rVar.spTestIndex),              /* 0x10 generate test index pulse */
@@ -383,7 +383,7 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.spJogAccelTime = val.t_float;
   break;
 
- case SP_JOG_TIME_INITIAL:       /* 11 0x0b spindle jog time initl */
+ case SP_JOG_TIME_INITIAL:       /* 11 0x0b spindle jog time initial */
   rVar.spJogTimeInitial = val.t_float;
   break;
 
@@ -391,7 +391,7 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.spJogTimeInc = val.t_float;
   break;
 
- case SP_JOG_TIME_MAX:           /* 13 0x0d spindle jog timemax */
+ case SP_JOG_TIME_MAX:           /* 13 0x0d spindle jog time max */
   rVar.spJogTimeMax = val.t_float;
   break;
 
@@ -1157,7 +1157,7 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_float = rVar.spJogAccelTime;
   break;
 
- case SP_JOG_TIME_INITIAL:       /* 11 0x0b spindle jog time initl */
+ case SP_JOG_TIME_INITIAL:       /* 11 0x0b spindle jog time initial */
   val->t_float = rVar.spJogTimeInitial;
   break;
 
@@ -1165,7 +1165,7 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_float = rVar.spJogTimeInc;
   break;
 
- case SP_JOG_TIME_MAX:           /* 13 0x0d spindle jog timemax */
+ case SP_JOG_TIME_MAX:           /* 13 0x0d spindle jog time max */
   val->t_float = rVar.spJogTimeMax;
   break;
 
