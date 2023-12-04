@@ -5289,7 +5289,6 @@ void homeControl(P_HOMECTL home)
    {
     *(home->status) = HOME_SUCCESS; /* set flag */
     tmp |= (int) home->setHomed; /* indicate homed */
-    *home->status = HOME_SUCCESS; /* set to success */
     *mov->locPtr = 0;		/* set position to zero */
     *mov->droLocPtr = 0;        /* set dro position to zero */
    } else			/* if failure */

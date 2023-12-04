@@ -1,9 +1,7 @@
 #if !defined(SYNC_CMD_LIST)
 #define SYNC_CMD_LIST
 
-// cFile
-
-enum SYNC_CMD
+enum SYNC_COMMANDS
 {
  SYNC_SETUP,                    /* 0x00 setup sync routine */
  SYNC_START,                    /* 0x01 start sync routine */

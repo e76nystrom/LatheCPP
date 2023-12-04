@@ -1,5 +1,5 @@
-#if !defined(INC_RISCV_RUN_WAIT)
-#define INC_RISCV_RUN_WAIT
+#if !defined(RISCV_RUN_WAIT_INC)
+#define RISCV_RUN_WAIT_INC
 
 struct S_RISCV_RUN_WAIT
 {
@@ -17,4 +17,6 @@ struct S_RISCV_RUN_WAIT riscvRunWaitStr[] =
  {'W', 'Z',},            /*  5  5  wait z done */
 };
 
-#endif  /* RISCV_RUN_WAIT */
+#define RISCV_RUN_WAIT_SIZE 6
+
+#endif  /* RISCV_RUN_WAIT_INC */

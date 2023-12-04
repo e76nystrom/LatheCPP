@@ -1,5 +1,5 @@
-#if !defined(INC_AXIS_ACCEL_TYPE)
-#define INC_AXIS_ACCEL_TYPE
+#if !defined(AXIS_ACCEL_TYPE_INC)
+#define AXIS_ACCEL_TYPE_INC
 
 struct S_AXIS_ACCEL_TYPE
 {
@@ -22,4 +22,6 @@ struct S_AXIS_ACCEL_TYPE axisAccelTypeStr[] =
  {},                     /*  a 10  */
 };
 
-#endif  /* AXIS_ACCEL_TYPE */
+#define AXIS_ACCEL_TYPE_SIZE 11
+
+#endif  /* AXIS_ACCEL_TYPE_INC */

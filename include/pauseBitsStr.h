@@ -1,5 +1,5 @@
-#if !defined(INC_PAUSE_BITS)
-#define INC_PAUSE_BITS
+#if !defined(PAUSE_BITS_INC)
+#define PAUSE_BITS_INC
 
 struct S_PAUSE_BITS
 {
@@ -17,4 +17,6 @@ struct S_PAUSE_BITS pauseBitsStr[] =
  {},                     /*  5  5  */
 };
 
-#endif  /* PAUSE_BITS */
+#define PAUSE_BITS_SIZE 6
+
+#endif  /* PAUSE_BITS_INC */

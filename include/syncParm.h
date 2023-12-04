@@ -1,5 +1,7 @@
-#if !defined(SYNC_PARM)
-#define SYNC_PARM
+#if !defined(SYNC_PARM_INC)
+#define SYNC_PARM_INC
+// cFile
+
 /* defines */
 
 #define FLT (0x80)
@@ -14,4 +16,4 @@ enum SYNC_PARM_DEF
  SYNC_MAX_PARM,                 /* 0x04 sync maximum parameter */
 };
 
-#endif  /* SYNC_PARM */
+#endif  /* SYNC_PARM_INC */

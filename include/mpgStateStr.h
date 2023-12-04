@@ -1,5 +1,5 @@
-#if !defined(INC_MPG_STATE)
-#define INC_MPG_STATE
+#if !defined(MPG_STATE_INC)
+#define MPG_STATE_INC
 
 struct S_MPG_STATE
 {
@@ -15,4 +15,6 @@ struct S_MPG_STATE mpgStateStr[] =
  {'W', 'B',},            /*  3  3  wait for backlash */
 };
 
-#endif  /* MPG_STATE */
+#define MPG_STATE_SIZE 4
+
+#endif  /* MPG_STATE_INC */

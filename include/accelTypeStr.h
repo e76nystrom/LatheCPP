@@ -1,5 +1,5 @@
-#if !defined(INC_ACCEL_TYPE)
-#define INC_ACCEL_TYPE
+#if !defined(ACCEL_TYPE_INC)
+#define ACCEL_TYPE_INC
 
 struct S_ACCEL_TYPE
 {
@@ -16,4 +16,6 @@ struct S_ACCEL_TYPE accelTypeStr[] =
  {'J', 'S',},            /*  4  4  */
 };
 
-#endif  /* ACCEL_TYPE */
+#define ACCEL_TYPE_SIZE 5
+
+#endif  /* ACCEL_TYPE_INC */

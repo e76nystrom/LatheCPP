@@ -1,5 +1,5 @@
-#if !defined(INC_D_MESSAGE)
-#define INC_D_MESSAGE
+#if !defined(D_MESSAGE_INC)
+#define D_MESSAGE_INC
 
 struct S_D_MESSAGE
 {
@@ -64,4 +64,6 @@ struct S_D_MESSAGE dMessageStr[] =
  {'M', 'A', 'X', ' ',},  /* 32 50  debug maximum */
 };
 
-#endif  /* D_MESSAGE */
+#define D_MESSAGE_SIZE 51
+
+#endif  /* D_MESSAGE_INC */

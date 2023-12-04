@@ -1,5 +1,5 @@
-#if !defined(INC_MV_STATUS_BITS)
-#define INC_MV_STATUS_BITS
+#if !defined(MV_STATUS_BITS_INC)
+#define MV_STATUS_BITS_INC
 
 struct S_MV_STATUS_BITS
 {
@@ -25,4 +25,6 @@ struct S_MV_STATUS_BITS mvStatusBitsStr[] =
  {},                     /*  d 13  */
 };
 
-#endif  /* MV_STATUS_BITS */
+#define MV_STATUS_BITS_SIZE 14
+
+#endif  /* MV_STATUS_BITS_INC */

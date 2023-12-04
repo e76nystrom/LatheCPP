@@ -1,10 +1,15 @@
-struct S_STATUS
+#if !defined(STATUS_REG_INC)
+#define STATUS_REG_INC
+
+// sFile
+
+struct S_STATUS_REG
 {
  char c0;
  char c1;
 };
 
-struct S_STATUS statusRegStr[] =
+struct S_STATUS_REG statusRegStr[] =
 {
  {'Z', 'E',}, /*    1  0 Z_AXIS_ENA       z axis enable flag */
  {'Z', 'D',}, /*    2  1 Z_AXIS_DONE      z axis done */
@@ -14,7 +19,9 @@ struct S_STATUS statusRegStr[] =
  {'X', 'd',}, /*   20  5 X_AXIS_CUR_DIR   x axis current dir */
  {'E', 'S',}, /*   40  6 ST_ESTOP         emergency stop */
  {'S', '+',}, /*   80  7 SPINDLE_ACTIVE   spindle active */
- {'Q', '+',}, /*  100  8 QUE_NOT_EMPTY    ctl queue not empty */
- {'C', 'B',}, /*  200  9 CTL_BUSY         controller busy */
- {'S', 'A',}, /*  400 10 SYNC_ACTIVE      sync active */
+ {'S', 'A',}, /*  100  8 SYNC_ACTIVE      sync active */
 };
+
+#define STATUS_REG_SIZE 9
+
+#endif  /* STATUS_REG_INC */

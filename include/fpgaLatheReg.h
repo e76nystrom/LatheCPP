@@ -10,21 +10,6 @@ enum FPGALATHE
  F_Rd_Phase_Syn     = 1,        /* 0x01 'RSY' read phase at sync pulse */
  F_Phase_Max        = 2,        /* 0x02 number of phase registers */
 
-// controller
-
- F_Ld_Ctrl_Data     = 0,        /* 0x00 'LCD' load controller data */
- F_Ctrl_Cmd         = 1,        /* 0x01 'CMD' controller command */
- F_Ld_Seq           = 2,        /* 0x02 'LSQ' load sequence */
- F_Rd_Seq           = 3,        /* 0x03 'RSQ' read sequence */
- F_Rd_Ctr           = 4,        /* 0x04 'RCT' read counter */
- F_Ctrl_Max         = 5,        /* 0x05 number of controller registers */
-
-// reader
-
- F_Ld_Read_Data     = 0,        /* 0x00 'LDR' load reader data */
- F_Read             = 1,        /* 0x01 'RD'  read data */
- F_Read_Max         = 2,        /* 0x02 number of reader registers */
-
 // PWM
 
  F_Ld_PWM_Max       = 0,        /* 0x00 'MAX' pwm counter maximum */
@@ -102,45 +87,35 @@ enum FPGALATHE
 
 // control registers
 
- F_Ld_Run_Ctl       = 3,        /* 0x03 'LRUN' set run control reg */
- F_Rd_Run_Ctl       = 4,        /* 0x04 'RRUN' read run control reg */
- F_Ld_Sync_Ctl      = 5,        /* 0x05 'LSYN' sync control reg */
- F_Ld_Cfg_Ctl       = 6,        /* 0x06 'LCFG' config control reg */
- F_Ld_Clk_Ctl       = 7,        /* 0x07 'LCLK' clock control reg */
- F_Ld_Out_Reg       = 8,        /* 0x08 'LDOU' output reg */
- F_Ld_Dsp_Reg       = 9,        /* 0x09 'LDSP' display reg */
-
-// controller
-
- F_Ctrl_Base        = 10,       /* 0x0a 'C' controller */
-
-// reader
-
- F_Read_Base        = 15,       /* 0x0f 'R' reader */
+ F_Ld_Sync_Ctl      = 3,        /* 0x03 'LSYN' sync control reg */
+ F_Ld_Cfg_Ctl       = 4,        /* 0x04 'LCFG' config control reg */
+ F_Ld_Clk_Ctl       = 5,        /* 0x05 'LCLK' clock control reg */
+ F_Ld_Out_Reg       = 6,        /* 0x06 'LDOU' output reg */
+ F_Ld_Dsp_Reg       = 7,        /* 0x07 'LDSP' display reg */
 
 // debug frequency control
 
- F_Dbg_Freq_Base    = 17,       /* 0x11 'D' dbg frequency */
+ F_Dbg_Freq_Base    = 8,        /* 0x08 'D' dbg frequency */
 
 // spindle speed
 
- F_Rd_Idx_Clks      = 19,       /* 0x13 'RIDX' clocks per index */
+ F_Rd_Idx_Clks      = 10,       /* 0x0a 'RIDX' clocks per index */
 
 // step spindle frequency generator
 
 
 // pwm
 
- F_PWM_Base         = 20,       /* 0x14 'P' pwm control */
+ F_PWM_Base         = 11,       /* 0x0b 'P' pwm control */
 
 // base for modules
 
- F_Enc_Base         = 22,       /* 0x16 'E' encoder registers */
- F_Phase_Base       = 25,       /* 0x19 'H' phase registers */
- F_ZAxis_Base       = 27,       /* 0x1b 'Z' z axis registers */
- F_XAxis_Base       = 51,       /* 0x33 'X' x axis registers */
- F_Spindle_Base     = 75,       /* 0x4b 'S' spindle registers */
- F_Cmd_Max          = 100,      /* 0x64 number of commands */
+ F_Enc_Base         = 13,       /* 0x0d 'E' encoder registers */
+ F_Phase_Base       = 16,       /* 0x10 'H' phase registers */
+ F_ZAxis_Base       = 18,       /* 0x12 'Z' z axis registers */
+ F_XAxis_Base       = 42,       /* 0x2a 'X' x axis registers */
+ F_Spindle_Base     = 66,       /* 0x42 'S' spindle registers */
+ F_Cmd_Max          = 91,       /* 0x5b number of commands */
 };
 
 #endif  /* FPGA_LATHE */

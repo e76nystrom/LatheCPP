@@ -195,22 +195,22 @@ extern const char *operationsList[];
 
 enum H_STATES
 {
- H_IDLE = 0,                    /*  0 x00 idle state */
- H_HOME = 1,                    /*  1 x01 found home switch */
- H_OFF_HOME = 2,                /*  2 x02 off home switch */
- H_BACKOFF = 3,                 /*  3 x03 backoff dist from switch */
- H_SLOW = 4,                    /*  4 x04 found home slowly */
+ H_IDLE = 0,                    /*  0 x00 'HI' idle state */
+ H_HOME = 1,                    /*  1 x01 'HF' found home switch */
+ H_OFF_HOME = 2,                /*  2 x02 'OF' off home switch */
+ H_BACKOFF = 3,                 /*  3 x03 'BF' backoff dist from switch */
+ H_SLOW = 4,                    /*  4 x04 'HS' found home slowly */
 };
 
 #ifdef ENUM_H_STATES
 
 const char *hStatesList[] = 
 {
- "H_IDLE",                      /*  0 x00 idle state */
- "H_HOME",                      /*  1 x01 found home switch */
- "H_OFF_HOME",                  /*  2 x02 off home switch */
- "H_BACKOFF",                   /*  3 x03 backoff dist from switch */
- "H_SLOW",                      /*  4 x04 found home slowly */
+ "H_IDLE",                      /*  0 x00 'HI' idle state */
+ "H_HOME",                      /*  1 x01 'HF' found home switch */
+ "H_OFF_HOME",                  /*  2 x02 'OF' off home switch */
+ "H_BACKOFF",                   /*  3 x03 'BF' backoff dist from switch */
+ "H_SLOW",                      /*  4 x04 'HS' found home slowly */
 };
 
 #else
@@ -551,96 +551,6 @@ extern const char *mpgStateList[];
 
 #endif
 
-// riscv actions
-
-enum RISCV_CMD
-{
- R_NONE = 0,                    /*  0 x00 'NO' no operation */
- R_OP_START = 1,                /*  1 x01 'OS' start */
- R_OP_DONE = 2,                 /*  2 x02 'OD' done */
- R_SETUP = 3,                   /*  3 x03 'SU' setup */
- R_RESUME = 4,                  /*  4 x04 'RE' resume */
- R_STOP = 5,                    /*  5 x05 'SP' stop */
- R_STOP_X = 6,                  /*  6 x06 'SX' stop x */
- R_STOP_Z = 7,                  /*  7 x07 'SZ' stop z */
- R_DONE = 8,                    /*  8 x08 'DN' done */
- R_SEND_DONE = 9,               /*  9 x09 'ND' send data done */
- R_SET_LOC_X = 10,              /* 10 x0a 'LX' set x loc */
- R_SET_LOC_Z = 11,              /* 11 x0b 'LZ' set z loc */
- R_PAUSE = 12,                  /* 12 x0c 'PA' pause */
- R_START_SPIN = 13,             /* 13 x0d 'S+' start spindle */
- R_STOP_SPIN = 14,              /* 14 x0e 'S-' stop spindle */
- R_UPDATE_SPIN = 15,            /* 15 x0f 'US' update spindle speed */
- R_PASS = 16,                   /* 16 x10 'PS' pass */
- R_SET_ACCEL = 17,              /* 17 x11 'SA' set accel parm */
- R_SET_ACCEL_Q = 18,            /* 18 x12 'SQ' set accel parm queued */
- R_SET_DATA = 19,               /* 19 x13 'SD' set data */
- R_GET_DATA = 20,               /* 20 x14 'GD' set data */
- R_SAVE_Z = 21,                 /* 21 x15 'VZ' save z */
- R_SAVE_X = 22,                 /* 22 x16 'VX' save x */
- R_STEPS_Z = 23,                /* 23 x17 'IZ' save z steps inch */
- R_STEPS_X = 24,                /* 24 x18 'IX' save x steps inch */
- R_HOFS_Z = 25,                 /* 25 x19 'HZ' home offset z */
- R_HOFS_X = 26,                 /* 26 x1a 'HX' home offset x */
- R_JOG_Z = 27,                  /* 27 x1b 'JZ' jog move z */
- R_JOG_X = 28,                  /* 28 x1c 'JX' jog move x */
- R_MOVE_Z = 29,                 /* 29 x1d 'MZ' move z */
- R_MOVE_X = 30,                 /* 30 x1e 'MX' move x */
- R_MOVE_REL_Z = 31,             /* 31 x1f 'RZ' move rel z */
- R_MOVE_REL_X = 32,             /* 32 x20 'RX' move rel x */
- R_READ_ALL = 33,               /* 33 x21 'RA' read all status */
- R_READ_DBG = 34,               /* 34 x22 'RD' read all status */
- R_MAX_CMD = 35,                /* 35 x23 'MX' max value */
-};
-
-#ifdef ENUM_RISCV_CMD
-
-const char *riscvCmdList[] = 
-{
- "R_NONE",                      /*  0 x00 'NO' no operation */
- "R_OP_START",                  /*  1 x01 'OS' start */
- "R_OP_DONE",                   /*  2 x02 'OD' done */
- "R_SETUP",                     /*  3 x03 'SU' setup */
- "R_RESUME",                    /*  4 x04 'RE' resume */
- "R_STOP",                      /*  5 x05 'SP' stop */
- "R_STOP_X",                    /*  6 x06 'SX' stop x */
- "R_STOP_Z",                    /*  7 x07 'SZ' stop z */
- "R_DONE",                      /*  8 x08 'DN' done */
- "R_SEND_DONE",                 /*  9 x09 'ND' send data done */
- "R_SET_LOC_X",                 /* 10 x0a 'LX' set x loc */
- "R_SET_LOC_Z",                 /* 11 x0b 'LZ' set z loc */
- "R_PAUSE",                     /* 12 x0c 'PA' pause */
- "R_START_SPIN",                /* 13 x0d 'S+' start spindle */
- "R_STOP_SPIN",                 /* 14 x0e 'S-' stop spindle */
- "R_UPDATE_SPIN",               /* 15 x0f 'US' update spindle speed */
- "R_PASS",                      /* 16 x10 'PS' pass */
- "R_SET_ACCEL",                 /* 17 x11 'SA' set accel parm */
- "R_SET_ACCEL_Q",               /* 18 x12 'SQ' set accel parm queued */
- "R_SET_DATA",                  /* 19 x13 'SD' set data */
- "R_GET_DATA",                  /* 20 x14 'GD' set data */
- "R_SAVE_Z",                    /* 21 x15 'VZ' save z */
- "R_SAVE_X",                    /* 22 x16 'VX' save x */
- "R_STEPS_Z",                   /* 23 x17 'IZ' save z steps inch */
- "R_STEPS_X",                   /* 24 x18 'IX' save x steps inch */
- "R_HOFS_Z",                    /* 25 x19 'HZ' home offset z */
- "R_HOFS_X",                    /* 26 x1a 'HX' home offset x */
- "R_JOG_Z",                     /* 27 x1b 'JZ' jog move z */
- "R_JOG_X",                     /* 28 x1c 'JX' jog move x */
- "R_MOVE_Z",                    /* 29 x1d 'MZ' move z */
- "R_MOVE_X",                    /* 30 x1e 'MX' move x */
- "R_MOVE_REL_Z",                /* 31 x1f 'RZ' move rel z */
- "R_MOVE_REL_X",                /* 32 x20 'RX' move rel x */
- "R_READ_ALL",                  /* 33 x21 'RA' read all status */
- "R_READ_DBG",                  /* 34 x22 'RD' read all status */
- "R_MAX_CMD",                   /* 35 x23 'MX' max value */
-};
-
-#else
-
-extern const char *riscvCmdList[];
-
-#endif
-
 // riscv axis name
 
 enum RISCV_AXIS_NAME_TYPE
@@ -869,26 +779,26 @@ extern const char *riscvRunWaitList[];
 
 enum MOVE_CMD
 {
- M_CMD_NONE = 0,                /*  0 x00 no command */
- M_CMD_MOV = 1,                 /*  1 x01 move a set distance */
- M_CMD_JOG = 2,                 /*  2 x02 move while cmd are present */
- M_CMD_SYN = 3,                 /*  3 x03 move dist synchronized to rotation */
- M_CMD_MAX = 4,                 /*  4 x04 rapid move */
- M_CMD_SPEED = 5,               /*  5 x05 jog at speed */
- M_JOG_SLOW = 6,                /*  6 x06 slow jog for home or probe */
+ M_CMD_NONE = 0,                /*  0 x00 'NO' no command */
+ M_CMD_MOV = 1,                 /*  1 x01 'MV' move a set distance */
+ M_CMD_JOG = 2,                 /*  2 x02 'JG' move while cmd are present */
+ M_CMD_SYN = 3,                 /*  3 x03 'SY' move dist synchronized to rotation */
+ M_CMD_MAX = 4,                 /*  4 x04 'MX' rapid move */
+ M_CMD_SPEED = 5,               /*  5 x05 'CS' jog at speed */
+ M_JOG_SLOW = 6,                /*  6 x06 'JS' slow jog for home or probe */
 };
 
 #ifdef ENUM_MOVE_CMD
 
 const char *moveCmdList[] = 
 {
- "M_CMD_NONE",                  /*  0 x00 no command */
- "M_CMD_MOV",                   /*  1 x01 move a set distance */
- "M_CMD_JOG",                   /*  2 x02 move while cmd are present */
- "M_CMD_SYN",                   /*  3 x03 move dist synchronized to rotation */
- "M_CMD_MAX",                   /*  4 x04 rapid move */
- "M_CMD_SPEED",                 /*  5 x05 jog at speed */
- "M_JOG_SLOW",                  /*  6 x06 slow jog for home or probe */
+ "M_CMD_NONE",                  /*  0 x00 'NO' no command */
+ "M_CMD_MOV",                   /*  1 x01 'MV' move a set distance */
+ "M_CMD_JOG",                   /*  2 x02 'JG' move while cmd are present */
+ "M_CMD_SYN",                   /*  3 x03 'SY' move dist synchronized to rotation */
+ "M_CMD_MAX",                   /*  4 x04 'MX' rapid move */
+ "M_CMD_SPEED",                 /*  5 x05 'CS' jog at speed */
+ "M_JOG_SLOW",                  /*  6 x06 'JS' slow jog for home or probe */
 };
 
 #else
@@ -901,40 +811,40 @@ extern const char *moveCmdList[];
 
 enum MOVE_BIT
 {
- M_RSV_0 = 0,                   /*  0 x00 no command */
- M_RSV_1 = 1,                   /*  1 x01 no command */
- M_RSV_2 = 2,                   /*  2 x02 no command */
- M_SYN_START = 3,               /*  3 x03 start on sync pulse */
- M_SYN_LEFT = 4,                /*  4 x04 start sync left */
- M_SYN_TAPER = 5,               /*  5 x05 taper on other axis */
- M_DIST_MODE = 6,               /*  6 x06 distance update mode */
- M_FIND_HOME = 7,               /*  7 x07 find home */
- M_CLEAR_HOME = 8,              /*  8 x08 move off of home */
- M_FIND_PROBE = 9,              /*  9 x09 find probe */
- M_CLEAR_PROBE = 10,            /* 10 x0a move off of probe */
- M_DRO_POS = 11,                /* 11 x0b use dro for moving */
- M_DRO_UPD = 12,                /* 12 x0c update internal position from dro */
- M_BIT_MAX = 13,                /* 13 x0d number of bits */
+ M_RSV_0 = 0,                   /*  0 x00 'R0' no command */
+ M_RSV_1 = 1,                   /*  1 x01 'R1' no command */
+ M_RSV_2 = 2,                   /*  2 x02 'R2' no command */
+ M_SYN_START = 3,               /*  3 x03 'SS' start on sync pulse */
+ M_SYN_LEFT = 4,                /*  4 x04 'SL' start sync left */
+ M_SYN_TAPER = 5,               /*  5 x05 'ST' taper on other axis */
+ M_DIST_MODE = 6,               /*  6 x06 'DM' distance update mode */
+ M_FIND_HOME = 7,               /*  7 x07 'FH' find home */
+ M_CLEAR_HOME = 8,              /*  8 x08 'CH' move off of home */
+ M_FIND_PROBE = 9,              /*  9 x09 'FP' find probe */
+ M_CLEAR_PROBE = 10,            /* 10 x0a 'CP' move off of probe */
+ M_DRO_POS = 11,                /* 11 x0b 'DP' use dro for moving */
+ M_DRO_UPD = 12,                /* 12 x0c 'DU' update internal position from dro */
+ M_BIT_MAX = 13,                /* 13 x0d 'MX' number of bits */
 };
 
 #ifdef ENUM_MOVE_BIT
 
 const char *moveBitList[] = 
 {
- "M_RSV_0",                     /*  0 x00 no command */
- "M_RSV_1",                     /*  1 x01 no command */
- "M_RSV_2",                     /*  2 x02 no command */
- "M_SYN_START",                 /*  3 x03 start on sync pulse */
- "M_SYN_LEFT",                  /*  4 x04 start sync left */
- "M_SYN_TAPER",                 /*  5 x05 taper on other axis */
- "M_DIST_MODE",                 /*  6 x06 distance update mode */
- "M_FIND_HOME",                 /*  7 x07 find home */
- "M_CLEAR_HOME",                /*  8 x08 move off of home */
- "M_FIND_PROBE",                /*  9 x09 find probe */
- "M_CLEAR_PROBE",               /* 10 x0a move off of probe */
- "M_DRO_POS",                   /* 11 x0b use dro for moving */
- "M_DRO_UPD",                   /* 12 x0c update internal position from dro */
- "M_BIT_MAX",                   /* 13 x0d number of bits */
+ "M_RSV_0",                     /*  0 x00 'R0' no command */
+ "M_RSV_1",                     /*  1 x01 'R1' no command */
+ "M_RSV_2",                     /*  2 x02 'R2' no command */
+ "M_SYN_START",                 /*  3 x03 'SS' start on sync pulse */
+ "M_SYN_LEFT",                  /*  4 x04 'SL' start sync left */
+ "M_SYN_TAPER",                 /*  5 x05 'ST' taper on other axis */
+ "M_DIST_MODE",                 /*  6 x06 'DM' distance update mode */
+ "M_FIND_HOME",                 /*  7 x07 'FH' find home */
+ "M_CLEAR_HOME",                /*  8 x08 'CH' move off of home */
+ "M_FIND_PROBE",                /*  9 x09 'FP' find probe */
+ "M_CLEAR_PROBE",               /* 10 x0a 'CP' move off of probe */
+ "M_DRO_POS",                   /* 11 x0b 'DP' use dro for moving */
+ "M_DRO_UPD",                   /* 12 x0c 'DU' update internal position from dro */
+ "M_BIT_MAX",                   /* 13 x0d 'MX' number of bits */
 };
 
 #else
@@ -952,12 +862,12 @@ enum MV_STATUS_BITS
  R_MV_READ_Z = 2,               /*  2 x02 'RZ' pause z may change */
  R_MV_ACTIVE = 3,               /*  3 x03 'AC' movement active */
  R_MV_DONE = 4,                 /*  4 x04 'DN' movement active */
- R_MV_XLIMIT = 5,               /*  5 x05 'XL' at limit switch */
- R_MV_ZLIMIT = 6,               /*  6 x06 'ZL' at limit switch */
- R_MV_XHOME_ACTIVE = 7,         /*  7 x07 'XA' x home active */
- R_MV_XHOME = 8,                /*  8 x08 'XH' x home success */
- R_MV_ZHOME_ACTIVE = 9,         /*  9 x09 'ZA' z home active */
- R_MV_ZHOME = 10,               /* 10 x0a 'ZH' z home success */
+ R_MV_X_LIMIT = 5,              /*  5 x05 'XL' at limit switch */
+ R_MV_Z_LIMIT = 6,              /*  6 x06 'ZL' at limit switch */
+ R_MV_X_HOME_ACTIVE = 7,        /*  7 x07 'XA' x home active */
+ R_MV_X_HOME = 8,               /*  8 x08 'XH' x home success */
+ R_MV_Z_HOME_ACTIVE = 9,        /*  9 x09 'ZA' z home active */
+ R_MV_Z_HOME = 10,              /* 10 x0a 'ZH' z home success */
  R_MV_MEASURE = 11,             /* 11 x0b 'MS' pause for measurement */
  R_MV_ESTOP = 12,               /* 12 x0c 'ES' estop */
  R_MV_MAX = 13,                 /* 13 x0d number of bits */
@@ -972,12 +882,12 @@ const char *mvStatusBitsList[] =
  "R_MV_READ_Z",                 /*  2 x02 'RZ' pause z may change */
  "R_MV_ACTIVE",                 /*  3 x03 'AC' movement active */
  "R_MV_DONE",                   /*  4 x04 'DN' movement active */
- "R_MV_XLIMIT",                 /*  5 x05 'XL' at limit switch */
- "R_MV_ZLIMIT",                 /*  6 x06 'ZL' at limit switch */
- "R_MV_XHOME_ACTIVE",           /*  7 x07 'XA' x home active */
- "R_MV_XHOME",                  /*  8 x08 'XH' x home success */
- "R_MV_ZHOME_ACTIVE",           /*  9 x09 'ZA' z home active */
- "R_MV_ZHOME",                  /* 10 x0a 'ZH' z home success */
+ "R_MV_X_LIMIT",                /*  5 x05 'XL' at limit switch */
+ "R_MV_Z_LIMIT",                /*  6 x06 'ZL' at limit switch */
+ "R_MV_X_HOME_ACTIVE",          /*  7 x07 'XA' x home active */
+ "R_MV_X_HOME",                 /*  8 x08 'XH' x home success */
+ "R_MV_Z_HOME_ACTIVE",          /*  9 x09 'ZA' z home active */
+ "R_MV_Z_HOME",                 /* 10 x0a 'ZH' z home success */
  "R_MV_MEASURE",                /* 11 x0b 'MS' pause for measurement */
  "R_MV_ESTOP",                  /* 12 x0c 'ES' estop */
  "R_MV_MAX",                    /* 13 x0d number of bits */

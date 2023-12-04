@@ -1,9 +1,7 @@
 #if !defined(REM_CMD_LIST)
 #define REM_CMD_LIST
 
-// cFile
-
-enum REM_CMD
+enum REM_COMMANDS
 {
 
 // z motion commands

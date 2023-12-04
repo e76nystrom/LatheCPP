@@ -1,5 +1,7 @@
-#if !defined(MEGA_PARM)
-#define MEGA_PARM
+#if !defined(MEGA_PARM_INC)
+#define MEGA_PARM_INC
+// cFile
+
 /* defines */
 
 #define FLT (0x80)
@@ -15,4 +17,4 @@ enum MEGA_PARM_DEF
  M_PARM_MAX_PARM,               /* 0x05 mega maximum parameter */
 };
 
-#endif  /* MEGA_PARM */
+#endif  /* MEGA_PARM_INC */

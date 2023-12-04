@@ -5,7 +5,8 @@
 
 #define RISCV_DATA         (1 << 0)     /* 0x001 riscv data active */
 #define RISCV_SPI          (1 << 1)     /* 0x002 riscv spi active */
-#define RISCV_CTL_SIZE     2
+#define RISCV_IN_TEST      (1 << 2)     /* 0x004 riscv input test */
+#define RISCV_CTL_SIZE     3
 
 // status register
 
@@ -17,27 +18,33 @@
 #define X_AXIS_CUR_DIR     (1 << 5)     /* 0x020 'Xd' x axis current dir */
 #define ST_ESTOP           (1 << 6)     /* 0x040 'ES' emergency stop */
 #define SPINDLE_ACTIVE     (1 << 7)     /* 0x080 'S+' spindle active */
-#define QUE_NOT_EMPTY      (1 << 8)     /* 0x100 'Q+' ctl queue not empty */
-#define CTL_BUSY           (1 << 9)     /* 0x200 'CB' controller busy */
-#define SYNC_ACTIVE        (1 << 10)    /* 0x400 'SA' sync active */
-#define STATUS_SIZE        11
+#define SYNC_ACTIVE        (1 << 8)     /* 0x100 'SA' sync active */
+#define STATUS_SIZE        9
 
 // input register
 
-#define IN_ZHOME           (1 << 0)     /* 0x001 z home switch */
-#define IN_ZMINUS          (1 << 1)     /* 0x002 z limit minus */
-#define IN_ZPLUS           (1 << 2)     /* 0x004 z Limit Plus */
-#define IN_XHOME           (1 << 3)     /* 0x008 x home switch */
-#define IN_XMINUS          (1 << 4)     /* 0x010 x limit minus */
-#define IN_XPLUS           (1 << 5)     /* 0x020 x Limit Plus */
-#define IN_SPARE           (1 << 6)     /* 0x040 spare input */
-#define IN_PROBE           (1 << 7)     /* 0x080 probe input */
-#define IN_PIN10           (1 << 8)     /* 0x100 pin 10 */
-#define IN_PIN11           (1 << 9)     /* 0x200 pin 11 */
-#define IN_PIN12           (1 << 10)    /* 0x400 pin 12 */
-#define IN_PIN13           (1 << 11)    /* 0x800 pin 13 */
-#define IN_PIN15           (1 << 12)    /* 0x1000 pin 15 */
+#define IN_PIN10           (1 << 0)     /* 0x001 '10' pin 10 */
+#define IN_PIN11           (1 << 1)     /* 0x002 '11' pin 11 */
+#define IN_PIN12           (1 << 2)     /* 0x004 '12' pin 12 */
+#define IN_PIN13           (1 << 3)     /* 0x008 '13' pin 13 */
+#define IN_PIN15           (1 << 4)     /* 0x010 '15' pin 15 */
+#define IN_ZHOME           (1 << 5)     /* 0x020 'ZH' z home switch */
+#define IN_ZMINUS          (1 << 6)     /* 0x040 'Z-' z limit minus */
+#define IN_ZPLUS           (1 << 7)     /* 0x080 'Z+' z Limit Plus */
+#define IN_XHOME           (1 << 8)     /* 0x100 'XH' x home switch */
+#define IN_XMINUS          (1 << 9)     /* 0x200 'X-' x limit minus */
+#define IN_XPLUS           (1 << 10)    /* 0x400 'X+' x Limit Plus */
+#define IN_PROBE           (1 << 11)    /* 0x800 'PR' probe input */
+#define IN_SPARE           (1 << 12)    /* 0x1000 'SP' spare input */
 #define INPUTS_SIZE        13
+
+// axis inputs
+
+#define AX_HOME            (1 << 0)     /* 0x001 axis home */
+#define AX_MINUS           (1 << 1)     /* 0x002 axis minus limit */
+#define AX_PLUS            (1 << 2)     /* 0x004 axis plus limit */
+#define AX_PROBE           (1 << 3)     /* 0x008 axis probe */
+#define AXIS_IN_SIZE       4
 
 // output register
 
@@ -48,10 +55,10 @@
 
 // pin out signals
 
-#define PIN_OUT2           (1 << 0)     /* 0x001  */
-#define PIN_OUT3           (1 << 1)     /* 0x002  */
-#define PIN_OUT4           (1 << 2)     /* 0x004  */
-#define PIN_OUT5           (1 << 3)     /* 0x008  */
+#define PIN_OUT2           (1 << 0)     /* 0x001 z dir */
+#define PIN_OUT3           (1 << 1)     /* 0x002 z step */
+#define PIN_OUT4           (1 << 2)     /* 0x004 x dir */
+#define PIN_OUT5           (1 << 3)     /* 0x008 x step */
 #define PIN_OUT6           (1 << 4)     /* 0x010  */
 #define PIN_OUT7           (1 << 5)     /* 0x020  */
 #define PIN_OUT8           (1 << 6)     /* 0x040  */
@@ -62,13 +69,6 @@
 #define PIN_OUT17          (1 << 11)    /* 0x800  */
 #define PIN_OUT_SIZE       12
 
-// run control register
-
-#define RUN_ENA            (1 << 0)     /* 0x001 run from controller data */
-#define RUN_INIT           (1 << 1)     /* 0x002 initialize controller */
-#define READER_INIT        (1 << 2)     /* 0x004 initialize reader */
-#define RUN_SIZE           3
-
 // jog control register
 
 #define JOG_CONTINUOUS     (1 << 0)     /* 0x001 jog continuous mode */
@@ -77,30 +77,38 @@
 
 // axis control register
 
-#define CTL_INIT           (1 << 0)     /* 0x001 reset flag */
-#define CTL_START          (1 << 1)     /* 0x002 start */
-#define CTL_BACKLASH       (1 << 2)     /* 0x004 backlash move no pos upd */
-#define CTL_WAIT_SYNC      (1 << 3)     /* 0x008 wait for sync to start */
-#define CTL_DIR            (1 << 4)     /* 0x010 direction */
-#define CTL_SET_LOC        (1 << 5)     /* 0x020 set location */
-#define CTL_CH_DIRECT      (1 << 6)     /* 0x040 ch input direct */
-#define CTL_SLAVE          (1 << 7)     /* 0x080 slave ctl by other axis */
-#define CTL_DRO_END        (1 << 8)     /* 0x100 use dro to end move */
-#define CTL_DIST_MODE      (1 << 9)     /* 0x200 distance udpdate mode */
-#define CTL_JOG_CMD        (1 << 10)    /* 0x400 jog with commands */
-#define CTL_JOG_MPG        (1 << 11)    /* 0x800 jog with mpg */
-#define CTL_HOME           (1 << 12)    /* 0x1000 homing axis */
-#define CTL_USE_LIMITS     (1 << 13)    /* 0x2000 use limits */
-#define AXIS_CTL_SIZE      14
+#define CTL_INIT           (1 << 0)     /* 0x001 'IN' reset flag */
+#define CTL_START          (1 << 1)     /* 0x002 'ST' start */
+#define CTL_BACKLASH       (1 << 2)     /* 0x004 'BK' backlash move no pos upd */
+#define CTL_WAIT_SYNC      (1 << 3)     /* 0x008 'WS' wait for sync to start */
+#define CTL_DIR            (1 << 4)     /* 0x010 '+-' direction */
+#define CTL_SET_LOC        (1 << 5)     /* 0x020 'SL' set location */
+#define CTL_CH_DIRECT      (1 << 6)     /* 0x040 'CH' ch input direct */
+#define CTL_SLAVE          (1 << 7)     /* 0x080 'SL' slave ctl by other axis */
+#define CTL_DRO_END        (1 << 8)     /* 0x100 'DE' use dro to end move */
+#define CTL_DIST_MODE      (1 << 9)     /* 0x200 'DM' distance udpdate mode */
+#define CTL_JOG_CMD        (1 << 10)    /* 0x400 'JC' jog with commands */
+#define CTL_JOG_MPG        (1 << 11)    /* 0x800 'JM' jog with mpg */
+#define CTL_HOME           (1 << 12)    /* 0x1000 'HO' homing axis */
+#define CTL_HOME_POL       (1 << 13)    /* 0x2000 'HP' home signal polarity */
+#define CTL_PROBE          (1 << 14)    /* 0x4000 'PR' probe enable */
+#define CTL_USE_LIMITS     (1 << 15)    /* 0x8000 'UL' use limits */
+#define AXIS_CTL_SIZE      16
 
 // axis status register
 
-#define AX_DONE_DIST       (1 << 0)     /* 0x001 axis done distance */
-#define AX_DONE_DRO        (1 << 1)     /* 0x002 axis done dro */
-#define AX_DONE_HOME       (1 << 2)     /* 0x004 axis done home */
-#define AX_DONE_LIMIT      (1 << 3)     /* 0x008 axis done limit */
-#define AX_DIST_ZERO       (1 << 4)     /* 0x010 axis distance zero */
-#define AXIS_STATUS_SIZE   5
+#define AX_DONE            (1 << 0)     /* 0x001 'DN' axis done */
+#define AX_DIST_ZERO       (1 << 1)     /* 0x002 'ZE' axis distance zero */
+#define AX_DONE_DRO        (1 << 2)     /* 0x004 'DR' axis done dro */
+#define AX_DONE_HOME       (1 << 3)     /* 0x008 'HO' axis done home */
+#define AX_DONE_LIMIT      (1 << 4)     /* 0x010 'LI' axis done limit */
+#define AX_DONE_PROBE      (1 << 5)     /* 0x020 'PR' axis done probe */
+#define AX_IN_HOME         (1 << 6)     /* 0x040 'IH' axis home */
+#define AX_IN_MINUS        (1 << 7)     /* 0x080 'I-' axis in minus limit */
+#define AX_IN_PLUS         (1 << 8)     /* 0x100 'I+' axis in plus limit */
+#define AX_IN_PROBE        (1 << 9)     /* 0x200 'IP' axis in probe */
+#define AX_IN_FLAG         (1 << 10)    /* 0x400 'IF' axis in flag */
+#define AXIS_STATUS_SIZE   11
 
 // configuration control register
 
