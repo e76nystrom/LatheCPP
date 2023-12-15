@@ -1895,7 +1895,7 @@ void syncCalculate()
  uint32_t total = 0;
  uint16_t *p = cmpTmr.delta;
  int col = 0;
- for (int i = 0; i < cmpTmr.encCycLen; i++)
+ for (unsigned int i = 0; i < cmpTmr.encCycLen; i++)
  {
   if (col == 0)
    printf("%4d -", i);

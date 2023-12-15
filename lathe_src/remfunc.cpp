@@ -7,8 +7,6 @@
 #if !defined(EXT)
 #define EXT extern
 #endif
-#include "axisCtl.h"
-
 T_REM_VAR rVar;
 
 #define FLT (0x80)
