@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python39/Python.exe
+#!/cygdrive/c/Python310/Python.exe
 
 import sys
 from collections import namedtuple
@@ -636,7 +636,7 @@ while True:
         path = "LatheCPP7H"
     elif board == "nuch723":
         cfg = nuch743
-        path = "LatheCPP723"
+        path = "LatheCPP723/Core"
     n += 1
 
 main(board, cfg, path)

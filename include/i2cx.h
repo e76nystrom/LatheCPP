@@ -1,5 +1,4 @@
-#if !defined(I2CX_INC)	// <-
-#define I2CX_INC
+#if 1	// <-
 
 #if !defined(EXT)
 #define EXT extern
@@ -56,4 +55,4 @@ typedef struct
 EXT T_I2C_CTL i2cCtl;
 EXT int i2cError;
 
-#endif  /* I2CX_INC */	// ->
+#endif	// ->

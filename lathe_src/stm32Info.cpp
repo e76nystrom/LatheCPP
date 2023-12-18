@@ -27,7 +27,7 @@
 #else
 #include "config.h"
 #include "serialio.h"
-#define getNum getNum
+
 #endif	/* ARDUINO_ARCH_AVR */
 
 #if  defined(__STM32INFO_INC__)	// <-
@@ -110,7 +110,7 @@ enum tmrFlags
   )
 
 void info();
-void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
+//void bitState(const char *s, volatile unsigned long *p, unsigned long mask);
 
 #if defined(ARDUINO_ARCH_STM32)
 char query(unsigned char (*get)(), const char *format, ...);
@@ -268,8 +268,8 @@ void gpioInfo(GPIO_TypeDef *gpioPtr)
 // printf("PUPDR   %8lx\n", gpio->PUPDR);
 //#endif	/* STM32F3 */
 #if defined(STM32F1)
- printf("CRL     %8lx ", gpio->CRL);
- printf("CRH     %8lx\n", gpio->CRH);
+ printf("CRL     %8lx ", gpioPtr->CRL);
+ printf("CRH     %8lx\n", gpioPtr->CRH);
 #endif	/* STM32F1 */
 // printf("IDR     %8lx ", gpio->IDR);
 // printf("ODR     %8lx\n", gpio->ODR);
@@ -311,21 +311,21 @@ void gpioInfo(GPIO_TypeDef *gpioPtr)
 #if defined(STM32F1)
  printf("\n");
  printf("mode     ");
- val = gpio->CRL;
+ val = gpioPtr->CRL;
  for (i = 0; i < 8; i++)
   printf(" %2d", (int) (val >> (4 * i)) & 0x3);
 
- val = gpio->CRH;
+ val = gpioPtr->CRH;
  for (i = 0; i < 8; i++)
   printf(" %2d", (int) (val >> (4 * i)) & 0x3);
 
  printf("\n");
  printf("cnf      ");
- val = gpio->CRL;
+ val = gpioPtr->CRL;
  for (i = 0; i < 8; i++)
   printf(" %2d", (int) (val >> ((4 * i) + 2)) & 0x3);
 
- val = gpio->CRH;
+ val = gpioPtr->CRH;
  for (i = 0; i < 8; i++)
   printf(" %2d", (int) (val >> ((4 * i) + 2)) & 0x3);
 #endif	/* STM32F1 */
@@ -909,13 +909,13 @@ void adcInfo(ADC_TypeDef *adc, char n)
  int32_t tmp = adc->SMPR2;
  for (i = 0; i < 10; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 3;
  }
  tmp = adc->SMPR1;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 3;
  }
  printf("\n");
@@ -924,19 +924,19 @@ void adcInfo(ADC_TypeDef *adc, char n)
  tmp = adc->SQR3;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 5;
  }
  tmp = adc->SQR2;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 5;
  }
  tmp = adc->SQR1;
  for (i = 0; i < 4; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 5;
  }
  printf("\n");
@@ -958,13 +958,13 @@ void adcInfo(ADC_TypeDef *adc, char n)
  int32_t tmp = adc->SMPR1;
  for (i = 0; i < 10; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 3;
  }
  tmp = adc->SMPR2;
  for (i = 0; i < 9; i++)
  {
-  printf(" %2u", (tmp & 7));
+  printf(" %2u", (unsigned char *) (tmp & 7));
   tmp >>= 3;
  }
  printf("\n");
@@ -973,25 +973,25 @@ void adcInfo(ADC_TypeDef *adc, char n)
  tmp = adc->SQR1;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (tmp & 0xf));
+  printf(" %2u", (unsigned char *) (tmp & 0xf));
   tmp >>= 6;
  }
  tmp = adc->SQR2;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (tmp & 0x4));
+  printf(" %2u", (unsigned char *) (tmp & 0x4));
   tmp >>= 6;
  }
  tmp = adc->SQR3;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (tmp & 0xf));
+  printf(" %2u", (unsigned char *) (tmp & 0xf));
   tmp >>= 6;
  }
  tmp = adc->SQR4;
  for (i = 0; i < 2; i++)
  {
-  printf(" %2u", (tmp & 0xf));
+  printf(" %2u", (unsigned char *) (tmp & 0xf));
   tmp >>= 6;
  }
  printf("\n");
@@ -1270,9 +1270,9 @@ void info()
  }
 }
 
-void bitState(const char *s, volatile const uint32_t *p, uint32_t mask)
-{
- printf("%s %c\n", s, ((*p & mask) == 0) ? '0' : '1');
-}
+//void bitState(const char *s, volatile const uint32_t *p, uint32_t mask)
+//{
+// printf("%s %c\n", s, ((*p & mask) == 0) ? '0' : '1');
+//}
 
 #endif	/* __STM32INFO */

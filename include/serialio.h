@@ -224,9 +224,12 @@ inline void megaRxIntEna()
 {
  MEGAPORT->CR1 |= USART_CR1_RXNEIE;
 }
-inline uint32_t megaRxOverrun()
+inline static uint32_t megaRxOverrun()
 {
  return(MEGAPORT->SR & USART_SR_ORE);
+}
+inline static void megaRxClrOverrun()
+{
 }
 inline uint32_t megaTxEmpty()
 {
@@ -330,6 +333,9 @@ inline void megaRxIntEna()
 inline uint32_t megaRxOverrun()
 {
  return(MEGAPORT->ISR & USART_ISR_ORE);
+}
+inline void megaRxClrOverrun()
+{
 }
 inline uint32_t megaTxEmpty()
 {

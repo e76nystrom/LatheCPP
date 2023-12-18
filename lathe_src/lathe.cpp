@@ -1478,7 +1478,7 @@ void spindleSetup(int rpm)
   if (DBG_SETUP)
    printf("IntSyncPin set to output\n");
 
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitTypeDef GPIO_InitStruct = {0, 0, 0, 0, 0};
 
   NVIC_DisableIRQ(IntSync_IRQn);
 
@@ -1528,7 +1528,7 @@ void spindleSetup(int rpm)
 
 #if defined(INT_ENCODER)
   {
-   GPIO_InitTypeDef GPIO_InitStruct = {0};
+   GPIO_InitTypeDef GPIO_InitStruct = {0, 0, 0, 0, 0};
 
    GPIO_InitStruct.Pin = encA_Pin;
    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;

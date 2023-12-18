@@ -16,8 +16,10 @@
 
 #include <cstdio>
 #include "i2cx.h"
+#if !defined(ARDUINO_ARCH_STM32)
 #include "config.h"
 #include "serialio.h"
+#endif	/* ARDUION_ARCH_STM32 */
 
 #ifdef EXT
 #undef EXT
@@ -28,6 +30,8 @@
 #undef EXT
 
 #if defined(ARDUINO_ARCH_STM32)
+
+#define flushBuf flush
 
 #undef EXT
 #define EXT extern

@@ -79,7 +79,7 @@ enum tmrFlags
   )
 
 void info();
-void bitState(const char *s, volatile uint32_t *p, uint32_t mask);
+//void bitState(const char *s, volatile unsigned long *p, unsigned long mask);
 
 #if defined(ARDUINO_ARCH_STM32)
 char query(unsigned char (*get)(), const char *format, ...);

@@ -562,7 +562,7 @@ void dwtAccessEnable(unsigned ena)
    }
 #endif  /* MEGAPORT */
 
-#if defined(SYNC_SPI)
+#if defined(SPI_SYNC)
 //   if (spiCtl.rxReady)
 //   {
 //    spiCtl.rxReady = 0;
