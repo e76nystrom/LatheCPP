@@ -909,13 +909,13 @@ void adcInfo(ADC_TypeDef *adc, char n)
  int32_t tmp = adc->SMPR2;
  for (i = 0; i < 10; i++)
  {
-  printf(" %2u", (unsigned char *) (tmp & 7));
+  printf(" %2u", (unsigned int) (tmp & 7));
   tmp >>= 3;
  }
  tmp = adc->SMPR1;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned char *) (tmp & 7));
+  printf(" %2u", (unsigned int) (tmp & 7));
   tmp >>= 3;
  }
  printf("\n");
@@ -924,19 +924,19 @@ void adcInfo(ADC_TypeDef *adc, char n)
  tmp = adc->SQR3;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned char *) (tmp & 7));
+  printf(" %2u", (unsigned int) (tmp & 7));
   tmp >>= 5;
  }
  tmp = adc->SQR2;
  for (i = 0; i < 6; i++)
  {
-  printf(" %2u", (unsigned char *) (tmp & 7));
+  printf(" %2u", (unsigned int) (tmp & 7));
   tmp >>= 5;
  }
  tmp = adc->SQR1;
  for (i = 0; i < 4; i++)
  {
-  printf(" %2u", (unsigned char *) (tmp & 7));
+  printf(" %2u", (unsigned int) (tmp & 7));
   tmp >>= 5;
  }
  printf("\n");

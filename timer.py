@@ -636,7 +636,7 @@ while True:
         path = "LatheCPP7H"
     elif board == "nuch723":
         cfg = nuch743
-        path = "LatheCPP723/Core"
+        path = "LatheCPP723"
     n += 1
 
 main(board, cfg, path)

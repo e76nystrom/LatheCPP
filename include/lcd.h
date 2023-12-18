@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(LCD_INC)	// <-
+#define LCD_INC
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -57,4 +58,4 @@ void setCursor(uint8_t col, uint8_t row);
 void setCursorBuf(uint8_t col, uint8_t row);
 void lcdString(const char *str);
 
-#endif	// ->
+#endif  /* LCD_INC */	// ->

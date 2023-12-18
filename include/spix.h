@@ -1,4 +1,5 @@
-#if 1	// <-
+#if !defined(SPIX_INC)	// <-
+#define SPIX_INC
 
 #if !defined(EXT)
 #define EXT extern
@@ -144,4 +145,4 @@ extern "C" void spiISR();
 
 #endif	/* SPI_ISR */
 
-#endif	// ->
+#endif  /* SPIX_INC */	// ->

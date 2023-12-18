@@ -68,8 +68,9 @@ void putx(char c);
 extern "C" void putstr(const char *p);
 #else
 extern void putstr(const char *p);
-#endif
+#endif	/* __cplusplus */
 void sndhex(unsigned char *p, int size);
+
 char getx();
 unsigned char gethex();
 char getstr(char *buf, int bufLen);
@@ -82,11 +83,13 @@ unsigned char getNum(int *val);
 unsigned char getNumAll(T_INT_FLOAT *val);
 unsigned char getfloat(float *val);
 
+#if defined(__cplusplus)
 char query(const char *format, ...);
 char query(unsigned char (*get)(), const char *format, ...);
 char query(unsigned char (*get)(int *), int *val, const char *format, ...);
 char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
 	   const char *format, ...);
+#endif	/* __cplusplus */
 
 void prtBuf(unsigned char *p, int size);
 void prtIBuf(int16_t *p, int size);
@@ -135,7 +138,11 @@ void clrDbgBuf();
 
 /* debug port buffered character routines */
 
+#if defined(__cplusplus)
 extern "C" void remoteISR();
+#else
+extern void remoteISR();
+#endif	/* __cplusplus */
 
 void initCharBuf();
 void putBufChar(char ch);
@@ -150,8 +157,13 @@ void flushBuf();
 
 /* printf output */
 
+#if defined(__cplusplus)
 extern "C" ssize_t _write (int fd  __attribute__((unused)),
 			   const char* buf, size_t nbyte);
+#else
+extern ssize_t _write (int fd  __attribute__((unused)),
+			   const char* buf, size_t nbyte);
+#endif	/* __cplusplus */
 
 typedef struct s_serVar
 {
@@ -901,6 +913,8 @@ unsigned char getNumAll(T_INT_FLOAT *val)
  return(NO_VAL);
 }
 
+#if defined(__cplusplus)
+
 char query(const char *format, ...)
 {
  va_list args;
@@ -950,6 +964,8 @@ char query(unsigned char (*get)(T_INT_FLOAT *), T_INT_FLOAT *val,
  newline();
  return(ch);
 }
+
+#endif	/* __cplusplus */
 
 void prtBuf(unsigned char *p, int size)
 {
