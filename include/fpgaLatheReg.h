@@ -18,10 +18,11 @@ enum FPGALATHE
 
 // encoder
 
- F_Ld_Enc_Cycle     = 0,        /* 0x00 'LEC' load encoder cycle */
- F_Ld_Int_Cycle     = 1,        /* 0x01 'LIC' load internal cycle */
- F_Rd_Cmp_Cyc_C     = 2,        /* 0x02 'RCC' read cmp cycle clocks */
- F_Enc_Max          = 3,        /* 0x03 number of encoder registers */
+ F_Ld_Enc_Prescale  = 0,        /* 0x00 'EPS' load encoder prescale */
+ F_Ld_Enc_Cycle     = 1,        /* 0x01 'LEC' load encoder cycle */
+ F_Ld_Int_Cycle     = 2,        /* 0x02 'LIC' load internal cycle */
+ F_Rd_Cmp_Cyc_Clks  = 3,        /* 0x03 'RCC' read cmp cycle clocks */
+ F_Enc_Max          = 4,        /* 0x04 number of encoder registers */
 
 // debug frequency
 
@@ -76,6 +77,11 @@ enum FPGALATHE
  F_Sp_Jog_Base      = 2,        /* 0x02 'J' spindle jog */
  F_Sp_Sync_Base     = 5,        /* 0x05 spindle sync */
 
+// runout
+
+ F_Ld_RunOut_Ctl    = 0,        /* 0x00 'CTL' runout control reg */
+ F_Ld_Run_Limit     = 1,        /* 0x01 'LIM' runout limit */
+
 // register definitions
 
  F_Noop             = 0,        /* 0x00 'NO' reg 0 */
@@ -101,9 +107,6 @@ enum FPGALATHE
 
  F_Rd_Idx_Clks      = 10,       /* 0x0a 'RIDX' clocks per index */
 
-// step spindle frequency generator
-
-
 // pwm
 
  F_PWM_Base         = 11,       /* 0x0b 'P' pwm control */
@@ -111,11 +114,12 @@ enum FPGALATHE
 // base for modules
 
  F_Enc_Base         = 13,       /* 0x0d 'E' encoder registers */
- F_Phase_Base       = 16,       /* 0x10 'H' phase registers */
- F_ZAxis_Base       = 18,       /* 0x12 'Z' z axis registers */
- F_XAxis_Base       = 42,       /* 0x2a 'X' x axis registers */
- F_Spindle_Base     = 66,       /* 0x42 'S' spindle registers */
- F_Cmd_Max          = 91,       /* 0x5b number of commands */
+ F_Phase_Base       = 17,       /* 0x11 'H' phase registers */
+ F_RunOut_Base      = 19,       /* 0x13 'R' runout registers */
+ F_ZAxis_Base       = 21,       /* 0x15 'Z' z axis registers */
+ F_XAxis_Base       = 45,       /* 0x2d 'X' x axis registers */
+ F_Spindle_Base     = 69,       /* 0x45 'S' spindle registers */
+ F_Cmd_Max          = 94,       /* 0x5e number of commands */
 };
 
 #endif  /* FPGA_LATHE */

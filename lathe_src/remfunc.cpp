@@ -223,133 +223,135 @@ unsigned char remSize[] =
  sizeof(rVar.spindleInternalSync),      /* 0x80 spindle internal sync */
  sizeof(rVar.turnSync),                 /* 0x81 sync type for turning */
  sizeof(rVar.threadSync),               /* 0x82 sync type for threading */
- sizeof(rVar.capTmrEnable),             /* 0x83 enable capture timer */
- sizeof(rVar.cfgFpga),                  /* 0x84 using fpga */
- sizeof(rVar.cfgMega),                  /* 0x85 control link to mega */
- sizeof(rVar.cfgMpg),                   /* 0x86 manual pulse generator */
- sizeof(rVar.cfgDro),                   /* 0x87 digital readout */
- sizeof(rVar.cfgLcd),                   /* 0x88 lcd display */
- sizeof(rVar.cfgFcy),                   /* 0x89 system clock speed */
- sizeof(rVar.cfgSwitch),                /* 0x8a spindle off on switch */
- sizeof(rVar.cfgVarSpeed),              /* 0x8b spindle variable speed */
+ sizeof(rVar.runoutSync),               /* 0x83 sync type for runout */
+ sizeof(rVar.capTmrEnable),             /* 0x84 enable capture timer */
+ sizeof(rVar.cfgFpga),                  /* 0x85 using fpga */
+ sizeof(rVar.cfgMega),                  /* 0x86 control link to mega */
+ sizeof(rVar.cfgMpg),                   /* 0x87 manual pulse generator */
+ sizeof(rVar.cfgDro),                   /* 0x88 digital readout */
+ sizeof(rVar.cfgLcd),                   /* 0x89 lcd display */
+ sizeof(rVar.cfgFcy),                   /* 0x8a system clock speed */
+ sizeof(rVar.cfgSwitch),                /* 0x8b spindle off on switch */
+ sizeof(rVar.cfgVarSpeed),              /* 0x8c spindle variable speed */
 
 // setup
 
- sizeof(rVar.setupDone),                /* 0x8c setup done */
+ sizeof(rVar.setupDone),                /* 0x8d setup done */
 
 // encoder counts per revolution
 
- sizeof(rVar.encPerRev),                /* 0x8d spindle enc counts per rev */
+ sizeof(rVar.encPerRev),                /* 0x8e spindle enc counts per rev */
 
 // test encoder setup variables
 
- sizeof(rVar.encEnable),                /* 0x8e encoder enable flag */
- sizeof(rVar.encPreScaler),             /* 0x8f encoder prescaler */
- sizeof(rVar.encTimer),                 /* 0x90 encoder timer counts */
- sizeof(rVar.encRunCount),              /* 0x91 encoder run count */
+ sizeof(rVar.encEnable),                /* 0x8f encoder enable flag */
+ sizeof(rVar.encPreScaler),             /* 0x90 encoder prescaler */
+ sizeof(rVar.encTimer),                 /* 0x91 encoder timer counts */
+ sizeof(rVar.encRunCount),              /* 0x92 encoder run count */
 
 // test encoder status variables
 
- sizeof(rVar.encRun),                   /* 0x92 encoder running flag */
- sizeof(rVar.encCounter),               /* 0x93 encoder count in rev */
- sizeof(rVar.encRevCounter),            /* 0x94 encoder revolution counter */
+ sizeof(rVar.encRun),                   /* 0x93 encoder running flag */
+ sizeof(rVar.encCounter),               /* 0x94 encoder count in rev */
+ sizeof(rVar.encRevCounter),            /* 0x95 encoder revolution counter */
 
 // measured spindle speed
 
- sizeof(rVar.rpm),                      /* 0x95 current measured rpm */
+ sizeof(rVar.rpm),                      /* 0x96 current measured rpm */
 
 // fpga frequency variables
 
- sizeof(rVar.fpgaFrequency),            /* 0x96 fpga clock frequency */
- sizeof(rVar.freqMult),                 /* 0x97 frequency multiplier */
+ sizeof(rVar.fpgaFrequency),            /* 0x97 fpga clock frequency */
+ sizeof(rVar.freqMult),                 /* 0x98 frequency multiplier */
 
 // xilinx configuration register
 
- sizeof(rVar.xCfgReg),                  /* 0x98 xilinx cfg register */
+ sizeof(rVar.xCfgReg),                  /* 0x99 xilinx cfg register */
 
 // z sync parameters
 
- sizeof(rVar.lSyncCycle),               /* 0x99 sync cycle length */
- sizeof(rVar.lSyncOutput),              /* 0x9a sync outputs per cycle */
- sizeof(rVar.lSyncInPrescaler),         /* 0x9b input sync prescaler */
- sizeof(rVar.lSyncOutPrescaler),        /* 0x9c output sync prescaler */
+ sizeof(rVar.lSyncCycle),               /* 0x9a sync cycle length */
+ sizeof(rVar.lSyncOutput),              /* 0x9b sync outputs per cycle */
+ sizeof(rVar.lSyncInPreScaler),         /* 0x9c input sync prescaler */
+ sizeof(rVar.lSyncOutPreScaler),        /* 0x9d output sync prescaler */
 
 // x sync parameters
 
- sizeof(rVar.lXSyncCycle),              /* 0x9d sync cycle length */
- sizeof(rVar.lXSyncOutput),             /* 0x9e sync outputs per cycle */
- sizeof(rVar.lXSyncInPrescaler),        /* 0x9f input sync prescaler */
- sizeof(rVar.lXSyncOutPrescaler),       /* 0xa0 output sync prescaler */
+ sizeof(rVar.lXSyncCycle),              /* 0x9e sync cycle length */
+ sizeof(rVar.lXSyncOutput),             /* 0x9f sync outputs per cycle */
+ sizeof(rVar.lXSyncInPreScaler),        /* 0xa0 input sync prescaler */
+ sizeof(rVar.lXSyncOutPreScaler),       /* 0xa1 output sync prescaler */
 
 // threading variables
 
- sizeof(rVar.thZStart),                 /* 0xa1 threading z start */
- sizeof(rVar.thXStart),                 /* 0xa2 threading x start */
- sizeof(rVar.tanThreadAngle) | FLT,     /* 0xa3 tan of threading angle */
- sizeof(rVar.xFeed),                    /* 0xa4 x feed */
- sizeof(rVar.runoutDistance) | FLT,     /* 0xa5 runout distance */
- sizeof(rVar.runoutDepth) | FLT,        /* 0xa6 runout depth */
+ sizeof(rVar.thZStart),                 /* 0xa2 threading z start */
+ sizeof(rVar.thXStart),                 /* 0xa3 threading x start */
+ sizeof(rVar.tanThreadAngle) | FLT,     /* 0xa4 tan of threading angle */
+ sizeof(rVar.xFeed),                    /* 0xa5 x feed */
+ sizeof(rVar.runoutLimit),              /* 0xa6 encoder steps to runout */
+ sizeof(rVar.runoutDistance) | FLT,     /* 0xa7 runout distance */
+ sizeof(rVar.runoutDepth) | FLT,        /* 0xa8 runout depth */
 
 // jog debug
 
- sizeof(rVar.jogDebug),                 /* 0xa7 jog interrupt debug */
+ sizeof(rVar.jogDebug),                 /* 0xa9 jog interrupt debug */
 
 // motor and speed control
 
- sizeof(rVar.pwmFreq),                  /* 0xa8 spindle speed pwm frequency */
- sizeof(rVar.minSpeed),                 /* 0xa9 min speed for current range */
- sizeof(rVar.maxSpeed),                 /* 0xaa max speed for current range */
+ sizeof(rVar.pwmFreq),                  /* 0xaa spindle speed pwm frequency */
+ sizeof(rVar.minSpeed),                 /* 0xab min speed for current range */
+ sizeof(rVar.maxSpeed),                 /* 0xac max speed for current range */
 
 // current operation
 
- sizeof(rVar.currentOp),                /* 0xab current operation */
+ sizeof(rVar.currentOp),                /* 0xad current operation */
 
 // global limits and home
 
- sizeof(rVar.limitOverride),            /* 0xac override limit switches */
- sizeof(rVar.commonLimits),             /* 0xad all limit switches one pin */
- sizeof(rVar.limitsEnabled),            /* 0xae limits enabled */
- sizeof(rVar.commonHome),               /* 0xaf all home switches one pin */
+ sizeof(rVar.limitOverride),            /* 0xae override limit switches */
+ sizeof(rVar.commonLimits),             /* 0xaf all limit switches one pin */
+ sizeof(rVar.limitsEnabled),            /* 0xb0 limits enabled */
+ sizeof(rVar.commonHome),               /* 0xb1 all home switches one pin */
 
 // z limits and home
 
- sizeof(rVar.zLimEna),                  /* 0xb0 z limit enable */
- sizeof(rVar.zLimNegInv),               /* 0xb1 z negative limit invert */
- sizeof(rVar.zLimPosInv),               /* 0xb2 z Positive limit Invert */
- sizeof(rVar.zHomeEna),                 /* 0xb3 z home enable */
- sizeof(rVar.zHomeInv),                 /* 0xb4 z home invert */
+ sizeof(rVar.zLimEna),                  /* 0xb2 z limit enable */
+ sizeof(rVar.zLimNegInv),               /* 0xb3 z negative limit invert */
+ sizeof(rVar.zLimPosInv),               /* 0xb4 z Positive limit Invert */
+ sizeof(rVar.zHomeEna),                 /* 0xb5 z home enable */
+ sizeof(rVar.zHomeInv),                 /* 0xb6 z home invert */
 
 // x limits and home
 
- sizeof(rVar.xLimEna),                  /* 0xb5 x limit enable */
- sizeof(rVar.xLimNegInv),               /* 0xb6 x negative limit invert */
- sizeof(rVar.xLimPosInv),               /* 0xb7 x Positive limit Invert */
- sizeof(rVar.xHomeEna),                 /* 0xb8 x home enable */
- sizeof(rVar.xHomeInv),                 /* 0xb9 x home invert */
+ sizeof(rVar.xLimEna),                  /* 0xb7 x limit enable */
+ sizeof(rVar.xLimNegInv),               /* 0xb8 x negative limit invert */
+ sizeof(rVar.xLimPosInv),               /* 0xb9 x Positive limit Invert */
+ sizeof(rVar.xHomeEna),                 /* 0xba x home enable */
+ sizeof(rVar.xHomeInv),                 /* 0xbb x home invert */
 
 // e stop
 
- sizeof(rVar.eStopEna),                 /* 0xba enable estop */
- sizeof(rVar.eStopInv),                 /* 0xbb invert estop signal */
+ sizeof(rVar.eStopEna),                 /* 0xbc enable estop */
+ sizeof(rVar.eStopInv),                 /* 0xbd invert estop signal */
 
 // command pause
 
- sizeof(rVar.cmdPaused),                /* 0xbc move commands paused */
+ sizeof(rVar.cmdPaused),                /* 0xbe move commands paused */
 
 // arc parameters
 
- sizeof(rVar.arcRadius) | FLT,          /* 0xbd arc radius */
- sizeof(rVar.arcXCenter),               /* 0xbe arc x center */
- sizeof(rVar.arcZCenter),               /* 0xbf arc z center */
- sizeof(rVar.arcXStart),                /* 0xc0 arc x start */
- sizeof(rVar.arcZStart),                /* 0xc1 arc z start */
- sizeof(rVar.arcXEnd),                  /* 0xc2 arc x center */
- sizeof(rVar.arcZEnd),                  /* 0xc3 arc z center */
- sizeof(rVar.megaVfd),                  /* 0xc4 mega vfd speed mode */
- sizeof(rVar.megaSim),                  /* 0xc5 mega encoder lines */
- sizeof(rVar.usbEna),                   /* 0xc6 enable usb */
- sizeof(rVar.droStep),                  /* 0xc7 step pulse drives dro */
- sizeof(rVar.maxParm),                  /* 0xc8 maximum parameter */
+ sizeof(rVar.arcRadius) | FLT,          /* 0xbf arc radius */
+ sizeof(rVar.arcXCenter),               /* 0xc0 arc x center */
+ sizeof(rVar.arcZCenter),               /* 0xc1 arc z center */
+ sizeof(rVar.arcXStart),                /* 0xc2 arc x start */
+ sizeof(rVar.arcZStart),                /* 0xc3 arc z start */
+ sizeof(rVar.arcXEnd),                  /* 0xc4 arc x center */
+ sizeof(rVar.arcZEnd),                  /* 0xc5 arc z center */
+ sizeof(rVar.megaVfd),                  /* 0xc6 mega vfd speed mode */
+ sizeof(rVar.megaSim),                  /* 0xc7 mega encoder lines */
+ sizeof(rVar.usbEna),                   /* 0xc8 enable usb */
+ sizeof(rVar.droStep),                  /* 0xc9 step pulse drives dro */
+ sizeof(rVar.maxParm),                  /* 0xca maximum parameter */
 };
 
 
@@ -884,283 +886,291 @@ void setRemVar(const int parm, const T_DATA_UNION val)
   rVar.threadSync = val.t_char;
   break;
 
- case CAP_TMR_ENABLE:            /* 131 0x83 enable capture timer */
+ case RUNOUT_SYNC:               /* 131 0x83 sync type for runout */
+  rVar.runoutSync = val.t_char;
+  break;
+
+ case CAP_TMR_ENABLE:            /* 132 0x84 enable capture timer */
   rVar.capTmrEnable = val.t_char;
   break;
 
- case CFG_FPGA:                  /* 132 0x84 using fpga */
+ case CFG_FPGA:                  /* 133 0x85 using fpga */
   rVar.cfgFpga = val.t_char;
   break;
 
- case CFG_MEGA:                  /* 133 0x85 control link to mega */
+ case CFG_MEGA:                  /* 134 0x86 control link to mega */
   rVar.cfgMega = val.t_char;
   break;
 
- case CFG_MPG:                   /* 134 0x86 manual pulse generator */
+ case CFG_MPG:                   /* 135 0x87 manual pulse generator */
   rVar.cfgMpg = val.t_char;
   break;
 
- case CFG_DRO:                   /* 135 0x87 digital readout */
+ case CFG_DRO:                   /* 136 0x88 digital readout */
   rVar.cfgDro = val.t_char;
   break;
 
- case CFG_LCD:                   /* 136 0x88 lcd display */
+ case CFG_LCD:                   /* 137 0x89 lcd display */
   rVar.cfgLcd = val.t_char;
   break;
 
- case CFG_FCY:                   /* 137 0x89 system clock speed */
+ case CFG_FCY:                   /* 138 0x8a system clock speed */
   rVar.cfgFcy = val.t_uint_t;
   break;
 
- case CFG_SWITCH:                /* 138 0x8a spindle off on switch */
+ case CFG_SWITCH:                /* 139 0x8b spindle off on switch */
   rVar.cfgSwitch = val.t_int;
   break;
 
- case CFG_VAR_SPEED:             /* 139 0x8b spindle variable speed */
+ case CFG_VAR_SPEED:             /* 140 0x8c spindle variable speed */
   rVar.cfgVarSpeed = val.t_int;
   break;
 
- case SETUP_DONE:                /* 140 0x8c setup done */
+ case SETUP_DONE:                /* 141 0x8d setup done */
   rVar.setupDone = val.t_char;
   break;
 
- case ENC_PER_REV:               /* 141 0x8d spindle enc counts per rev */
+ case ENC_PER_REV:               /* 142 0x8e spindle enc counts per rev */
   rVar.encPerRev = val.t_uint16_t;
   break;
 
- case ENC_ENABLE:                /* 142 0x8e encoder enable flag */
+ case ENC_ENABLE:                /* 143 0x8f encoder enable flag */
   rVar.encEnable = val.t_char;
   break;
 
- case ENC_PRE_SCALER:            /* 143 0x8f encoder prescaler */
+ case ENC_PRE_SCALER:            /* 144 0x90 encoder prescaler */
   rVar.encPreScaler = val.t_uint16_t;
   break;
 
- case ENC_TIMER:                 /* 144 0x90 encoder timer counts */
+ case ENC_TIMER:                 /* 145 0x91 encoder timer counts */
   rVar.encTimer = val.t_uint16_t;
   break;
 
- case ENC_RUN_COUNT:             /* 145 0x91 encoder run count */
+ case ENC_RUN_COUNT:             /* 146 0x92 encoder run count */
   rVar.encRunCount = val.t_int;
   break;
 
- case ENC_RUN:                   /* 146 0x92 encoder running flag */
+ case ENC_RUN:                   /* 147 0x93 encoder running flag */
   rVar.encRun = val.t_char;
   break;
 
- case ENC_COUNTER:               /* 147 0x93 encoder count in rev */
+ case ENC_COUNTER:               /* 148 0x94 encoder count in rev */
   rVar.encCounter = val.t_int16_t;
   break;
 
- case ENC_REV_COUNTER:           /* 148 0x94 encoder revolution counter */
+ case ENC_REV_COUNTER:           /* 149 0x95 encoder revolution counter */
   rVar.encRevCounter = val.t_int32_t;
   break;
 
- case RPM:                       /* 149 0x95 current measured rpm */
+ case RPM:                       /* 150 0x96 current measured rpm */
   rVar.rpm = val.t_int16_t;
   break;
 
- case FPGA_FREQUENCY:            /* 150 0x96 fpga clock frequency */
+ case FPGA_FREQUENCY:            /* 151 0x97 fpga clock frequency */
   rVar.fpgaFrequency = val.t_int32_t;
   break;
 
- case FREQ_MULT:                 /* 151 0x97 frequency multiplier */
+ case FREQ_MULT:                 /* 152 0x98 frequency multiplier */
   rVar.freqMult = val.t_int16_t;
   break;
 
- case X_CFG_REG:                 /* 152 0x98 xilinx cfg register */
+ case X_CFG_REG:                 /* 153 0x99 xilinx cfg register */
   rVar.xCfgReg = val.t_int16_t;
   break;
 
- case L_SYNC_CYCLE:              /* 153 0x99 sync cycle length */
+ case L_SYNC_CYCLE:              /* 154 0x9a sync cycle length */
   rVar.lSyncCycle = val.t_uint16_t;
   break;
 
- case L_SYNC_OUTPUT:             /* 154 0x9a sync outputs per cycle */
+ case L_SYNC_OUTPUT:             /* 155 0x9b sync outputs per cycle */
   rVar.lSyncOutput = val.t_uint16_t;
   break;
 
- case L_SYNC_IN_PRESCALER:       /* 155 0x9b input sync prescaler */
-  rVar.lSyncInPrescaler = val.t_uint16_t;
+ case L_SYNC_IN_PRE_SCALER:      /* 156 0x9c input sync prescaler */
+  rVar.lSyncInPreScaler = val.t_uint16_t;
   break;
 
- case L_SYNC_OUT_PRESCALER:      /* 156 0x9c output sync prescaler */
-  rVar.lSyncOutPrescaler = val.t_uint16_t;
+ case L_SYNC_OUT_PRE_SCALER:     /* 157 0x9d output sync prescaler */
+  rVar.lSyncOutPreScaler = val.t_uint16_t;
   break;
 
- case L_X_SYNC_CYCLE:            /* 157 0x9d sync cycle length */
+ case L_X_SYNC_CYCLE:            /* 158 0x9e sync cycle length */
   rVar.lXSyncCycle = val.t_uint16_t;
   break;
 
- case L_X_SYNC_OUTPUT:           /* 158 0x9e sync outputs per cycle */
+ case L_X_SYNC_OUTPUT:           /* 159 0x9f sync outputs per cycle */
   rVar.lXSyncOutput = val.t_uint16_t;
   break;
 
- case L_X_SYNC_IN_PRESCALER:     /* 159 0x9f input sync prescaler */
-  rVar.lXSyncInPrescaler = val.t_uint16_t;
+ case L_X_SYNC_IN_PRE_SCALER:    /* 160 0xa0 input sync prescaler */
+  rVar.lXSyncInPreScaler = val.t_uint16_t;
   break;
 
- case L_X_SYNC_OUT_PRESCALER:    /* 160 0xa0 output sync prescaler */
-  rVar.lXSyncOutPrescaler = val.t_uint16_t;
+ case L_X_SYNC_OUT_PRE_SCALER:   /* 161 0xa1 output sync prescaler */
+  rVar.lXSyncOutPreScaler = val.t_uint16_t;
   break;
 
- case TH_Z_START:                /* 161 0xa1 threading z start */
+ case TH_Z_START:                /* 162 0xa2 threading z start */
   rVar.thZStart = val.t_int32_t;
   break;
 
- case TH_X_START:                /* 162 0xa2 threading x start */
+ case TH_X_START:                /* 163 0xa3 threading x start */
   rVar.thXStart = val.t_int32_t;
   break;
 
- case TAN_THREAD_ANGLE:          /* 163 0xa3 tan of threading angle */
+ case TAN_THREAD_ANGLE:          /* 164 0xa4 tan of threading angle */
   rVar.tanThreadAngle = val.t_float;
   break;
 
- case X_FEED:                    /* 164 0xa4 x feed */
+ case X_FEED:                    /* 165 0xa5 x feed */
   rVar.xFeed = val.t_int32_t;
   break;
 
- case RUNOUT_DISTANCE:           /* 165 0xa5 runout distance */
+ case RUNOUT_LIMIT:              /* 166 0xa6 encoder steps to runout */
+  rVar.runoutLimit = val.t_int;
+  break;
+
+ case RUNOUT_DISTANCE:           /* 167 0xa7 runout distance */
   rVar.runoutDistance = val.t_float;
   break;
 
- case RUNOUT_DEPTH:              /* 166 0xa6 runout depth */
+ case RUNOUT_DEPTH:              /* 168 0xa8 runout depth */
   rVar.runoutDepth = val.t_float;
   break;
 
- case JOG_DEBUG:                 /* 167 0xa7 jog interrupt debug */
+ case JOG_DEBUG:                 /* 169 0xa9 jog interrupt debug */
   rVar.jogDebug = val.t_char;
   break;
 
- case PWM_FREQ:                  /* 168 0xa8 spindle speed pwm frequency */
+ case PWM_FREQ:                  /* 170 0xaa spindle speed pwm frequency */
   rVar.pwmFreq = val.t_uint_t;
   break;
 
- case MIN_SPEED:                 /* 169 0xa9 min speed for current range */
+ case MIN_SPEED:                 /* 171 0xab min speed for current range */
   rVar.minSpeed = val.t_int16_t;
   break;
 
- case MAX_SPEED:                 /* 170 0xaa max speed for current range */
+ case MAX_SPEED:                 /* 172 0xac max speed for current range */
   rVar.maxSpeed = val.t_int16_t;
   break;
 
- case CURRENT_OP:                /* 171 0xab current operation */
+ case CURRENT_OP:                /* 173 0xad current operation */
   rVar.currentOp = val.t_char;
   break;
 
- case LIMIT_OVERRIDE:            /* 172 0xac override limit switches */
+ case LIMIT_OVERRIDE:            /* 174 0xae override limit switches */
   rVar.limitOverride = val.t_char;
   break;
 
- case COMMON_LIMITS:             /* 173 0xad all limit switches one pin */
+ case COMMON_LIMITS:             /* 175 0xaf all limit switches one pin */
   rVar.commonLimits = val.t_char;
   break;
 
- case LIMITS_ENABLED:            /* 174 0xae limits enabled */
+ case LIMITS_ENABLED:            /* 176 0xb0 limits enabled */
   rVar.limitsEnabled = val.t_char;
   break;
 
- case COMMON_HOME:               /* 175 0xaf all home switches one pin */
+ case COMMON_HOME:               /* 177 0xb1 all home switches one pin */
   rVar.commonHome = val.t_char;
   break;
 
- case Z_LIM_ENA:                 /* 176 0xb0 z limit enable */
+ case Z_LIM_ENA:                 /* 178 0xb2 z limit enable */
   rVar.zLimEna = val.t_char;
   break;
 
- case Z_LIM_NEG_INV:             /* 177 0xb1 z negative limit invert */
+ case Z_LIM_NEG_INV:             /* 179 0xb3 z negative limit invert */
   rVar.zLimNegInv = val.t_char;
   break;
 
- case Z_LIM_POS_INV:             /* 178 0xb2 z Positive limit Invert */
+ case Z_LIM_POS_INV:             /* 180 0xb4 z Positive limit Invert */
   rVar.zLimPosInv = val.t_char;
   break;
 
- case Z_HOME_ENA:                /* 179 0xb3 z home enable */
+ case Z_HOME_ENA:                /* 181 0xb5 z home enable */
   rVar.zHomeEna = val.t_char;
   break;
 
- case Z_HOME_INV:                /* 180 0xb4 z home invert */
+ case Z_HOME_INV:                /* 182 0xb6 z home invert */
   rVar.zHomeInv = val.t_char;
   break;
 
- case X_LIM_ENA:                 /* 181 0xb5 x limit enable */
+ case X_LIM_ENA:                 /* 183 0xb7 x limit enable */
   rVar.xLimEna = val.t_char;
   break;
 
- case X_LIM_NEG_INV:             /* 182 0xb6 x negative limit invert */
+ case X_LIM_NEG_INV:             /* 184 0xb8 x negative limit invert */
   rVar.xLimNegInv = val.t_char;
   break;
 
- case X_LIM_POS_INV:             /* 183 0xb7 x Positive limit Invert */
+ case X_LIM_POS_INV:             /* 185 0xb9 x Positive limit Invert */
   rVar.xLimPosInv = val.t_char;
   break;
 
- case X_HOME_ENA:                /* 184 0xb8 x home enable */
+ case X_HOME_ENA:                /* 186 0xba x home enable */
   rVar.xHomeEna = val.t_char;
   break;
 
- case X_HOME_INV:                /* 185 0xb9 x home invert */
+ case X_HOME_INV:                /* 187 0xbb x home invert */
   rVar.xHomeInv = val.t_char;
   break;
 
- case E_STOP_ENA:                /* 186 0xba enable estop */
+ case E_STOP_ENA:                /* 188 0xbc enable estop */
   rVar.eStopEna = val.t_char;
   break;
 
- case E_STOP_INV:                /* 187 0xbb invert estop signal */
+ case E_STOP_INV:                /* 189 0xbd invert estop signal */
   rVar.eStopInv = val.t_char;
   break;
 
- case CMD_PAUSED:                /* 188 0xbc move commands paused */
+ case CMD_PAUSED:                /* 190 0xbe move commands paused */
   rVar.cmdPaused = val.t_char;
   break;
 
- case ARC_RADIUS:                /* 189 0xbd arc radius */
+ case ARC_RADIUS:                /* 191 0xbf arc radius */
   rVar.arcRadius = val.t_float;
   break;
 
- case ARC_X_CENTER:              /* 190 0xbe arc x center */
+ case ARC_X_CENTER:              /* 192 0xc0 arc x center */
   rVar.arcXCenter = val.t_int;
   break;
 
- case ARC_Z_CENTER:              /* 191 0xbf arc z center */
+ case ARC_Z_CENTER:              /* 193 0xc1 arc z center */
   rVar.arcZCenter = val.t_int;
   break;
 
- case ARC_X_START:               /* 192 0xc0 arc x start */
+ case ARC_X_START:               /* 194 0xc2 arc x start */
   rVar.arcXStart = val.t_int;
   break;
 
- case ARC_Z_START:               /* 193 0xc1 arc z start */
+ case ARC_Z_START:               /* 195 0xc3 arc z start */
   rVar.arcZStart = val.t_int;
   break;
 
- case ARC_X_END:                 /* 194 0xc2 arc x center */
+ case ARC_X_END:                 /* 196 0xc4 arc x center */
   rVar.arcXEnd = val.t_int;
   break;
 
- case ARC_Z_END:                 /* 195 0xc3 arc z center */
+ case ARC_Z_END:                 /* 197 0xc5 arc z center */
   rVar.arcZEnd = val.t_int;
   break;
 
- case MEGA_VFD:                  /* 196 0xc4 mega vfd speed mode */
+ case MEGA_VFD:                  /* 198 0xc6 mega vfd speed mode */
   rVar.megaVfd = val.t_char;
   break;
 
- case MEGA_SIM:                  /* 197 0xc5 mega encoder lines */
+ case MEGA_SIM:                  /* 199 0xc7 mega encoder lines */
   rVar.megaSim = val.t_char;
   break;
 
- case USB_ENA:                   /* 198 0xc6 enable usb */
+ case USB_ENA:                   /* 200 0xc8 enable usb */
   rVar.usbEna = val.t_char;
   break;
 
- case DRO_STEP:                  /* 199 0xc7 step pulse drives dro */
+ case DRO_STEP:                  /* 201 0xc9 step pulse drives dro */
   rVar.droStep = val.t_char;
   break;
 
- case MAX_PARM:                  /* 200 0xc8 maximum parameter */
+ case MAX_PARM:                  /* 202 0xca maximum parameter */
   rVar.maxParm = val.t_int16_t;
   break;
 
@@ -1698,283 +1708,291 @@ void getRemVar(const int parm, const P_DATA_UNION val)
   val->t_char = rVar.threadSync;
   break;
 
- case CAP_TMR_ENABLE:            /* 131 0x83 enable capture timer */
+ case RUNOUT_SYNC:               /* 131 0x83 sync type for runout */
+  val->t_char = rVar.runoutSync;
+  break;
+
+ case CAP_TMR_ENABLE:            /* 132 0x84 enable capture timer */
   val->t_char = rVar.capTmrEnable;
   break;
 
- case CFG_FPGA:                  /* 132 0x84 using fpga */
+ case CFG_FPGA:                  /* 133 0x85 using fpga */
   val->t_char = rVar.cfgFpga;
   break;
 
- case CFG_MEGA:                  /* 133 0x85 control link to mega */
+ case CFG_MEGA:                  /* 134 0x86 control link to mega */
   val->t_char = rVar.cfgMega;
   break;
 
- case CFG_MPG:                   /* 134 0x86 manual pulse generator */
+ case CFG_MPG:                   /* 135 0x87 manual pulse generator */
   val->t_char = rVar.cfgMpg;
   break;
 
- case CFG_DRO:                   /* 135 0x87 digital readout */
+ case CFG_DRO:                   /* 136 0x88 digital readout */
   val->t_char = rVar.cfgDro;
   break;
 
- case CFG_LCD:                   /* 136 0x88 lcd display */
+ case CFG_LCD:                   /* 137 0x89 lcd display */
   val->t_char = rVar.cfgLcd;
   break;
 
- case CFG_FCY:                   /* 137 0x89 system clock speed */
+ case CFG_FCY:                   /* 138 0x8a system clock speed */
   val->t_uint_t = rVar.cfgFcy;
   break;
 
- case CFG_SWITCH:                /* 138 0x8a spindle off on switch */
+ case CFG_SWITCH:                /* 139 0x8b spindle off on switch */
   val->t_int = rVar.cfgSwitch;
   break;
 
- case CFG_VAR_SPEED:             /* 139 0x8b spindle variable speed */
+ case CFG_VAR_SPEED:             /* 140 0x8c spindle variable speed */
   val->t_int = rVar.cfgVarSpeed;
   break;
 
- case SETUP_DONE:                /* 140 0x8c setup done */
+ case SETUP_DONE:                /* 141 0x8d setup done */
   val->t_char = rVar.setupDone;
   break;
 
- case ENC_PER_REV:               /* 141 0x8d spindle enc counts per rev */
+ case ENC_PER_REV:               /* 142 0x8e spindle enc counts per rev */
   val->t_uint16_t = rVar.encPerRev;
   break;
 
- case ENC_ENABLE:                /* 142 0x8e encoder enable flag */
+ case ENC_ENABLE:                /* 143 0x8f encoder enable flag */
   val->t_char = rVar.encEnable;
   break;
 
- case ENC_PRE_SCALER:            /* 143 0x8f encoder prescaler */
+ case ENC_PRE_SCALER:            /* 144 0x90 encoder prescaler */
   val->t_uint16_t = rVar.encPreScaler;
   break;
 
- case ENC_TIMER:                 /* 144 0x90 encoder timer counts */
+ case ENC_TIMER:                 /* 145 0x91 encoder timer counts */
   val->t_uint16_t = rVar.encTimer;
   break;
 
- case ENC_RUN_COUNT:             /* 145 0x91 encoder run count */
+ case ENC_RUN_COUNT:             /* 146 0x92 encoder run count */
   val->t_int = rVar.encRunCount;
   break;
 
- case ENC_RUN:                   /* 146 0x92 encoder running flag */
+ case ENC_RUN:                   /* 147 0x93 encoder running flag */
   val->t_char = rVar.encRun;
   break;
 
- case ENC_COUNTER:               /* 147 0x93 encoder count in rev */
+ case ENC_COUNTER:               /* 148 0x94 encoder count in rev */
   val->t_int16_t = rVar.encCounter;
   break;
 
- case ENC_REV_COUNTER:           /* 148 0x94 encoder revolution counter */
+ case ENC_REV_COUNTER:           /* 149 0x95 encoder revolution counter */
   val->t_int32_t = rVar.encRevCounter;
   break;
 
- case RPM:                       /* 149 0x95 current measured rpm */
+ case RPM:                       /* 150 0x96 current measured rpm */
   val->t_int16_t = rVar.rpm;
   break;
 
- case FPGA_FREQUENCY:            /* 150 0x96 fpga clock frequency */
+ case FPGA_FREQUENCY:            /* 151 0x97 fpga clock frequency */
   val->t_int32_t = rVar.fpgaFrequency;
   break;
 
- case FREQ_MULT:                 /* 151 0x97 frequency multiplier */
+ case FREQ_MULT:                 /* 152 0x98 frequency multiplier */
   val->t_int16_t = rVar.freqMult;
   break;
 
- case X_CFG_REG:                 /* 152 0x98 xilinx cfg register */
+ case X_CFG_REG:                 /* 153 0x99 xilinx cfg register */
   val->t_int16_t = rVar.xCfgReg;
   break;
 
- case L_SYNC_CYCLE:              /* 153 0x99 sync cycle length */
+ case L_SYNC_CYCLE:              /* 154 0x9a sync cycle length */
   val->t_uint16_t = rVar.lSyncCycle;
   break;
 
- case L_SYNC_OUTPUT:             /* 154 0x9a sync outputs per cycle */
+ case L_SYNC_OUTPUT:             /* 155 0x9b sync outputs per cycle */
   val->t_uint16_t = rVar.lSyncOutput;
   break;
 
- case L_SYNC_IN_PRESCALER:       /* 155 0x9b input sync prescaler */
-  val->t_uint16_t = rVar.lSyncInPrescaler;
+ case L_SYNC_IN_PRE_SCALER:      /* 156 0x9c input sync prescaler */
+  val->t_uint16_t = rVar.lSyncInPreScaler;
   break;
 
- case L_SYNC_OUT_PRESCALER:      /* 156 0x9c output sync prescaler */
-  val->t_uint16_t = rVar.lSyncOutPrescaler;
+ case L_SYNC_OUT_PRE_SCALER:     /* 157 0x9d output sync prescaler */
+  val->t_uint16_t = rVar.lSyncOutPreScaler;
   break;
 
- case L_X_SYNC_CYCLE:            /* 157 0x9d sync cycle length */
+ case L_X_SYNC_CYCLE:            /* 158 0x9e sync cycle length */
   val->t_uint16_t = rVar.lXSyncCycle;
   break;
 
- case L_X_SYNC_OUTPUT:           /* 158 0x9e sync outputs per cycle */
+ case L_X_SYNC_OUTPUT:           /* 159 0x9f sync outputs per cycle */
   val->t_uint16_t = rVar.lXSyncOutput;
   break;
 
- case L_X_SYNC_IN_PRESCALER:     /* 159 0x9f input sync prescaler */
-  val->t_uint16_t = rVar.lXSyncInPrescaler;
+ case L_X_SYNC_IN_PRE_SCALER:    /* 160 0xa0 input sync prescaler */
+  val->t_uint16_t = rVar.lXSyncInPreScaler;
   break;
 
- case L_X_SYNC_OUT_PRESCALER:    /* 160 0xa0 output sync prescaler */
-  val->t_uint16_t = rVar.lXSyncOutPrescaler;
+ case L_X_SYNC_OUT_PRE_SCALER:   /* 161 0xa1 output sync prescaler */
+  val->t_uint16_t = rVar.lXSyncOutPreScaler;
   break;
 
- case TH_Z_START:                /* 161 0xa1 threading z start */
+ case TH_Z_START:                /* 162 0xa2 threading z start */
   val->t_int32_t = rVar.thZStart;
   break;
 
- case TH_X_START:                /* 162 0xa2 threading x start */
+ case TH_X_START:                /* 163 0xa3 threading x start */
   val->t_int32_t = rVar.thXStart;
   break;
 
- case TAN_THREAD_ANGLE:          /* 163 0xa3 tan of threading angle */
+ case TAN_THREAD_ANGLE:          /* 164 0xa4 tan of threading angle */
   val->t_float = rVar.tanThreadAngle;
   break;
 
- case X_FEED:                    /* 164 0xa4 x feed */
+ case X_FEED:                    /* 165 0xa5 x feed */
   val->t_int32_t = rVar.xFeed;
   break;
 
- case RUNOUT_DISTANCE:           /* 165 0xa5 runout distance */
+ case RUNOUT_LIMIT:              /* 166 0xa6 encoder steps to runout */
+  val->t_int = rVar.runoutLimit;
+  break;
+
+ case RUNOUT_DISTANCE:           /* 167 0xa7 runout distance */
   val->t_float = rVar.runoutDistance;
   break;
 
- case RUNOUT_DEPTH:              /* 166 0xa6 runout depth */
+ case RUNOUT_DEPTH:              /* 168 0xa8 runout depth */
   val->t_float = rVar.runoutDepth;
   break;
 
- case JOG_DEBUG:                 /* 167 0xa7 jog interrupt debug */
+ case JOG_DEBUG:                 /* 169 0xa9 jog interrupt debug */
   val->t_char = rVar.jogDebug;
   break;
 
- case PWM_FREQ:                  /* 168 0xa8 spindle speed pwm frequency */
+ case PWM_FREQ:                  /* 170 0xaa spindle speed pwm frequency */
   val->t_uint_t = rVar.pwmFreq;
   break;
 
- case MIN_SPEED:                 /* 169 0xa9 min speed for current range */
+ case MIN_SPEED:                 /* 171 0xab min speed for current range */
   val->t_int16_t = rVar.minSpeed;
   break;
 
- case MAX_SPEED:                 /* 170 0xaa max speed for current range */
+ case MAX_SPEED:                 /* 172 0xac max speed for current range */
   val->t_int16_t = rVar.maxSpeed;
   break;
 
- case CURRENT_OP:                /* 171 0xab current operation */
+ case CURRENT_OP:                /* 173 0xad current operation */
   val->t_char = rVar.currentOp;
   break;
 
- case LIMIT_OVERRIDE:            /* 172 0xac override limit switches */
+ case LIMIT_OVERRIDE:            /* 174 0xae override limit switches */
   val->t_char = rVar.limitOverride;
   break;
 
- case COMMON_LIMITS:             /* 173 0xad all limit switches one pin */
+ case COMMON_LIMITS:             /* 175 0xaf all limit switches one pin */
   val->t_char = rVar.commonLimits;
   break;
 
- case LIMITS_ENABLED:            /* 174 0xae limits enabled */
+ case LIMITS_ENABLED:            /* 176 0xb0 limits enabled */
   val->t_char = rVar.limitsEnabled;
   break;
 
- case COMMON_HOME:               /* 175 0xaf all home switches one pin */
+ case COMMON_HOME:               /* 177 0xb1 all home switches one pin */
   val->t_char = rVar.commonHome;
   break;
 
- case Z_LIM_ENA:                 /* 176 0xb0 z limit enable */
+ case Z_LIM_ENA:                 /* 178 0xb2 z limit enable */
   val->t_char = rVar.zLimEna;
   break;
 
- case Z_LIM_NEG_INV:             /* 177 0xb1 z negative limit invert */
+ case Z_LIM_NEG_INV:             /* 179 0xb3 z negative limit invert */
   val->t_char = rVar.zLimNegInv;
   break;
 
- case Z_LIM_POS_INV:             /* 178 0xb2 z Positive limit Invert */
+ case Z_LIM_POS_INV:             /* 180 0xb4 z Positive limit Invert */
   val->t_char = rVar.zLimPosInv;
   break;
 
- case Z_HOME_ENA:                /* 179 0xb3 z home enable */
+ case Z_HOME_ENA:                /* 181 0xb5 z home enable */
   val->t_char = rVar.zHomeEna;
   break;
 
- case Z_HOME_INV:                /* 180 0xb4 z home invert */
+ case Z_HOME_INV:                /* 182 0xb6 z home invert */
   val->t_char = rVar.zHomeInv;
   break;
 
- case X_LIM_ENA:                 /* 181 0xb5 x limit enable */
+ case X_LIM_ENA:                 /* 183 0xb7 x limit enable */
   val->t_char = rVar.xLimEna;
   break;
 
- case X_LIM_NEG_INV:             /* 182 0xb6 x negative limit invert */
+ case X_LIM_NEG_INV:             /* 184 0xb8 x negative limit invert */
   val->t_char = rVar.xLimNegInv;
   break;
 
- case X_LIM_POS_INV:             /* 183 0xb7 x Positive limit Invert */
+ case X_LIM_POS_INV:             /* 185 0xb9 x Positive limit Invert */
   val->t_char = rVar.xLimPosInv;
   break;
 
- case X_HOME_ENA:                /* 184 0xb8 x home enable */
+ case X_HOME_ENA:                /* 186 0xba x home enable */
   val->t_char = rVar.xHomeEna;
   break;
 
- case X_HOME_INV:                /* 185 0xb9 x home invert */
+ case X_HOME_INV:                /* 187 0xbb x home invert */
   val->t_char = rVar.xHomeInv;
   break;
 
- case E_STOP_ENA:                /* 186 0xba enable estop */
+ case E_STOP_ENA:                /* 188 0xbc enable estop */
   val->t_char = rVar.eStopEna;
   break;
 
- case E_STOP_INV:                /* 187 0xbb invert estop signal */
+ case E_STOP_INV:                /* 189 0xbd invert estop signal */
   val->t_char = rVar.eStopInv;
   break;
 
- case CMD_PAUSED:                /* 188 0xbc move commands paused */
+ case CMD_PAUSED:                /* 190 0xbe move commands paused */
   val->t_char = rVar.cmdPaused;
   break;
 
- case ARC_RADIUS:                /* 189 0xbd arc radius */
+ case ARC_RADIUS:                /* 191 0xbf arc radius */
   val->t_float = rVar.arcRadius;
   break;
 
- case ARC_X_CENTER:              /* 190 0xbe arc x center */
+ case ARC_X_CENTER:              /* 192 0xc0 arc x center */
   val->t_int = rVar.arcXCenter;
   break;
 
- case ARC_Z_CENTER:              /* 191 0xbf arc z center */
+ case ARC_Z_CENTER:              /* 193 0xc1 arc z center */
   val->t_int = rVar.arcZCenter;
   break;
 
- case ARC_X_START:               /* 192 0xc0 arc x start */
+ case ARC_X_START:               /* 194 0xc2 arc x start */
   val->t_int = rVar.arcXStart;
   break;
 
- case ARC_Z_START:               /* 193 0xc1 arc z start */
+ case ARC_Z_START:               /* 195 0xc3 arc z start */
   val->t_int = rVar.arcZStart;
   break;
 
- case ARC_X_END:                 /* 194 0xc2 arc x center */
+ case ARC_X_END:                 /* 196 0xc4 arc x center */
   val->t_int = rVar.arcXEnd;
   break;
 
- case ARC_Z_END:                 /* 195 0xc3 arc z center */
+ case ARC_Z_END:                 /* 197 0xc5 arc z center */
   val->t_int = rVar.arcZEnd;
   break;
 
- case MEGA_VFD:                  /* 196 0xc4 mega vfd speed mode */
+ case MEGA_VFD:                  /* 198 0xc6 mega vfd speed mode */
   val->t_char = rVar.megaVfd;
   break;
 
- case MEGA_SIM:                  /* 197 0xc5 mega encoder lines */
+ case MEGA_SIM:                  /* 199 0xc7 mega encoder lines */
   val->t_char = rVar.megaSim;
   break;
 
- case USB_ENA:                   /* 198 0xc6 enable usb */
+ case USB_ENA:                   /* 200 0xc8 enable usb */
   val->t_char = rVar.usbEna;
   break;
 
- case DRO_STEP:                  /* 199 0xc7 step pulse drives dro */
+ case DRO_STEP:                  /* 201 0xc9 step pulse drives dro */
   val->t_char = rVar.droStep;
   break;
 
- case MAX_PARM:                  /* 200 0xc8 maximum parameter */
+ case MAX_PARM:                  /* 202 0xca maximum parameter */
   val->t_int16_t = rVar.maxParm;
   break;
 

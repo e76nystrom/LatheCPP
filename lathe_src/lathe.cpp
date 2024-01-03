@@ -27,6 +27,7 @@
 #define ENUM_D_MESSAGE   0
 #define ENUM_SEL_TURN    0
 #define ENUM_SEL_THREAD  0
+#define ENUM_SEL_RUNOUT  0
 
 #include "main.h"
 #include "config.h"
@@ -597,6 +598,7 @@ typedef struct s_runctl
  float taper;			/* taper */
  float zVal;			/* saved z value */
  float xVal;			/* saved x value */
+ float feed;			/* curreent feed */
  int feedType;			/* feed type */
  float zFeed;			/* z feed value */
  float xFeed;			/* x feed value */
@@ -1000,7 +1002,7 @@ T_SYNC_MULTI_PARM syncParms[] =
  {SYNC_ENCODER, ENC_PER_REV},
  {SYNC_CYCLE, L_SYNC_CYCLE},
  {SYNC_OUTPUT, L_SYNC_OUTPUT},
- {SYNC_PRESCALER, L_SYNC_OUT_PRESCALER},
+ {SYNC_PRESCALER, L_SYNC_OUT_PRE_SCALER},
  {SYNC_MAX_PARM, 0},
 };
 #endif	/* SYNC_SPI */
@@ -1832,11 +1834,11 @@ void syncSetup()
  if (DBG_SETUP)
   printf("syncSetup encCycLen %d intCycLen %d inPreScale %d outPreScale %d\n",
          rVar.lSyncCycle, rVar.lSyncOutput,
-         rVar.lSyncInPrescaler, rVar.lSyncOutPrescaler);
+         rVar.lSyncInPreScaler, rVar.lSyncOutPreScaler);
  cmpTmr.encCycLen = rVar.lSyncCycle;
  cmpTmr.intCycLen = rVar.lSyncOutput;
- cmpTmr.inPreScaler = rVar.lSyncInPrescaler;
- cmpTmr.outPreScaler = rVar.lSyncOutPrescaler;
+ cmpTmr.inPreScaler = rVar.lSyncInPreScaler;
+ cmpTmr.outPreScaler = rVar.lSyncOutPreScaler;
 }
 
 void syncMeasure()
@@ -1920,14 +1922,14 @@ void syncCalculate()
  cmpTmr.encCycLen = rVar.lSyncCycle;
  unsigned int clockPerCycle = cmpTmr.encoderClocks * cmpTmr.encCycLen;
  unsigned int outClockPerPulse = clockPerCycle / cmpTmr.intCycLen;
- rVar.lSyncOutPrescaler = outClockPerPulse / MAX_SYNC_COUNT + 1;
+ rVar.lSyncOutPreScaler = outClockPerPulse / MAX_SYNC_COUNT + 1;
 
  if (DBG_SETUP)
  {
   printf("encoderClocks %lu clockPerCycle %d outClockPerPulse %d\n",
          cmpTmr.encoderClocks, clockPerCycle, outClockPerPulse);
   printf("inPreScaler %d outPreScaler %d\n",
-         rVar.lSyncInPrescaler, rVar.lSyncOutPrescaler);
+         rVar.lSyncInPreScaler, rVar.lSyncOutPreScaler);
  }
 }
 
@@ -1941,12 +1943,12 @@ void syncStart()
 
  cmpTmr.encCycLen = rVar.lSyncCycle;
  cmpTmr.intCycLen = rVar.lSyncOutput;
- cmpTmr.inPreScaler = rVar.lSyncInPrescaler;
- cmpTmr.outPreScaler = rVar.lSyncOutPrescaler;
+ cmpTmr.inPreScaler = rVar.lSyncInPreScaler;
+ cmpTmr.outPreScaler = rVar.lSyncOutPreScaler;
 
  printf("syncSetup encCycLen %d intCycLen %d inPreScale %d outPreScale %d\n",
         rVar.lSyncCycle, rVar.lSyncOutput,
-        rVar.lSyncInPrescaler, rVar.lSyncOutPrescaler);
+        rVar.lSyncInPreScaler, rVar.lSyncOutPreScaler);
 
  if (DBG_SETUP)
   printf("syncStart cycle %d output %d inPreScale %d outPreScale %d\n",
@@ -3769,10 +3771,12 @@ void zMoveSetup()
 void syncMoveSetup()
 {
  if (DBG_SETUP)
-  printf("\nsyncMoveSetup op %d %s turn %d %s thread %d %s\n",
+  printf("\nsyncMoveSetup op %d %s turn %d %s thread %d %s runout %d %s\n",
 	 rVar.currentOp, operationsList[(int) rVar.currentOp],
 	 rVar.turnSync, selTurnList[(int) rVar.turnSync],
-	 rVar.threadSync, selThreadList[(int) rVar.threadSync]);
+	 rVar.threadSync, selThreadList[(int) rVar.threadSync],
+	 rVar.runoutSync, selRunoutList[(int) rVar.runoutSync]
+);
 
  runout.active = 0;
 
@@ -3832,7 +3836,8 @@ void syncMoveSetup()
     syn.xSyncInit = SYNC_ACTIVE_ENC;
    break;
 
-  case SEL_TU_ISYN:		/* 3 Int Syn */
+  case SEL_TU_SYN:		/* 3 Int Syn */
+  case SEL_TU_ISYN:		/* 4 Int Syn */
    syn.intActive = active;
    if (active & Z_ACTIVE)
     syn.zSyncInit = SYNC_ACTIVE_TMR;
@@ -3840,7 +3845,7 @@ void syncMoveSetup()
     syn.xSyncInit = SYNC_ACTIVE_TMR;
    break;
 
-  case SEL_TU_ESYN:		/* 4 Ext Syn */
+  case SEL_TU_ESYN:		/* 5 Ext Syn */
    syn.extActive = active;
    if (active & Z_ACTIVE)
     syn.zSyncInit = SYNC_ACTIVE_EXT;
@@ -3864,42 +3869,52 @@ void syncMoveSetup()
   case SEL_TH_ENC:		/* 2 use encoder directly */
    syn.encActive = Z_ACTIVE;
    syn.zSyncInit = SYNC_ACTIVE_ENC;
-   if (runout.active)
-   {
-    syn.encActive |= X_ACTIVE;
-    syn.xSyncInit = SYNC_ACTIVE_ENC;
-   }
    break;
 
-  case SEL_TH_ISYN_RENC:	/* 3 internal sync runout encoder */
+  case SEL_TH_SYN:		/* 3 */
+  case SEL_TH_ISYN:		/* 4 internal sync runout encoder */
    syn.intActive = Z_ACTIVE;
    syn.zSyncInit = SYNC_ACTIVE_TMR;
-   if (runout.active)
-   {
-    syn.encActive = X_ACTIVE;
-    syn.xSyncInit = SYNC_ACTIVE_ENC;
-   }
    break;
 
-  case SEL_TH_ESYN_RENC:	/* 4 external sync runout encoder */
+  case SEL_TH_ESYN:		/* 5 external sync runout encoder */
    syn.extActive = Z_ACTIVE;
    syn.zSyncInit = SYNC_ACTIVE_EXT;
-   if (runout.active)
-   {
-    syn.encActive = X_ACTIVE;
-    syn.xSyncInit = SYNC_ACTIVE_ENC;
-   }
    break;
 
-  case SEL_TH_ESYN_RSYN:	/* 5 external sync runout sync */
-   syn.extActive = Z_ACTIVE;
-   syn.zSyncInit = SYNC_ACTIVE_EXT;
-   if (runout.active)
-   {
-    syn.intActive = X_ACTIVE;
-    syn.xSyncInit = SYNC_ACTIVE_TMR;
-   }
+  default:
    break;
+  }
+
+  if (runout.active)
+  {
+   switch(rVar.runoutSync)
+   {
+   case SEL_RU_NO_ENC:
+    //break;
+
+   case SEL_RU_STEP:
+    break;
+
+   case SEL_RU_ENC:
+    syn.encActive |= X_ACTIVE;
+    syn.xSyncInit = SYNC_ACTIVE_ENC;
+    break;
+
+   case SEL_RU_SYN:
+   case SEL_RU_ISYN:
+    syn.encActive = X_ACTIVE;
+    syn.xSyncInit = SYNC_ACTIVE_ENC;
+    break;
+
+   case SEL_RU_ESYN:
+    syn.encActive = X_ACTIVE;
+    syn.xSyncInit = SYNC_ACTIVE_ENC;
+    break;
+
+   default:
+    break;
+   }
   }
  }
 
@@ -5794,6 +5809,11 @@ void procMove()
      spindleStopX();
     mv->spindleCmd = cmd->cmd;
     mv->state = M_WAIT_SPINDLE;
+    break;
+
+   case Q_SAVE_FEED:
+    mv->feed = cmd->iVal;
+    done = 0;
     break;
 
    case Q_SAVE_FEED_TYPE:

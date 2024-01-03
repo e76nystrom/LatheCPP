@@ -538,6 +538,7 @@ typedef struct s_runctl
  float taper;			/* taper */
  float zVal;			/* saved z value */
  float xVal;			/* saved x value */
+ float feed;			/* curreent feed */
  int feedType;			/* feed type */
  float zFeed;			/* z feed value */
  float xFeed;			/* x feed value */

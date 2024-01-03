@@ -105,17 +105,18 @@ enum M_COMMANDS
  Q_PASS_NUM = 17,               /* 17 x11 set pass number */
  Q_QUE_PAUSE = 18,              /* 18 x12 pause queue */
  Q_MOVE_Z_OFFSET = 19,          /* 19 x13 move z offset */
- Q_SAVE_FEED_TYPE = 20,         /* 20 x14 save feed type */
- Q_Z_FEED_SETUP = 21,           /* 21 x15 setup z feed */
- Q_X_FEED_SETUP = 22,           /* 22 x16 setup x feed */
- Q_SAVE_FLAGS = 23,             /* 23 x17 save thread flags */
- Q_PROBE_Z = 24,                /* 24 x18 probe in z direction */
- Q_PROBE_X = 25,                /* 25 x19 probe in x direction */
- Q_SAVE_Z_DRO = 26,             /* 26 x1a save z dro reading */
- Q_SAVE_X_DRO = 27,             /* 27 x1b save x dro reading */
- Q_QUE_PARM = 28,               /* 28 x1c save parameter in queue */
- Q_MOVE_ARC = 29,               /* 29 x1d move in an arc */
- Q_OP_DONE = 30,                /* 30 x1e operation done */
+ Q_SAVE_FEED = 20,              /* 20 x14 save current feed */
+ Q_SAVE_FEED_TYPE = 21,         /* 21 x15 save feed type */
+ Q_Z_FEED_SETUP = 22,           /* 22 x16 setup z feed */
+ Q_X_FEED_SETUP = 23,           /* 23 x17 setup x feed */
+ Q_SAVE_FLAGS = 24,             /* 24 x18 save thread flags */
+ Q_PROBE_Z = 25,                /* 25 x19 probe in z direction */
+ Q_PROBE_X = 26,                /* 26 x1a probe in x direction */
+ Q_SAVE_Z_DRO = 27,             /* 27 x1b save z dro reading */
+ Q_SAVE_X_DRO = 28,             /* 28 x1c save x dro reading */
+ Q_QUE_PARM = 29,               /* 29 x1d save parameter in queue */
+ Q_MOVE_ARC = 30,               /* 30 x1e move in an arc */
+ Q_OP_DONE = 31,                /* 31 x1f operation done */
 };
 
 #ifdef ENUM_M_COMMANDS
@@ -142,17 +143,18 @@ const char *mCommandsList[] =
  "Q_PASS_NUM",                  /* 17 x11 set pass number */
  "Q_QUE_PAUSE",                 /* 18 x12 pause queue */
  "Q_MOVE_Z_OFFSET",             /* 19 x13 move z offset */
- "Q_SAVE_FEED_TYPE",            /* 20 x14 save feed type */
- "Q_Z_FEED_SETUP",              /* 21 x15 setup z feed */
- "Q_X_FEED_SETUP",              /* 22 x16 setup x feed */
- "Q_SAVE_FLAGS",                /* 23 x17 save thread flags */
- "Q_PROBE_Z",                   /* 24 x18 probe in z direction */
- "Q_PROBE_X",                   /* 25 x19 probe in x direction */
- "Q_SAVE_Z_DRO",                /* 26 x1a save z dro reading */
- "Q_SAVE_X_DRO",                /* 27 x1b save x dro reading */
- "Q_QUE_PARM",                  /* 28 x1c save parameter in queue */
- "Q_MOVE_ARC",                  /* 29 x1d move in an arc */
- "Q_OP_DONE",                   /* 30 x1e operation done */
+ "Q_SAVE_FEED",                 /* 20 x14 save current feed */
+ "Q_SAVE_FEED_TYPE",            /* 21 x15 save feed type */
+ "Q_Z_FEED_SETUP",              /* 22 x16 setup z feed */
+ "Q_X_FEED_SETUP",              /* 23 x17 setup x feed */
+ "Q_SAVE_FLAGS",                /* 24 x18 save thread flags */
+ "Q_PROBE_Z",                   /* 25 x19 probe in z direction */
+ "Q_PROBE_X",                   /* 26 x1a probe in x direction */
+ "Q_SAVE_Z_DRO",                /* 27 x1b save z dro reading */
+ "Q_SAVE_X_DRO",                /* 28 x1c save x dro reading */
+ "Q_QUE_PARM",                  /* 29 x1d save parameter in queue */
+ "Q_MOVE_ARC",                  /* 30 x1e move in an arc */
+ "Q_OP_DONE",                   /* 31 x1f operation done */
 };
 
 #else
@@ -437,24 +439,24 @@ extern const char *evEventsList[];
 
 enum SEL_TURN
 {
- SEL_TU_SPEED = 0,              /*  0 x00 Motor Speed */
- SEL_TU_STEP = 1,               /*  1 x01 Stepper */
- SEL_TU_ENC = 2,                /*  2 x02 Encoder */
- SEL_TU_ISYN = 3,               /*  3 x03 Int Syn */
- SEL_TU_ESYN = 4,               /*  4 x04 Ext Syn */
- SEL_TU_SYN = 5,                /*  5 x05 Sync */
+ SEL_TU_SPEED = 0,              /*  0 x00 'MS' Motor Speed */
+ SEL_TU_STEP = 1,               /*  1 x01 'ST' Stepper */
+ SEL_TU_ENC = 2,                /*  2 x02 'EN' Encoder */
+ SEL_TU_SYN = 3,                /*  3 x03 'SY' Sync */
+ SEL_TU_ISYN = 4,               /*  4 x04 'IS' Int Syn */
+ SEL_TU_ESYN = 5,               /*  5 x05 'ES' Ext Syn */
 };
 
 #ifdef ENUM_SEL_TURN
 
 const char *selTurnList[] = 
 {
- "SEL_TU_SPEED",                /*  0 x00 Motor Speed */
- "SEL_TU_STEP",                 /*  1 x01 Stepper */
- "SEL_TU_ENC",                  /*  2 x02 Encoder */
- "SEL_TU_ISYN",                 /*  3 x03 Int Syn */
- "SEL_TU_ESYN",                 /*  4 x04 Ext Syn */
- "SEL_TU_SYN",                  /*  5 x05 Sync */
+ "SEL_TU_SPEED",                /*  0 x00 'MS' Motor Speed */
+ "SEL_TU_STEP",                 /*  1 x01 'ST' Stepper */
+ "SEL_TU_ENC",                  /*  2 x02 'EN' Encoder */
+ "SEL_TU_SYN",                  /*  3 x03 'SY' Sync */
+ "SEL_TU_ISYN",                 /*  4 x04 'IS' Int Syn */
+ "SEL_TU_ESYN",                 /*  5 x05 'ES' Ext Syn */
 };
 
 #else
@@ -467,31 +469,59 @@ extern const char *selTurnList[];
 
 enum SEL_THREAD
 {
- SEL_TH_NO_ENC = 0,             /*  0 x00 No Encoder */
- SEL_TH_STEP = 1,               /*  1 x01 Stepper */
- SEL_TH_ENC = 2,                /*  2 x02 Encoder */
- SEL_TH_ISYN_RENC = 3,          /*  3 x03 Int Syn, Runout Enc */
- SEL_TH_ESYN_RENC = 4,          /*  4 x04 Ext Syn, Runout Enc */
- SEL_TH_ESYN_RSYN = 5,          /*  5 x05 Ext Syn, Runout Syn */
- SEL_TH_SYN = 6,                /*  6 x06 Syn, Runout Syn */
+ SEL_TH_NO_ENC = 0,             /*  0 x00 'NO' No Encoder */
+ SEL_TH_STEP = 1,               /*  1 x01 'ST' Stepper */
+ SEL_TH_ENC = 2,                /*  2 x02 'EN' Encoder */
+ SEL_TH_SYN = 3,                /*  3 x03 'SY' Syn */
+ SEL_TH_ISYN = 4,               /*  4 x04 'IS' Syn */
+ SEL_TH_ESYN = 5,               /*  5 x05 'ES' Syn */
 };
 
 #ifdef ENUM_SEL_THREAD
 
 const char *selThreadList[] = 
 {
- "SEL_TH_NO_ENC",               /*  0 x00 No Encoder */
- "SEL_TH_STEP",                 /*  1 x01 Stepper */
- "SEL_TH_ENC",                  /*  2 x02 Encoder */
- "SEL_TH_ISYN_RENC",            /*  3 x03 Int Syn, Runout Enc */
- "SEL_TH_ESYN_RENC",            /*  4 x04 Ext Syn, Runout Enc */
- "SEL_TH_ESYN_RSYN",            /*  5 x05 Ext Syn, Runout Syn */
- "SEL_TH_SYN",                  /*  6 x06 Syn, Runout Syn */
+ "SEL_TH_NO_ENC",               /*  0 x00 'NO' No Encoder */
+ "SEL_TH_STEP",                 /*  1 x01 'ST' Stepper */
+ "SEL_TH_ENC",                  /*  2 x02 'EN' Encoder */
+ "SEL_TH_SYN",                  /*  3 x03 'SY' Syn */
+ "SEL_TH_ISYN",                 /*  4 x04 'IS' Syn */
+ "SEL_TH_ESYN",                 /*  5 x05 'ES' Syn */
 };
 
 #else
 
 extern const char *selThreadList[];
+
+#endif
+
+// runout sync selector
+
+enum SEL_RUNOUT
+{
+ SEL_RU_NO_ENC = 0,             /*  0 x00 'NO' No Encoder */
+ SEL_RU_STEP = 1,               /*  1 x01 'ST' Stepper */
+ SEL_RU_ENC = 2,                /*  2 x02 'EN' Encoder */
+ SEL_RU_SYN = 3,                /*  3 x03 'SY' Syn */
+ SEL_RU_ISYN = 4,               /*  4 x04 'IS' Int Syn */
+ SEL_RU_ESYN = 5,               /*  5 x05 'ES' Ext Syn */
+};
+
+#ifdef ENUM_SEL_RUNOUT
+
+const char *selRunoutList[] = 
+{
+ "SEL_RU_NO_ENC",               /*  0 x00 'NO' No Encoder */
+ "SEL_RU_STEP",                 /*  1 x01 'ST' Stepper */
+ "SEL_RU_ENC",                  /*  2 x02 'EN' Encoder */
+ "SEL_RU_SYN",                  /*  3 x03 'SY' Syn */
+ "SEL_RU_ISYN",                 /*  4 x04 'IS' Int Syn */
+ "SEL_RU_ESYN",                 /*  5 x05 'ES' Ext Syn */
+};
+
+#else
+
+extern const char *selRunoutList[];
 
 #endif
 
@@ -775,35 +805,63 @@ extern const char *riscvRunWaitList[];
 
 #endif
 
-// commands in ctlbits
+// move commands in ctlbits
 
 enum MOVE_CMD
 {
- M_CMD_NONE = 0,                /*  0 x00 'NO' no command */
- M_CMD_MOV = 1,                 /*  1 x01 'MV' move a set distance */
- M_CMD_JOG = 2,                 /*  2 x02 'JG' move while cmd are present */
- M_CMD_SYN = 3,                 /*  3 x03 'SY' move dist synchronized to rotation */
- M_CMD_MAX = 4,                 /*  4 x04 'MX' rapid move */
- M_CMD_SPEED = 5,               /*  5 x05 'CS' jog at speed */
- M_JOG_SLOW = 6,                /*  6 x06 'JS' slow jog for home or probe */
+ CMD_NONE = 0,                  /*  0 x00 'NO' no command */
+ CMD_MOV = 1,                   /*  1 x01 'MV' move a set distance */
+ CMD_JOG = 2,                   /*  2 x02 'JG' move while cmd are present */
+ CMD_SYN = 3,                   /*  3 x03 'SY' move dist synchronized to rotation */
+ CMD_MAX = 4,                   /*  4 x04 'MX' rapid move */
+ CMD_SPEED = 5,                 /*  5 x05 'CS' jog at speed */
+ JOG_SLOW = 6,                  /*  6 x06 'JS' slow jog for home or probe */
 };
 
 #ifdef ENUM_MOVE_CMD
 
 const char *moveCmdList[] = 
 {
- "M_CMD_NONE",                  /*  0 x00 'NO' no command */
- "M_CMD_MOV",                   /*  1 x01 'MV' move a set distance */
- "M_CMD_JOG",                   /*  2 x02 'JG' move while cmd are present */
- "M_CMD_SYN",                   /*  3 x03 'SY' move dist synchronized to rotation */
- "M_CMD_MAX",                   /*  4 x04 'MX' rapid move */
- "M_CMD_SPEED",                 /*  5 x05 'CS' jog at speed */
- "M_JOG_SLOW",                  /*  6 x06 'JS' slow jog for home or probe */
+ "CMD_NONE",                    /*  0 x00 'NO' no command */
+ "CMD_MOV",                     /*  1 x01 'MV' move a set distance */
+ "CMD_JOG",                     /*  2 x02 'JG' move while cmd are present */
+ "CMD_SYN",                     /*  3 x03 'SY' move dist synchronized to rotation */
+ "CMD_MAX",                     /*  4 x04 'MX' rapid move */
+ "CMD_SPEED",                   /*  5 x05 'CS' jog at speed */
+ "JOG_SLOW",                    /*  6 x06 'JS' slow jog for home or probe */
 };
 
 #else
 
 extern const char *moveCmdList[];
+
+#endif
+
+// sync commands in ctlbits
+
+enum SYNC_CMDS
+{
+ M_SYN_NONE = 0,                /*  0 x00 'SN' sync with encoder */
+ M_SYN_ENC = 1,                 /*  1 x01 'SE' sync with encoder */
+ M_SYN_SYNC = 2,                /*  2 x02 'SS' sync with encoder scaler */
+ M_SYN_ENC_RSYNC = 3,           /*  3 x03 'ES' sync encoder runout encoder scaler */
+ M_SYN_ENC_RENC = 4,            /*  4 x04 'EE' sync encoder runout encoder */
+};
+
+#ifdef ENUM_SYNC_CMDS
+
+const char *syncCmdsList[] = 
+{
+ "M_SYN_NONE",                  /*  0 x00 'SN' sync with encoder */
+ "M_SYN_ENC",                   /*  1 x01 'SE' sync with encoder */
+ "M_SYN_SYNC",                  /*  2 x02 'SS' sync with encoder scaler */
+ "M_SYN_ENC_RSYNC",             /*  3 x03 'ES' sync encoder runout encoder scaler */
+ "M_SYN_ENC_RENC",              /*  4 x04 'EE' sync encoder runout encoder */
+};
+
+#else
+
+extern const char *syncCmdsList[];
 
 #endif
 
@@ -824,7 +882,10 @@ enum MOVE_BIT
  M_CLEAR_PROBE = 10,            /* 10 x0a 'CP' move off of probe */
  M_DRO_POS = 11,                /* 11 x0b 'DP' use dro for moving */
  M_DRO_UPD = 12,                /* 12 x0c 'DU' update internal position from dro */
- M_BIT_MAX = 13,                /* 13 x0d 'MX' number of bits */
+ M_ENA_THREAD = 13,             /* 13 x0d 'TH' thread enabled */
+ M_ENA_RUNOUT = 14,             /* 14 x0e 'RO' runout enabled */
+ M_INTERNAL_OP = 15,            /* 15 x0f 'IN' internal operation */
+ M_BIT_MAX = 16,                /* 16 x10 'MX' number of bits */
 };
 
 #ifdef ENUM_MOVE_BIT
@@ -844,7 +905,10 @@ const char *moveBitList[] =
  "M_CLEAR_PROBE",               /* 10 x0a 'CP' move off of probe */
  "M_DRO_POS",                   /* 11 x0b 'DP' use dro for moving */
  "M_DRO_UPD",                   /* 12 x0c 'DU' update internal position from dro */
- "M_BIT_MAX",                   /* 13 x0d 'MX' number of bits */
+ "M_ENA_THREAD",                /* 13 x0d 'TH' thread enabled */
+ "M_ENA_RUNOUT",                /* 14 x0e 'RO' runout enabled */
+ "M_INTERNAL_OP",               /* 15 x0f 'IN' internal operation */
+ "M_BIT_MAX",                   /* 16 x10 'MX' number of bits */
 };
 
 #else
@@ -926,6 +990,40 @@ const char *pauseBitsList[] =
 #else
 
 extern const char *pauseBitsList[];
+
+#endif
+
+// fpga clock values
+
+enum FPGA_CLK_SEL
+{
+ E_CLK_NONE = 0,                /*  0 x00 'NO'  */
+ E_CLK_FREQ = 1,                /*  1 x01 'FR'  */
+ E_CLK_CH = 2,                  /*  2 x02 'CH'  */
+ E_CLK_INT_CLK = 3,             /*  3 x03 'IC'  */
+ E_CLK_SLV_FREQ = 4,            /*  4 x04 'SF'  */
+ E_CLK_SLV_CH = 5,              /*  5 x05 'SC'  */
+ E_CLK_SPINDLE = 6,             /*  6 x06 'SP'  */
+ E_CLK_DBG_FREQ = 7,            /*  7 x07 'DF  */
+};
+
+#ifdef ENUM_FPGA_CLK_SEL
+
+const char *fpgaClkSelList[] = 
+{
+ "E_CLK_NONE",                  /*  0 x00 'NO'  */
+ "E_CLK_FREQ",                  /*  1 x01 'FR'  */
+ "E_CLK_CH",                    /*  2 x02 'CH'  */
+ "E_CLK_INT_CLK",               /*  3 x03 'IC'  */
+ "E_CLK_SLV_FREQ",              /*  4 x04 'SF'  */
+ "E_CLK_SLV_CH",                /*  5 x05 'SC'  */
+ "E_CLK_SPINDLE",               /*  6 x06 'SP'  */
+ "E_CLK_DBG_FREQ",              /*  7 x07 'DF  */
+};
+
+#else
+
+extern const char *fpgaClkSelList[];
 
 #endif
 

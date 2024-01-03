@@ -524,10 +524,10 @@ void lclcmd(int ch)
      if (val != 0)
       rVar.lSyncOutput = val;
     }
-    if (query(&getNum, &val, "prescaler %d: ", rVar.lSyncInPrescaler))
+    if (query(&getNum, &val, "prescaler %d: ", rVar.lSyncInPreScaler))
     {
      if (val != 0)
-      rVar.lSyncInPrescaler = val;
+      rVar.lSyncInPreScaler = val;
     }
     syncStart();
    }

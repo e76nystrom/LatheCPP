@@ -22,9 +22,12 @@ struct S_MOVE_BIT moveBitStr[] =
  {'C', 'P',},            /*  a 10  move off of probe */
  {'D', 'P',},            /*  b 11  use dro for moving */
  {'D', 'U',},            /*  c 12  update internal position from dro */
- {'M', 'X',},            /*  d 13  number of bits */
+ {'T', 'H',},            /*  d 13  thread enabled */
+ {'R', 'O',},            /*  e 14  runout enabled */
+ {'I', 'N',},            /*  f 15  internal operation */
+ {'M', 'X',},            /* 10 16  number of bits */
 };
 
-#define MOVE_BIT_SIZE 14
+#define MOVE_BIT_SIZE 17
 
 #endif  /* MOVE_BIT_INC */
