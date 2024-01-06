@@ -149,6 +149,7 @@
 #define Z_FREQ_SEL           (0x7 << 0) /* 0x007 z clock select */
 #define X_FREQ_SEL           (0x7 << 3) /* 0x038 x clock select */
 #define CLK_DBG_FREQ_ENA     (1 << 6)   /* 0x040 enable debug frequency */
+#define CLK_DBG_SYNC_ENA     (1 << 6)   /* 0x040 enable debug sync */
 #define CLK_CTL_SIZE         7
 
 // clock shift values

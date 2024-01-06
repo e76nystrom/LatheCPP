@@ -27,8 +27,9 @@ enum FPGALATHE
 // debug frequency
 
  F_Ld_Dbg_Freq      = 0,        /* 0x00 'DBF' debug frequency */
- F_Ld_Dbg_Count     = 1,        /* 0x01 'DBC' debug count */
- F_Dbg_Freq_Max     = 2,        /* 0x02 number of debug frequency regs */
+ F_Ld_Dbg_Count     = 1,        /* 0x01 'DBC' debug clock count */
+ F_Ld_Sync_Count    = 2,        /* 0x02 'DBS' debug sync length */
+ F_Dbg_Freq_Max     = 3,        /* 0x03 number of debug frequency regs */
 
 // sync accel
 
@@ -105,21 +106,21 @@ enum FPGALATHE
 
 // spindle speed
 
- F_Rd_Idx_Clks      = 10,       /* 0x0a 'RIDX' clocks per index */
+ F_Rd_Idx_Clks      = 11,       /* 0x0b 'RIDX' clocks per index */
 
 // pwm
 
- F_PWM_Base         = 11,       /* 0x0b 'P' pwm control */
+ F_PWM_Base         = 12,       /* 0x0c 'P' pwm control */
 
 // base for modules
 
- F_Enc_Base         = 13,       /* 0x0d 'E' encoder registers */
- F_Phase_Base       = 17,       /* 0x11 'H' phase registers */
- F_RunOut_Base      = 19,       /* 0x13 'R' runout registers */
- F_ZAxis_Base       = 21,       /* 0x15 'Z' z axis registers */
- F_XAxis_Base       = 45,       /* 0x2d 'X' x axis registers */
- F_Spindle_Base     = 69,       /* 0x45 'S' spindle registers */
- F_Cmd_Max          = 94,       /* 0x5e number of commands */
+ F_Enc_Base         = 14,       /* 0x0e 'E' encoder registers */
+ F_Phase_Base       = 18,       /* 0x12 'H' phase registers */
+ F_RunOut_Base      = 20,       /* 0x14 'R' runout registers */
+ F_ZAxis_Base       = 22,       /* 0x16 'Z' z axis registers */
+ F_XAxis_Base       = 46,       /* 0x2e 'X' x axis registers */
+ F_Spindle_Base     = 70,       /* 0x46 'S' spindle registers */
+ F_Cmd_Max          = 95,       /* 0x5f number of commands */
 };
 
 #endif  /* FPGA_LATHE */

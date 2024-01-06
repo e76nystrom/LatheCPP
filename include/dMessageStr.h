@@ -14,7 +14,7 @@ struct S_D_MESSAGE dMessageStr[] =
  {'P', 'A', 'S', 'S',},  /*  0  0  pass done */
  {'D', 'O', 'N', 'E',},  /*  1  1  all operations done */
  {'T', 'E', 'S', 'T',},  /*  2  2  test message */
- {'H', 'S', 'T', ' ',},  /*  3  3  home state */
+ {'H', 'S', 'T', 'A',},  /*  3  3  home state */
  {'M', 'S', 'T', 'A',},  /*  4  4  move state */
  {'M', 'C', 'M', 'D',},  /*  5  5  move command */
  {'X', 'B', 'A', 'S',},  /*  6  6  x base */
@@ -31,12 +31,12 @@ struct S_D_MESSAGE dMessageStr[] =
  {'X', 'P', 'D', 'R',},  /* 11 17  x pass dro location */
  {'X', 'E', 'X', 'P',},  /* 12 18  x expected location */
  {'X', 'E', 'R', 'R',},  /* 13 19  x error with respect to dro */
- {'X', 'W', 'T', ' ',},  /* 14 20  x wait */
- {'X', 'D', 'N', ' ',},  /* 15 21  x done */
+ {'X', 'W', 'A', 'T',},  /* 14 20  x wait */
+ {'X', 'D', 'N', 'E',},  /* 15 21  x done */
  {'X', 'E', 'S', 'T',},  /* 16 22  x spindle encoder start count */
  {'X', 'E', 'D', 'N',},  /* 17 23  x spindle encoder done count */
- {'X', 'X', ' ', ' ',},  /* 18 24  x  */
- {'X', 'Y', ' ', ' ',},  /* 19 25  x  */
+ {'X', 'I', 'C', 'T',},  /* 18 24  x input count */
+ {'X', 'O', 'C', 'T',},  /* 19 25  x output count */
  {'X', 'I', 'D', 'R',},  /* 1a 26  x dro at index pulse */
  {'X', 'I', 'P', 'O',},  /* 1b 27  x position at index pulse */
  {'Z', 'B', 'A', 'S',},  /* 1c 28  Z base */
@@ -53,12 +53,12 @@ struct S_D_MESSAGE dMessageStr[] =
  {'Z', 'P', 'D', 'R',},  /* 27 39  z pass dro location */
  {'Z', 'E', 'X', 'P',},  /* 28 40  z expected location */
  {'Z', 'E', 'R', 'R',},  /* 29 41  z error with respect to dro */
- {'Z', 'W', 'T', ' ',},  /* 2a 42  z wait */
- {'Z', 'D', 'N', ' ',},  /* 2b 43  z done */
+ {'Z', 'W', 'A', 'T',},  /* 2a 42  z wait */
+ {'Z', 'D', 'N', 'E',},  /* 2b 43  z done */
  {'Z', 'E', 'S', 'T',},  /* 2c 44  z spindle encoder start count */
  {'Z', 'E', 'D', 'N',},  /* 2d 45  Z spindle encoder done count */
- {'Z', 'X', ' ', ' ',},  /* 2e 46  z  */
- {'Z', 'Y', ' ', ' ',},  /* 2f 47  z  */
+ {'Z', 'I', 'C', 'T',},  /* 2e 46  z input count */
+ {'Z', 'O', 'C', 'T',},  /* 2f 47  z output count */
  {'Z', 'I', 'D', 'R',},  /* 30 48  z dro at index pulse */
  {'Z', 'I', 'P', 'O',},  /* 31 49  z position at index pulse */
  {'M', 'A', 'X', ' ',},  /* 32 50  debug maximum */

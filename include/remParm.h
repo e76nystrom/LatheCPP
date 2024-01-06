@@ -283,70 +283,69 @@ enum REM_PARM_DEF
  TH_X_START,                    /* 0xa3 threading x start */
  TAN_THREAD_ANGLE,              /* 0xa4 tan of threading angle */
  X_FEED,                        /* 0xa5 x feed */
- RUNOUT_LIMIT,                  /* 0xa6 encoder steps to runout */
- RUNOUT_DISTANCE,               /* 0xa7 runout distance */
- RUNOUT_DEPTH,                  /* 0xa8 runout depth */
+ RUNOUT_DIST,                   /* 0xa6 runout distance */
+ RUNOUT_DEPTH,                  /* 0xa7 runout depth */
 
 // jog debug
 
- JOG_DEBUG,                     /* 0xa9 jog interrupt debug */
+ JOG_DEBUG,                     /* 0xa8 jog interrupt debug */
 
 // motor and speed control
 
- PWM_FREQ,                      /* 0xaa spindle speed pwm frequency */
- MIN_SPEED,                     /* 0xab min speed for current range */
- MAX_SPEED,                     /* 0xac max speed for current range */
+ PWM_FREQ,                      /* 0xa9 spindle speed pwm frequency */
+ MIN_SPEED,                     /* 0xaa min speed for current range */
+ MAX_SPEED,                     /* 0xab max speed for current range */
 
 // current operation
 
- CURRENT_OP,                    /* 0xad current operation */
+ CURRENT_OP,                    /* 0xac current operation */
 
 // global limits and home
 
- LIMIT_OVERRIDE,                /* 0xae override limit switches */
- COMMON_LIMITS,                 /* 0xaf all limit switches one pin */
- LIMITS_ENABLED,                /* 0xb0 limits enabled */
- COMMON_HOME,                   /* 0xb1 all home switches one pin */
+ LIMIT_OVERRIDE,                /* 0xad override limit switches */
+ COMMON_LIMITS,                 /* 0xae all limit switches one pin */
+ LIMITS_ENABLED,                /* 0xaf limits enabled */
+ COMMON_HOME,                   /* 0xb0 all home switches one pin */
 
 // z limits and home
 
- Z_LIM_ENA,                     /* 0xb2 z limit enable */
- Z_LIM_NEG_INV,                 /* 0xb3 z negative limit invert */
- Z_LIM_POS_INV,                 /* 0xb4 z Positive limit Invert */
- Z_HOME_ENA,                    /* 0xb5 z home enable */
- Z_HOME_INV,                    /* 0xb6 z home invert */
+ Z_LIM_ENA,                     /* 0xb1 z limit enable */
+ Z_LIM_NEG_INV,                 /* 0xb2 z negative limit invert */
+ Z_LIM_POS_INV,                 /* 0xb3 z Positive limit Invert */
+ Z_HOME_ENA,                    /* 0xb4 z home enable */
+ Z_HOME_INV,                    /* 0xb5 z home invert */
 
 // x limits and home
 
- X_LIM_ENA,                     /* 0xb7 x limit enable */
- X_LIM_NEG_INV,                 /* 0xb8 x negative limit invert */
- X_LIM_POS_INV,                 /* 0xb9 x Positive limit Invert */
- X_HOME_ENA,                    /* 0xba x home enable */
- X_HOME_INV,                    /* 0xbb x home invert */
+ X_LIM_ENA,                     /* 0xb6 x limit enable */
+ X_LIM_NEG_INV,                 /* 0xb7 x negative limit invert */
+ X_LIM_POS_INV,                 /* 0xb8 x Positive limit Invert */
+ X_HOME_ENA,                    /* 0xb9 x home enable */
+ X_HOME_INV,                    /* 0xba x home invert */
 
 // e stop
 
- E_STOP_ENA,                    /* 0xbc enable estop */
- E_STOP_INV,                    /* 0xbd invert estop signal */
+ E_STOP_ENA,                    /* 0xbb enable estop */
+ E_STOP_INV,                    /* 0xbc invert estop signal */
 
 // command pause
 
- CMD_PAUSED,                    /* 0xbe move commands paused */
+ CMD_PAUSED,                    /* 0xbd move commands paused */
 
 // arc parameters
 
- ARC_RADIUS,                    /* 0xbf arc radius */
- ARC_X_CENTER,                  /* 0xc0 arc x center */
- ARC_Z_CENTER,                  /* 0xc1 arc z center */
- ARC_X_START,                   /* 0xc2 arc x start */
- ARC_Z_START,                   /* 0xc3 arc z start */
- ARC_X_END,                     /* 0xc4 arc x center */
- ARC_Z_END,                     /* 0xc5 arc z center */
- MEGA_VFD,                      /* 0xc6 mega vfd speed mode */
- MEGA_SIM,                      /* 0xc7 mega encoder lines */
- USB_ENA,                       /* 0xc8 enable usb */
- DRO_STEP,                      /* 0xc9 step pulse drives dro */
- MAX_PARM,                      /* 0xca maximum parameter */
+ ARC_RADIUS,                    /* 0xbe arc radius */
+ ARC_X_CENTER,                  /* 0xbf arc x center */
+ ARC_Z_CENTER,                  /* 0xc0 arc z center */
+ ARC_X_START,                   /* 0xc1 arc x start */
+ ARC_Z_START,                   /* 0xc2 arc z start */
+ ARC_X_END,                     /* 0xc3 arc x center */
+ ARC_Z_END,                     /* 0xc4 arc z center */
+ MEGA_VFD,                      /* 0xc5 mega vfd speed mode */
+ MEGA_SIM,                      /* 0xc6 mega encoder lines */
+ USB_ENA,                       /* 0xc7 enable usb */
+ DRO_STEP,                      /* 0xc8 step pulse drives dro */
+ MAX_PARM,                      /* 0xc9 maximum parameter */
 };
 
 #endif  /* REM_PARM_INC */

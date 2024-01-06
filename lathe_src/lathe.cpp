@@ -5823,7 +5823,7 @@ void procMove()
 
    case Q_Z_SYN_SETUP:
     mv->zFeed = cmd->val;
-    zSynSetup(mv->feedType, cmd->val, rVar.runoutDistance, rVar.runoutDepth);
+    zSynSetup(mv->feedType, cmd->val, rVar.runoutDist, rVar.runoutDepth);
     done = 0;
     break;
 

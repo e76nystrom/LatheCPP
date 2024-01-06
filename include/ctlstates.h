@@ -292,7 +292,7 @@ enum D_MESSAGE
  D_PASS = 0,                    /*  0 x00 'PASS' pass done */
  D_DONE = 1,                    /*  1 x01 'DONE' all operations done */
  D_TEST = 2,                    /*  2 x02 'TEST' test message */
- D_HST = 3,                     /*  3 x03 'HST ' home state */
+ D_HST = 3,                     /*  3 x03 'HSTA' home state */
  D_MSTA = 4,                    /*  4 x04 'MSTA' move state */
  D_MCMD = 5,                    /*  5 x05 'MCMD' move command */
  D_XBASE = 6,                   /*  6 x06 'XBAS' x base */
@@ -309,12 +309,12 @@ enum D_MESSAGE
  D_XPDRO = 17,                  /* 17 x11 'XPDR' x pass dro location */
  D_XEXP = 18,                   /* 18 x12 'XEXP' x expected location */
  D_XERR = 19,                   /* 19 x13 'XERR' x error with respect to dro */
- D_XWT = 20,                    /* 20 x14 'XWT ' x wait */
- D_XDN = 21,                    /* 21 x15 'XDN ' x done */
+ D_XWT = 20,                    /* 20 x14 'XWAT' x wait */
+ D_XDN = 21,                    /* 21 x15 'XDNE' x done */
  D_XEST = 22,                   /* 22 x16 'XEST' x spindle encoder start count */
  D_XEDN = 23,                   /* 23 x17 'XEDN' x spindle encoder done count */
- D_XX = 24,                     /* 24 x18 'XX  ' x  */
- D_XY = 25,                     /* 25 x19 'XY  ' x  */
+ D_XX = 24,                     /* 24 x18 'XICT' x input count */
+ D_XY = 25,                     /* 25 x19 'XOCT' x output count */
  D_XIDXD = 26,                  /* 26 x1a 'XIDR' x dro at index pulse */
  D_XIDXP = 27,                  /* 27 x1b 'XIPO' x position at index pulse */
  D_ZBASE = 28,                  /* 28 x1c 'ZBAS' Z base */
@@ -331,12 +331,12 @@ enum D_MESSAGE
  D_ZPDRO = 39,                  /* 39 x27 'ZPDR' z pass dro location */
  D_ZEXP = 40,                   /* 40 x28 'ZEXP' z expected location */
  D_ZERR = 41,                   /* 41 x29 'ZERR' z error with respect to dro */
- D_ZWT = 42,                    /* 42 x2a 'ZWT ' z wait */
- D_ZDN = 43,                    /* 43 x2b 'ZDN ' z done */
+ D_ZWT = 42,                    /* 42 x2a 'ZWAT' z wait */
+ D_ZDN = 43,                    /* 43 x2b 'ZDNE' z done */
  D_ZEST = 44,                   /* 44 x2c 'ZEST' z spindle encoder start count */
  D_ZEDN = 45,                   /* 45 x2d 'ZEDN' Z spindle encoder done count */
- D_ZX = 46,                     /* 46 x2e 'ZX  ' z  */
- D_ZY = 47,                     /* 47 x2f 'ZY  ' z  */
+ D_ZX = 46,                     /* 46 x2e 'ZICT' z input count */
+ D_ZY = 47,                     /* 47 x2f 'ZOCT' z output count */
  D_ZIDXD = 48,                  /* 48 x30 'ZIDR' z dro at index pulse */
  D_ZIDXP = 49,                  /* 49 x31 'ZIPO' z position at index pulse */
  D_MAX = 50,                    /* 50 x32 'MAX ' debug maximum */
@@ -349,7 +349,7 @@ const char *dMessageList[] =
  "D_PASS",                      /*  0 x00 'PASS' pass done */
  "D_DONE",                      /*  1 x01 'DONE' all operations done */
  "D_TEST",                      /*  2 x02 'TEST' test message */
- "D_HST",                       /*  3 x03 'HST ' home state */
+ "D_HST",                       /*  3 x03 'HSTA' home state */
  "D_MSTA",                      /*  4 x04 'MSTA' move state */
  "D_MCMD",                      /*  5 x05 'MCMD' move command */
  "D_XBASE",                     /*  6 x06 'XBAS' x base */
@@ -366,12 +366,12 @@ const char *dMessageList[] =
  "D_XPDRO",                     /* 17 x11 'XPDR' x pass dro location */
  "D_XEXP",                      /* 18 x12 'XEXP' x expected location */
  "D_XERR",                      /* 19 x13 'XERR' x error with respect to dro */
- "D_XWT",                       /* 20 x14 'XWT ' x wait */
- "D_XDN",                       /* 21 x15 'XDN ' x done */
+ "D_XWT",                       /* 20 x14 'XWAT' x wait */
+ "D_XDN",                       /* 21 x15 'XDNE' x done */
  "D_XEST",                      /* 22 x16 'XEST' x spindle encoder start count */
  "D_XEDN",                      /* 23 x17 'XEDN' x spindle encoder done count */
- "D_XX",                        /* 24 x18 'XX  ' x  */
- "D_XY",                        /* 25 x19 'XY  ' x  */
+ "D_XX",                        /* 24 x18 'XICT' x input count */
+ "D_XY",                        /* 25 x19 'XOCT' x output count */
  "D_XIDXD",                     /* 26 x1a 'XIDR' x dro at index pulse */
  "D_XIDXP",                     /* 27 x1b 'XIPO' x position at index pulse */
  "D_ZBASE",                     /* 28 x1c 'ZBAS' Z base */
@@ -388,12 +388,12 @@ const char *dMessageList[] =
  "D_ZPDRO",                     /* 39 x27 'ZPDR' z pass dro location */
  "D_ZEXP",                      /* 40 x28 'ZEXP' z expected location */
  "D_ZERR",                      /* 41 x29 'ZERR' z error with respect to dro */
- "D_ZWT",                       /* 42 x2a 'ZWT ' z wait */
- "D_ZDN",                       /* 43 x2b 'ZDN ' z done */
+ "D_ZWT",                       /* 42 x2a 'ZWAT' z wait */
+ "D_ZDN",                       /* 43 x2b 'ZDNE' z done */
  "D_ZEST",                      /* 44 x2c 'ZEST' z spindle encoder start count */
  "D_ZEDN",                      /* 45 x2d 'ZEDN' Z spindle encoder done count */
- "D_ZX",                        /* 46 x2e 'ZX  ' z  */
- "D_ZY",                        /* 47 x2f 'ZY  ' z  */
+ "D_ZX",                        /* 46 x2e 'ZICT' z input count */
+ "D_ZY",                        /* 47 x2f 'ZOCT' z output count */
  "D_ZIDXD",                     /* 48 x30 'ZIDR' z dro at index pulse */
  "D_ZIDXP",                     /* 49 x31 'ZIPO' z position at index pulse */
  "D_MAX",                       /* 50 x32 'MAX ' debug maximum */
@@ -721,27 +721,29 @@ extern const char *accelBaseList[];
 
 // riscv axis states
 
-enum RISCV_AXIS_STATE_TYPE
+enum RISCV_AXIS_STATE
 {
- RS_IDLE = 0,                   /*  0 x00  */
- RS_WAIT_BACKLASH = 1,          /*  1 x01  */
- RS_WAIT = 2,                   /*  2 x02  */
- RS_WAIT_TAPER = 3,             /*  3 x03  */
+ RS_IDLE = 0,                   /*  0 x00 'ID' idle */
+ RS_WAIT_BACKLASH = 1,          /*  1 x01 'WB' wait backlash */
+ RS_WAIT = 2,                   /*  2 x02 'WD' wait done */
+ RS_WAIT_TAPER = 3,             /*  3 x03 'WT' wait taper */
+ RS_WAIT_RUNOUT = 4,            /*  4 x04 'WR' wait runout */
 };
 
-#ifdef ENUM_RISCV_AXIS_STATE_TYPE
+#ifdef ENUM_RISCV_AXIS_STATE
 
-const char *RiscvAxisStateTypeList[] = 
+const char *riscvAxisStateList[] = 
 {
- "RS_IDLE",                     /*  0 x00  */
- "RS_WAIT_BACKLASH",            /*  1 x01  */
- "RS_WAIT",                     /*  2 x02  */
- "RS_WAIT_TAPER",               /*  3 x03  */
+ "RS_IDLE",                     /*  0 x00 'ID' idle */
+ "RS_WAIT_BACKLASH",            /*  1 x01 'WB' wait backlash */
+ "RS_WAIT",                     /*  2 x02 'WD' wait done */
+ "RS_WAIT_TAPER",               /*  3 x03 'WT' wait taper */
+ "RS_WAIT_RUNOUT",              /*  4 x04 'WR' wait runout */
 };
 
 #else
 
-extern const char *RiscvAxisStateTypeList[];
+extern const char *riscvAxisStateList[];
 
 #endif
 
